@@ -27,10 +27,16 @@
   <ItemGroup>
     <None Remove="Persistence\" />
     <None Remove="Persistence\Settings\" />
+    <None Remove="Presentation\" />
+    <None Remove="Presentation\Controllers\" />
+    <None Remove="Presentation\Controllers\Security\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Persistence\" />
     <Folder Include="Persistence\Settings\" />
+    <Folder Include="Presentation\" />
+    <Folder Include="Presentation\Controllers\" />
+    <Folder Include="Presentation\Controllers\Security\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\UserIdentity\UserIdentity.csproj" />

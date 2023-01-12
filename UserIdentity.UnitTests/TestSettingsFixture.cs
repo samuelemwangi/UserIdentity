@@ -9,7 +9,6 @@ namespace UserIdentity.UnitTests
     {
         public IConfiguration Configuration { get; internal set; }
         public Dictionary<String, String> Props {get; internal set;}
-        private static int heats =  0;
 
         public TestSettingsFixture()
         {
@@ -33,9 +32,6 @@ namespace UserIdentity.UnitTests
 
         public Dictionary<String, String> GetProps()
         {
-            Console.WriteLine("---------");
-            Console.WriteLine("::" + ++heats + "::");
-            Console.WriteLine("---------");
             Dictionary<String, String> props = new Dictionary<string, string>();
             String filePath = ".env";
             if (!File.Exists(filePath))
