@@ -20,35 +20,43 @@ namespace UserIdentity.Infrastructure.Security
 			_configuration = configuration;
 		}
 
-		public string GetAlgorithm()
+		public String GetAlgorithm()
 		{
 			return _keySetConfigurationSection[nameof(KeySetOptions.Alg)] ?? SecurityAlgorithms.HmacSha256;
 		}
 
-		public string GetKeyType()
+		public String GetKeyType()
 		{
 			return _keySetConfigurationSection[nameof(KeySetOptions.KeyType)] ?? "oct";
 		}
 
-		public string GetKeyId()
+		public String GetKeyId()
 		{
-			string keyId =  _keySetConfigurationSection[nameof(KeySetOptions.KeyId)] ?? "NYAMASHOPV1";
+			String? envKeyId = _configuration.GetValue<String>("APP_KEY_ID");
+
+			String keyId = String.IsNullOrEmpty(envKeyId)
+				? _keySetConfigurationSection[nameof(KeySetOptions.KeyId)] ?? "APPV1KEYID"
+				: envKeyId;
+
 			return Base64UrlEncoder.Encode(keyId);
 		}
 
-		public string GetSecretKey()
+		public String GetSecretKey()
 		{
-			string? envSecretKey = _configuration.GetValue<string?>("SECRET_KEY");
+			String? envSecretKey = _configuration.GetValue<String?>("APP_SECRET_KEY");
 
-			string? secretKey = string.IsNullOrEmpty(envSecretKey) ? _keySetConfigurationSection[nameof(KeySetOptions.SecretKey)] : envSecretKey;
+			String? secretKey = String.IsNullOrEmpty(envSecretKey)
+				? _keySetConfigurationSection[nameof(KeySetOptions.SecretKey)] ?? "KEY198*£%&YEK+OP}L"
+				: envSecretKey;
 
-			return secretKey ?? "KEY198*£%&YEK+OP}L";
+			return secretKey;
 		}
 
 		public SymmetricSecurityKey GetSigningKey()
 		{
 			return new SymmetricSecurityKey(Encoding.ASCII.GetBytes(GetSecretKey()));
 		}
+
 		public string GetBase64URLEncodedSecretKey()
 		{
 

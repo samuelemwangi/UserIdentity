@@ -7,8 +7,8 @@ namespace UserIdentity.UnitTests
 {
     public class TestSettingsFixture : IDisposable
     {
-        public IConfiguration Configuration { get; init; }
-        public Dictionary<String, String> Props {get; init;}
+        public IConfiguration Configuration { get; internal set; }
+        public Dictionary<String, String> Props {get; internal set;}
         private static int heats =  0;
 
         public TestSettingsFixture()
@@ -18,13 +18,13 @@ namespace UserIdentity.UnitTests
             foreach (var prop in Props)
                 Environment.SetEnvironmentVariable(prop.Key, prop.Value + "");
 
-            Configuration = SetConfiguration();
+             SetConfiguration();
 
         }
 
-        public IConfiguration SetConfiguration()
+        public void SetConfiguration()
         {
-            return new ConfigurationBuilder()
+            Configuration =  new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true)
                 .AddEnvironmentVariables()
