@@ -12,7 +12,7 @@
 
 		public String? Password { get; set; }
 
-		public String ConnectionString(IConfiguration configuration) => ($"Server={Host};Database={Database};User={UserName};Password={Password};")
+		public String ConnectionString(IConfiguration configuration) => ($"Server={Host};Port={Port};Database={Database};User={UserName};Password={Password};")
 			.Replace("DB_SERVER", configuration.GetValue<String>("DB_SERVER"))
             .Replace("DB_PORT", configuration.GetValue<String>("DB_PORT"))
             .Replace("DB_NAME", configuration.GetValue<String>("DB_NAME"))

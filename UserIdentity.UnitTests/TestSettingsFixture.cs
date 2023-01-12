@@ -8,12 +8,14 @@ namespace UserIdentity.UnitTests
     public class TestSettingsFixture : IDisposable
     {
         public IConfiguration Configuration { get; init; }
+        public Dictionary<String, String> Props {get; init;}
         private static int heats =  0;
 
         public TestSettingsFixture()
         {
+            Props =  GetProps();
 
-            foreach (var prop in GetProps())
+            foreach (var prop in Props)
                 Environment.SetEnvironmentVariable(prop.Key, prop.Value + "");
 
             Configuration = SetConfiguration();
