@@ -9,32 +9,32 @@ using Xunit;
 
 namespace UserIdentity.UnitTests.Presentation.Controllers.Security
 {
-	public class JWKSControllerTest: IClassFixture<TestSettingsFixture>
-	{
-		private readonly TestSettingsFixture _testSettings;
-		private readonly IKeySetFactory _keySetFactory;
-		private readonly JWKSController _jWKSController;
+    public class JWKSControllerTest : IClassFixture<TestSettingsFixture>
+    {
+        private readonly TestSettingsFixture _testSettings;
+        private readonly IKeySetFactory _keySetFactory;
+        private readonly JWKSController _jWKSController;
 
         public JWKSControllerTest(TestSettingsFixture testSettings)
-		{
-			_testSettings = testSettings;
-			_keySetFactory = new KeySetFactory(_testSettings.Configuration);
-			_jWKSController = new JWKSController(new GetKeySetsQueryHandler(_keySetFactory));
-				
-		}
+        {
+            _testSettings = testSettings;
+            _keySetFactory = new KeySetFactory(_testSettings.Configuration);
+            _jWKSController = new JWKSController(new GetKeySetsQueryHandler(_keySetFactory));
 
-		[Fact]
-		public void Get_KeySets_Returns_KeySets()
-		{
-			var actionResult = _jWKSController.GetKeySets();
-			var result = actionResult as OkObjectResult;
-			var kvp = result?.Value as Dictionary<String, IList<Dictionary<String, String>>>;
+        }
+
+        [Fact]
+        public void Get_KeySets_Returns_KeySets()
+        {
+            var actionResult = _jWKSController.GetKeySets();
+            var result = actionResult as OkObjectResult;
+            var kvp = result?.Value as Dictionary<String, IList<Dictionary<String, String>>>;
 
 
             Assert.NotNull(result);
-			Assert.IsType<Dictionary<String, IList<Dictionary<String, String>>>>(result?.Value);
-			Assert.NotNull(kvp?["keys"]);
+            Assert.IsType<Dictionary<String, IList<Dictionary<String, String>>>>(result?.Value);
+            Assert.NotNull(kvp?["keys"]);
         }
-	}
+    }
 }
 
