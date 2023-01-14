@@ -22,6 +22,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="FakeItEasy" Version="7.3.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -30,6 +31,11 @@
     <None Remove="Presentation\" />
     <None Remove="Presentation\Controllers\" />
     <None Remove="Presentation\Controllers\Security\" />
+    <None Remove="FakeItEasy" />
+    <None Remove="Moq" />
+    <None Remove="Application\" />
+    <None Remove="Application\Core\" />
+    <None Remove="Application\Core\Extensions\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Persistence\" />
@@ -37,6 +43,9 @@
     <Folder Include="Presentation\" />
     <Folder Include="Presentation\Controllers\" />
     <Folder Include="Presentation\Controllers\Security\" />
+    <Folder Include="Application\" />
+    <Folder Include="Application\Core\" />
+    <Folder Include="Application\Core\Extensions\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\UserIdentity\UserIdentity.csproj" />

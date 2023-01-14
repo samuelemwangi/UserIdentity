@@ -11,6 +11,7 @@ namespace UserIdentity.Application.Core.Errors.Queries.GerError
 		public string? ErrorMessage { get; internal set; }
 		public string? StatusMessage { get; internal set; }
 	}
+
 	public class GetErrorQueryHandler
 	{
 		private readonly IMachineDateTime _machineDateTime;

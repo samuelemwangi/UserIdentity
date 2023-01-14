@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using UserIdentity.Application.Core.KeySets.Queries.GetKeySets;
 using UserIdentity.Application.Interfaces.Security;
 using UserIdentity.Infrastructure.Security;
@@ -34,6 +35,12 @@ namespace UserIdentity.UnitTests.Presentation.Controllers.Security
             Assert.NotNull(result);
             Assert.IsType<Dictionary<String, IList<Dictionary<String, String>>>>(result?.Value);
             Assert.NotNull(kvp?["keys"]);
+
+            Assert.Equal(kvp?["keys"]?[0]["alg"], _testSettings.Configuration.GetSection("KeySetOptions")["Alg"]);
+            Assert.Equal(kvp?["keys"]?[0]["kty"], _testSettings.Configuration.GetSection("KeySetOptions")["KeyType"]);
+            Assert.Equal(kvp?["keys"]?[0]["kid"], Base64UrlEncoder.Encode(_testSettings.Props["APP_KEY_ID"]));
+            Assert.Equal(kvp?["keys"]?[0]["k"], Base64UrlEncoder.Encode(_testSettings.Props["APP_SECRET_KEY"]));
+
         }
     }
 }
