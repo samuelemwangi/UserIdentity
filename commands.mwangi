@@ -1,0 +1,7 @@
+# Run tests with Coverage
+dotnet test --collect:"XPlat Code Coverage"
+# Generate Coverage Report
+reportgenerator
+-reports:"Path\To\TestProject\TestResults\{guid}\coverage.cobertura.xml"
+-targetdir:"coveragereport"
+-reporttypes:Html
