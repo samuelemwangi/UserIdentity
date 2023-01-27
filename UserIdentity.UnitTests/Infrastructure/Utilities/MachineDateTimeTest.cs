@@ -7,6 +7,26 @@ namespace UserIdentity.UnitTests.Infrastructure.Utilities
 {
     public class MachineDateTimeTest
     {
+        [Fact]
+        public void Get_CurrentYear_Returns_CurrentYear()
+        {
+            Assert.IsType<Int32>(MachineDateTime.CurrentYear);
+            Assert.Equal(DateTime.UtcNow.Year, MachineDateTime.CurrentYear);
+        }
+
+        [Fact]
+        public void Get_CurrentMonth_Returns_CurrentMonth()
+        {
+            Assert.IsType<Int32>(MachineDateTime.CurrentMonth);
+            Assert.Equal(DateTime.UtcNow.Month, MachineDateTime.CurrentMonth);
+        }
+
+        [Fact]
+        public void Get_DefaultNull_Returns_DefaultNull()
+        {
+            MachineDateTime machineDateTime = new MachineDateTime();
+            Assert.Null(machineDateTime.DefaultNull);
+        }
 
         [Fact]
         public void Get_TimeStamp_Returns_TimeStamp()
