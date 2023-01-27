@@ -8,8 +8,8 @@ namespace UserIdentity.Application.Core.Errors.Queries.GerError
 	public record GetErrorQuery
 	{
 		public Exception Exception { get; internal set; }
-		public string? ErrorMessage { get; internal set; }
-		public string? StatusMessage { get; internal set; }
+		public String? ErrorMessage { get; internal set; }
+		public String? StatusMessage { get; internal set; }
 	}
 
 	public class GetErrorQueryHandler
@@ -17,6 +17,7 @@ namespace UserIdentity.Application.Core.Errors.Queries.GerError
 		private readonly IMachineDateTime _machineDateTime;
 		private readonly IStringHelper _stringHelper;
 		private readonly ILogHelper<GetErrorQueryHandler> _logHelper;
+
 		public GetErrorQueryHandler(IMachineDateTime machineDateTime, IStringHelper stringHelper, ILogHelper<GetErrorQueryHandler> logHelper)
 		{
 			_machineDateTime = machineDateTime;
@@ -40,7 +41,7 @@ namespace UserIdentity.Application.Core.Errors.Queries.GerError
 				Error = errorDTO,
 			};
 
-			string statusMessage = query.StatusMessage != null ? _stringHelper.AddSpacesToSentence(query.StatusMessage, true).ToUpper() : "";
+			String statusMessage = query.StatusMessage != null ? _stringHelper.AddSpacesToSentence(query.StatusMessage, true).ToUpper() : "";
 
 			errorVM.ResolveRequestStatus(RequestStatus.FAILED, ItemStatusMessage.FAILED, statusMessage);
 

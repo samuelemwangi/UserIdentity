@@ -36,6 +36,7 @@
     <None Remove="Application\" />
     <None Remove="Application\Core\" />
     <None Remove="Application\Core\Extensions\" />
+    <None Remove="Application\Core\Errors\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Persistence\" />
@@ -46,6 +47,7 @@
     <Folder Include="Application\" />
     <Folder Include="Application\Core\" />
     <Folder Include="Application\Core\Extensions\" />
+    <Folder Include="Application\Core\Errors\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\UserIdentity\UserIdentity.csproj" />
