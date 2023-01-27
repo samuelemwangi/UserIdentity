@@ -7,6 +7,7 @@ namespace UserIdentity.Infrastructure.Utilities
 		public static Int32 CurrentYear => DateTime.UtcNow.Year;
 
 		public static Int32 CurrentMonth => DateTime.UtcNow.Month;
+
 		public DateTime? DefaultNull => null;
 
 		public DateTime Now => DateTime.UtcNow;
