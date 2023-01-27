@@ -18,6 +18,7 @@ namespace UserIdentity.UnitTests.Infrastructure.Utilities
 
             StringHelper stringHelper = new StringHelper();
 
+            Assert.Equal(String.Empty, stringHelper.AddSpacesToSentence("", true));
             Assert.Equal(expectedAString, stringHelper.AddSpacesToSentence(originalAString, true));
             Assert.Equal(expectedBString, stringHelper.AddSpacesToSentence(originalBString, true));
         }
