@@ -2,6 +2,7 @@
 using FakeItEasy;
 using UserIdentity.Application.Core.Errors.Queries.GerError;
 using UserIdentity.Application.Core.Errors.ViewModels;
+using UserIdentity.Application.Enums;
 using UserIdentity.Application.Interfaces.Utilities;
 using Xunit;
 
@@ -41,6 +42,17 @@ namespace UserIdentity.UnitTests.Application.Core.Errors
             var result = errorVM.Result as ErrorViewModel;
 
             Assert.NotNull(result);
+
+            Assert.Equal(result.StatusMessage, statusMessage);
+            Assert.Equal(result.RequestStatus, RequestStatus.FAILED.GetDisplayName());
+
+            Assert.NotNull(result.Error);
+
+            Assert.IsType<String>(result.Error?.Message);
+            Assert.NotNull(result.Error?.Message);
+
+            Assert.IsType<DateTime>(result.Error?.Timestamp);
+            Assert.NotNull(result.Error?.Timestamp);
 
         }
     }
