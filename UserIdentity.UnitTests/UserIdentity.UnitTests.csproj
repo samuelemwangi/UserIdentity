@@ -37,6 +37,8 @@
     <None Remove="Application\Core\" />
     <None Remove="Application\Core\Extensions\" />
     <None Remove="Application\Core\Errors\" />
+    <None Remove="Application\Core\KeySets\" />
+    <None Remove="Infrastructure\Utilities\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Persistence\" />
@@ -48,6 +50,8 @@
     <Folder Include="Application\Core\" />
     <Folder Include="Application\Core\Extensions\" />
     <Folder Include="Application\Core\Errors\" />
+    <Folder Include="Application\Core\KeySets\" />
+    <Folder Include="Infrastructure\Utilities\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\UserIdentity\UserIdentity.csproj" />

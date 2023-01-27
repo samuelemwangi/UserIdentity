@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Net;
 using FakeItEasy;
+using Microsoft.AspNetCore.Http;
 using UserIdentity.Application.Core.Errors.Queries.GerError;
 using UserIdentity.Application.Core.Errors.ViewModels;
 using UserIdentity.Application.Enums;
 using UserIdentity.Application.Interfaces.Utilities;
+using UserIdentity.Infrastructure.Utilities;
 using Xunit;
 
 namespace UserIdentity.UnitTests.Application.Core.Errors
@@ -17,8 +20,8 @@ namespace UserIdentity.UnitTests.Application.Core.Errors
 
         public GetErrorQueryHandlerTest()
         {
-            _machineDateTime = A.Fake<IMachineDateTime>();
-            _stringHelper = A.Fake<IStringHelper>();
+            _machineDateTime = new MachineDateTime();
+            _stringHelper = new StringHelper();
             _logHelper = A.Fake<ILogHelper<GetErrorQueryHandler>>();
         }
 
@@ -27,6 +30,7 @@ namespace UserIdentity.UnitTests.Application.Core.Errors
         {
             String errorMessage = "Testing error message";
             String statusMessage = "Failed badly";
+           
 
             GetErrorQuery query = new GetErrorQuery
             {
@@ -43,7 +47,7 @@ namespace UserIdentity.UnitTests.Application.Core.Errors
 
             Assert.NotNull(result);
 
-            Assert.Equal(result.StatusMessage, statusMessage);
+            Assert.Equal(result.StatusMessage, statusMessage.ToUpper());
             Assert.Equal(result.RequestStatus, RequestStatus.FAILED.GetDisplayName());
 
             Assert.NotNull(result.Error);

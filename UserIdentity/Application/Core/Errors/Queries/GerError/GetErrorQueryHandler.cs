@@ -41,9 +41,13 @@ namespace UserIdentity.Application.Core.Errors.Queries.GerError
 				Error = errorDTO,
 			};
 
+			Console.WriteLine(query.StatusMessage + "+++++++");
+
 			String statusMessage = query.StatusMessage != null ? _stringHelper.AddSpacesToSentence(query.StatusMessage, true).ToUpper() : "";
 
-			errorVM.ResolveRequestStatus(RequestStatus.FAILED, ItemStatusMessage.FAILED, statusMessage);
+            Console.WriteLine(statusMessage + "------");
+
+            errorVM.ResolveRequestStatus(RequestStatus.FAILED, ItemStatusMessage.FAILED, statusMessage);
 
 			return await Task.FromResult(errorVM);
 
