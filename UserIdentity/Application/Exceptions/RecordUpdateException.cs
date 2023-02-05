@@ -9,7 +9,7 @@
 
 		public RecordUpdateException(string id, String className) 
 		{
-			throw new RecordCreationException(className + ": An error occured while updating a record identified by - " + id);
+			throw new RecordUpdateException(className + ": An error occured while updating a record identified by - " + id);
 		}
 	}
 }

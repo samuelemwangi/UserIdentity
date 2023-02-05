@@ -9,7 +9,7 @@
 
 		public RecordDeletionException(String id, String className) 
 		{
-			throw new RecordCreationException(className + ": An error occured while deleting a record identified by - " + id);
+			throw new RecordDeletionException(className + ": An error occured while deleting a record identified by - " + id);
 		}
 	}
 }
