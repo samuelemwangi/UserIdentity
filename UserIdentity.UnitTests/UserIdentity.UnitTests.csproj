@@ -41,6 +41,8 @@
     <None Remove="Infrastructure\Utilities\" />
     <None Remove="Application\Exceptions\" />
     <None Remove="Application\Enums\" />
+    <None Remove="Domain\" />
+    <None Remove="Domain\Identity\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Persistence\" />
@@ -56,6 +58,8 @@
     <Folder Include="Infrastructure\Utilities\" />
     <Folder Include="Application\Exceptions\" />
     <Folder Include="Application\Enums\" />
+    <Folder Include="Domain\" />
+    <Folder Include="Domain\Identity\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\UserIdentity\UserIdentity.csproj" />
