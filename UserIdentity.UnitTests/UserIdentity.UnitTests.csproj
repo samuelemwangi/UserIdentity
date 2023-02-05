@@ -40,6 +40,7 @@
     <None Remove="Application\Core\KeySets\" />
     <None Remove="Infrastructure\Utilities\" />
     <None Remove="Application\Exceptions\" />
+    <None Remove="Application\Enums\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Persistence\" />
@@ -54,6 +55,7 @@
     <Folder Include="Application\Core\KeySets\" />
     <Folder Include="Infrastructure\Utilities\" />
     <Folder Include="Application\Exceptions\" />
+    <Folder Include="Application\Enums\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\UserIdentity\UserIdentity.csproj" />
