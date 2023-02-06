@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-using UserIdentity.Application.Interfaces.Utilities;
+﻿using UserIdentity.Application.Interfaces.Utilities;
 
 namespace UserIdentity.Infrastructure.Utilities
 {
