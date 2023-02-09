@@ -43,6 +43,7 @@
     <None Remove="Application\Enums\" />
     <None Remove="Domain\" />
     <None Remove="Domain\Identity\" />
+    <None Remove="Infrastructure\Security\Helpers\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Persistence\" />
@@ -60,6 +61,7 @@
     <Folder Include="Application\Enums\" />
     <Folder Include="Domain\" />
     <Folder Include="Domain\Identity\" />
+    <Folder Include="Infrastructure\Security\Helpers\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\UserIdentity\UserIdentity.csproj" />

@@ -24,6 +24,7 @@ namespace UserIdentity.UnitTests.Infrastructure.Utilities
 			String logMessage = "Log Message";
 
 			logHelper.LogEvent(logMessage, LogLevel.Information);
+			
 
         }
 	
