@@ -84,7 +84,7 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
 
             };
 
-            Assert.Throws<SecurityTokenReadException>(() => tokenHandler.ValidateToken(null, tokenValidationParameters));
+            Assert.Throws<SecurityTokenReadException>(() => tokenHandler.ValidateToken(fullToken, tokenValidationParameters));
         }
 
         [Fact]
