@@ -18,21 +18,24 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
         [Fact]
         public void Get_Algorithm_Returns_Algorithm()
         {
-            KeySetFactory keySetFactory = new KeySetFactory(_testSettings.Configuration);
+            KeySetFactory keySetFactory = new(_testSettings.Configuration);
+
             Assert.Equal("HS256", keySetFactory.GetAlgorithm());
         }
 
         [Fact]
         public void Get_KeyType_Returns_KeyType()
         {
-            KeySetFactory keySetFactory = new KeySetFactory(_testSettings.Configuration);
+            KeySetFactory keySetFactory = new(_testSettings.Configuration);
+
             Assert.Equal("oct", keySetFactory.GetKeyType());
         }
 
         [Fact]
         public void Get_Env_KeyId_Returns_Encoded_KeyId()
         {
-            KeySetFactory keySetFactory = new KeySetFactory(_testSettings.Configuration);
+            KeySetFactory keySetFactory = new(_testSettings.Configuration);
+
             String encodedKeyId = Base64UrlEncoder.Encode(_testSettings.Props["APP_KEY_ID"]);
 
             Assert.Equal(encodedKeyId, keySetFactory.GetKeyId());
@@ -49,7 +52,7 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
             Environment.SetEnvironmentVariable(key, null);
             _testSettings.SetConfiguration();
 
-            KeySetFactory keySetFactory = new KeySetFactory(_testSettings.Configuration);
+            KeySetFactory keySetFactory = new(_testSettings.Configuration);
             String expectedKeyId = Base64UrlEncoder.Encode(key);
             String actualKeyId = keySetFactory.GetKeyId();
 
@@ -72,7 +75,8 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
             _testSettings.SetConfiguration();
             _testSettings.Configuration.GetSection("KeySetOptions")["KeyId"] = null;
 
-            KeySetFactory keySetFactory = new KeySetFactory(_testSettings.Configuration);
+            KeySetFactory keySetFactory = new(_testSettings.Configuration);
+
             String expectedKeyId = Base64UrlEncoder.Encode(defaultKeyId);
             String actualKeyId = keySetFactory.GetKeyId();
 
@@ -81,7 +85,6 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
             _testSettings.SetConfiguration();
 
             Assert.Equal(expectedKeyId, actualKeyId);
-
         }
 
         [Fact]

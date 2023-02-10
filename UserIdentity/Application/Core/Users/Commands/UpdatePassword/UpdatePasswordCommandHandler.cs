@@ -46,9 +46,6 @@ namespace UserIdentity.Application.Core.Users.Commands.UpdatePassword
                 if (!reSetPassWordTokenresult.Succeeded)
                     result = false;
 
-                Console.WriteLine("\n\n\n" + reSetPassWordTokenresult+"\n\n\n\n");
-                Console.WriteLine("Hello");
-
                 return new UpdatePasswordViewModel
                 {
                     UpdatePasswordResult = new UpdatePasswordDTO

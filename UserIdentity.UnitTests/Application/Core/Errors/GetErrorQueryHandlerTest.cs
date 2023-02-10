@@ -1,17 +1,18 @@
 ﻿using System;
-using System.Net;
+
 using FakeItEasy;
-using Microsoft.AspNetCore.Http;
+
 using UserIdentity.Application.Core.Errors.Queries.GerError;
 using UserIdentity.Application.Core.Errors.ViewModels;
 using UserIdentity.Application.Enums;
 using UserIdentity.Application.Interfaces.Utilities;
 using UserIdentity.Infrastructure.Utilities;
+
 using Xunit;
 
 namespace UserIdentity.UnitTests.Application.Core.Errors
 {
-    public class GetErrorQueryHandlerTest
+  public class GetErrorQueryHandlerTest
     {
         private readonly IMachineDateTime _machineDateTime;
         private readonly IStringHelper _stringHelper;

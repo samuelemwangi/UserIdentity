@@ -51,8 +51,6 @@
     <Folder Include="Presentation\" />
     <Folder Include="Presentation\Controllers\" />
     <Folder Include="Presentation\Controllers\Security\" />
-    <Folder Include="Application\" />
-    <Folder Include="Application\Core\" />
     <Folder Include="Application\Core\Extensions\" />
     <Folder Include="Application\Core\Errors\" />
     <Folder Include="Application\Core\KeySets\" />
