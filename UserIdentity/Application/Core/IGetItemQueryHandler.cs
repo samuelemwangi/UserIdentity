@@ -2,6 +2,6 @@
 {
 	public interface IGetItemQueryHandler<Query, VM>
 	{
-		public Task<VM> GetITemAsync(Query query);
+		public Task<VM> GetItemAsync(Query query);
 	}
 }

@@ -58,7 +58,7 @@ namespace UserIdentity.Presentation.Controllers.Users
         public async Task<ActionResult<UserViewModel>> GetUser(String UserId)
         {
 
-            UserViewModel userVM = await _getUserQueryHandler.GetUserAsync(new GetUserQuery { UserId = UserId });
+            UserViewModel userVM = await _getUserQueryHandler.GetItemAsync(new GetUserQuery { UserId = UserId });
 
             var ownedByLoggedInUser = userVM.User?.CreatedBy == LoggedInUserId || userVM.User?.LastModifiedBy == LoggedInUserId;
 

@@ -73,7 +73,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
         [Route("{roleId}")]
         public async Task<ActionResult<RoleViewModel>> GetRoleAsync(string roleId)
         {
-            var roleVM = await _getRoleQueryHandler.GetITemAsync(new GetRoleQuery { RoleId = roleId });
+            var roleVM = await _getRoleQueryHandler.GetItemAsync(new GetRoleQuery { RoleId = roleId });
 
             roleVM.ResolveEditDeleteRights(UserRoleClaims, resourceName);
             roleVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);

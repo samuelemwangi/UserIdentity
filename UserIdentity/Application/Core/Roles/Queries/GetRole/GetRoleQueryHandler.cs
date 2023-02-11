@@ -19,7 +19,7 @@ namespace UserIdentity.Application.Core.Roles.Queries.GetRole
 			_roleManager = roleManager;
 		}
 
-		public async Task<RoleViewModel> GetITemAsync(GetRoleQuery query)
+		public async Task<RoleViewModel> GetItemAsync(GetRoleQuery query)
 		{
 
 			var role = await _roleManager.FindByIdAsync(query.RoleId);
