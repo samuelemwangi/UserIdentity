@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using UserIdentity.Application.Core.Roles.Queries.GetRole;
 using UserIdentity.Application.Exceptions;
 using UserIdentity.Application.Core.Roles.ViewModels;
+using System.Threading.Tasks;
 
 namespace UserIdentity.UnitTests.Application.Core.Roles.Queries
 {
@@ -17,7 +18,7 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Queries
 		}
 
 		[Fact]
-		public void Get_Role_Returns_Role()
+		public async Task Get_Role_Returns_Role()
 		{
 			// Arrange
 			var query = new GetRoleQuery
@@ -36,7 +37,7 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Queries
 			var handler = new GetRoleQueryHandler(_roleManager);
 
 			// Act
-			var vm = handler.GetRoleAsync(query).Result;
+			var vm = await handler.GetRoleAsync(query);
 
 			// Assert
 			Assert.IsType<RoleViewModel>(vm);
@@ -45,7 +46,7 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Queries
 		}
 
 		[Fact]
-		public void Get_Role_Throws_NoRecordException()
+		public async Task Get_Role_Throws_NoRecordException()
 		{
 			// Arrange
 			var query = new GetRoleQuery
@@ -58,7 +59,7 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Queries
 			var handler = new GetRoleQueryHandler(_roleManager);
 
 			// Act & Assert
-			Assert.ThrowsAsync<NoRecordException>(() => handler.GetRoleAsync(query));
+			await Assert.ThrowsAsync<NoRecordException>(() => handler.GetRoleAsync(query));
 
 		}
 
