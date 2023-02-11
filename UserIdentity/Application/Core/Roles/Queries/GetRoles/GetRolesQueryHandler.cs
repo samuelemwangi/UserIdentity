@@ -6,7 +6,7 @@ using UserIdentity.Application.Exceptions;
 
 namespace UserIdentity.Application.Core.Roles.Queries.GetRoles
 {
-    public record GetRolesQuery : BaseQuery
+  public record GetRolesQuery : BaseQuery
     {
         public String UserId { get; init; }
     }

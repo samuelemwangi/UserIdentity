@@ -10,7 +10,7 @@ namespace UserIdentity.Application.Core.Roles.Queries.GetRole
 		public string RoleId { get; init; }
 	}
 
-	public class GetRoleQueryHandler
+	public class GetRoleQueryHandler : IGetItemQueryHandler<GetRoleQuery, RoleViewModel>
 	{
 		private readonly RoleManager<IdentityRole> _roleManager;
 
@@ -19,9 +19,7 @@ namespace UserIdentity.Application.Core.Roles.Queries.GetRole
 			_roleManager = roleManager;
 		}
 
-
-
-		public async Task<RoleViewModel> GetRoleAsync(GetRoleQuery query)
+		public async Task<RoleViewModel> GetITemAsync(GetRoleQuery query)
 		{
 
 			var role = await _roleManager.FindByIdAsync(query.RoleId);
@@ -41,7 +39,5 @@ namespace UserIdentity.Application.Core.Roles.Queries.GetRole
 			};
 
 		}
-
-
 	}
 }

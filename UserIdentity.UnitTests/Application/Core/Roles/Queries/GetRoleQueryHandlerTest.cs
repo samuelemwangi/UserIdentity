@@ -37,7 +37,7 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Queries
 			var handler = new GetRoleQueryHandler(_roleManager);
 
 			// Act
-			var vm = await handler.GetRoleAsync(query);
+			var vm = await handler.GetITemAsync(query);
 
 			// Assert
 			Assert.IsType<RoleViewModel>(vm);
@@ -59,7 +59,7 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Queries
 			var handler = new GetRoleQueryHandler(_roleManager);
 
 			// Act & Assert
-			await Assert.ThrowsAsync<NoRecordException>(() => handler.GetRoleAsync(query));
+			await Assert.ThrowsAsync<NoRecordException>(() => handler.GetITemAsync(query));
 
 		}
 
