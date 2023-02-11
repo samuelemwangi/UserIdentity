@@ -1,7 +1,10 @@
 ﻿using System;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+
 using UserIdentity.Infrastructure.Utilities;
+
 using Xunit;
 
 namespace UserIdentity.UnitTests.Infrastructure.Utilities
@@ -11,7 +14,7 @@ namespace UserIdentity.UnitTests.Infrastructure.Utilities
 		private readonly ILoggerFactory _loggerFactory;
 		private readonly ILogger<LogHelperTest> _logger;
 
-        public LogHelperTest()
+		public LogHelperTest()
 		{
 			_loggerFactory = new NullLoggerFactory();
 			_logger = _loggerFactory.CreateLogger<LogHelperTest>();
@@ -24,10 +27,10 @@ namespace UserIdentity.UnitTests.Infrastructure.Utilities
 			String logMessage = "Log Message";
 
 			logHelper.LogEvent(logMessage, LogLevel.Information);
-			
 
-        }
-	
+
+		}
+
 	}
 }
 

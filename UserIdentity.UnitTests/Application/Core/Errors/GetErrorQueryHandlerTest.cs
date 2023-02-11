@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 using FakeItEasy;
 
@@ -12,55 +13,58 @@ using Xunit;
 
 namespace UserIdentity.UnitTests.Application.Core.Errors
 {
-  public class GetErrorQueryHandlerTest
-    {
-        private readonly IMachineDateTime _machineDateTime;
-        private readonly IStringHelper _stringHelper;
-        private readonly ILogHelper<GetErrorQueryHandler> _logHelper;
+	public class GetErrorQueryHandlerTest
+	{
+		private readonly IMachineDateTime _machineDateTime;
+		private readonly IStringHelper _stringHelper;
+		private readonly ILogHelper<GetErrorQueryHandler> _logHelper;
 
 
-        public GetErrorQueryHandlerTest()
-        {
-            _machineDateTime = new MachineDateTime();
-            _stringHelper = new StringHelper();
-            _logHelper = A.Fake<ILogHelper<GetErrorQueryHandler>>();
-        }
+		public GetErrorQueryHandlerTest()
+		{
+			_machineDateTime = new MachineDateTime();
+			_stringHelper = new StringHelper();
+			_logHelper = A.Fake<ILogHelper<GetErrorQueryHandler>>();
+		}
 
-        [Fact]
-        public void GetError_Returns_ErrorViewModel()
-        {
-            String errorMessage = "Testing error message";
-            String statusMessage = "Failed badly";
-           
-
-            GetErrorQuery query = new GetErrorQuery
-            {
-                Exception = new Exception(errorMessage),
-                ErrorMessage = errorMessage,
-                StatusMessage = statusMessage
-            };
+		[Fact]
+		public async Task Get_Error_Returns_ErrorViewModel()
+		{
+			// Arrange
+			var errorMessage = "Testing error message";
+			var statusMessage = "Failed badly";
 
 
-            GetErrorQueryHandler getErrorQueryHandler = new GetErrorQueryHandler(_machineDateTime, _stringHelper, _logHelper);
-            var errorVM =  getErrorQueryHandler.GetError(query);
+			GetErrorQuery query = new()
+			{
+				Exception = new Exception(errorMessage),
+				ErrorMessage = errorMessage,
+				StatusMessage = statusMessage
+			};
 
-            var result = errorVM.Result as ErrorViewModel;
 
-            Assert.NotNull(result);
+			var getErrorQueryHandler = new GetErrorQueryHandler(_machineDateTime, _stringHelper, _logHelper);
 
-            Assert.Equal(result.StatusMessage, statusMessage.ToUpper());
-            Assert.Equal(result.RequestStatus, RequestStatus.FAILED.GetDisplayName());
+			// Act
+			var vm = await getErrorQueryHandler.GetItemAsync(query);
 
-            Assert.NotNull(result.Error);
 
-            Assert.IsType<String>(result.Error?.Message);
-            Assert.NotNull(result.Error?.Message);
+			// Assert
+			Assert.NotNull(vm);
 
-            Assert.IsType<DateTime>(result.Error?.Timestamp);
-            Assert.NotNull(result.Error?.Timestamp);
+			Assert.Equal(vm.StatusMessage, statusMessage.ToUpper());
+			Assert.Equal(vm.RequestStatus, RequestStatus.FAILED.GetDisplayName());
 
-        }
-    }
+			Assert.NotNull(vm.Error);
+
+			Assert.IsType<String>(vm.Error?.Message);
+			Assert.NotNull(vm.Error?.Message);
+
+			Assert.IsType<DateTime>(vm.Error?.Timestamp);
+			Assert.NotNull(vm.Error?.Timestamp);
+
+		}
+	}
 
 }
 

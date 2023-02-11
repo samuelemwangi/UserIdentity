@@ -1,5 +1,7 @@
 ﻿using System;
+
 using UserIdentity.Application.Exceptions;
+
 using Xunit;
 
 namespace UserIdentity.UnitTests.Application.Exceptions
@@ -9,26 +11,31 @@ namespace UserIdentity.UnitTests.Application.Exceptions
 		[Fact]
 		public async void Illegal_Event_With_Message_Throws_IllegalEventException()
 		{
-			String message = "An illegal event occured";
+			// Arrange
+			var message = "An illegal event occured";
 
-			var exception = await Assert.ThrowsAsync<IllegalEventException>(()=>throw new IllegalEventException(message));
+			// Act & Assert
+			var exception = await Assert.ThrowsAsync<IllegalEventException>(() => throw new IllegalEventException(message));
 
 			Assert.Equal(exception.Message, message);
 		}
 
-        [Fact]
-        public async void Illegal_Event_With_Message_and_Classname_Throws_IllegalEventException()
-        {
-            String message = "An illegal event occured";
-			String className = "IllegalEventTester";
+		[Fact]
+		public async void Illegal_Event_With_Message_and_Classname_Throws_IllegalEventException()
+		{
+			// Arrange
+			var message = "An illegal event occured";
+			var className = "IllegalEventTester";
 
-			String expectedMessage = className + ": The event - " + message + " - is not allowed";
+			var expectedMessage = className + ": The event - " + message + " - is not allowed";
 
-            var exception = await Assert.ThrowsAsync<IllegalEventException>(() => throw new IllegalEventException(message, className));
+			// Act
+			var exception = await Assert.ThrowsAsync<IllegalEventException>(() => throw new IllegalEventException(message, className));
 
-            Assert.Equal(exception.Message, expectedMessage);
-        }
+			// Assert
+			Assert.Equal(exception.Message, expectedMessage);
+		}
 
-    }
+	}
 }
 

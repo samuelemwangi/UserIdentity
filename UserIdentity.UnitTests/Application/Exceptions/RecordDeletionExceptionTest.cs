@@ -1,33 +1,41 @@
 ﻿using System;
+
 using UserIdentity.Application.Exceptions;
+
 using Xunit;
 
 namespace UserIdentity.UnitTests.Application.Exceptions
 {
-    public class RecordDeletionExceptionTest
-    {
-        [Fact]
-        public async void Illegal_Event_With_Message_Throws_RecordDeletionException()
-        {
-            String message = "Record deletion failed";
+	public class RecordDeletionExceptionTest
+	{
+		[Fact]
+		public async void Record_Deletion_Error_With_Message_Throws_RecordDeletionException()
+		{
+			// Arrange
+			var message = "Record deletion failed";
 
-            var exception = await Assert.ThrowsAsync<RecordDeletionException>(() => throw new RecordDeletionException(message));
 
-            Assert.Equal(exception.Message, message);
-        }
+			// Act & Assert
+			var exception = await Assert.ThrowsAsync<RecordDeletionException>(() => throw new RecordDeletionException(message));
 
-        [Fact]
-        public async void Illegal_Event_With_Message_and_Classname_Throws_RecordDeletionException()
-        {
-            String className = "RecordDeletionClass";
-            String id = "123QWERTY";
+			Assert.Equal(exception.Message, message);
+		}
 
-            String expectedMessage = className + ": An error occured while deleting a record identified by - " + id;
+		[Fact]
+		public async void Record_Deletion_Error_With_Message_and_Classname_Throws_RecordDeletionException()
+		{
+			// Arrange
+			var className = "RecordDeletionClass";
+			var id = "123QWERTY";
 
-            var exception = await Assert.ThrowsAsync<RecordDeletionException>(() => throw new RecordDeletionException(id, className));
+			var expectedMessage = className + ": An error occured while deleting a record identified by - " + id;
 
-            Assert.Equal(exception.Message, expectedMessage);
-        }
-    }
+
+			// Act & Assert
+			var exception = await Assert.ThrowsAsync<RecordDeletionException>(() => throw new RecordDeletionException(id, className));
+
+			Assert.Equal(exception.Message, expectedMessage);
+		}
+	}
 }
 

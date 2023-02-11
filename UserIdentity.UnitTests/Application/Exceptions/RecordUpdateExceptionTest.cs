@@ -1,5 +1,7 @@
 ﻿using System;
+
 using UserIdentity.Application.Exceptions;
+
 using Xunit;
 
 namespace UserIdentity.UnitTests.Application.Exceptions
@@ -7,28 +9,32 @@ namespace UserIdentity.UnitTests.Application.Exceptions
 	public class RecordUpdateExceptionTest
 	{
 
-        [Fact]
-        public async void Illegal_Event_With_Message_Throws_RecordUpdateException()
-        {
-            String message = "Record update failed";
+		[Fact]
+		public async void Record_Update_Error_With_Message_Throws_RecordUpdateException()
+		{
+			// Arrange
+			var message = "Record update failed";
 
-            var exception = await Assert.ThrowsAsync<RecordUpdateException>(() => throw new RecordUpdateException(message));
+			// Act & Assert
+			var exception = await Assert.ThrowsAsync<RecordUpdateException>(() => throw new RecordUpdateException(message));
 
-            Assert.Equal(exception.Message, message);
-        }
+			Assert.Equal(exception.Message, message);
+		}
 
-        [Fact]
-        public async void Illegal_Event_With_Message_and_Classname_Throws_RecordUpdateException()
-        {
-            String className = "RecordExistsClass";
-            String id = "123QWERTY";
+		[Fact]
+		public async void Record_Update_Error_With_Message_and_Classname_Throws_RecordUpdateException()
+		{
+			// Arrange
+			var className = "RecordExistsClass";
+			var id = "123QWERTY";
 
-            String expectedMessage = className + ": An error occured while updating a record identified by - " + id;
+			var expectedMessage = className + ": An error occured while updating a record identified by - " + id;
 
-            var exception = await Assert.ThrowsAsync<RecordUpdateException>(() => throw new RecordUpdateException(id, className));
+			// Act & Assert
+			var exception = await Assert.ThrowsAsync<RecordUpdateException>(() => throw new RecordUpdateException(id, className));
 
-            Assert.Equal(exception.Message, expectedMessage);
-        }
-    }
+			Assert.Equal(exception.Message, expectedMessage);
+		}
+	}
 }
 

@@ -12,7 +12,7 @@ namespace UserIdentity.Application.Core.Errors.Queries.GerError
 		public String? StatusMessage { get; internal set; }
 	}
 
-	public class GetErrorQueryHandler
+	public class GetErrorQueryHandler : IGetItemQueryHandler<GetErrorQuery, ErrorViewModel>
 	{
 		private readonly IMachineDateTime _machineDateTime;
 		private readonly IStringHelper _stringHelper;
@@ -25,7 +25,7 @@ namespace UserIdentity.Application.Core.Errors.Queries.GerError
 			_logHelper = logHelper;
 		}
 
-		public async Task<ErrorViewModel> GetError(GetErrorQuery query)
+		public async Task<ErrorViewModel> GetItemAsync(GetErrorQuery query)
 		{
 			// log the error 
 			_logHelper.LogEvent(query.Exception.Message, LogLevel.Error);
@@ -42,10 +42,10 @@ namespace UserIdentity.Application.Core.Errors.Queries.GerError
 			};
 
 
-			String statusMessage = query.StatusMessage != null ? _stringHelper.AddSpacesToSentence(query.StatusMessage, true).ToUpper() : "";
+			var statusMessage = query.StatusMessage != null ? _stringHelper.AddSpacesToSentence(query.StatusMessage, true).ToUpper() : "";
 
 
-            errorVM.ResolveRequestStatus(RequestStatus.FAILED, ItemStatusMessage.FAILED, statusMessage);
+			errorVM.ResolveRequestStatus(RequestStatus.FAILED, ItemStatusMessage.FAILED, statusMessage);
 
 			return await Task.FromResult(errorVM);
 

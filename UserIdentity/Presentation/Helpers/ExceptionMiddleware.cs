@@ -85,7 +85,7 @@ namespace UserIdentity.Presentation.Helpers
 				errorMessage = exception.Message;
 			}
 
-			var errorViewModel = await _getErrorQueryHandler.GetError(new GetErrorQuery
+			var errorViewModel = await _getErrorQueryHandler.GetItemAsync(new GetErrorQuery
 			{
 				Exception = exception,
 				ErrorMessage = errorMessage,
