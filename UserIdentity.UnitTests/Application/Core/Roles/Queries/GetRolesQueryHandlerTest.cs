@@ -47,7 +47,22 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Queries
             Assert.Equal(roles.Select(r => r.Name), vm.Roles.Select(r => r.Name));
         }
 
+		[Fact]
+		public async Task Get_Roles__When_No_Roles_Returns_Zero_Roles()
+		{
+			// Arrange
+			var roles = new List<IdentityRole>();
+			A.CallTo(() => _roleManager.Roles).Returns(roles.AsQueryable());
 
+			var handler = new GetRolesQueryHandler(_roleManager, _userManager);
+
+			// Act
+			var vm = await handler.GetRolesAsync();
+
+			// Assert
+			Assert.IsType<RolesViewModel>(vm);
+			Assert.Equal(0, vm.Roles.Count);
+		}
 
         [Fact]
         public async Task Get_UserRoles_Returns_UserRoles()
