@@ -12,7 +12,7 @@ namespace UserIdentity.Application.Core.Roles.Queries.GetRoleClaims
 	{
 		public String RoleId { get; init; }
 	}
-	public class GetRoleClaimsQueryHandler : IGetItemsQueryHandler<GetRoleClaimsQuery, RoleClaimsViewModel>, 
+	public class GetRoleClaimsQueryHandler : IGetItemsQueryHandler<GetRoleClaimsQuery, RoleClaimsViewModel>,
 		IGetItemsQueryHandler<IList<String>, HashSet<String>>
 	{
 		private readonly RoleManager<IdentityRole> _roleManager;

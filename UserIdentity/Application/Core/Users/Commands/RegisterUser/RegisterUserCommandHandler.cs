@@ -59,7 +59,6 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 			RoleManager<IdentityRole> roleManager,
 			IUserRepository userRepository,
 			IRefreshTokenRepository refreshTokenRepository,
-			GetUserQueryHandler getUserQueryHandler,
 			IJwtFactory jwtFactory,
 			ITokenFactory tokenFactory,
 			IConfiguration configuration,
