@@ -6,6 +6,7 @@ using FakeItEasy;
 
 using Microsoft.AspNetCore.Identity;
 
+using UserIdentity.Application.Core;
 using UserIdentity.Application.Core.Roles.Commands.CreateRole;
 using UserIdentity.Application.Core.Roles.Queries.GetRoles;
 using UserIdentity.Application.Core.Roles.ViewModels;
@@ -19,14 +20,14 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Commands
 	{
 		private readonly RoleManager<IdentityRole> _roleManager;
 		private readonly UserManager<IdentityUser> _userManager;
-		private readonly GetUserRolesQueryHandler _getUserRolesQueryHandler;
+		private readonly IGetItemsQueryHandler<GetUserRolesQuery, UserRolesViewModel> _getUserRolesQueryHandler;
 
 
 		public CreateUserRoleCommandHandlerTest()
 		{
 			_roleManager = A.Fake<RoleManager<IdentityRole>>();
 			_userManager = A.Fake<UserManager<IdentityUser>>();
-			_getUserRolesQueryHandler = A.Fake<GetUserRolesQueryHandler>();
+			_getUserRolesQueryHandler = A.Fake<IGetItemsQueryHandler<GetUserRolesQuery, UserRolesViewModel>>();
 		}
 
 		[Fact]
@@ -77,22 +78,22 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Commands
 		{
 			// Arrange
 			var command = new CreateUserRoleCommand { UserId = "123", RoleId = "Admin123" };
-			var query = new GetUserRolesQuery { UserId = command.UserId };
-			var userRolesVM = new UserRolesViewModel { UserRoles = new List<String> { "Admin" } };
+			var existingRole = new IdentityRole { Id = command.RoleId, Name = "Admin" };
 
 			A.CallTo(() => _userManager.FindByIdAsync(command.UserId)).Returns(new IdentityUser { Id = command.UserId });
-			A.CallTo(() => _roleManager.FindByIdAsync(command.RoleId)).Returns(new IdentityRole { Id = command.RoleId });
-			A.CallTo(() => _userManager.AddToRoleAsync(A<IdentityUser>.That.Matches(u => u.Id == command.UserId), A<string>.That.Matches(r => r == command.RoleId))).Returns(Task.FromResult(IdentityResult.Success));
-			A.CallTo(() => _getUserRolesQueryHandler.GetItemsAsync(query)).Returns(Task.FromResult(userRolesVM));
-
+			A.CallTo(() => _roleManager.FindByIdAsync(command.RoleId)).Returns(existingRole);
+			A.CallTo(() => _userManager.IsInRoleAsync(A<IdentityUser>.That.Matches(u => u.Id == command.UserId), A<string>.That.Matches(r => r == command.RoleId))).Returns(Task.FromResult(false));
+			A.CallTo(() => _userManager.AddToRoleAsync(A<IdentityUser>.That.Matches(u => u.Id == command.UserId), A<string>.That.Matches(r => r == existingRole.Name))).Returns(Task.FromResult(IdentityResult.Success));
+			A.CallTo(() => _getUserRolesQueryHandler.GetItemsAsync(A<GetUserRolesQuery>.That.Matches(q => q.UserId == command.UserId))).Returns(new UserRolesViewModel { UserRoles = new List<String> { "Admin" } });
 
 			var handler = new CreateUserRoleCommandHandler(_roleManager, _userManager, _getUserRolesQueryHandler);
 
 			// Act
-			var vm = await handler.CreateItemAsync(command);
+			var result = await handler.CreateItemAsync(command);
 
 			// Assert
-			Assert.IsType<UserRolesViewModel>(vm);
+			Assert.NotNull(result);
+			Assert.Equal(1, result.UserRoles.Count);
 		}
 	}
 }

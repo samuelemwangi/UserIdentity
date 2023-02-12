@@ -15,12 +15,13 @@ namespace UserIdentity.Application.Core.Roles.Commands.CreateRole
 	{
 		private readonly RoleManager<IdentityRole> _roleManager;
 		private readonly UserManager<IdentityUser> _userManager;
-		private readonly GetUserRolesQueryHandler _getUserRolesQueryHandler;
+		//private readonly GetUserRolesQueryHandler _getUserRolesQueryHandler;
+		private readonly IGetItemsQueryHandler<GetUserRolesQuery, UserRolesViewModel> _getUserRolesQueryHandler;
 
 		public CreateUserRoleCommandHandler(
 			RoleManager<IdentityRole> roleManager,
 			UserManager<IdentityUser> userManager,
-			GetUserRolesQueryHandler getUserRolesQueryHandler
+			IGetItemsQueryHandler<GetUserRolesQuery, UserRolesViewModel> getUserRolesQueryHandler
 			)
 		{
 			_roleManager = roleManager;
