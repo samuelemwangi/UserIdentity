@@ -109,7 +109,7 @@ namespace UserIdentity.Presentation.Controllers.Users
         [Route("reset-password")]
         public async Task<ActionResult<AccessTokenViewModel>> ResetPassword(ResetPasswordCommand command)
         {
-            var resetPassWordVM = await _resetPasswordCommandHandler.ResetPassword(command);
+            var resetPassWordVM = await _resetPasswordCommandHandler.CreateItemAsync(command);
             resetPassWordVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
             return Ok(resetPassWordVM);
         }
@@ -119,7 +119,7 @@ namespace UserIdentity.Presentation.Controllers.Users
         [Route("confirm-update-password-token")]
         public async Task<ActionResult<AccessTokenViewModel>> ConfirmPasswordTokne(ConfirmUpdatePasswordTokenCommand command)
         {
-            var confirmPassWordTokenVM = await _confirmUpdatePasswordTokenCommandHandler.ValidateUpdatePasswordToken(command);
+            var confirmPassWordTokenVM = await _confirmUpdatePasswordTokenCommandHandler.UpdateItemAsync(command);
             confirmPassWordTokenVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
             return Ok(confirmPassWordTokenVM);
         }
@@ -129,7 +129,7 @@ namespace UserIdentity.Presentation.Controllers.Users
         [Route("update-password")]
         public async Task<ActionResult<AccessTokenViewModel>> UpdatePassWord(UpdatePasswordCommand command)
         {
-            var updatePasswordVM = await _updatePasswordCommandHandler.UpdatePassWord(command);
+            var updatePasswordVM = await _updatePasswordCommandHandler.UpdateItemAsync(command);
             updatePasswordVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
             return Ok(updatePasswordVM);
         }

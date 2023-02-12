@@ -15,7 +15,7 @@ using UserIdentity.Persistence.Repositories.Users;
 
 namespace UserIdentity.Application.Core.Users.Commands.LoginUser
 {
-	public record LoginUserCommand: BaseCommand
+	public record LoginUserCommand : BaseCommand
 	{
 		[Required]
 		public String? UserName { get; init; }
@@ -58,22 +58,22 @@ namespace UserIdentity.Application.Core.Users.Commands.LoginUser
 
 		public async Task<AuthUserViewModel> LoginUserAsync(LoginUserCommand command)
 		{
-			var user =  await _userManager.FindByNameAsync(command.UserName);
+			var user = await _userManager.FindByNameAsync(command.UserName);
 
 			if (user == null)
 				user = await _userManager.FindByEmailAsync(command.UserName);
 
 			if (user == null)
 				throw new InvalidCredentialException("No Identity User for User Name - " + command.UserName);
-			
 
-			var appUserDetails = await  _userRepository.GetUserAsync(user.Id);
+
+			var appUserDetails = await _userRepository.GetUserAsync(user.Id);
 
 			if (appUserDetails == null)
 				throw new InvalidCredentialException("No User details for User Name - " + command.UserName);
-			
 
-			var userExists =  await _userManager.CheckPasswordAsync(user, command.Password);
+
+			var userExists = await _userManager.CheckPasswordAsync(user, command.Password);
 
 			if (!userExists)
 				throw new InvalidCredentialException("Invalid Credentials Provided for - " + command.UserName);
@@ -94,7 +94,7 @@ namespace UserIdentity.Application.Core.Users.Commands.LoginUser
 				Token = refreshToken,
 			};
 
-		  Int32 createTokenResult = await _refreshTokenRepository.CreateRefreshTokenAsync(newRefreshToken);
+			Int32 createTokenResult = await _refreshTokenRepository.CreateRefreshTokenAsync(newRefreshToken);
 
 			if (createTokenResult < 1)
 				throw new RecordCreationException(refreshToken, "Refresh Token");
@@ -106,7 +106,7 @@ namespace UserIdentity.Application.Core.Users.Commands.LoginUser
 					Id = user.Id,
 					UserName = user.UserName,
 					FullName = appUserDetails.FirstName + " " + appUserDetails.LastName,
-                    Email = user.Email,
+					Email = user.Email,
 					CreatedBy = appUserDetails.CreatedBy,
 					CreatedDate = _machineDateTime.ResolveDate(appUserDetails.CreatedDate),
 					LastModifiedBy = user.Id,

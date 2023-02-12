@@ -12,7 +12,7 @@ namespace UserIdentity.Application.Core.Users.Commands.ConfirmUpdatePasswordToke
 		public String ConfirmPasswordToken { get; init; }
 		public String UserId { get; init; }
 	}
-	public class ConfirmUpdatePasswordTokenCommandHandler
+	public class ConfirmUpdatePasswordTokenCommandHandler: IUpdateItemCommandHandler<ConfirmUpdatePasswordTokenCommand, ConfirmUpdatePasswordTokenViewModel>
 	{
 		private readonly IUserRepository _userRepository;
 
@@ -22,7 +22,7 @@ namespace UserIdentity.Application.Core.Users.Commands.ConfirmUpdatePasswordToke
 		}
 
 
-		public async Task<ConfirmUpdatePasswordTokenViewModel> ValidateUpdatePasswordToken(ConfirmUpdatePasswordTokenCommand command)
+		public async Task<ConfirmUpdatePasswordTokenViewModel> UpdateItemAsync(ConfirmUpdatePasswordTokenCommand command)
 		{
 			try
 			{
@@ -36,7 +36,7 @@ namespace UserIdentity.Application.Core.Users.Commands.ConfirmUpdatePasswordToke
 				};
 
 			}
-			catch (Exception ex)
+			catch (Exception)
 			{
 				return new ConfirmUpdatePasswordTokenViewModel
 				{
