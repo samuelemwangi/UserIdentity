@@ -8,22 +8,22 @@ namespace UserIdentity.UnitTests
     public class TestSettingsFixture : IDisposable
     {
         public IConfiguration Configuration { get; internal set; }
-        public Dictionary<String, String> Props {get; internal set;}
+        public Dictionary<String, String> Props { get; internal set; }
 
         public TestSettingsFixture()
         {
-            Props =  GetProps();
+            Props = GetProps();
 
             foreach (var prop in Props)
                 Environment.SetEnvironmentVariable(prop.Key, prop.Value + "");
 
-             SetConfiguration();
+            SetConfiguration();
 
         }
 
         public void SetConfiguration()
         {
-            Configuration =  new ConfigurationBuilder()
+            Configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true)
                 .AddEnvironmentVariables()
@@ -37,13 +37,13 @@ namespace UserIdentity.UnitTests
             if (!File.Exists(filePath))
                 return props;
 
-            
+
             foreach (String line in File.ReadLines(filePath))
             {
-                String[] parts =  line.Split('=', StringSplitOptions.RemoveEmptyEntries);
+                String[] parts = line.Split('=', StringSplitOptions.RemoveEmptyEntries);
                 props.Add(parts[0].Trim(), parts[1].Trim());
             }
-            
+
             return props;
         }
 

@@ -5,9 +5,7 @@ using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 
-using UserIdentity.Application.Core.Roles.Queries.GetRoleClaims;
 using UserIdentity.Application.Core.Tokens.ViewModels;
-using UserIdentity.Application.Core.Users.Queries.GetUser;
 using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Application.Exceptions;
 using UserIdentity.Application.Interfaces.Security;
@@ -52,7 +50,7 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 		private readonly ILogHelper<RegisterUserCommandHandler> _logHelper;
 
 
-		private readonly GetRoleClaimsQueryHandler _getRoleClaimsQueryHandler;
+		private readonly IGetItemsQueryHandler<IList<String>, HashSet<String>> _getRoleClaimsQueryHandler;
 
 		public RegisterUserCommandHandler(
 			UserManager<IdentityUser> userManager,
@@ -64,7 +62,7 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 			IConfiguration configuration,
 			IMachineDateTime machineDateTime,
 			ILogHelper<RegisterUserCommandHandler> logHelper,
-			GetRoleClaimsQueryHandler getRoleClaimsQueryHandler
+			IGetItemsQueryHandler<IList<String>, HashSet<String>> getRoleClaimsQueryHandler
 			)
 		{
 			_userManager = userManager;
@@ -189,7 +187,7 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 
 			if (createTokenResult < 1)
 			{
-				throw new RecordCreationException(refreshToken, "Refresh Token");
+				throw new RecordCreationException(refreshToken, $"Refresh Token {userRefreshToken.UserId}");
 			}
 
 
