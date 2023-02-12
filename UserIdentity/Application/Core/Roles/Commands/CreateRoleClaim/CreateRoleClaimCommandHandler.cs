@@ -20,21 +20,19 @@ namespace UserIdentity.Application.Core.Roles.Commands.CreateRoleClaim
 		public String Action { get; set; }
 	}
 
-	public class CreateRoleClaimCommandHandler
+	public class CreateRoleClaimCommandHandler : ICreateItemCommandHandler<CreateRoleClaimCommand, RoleClaimViewModel>
 	{
 		private readonly RoleManager<IdentityRole> _roleManager;
-		private readonly UserManager<IdentityUser> _userManager;
 		private readonly IJwtFactory _jwtFactory;
 
-		public CreateRoleClaimCommandHandler(RoleManager<IdentityRole> roleManager, UserManager<IdentityUser> userManager, IJwtFactory jwtFactory)
+		public CreateRoleClaimCommandHandler(RoleManager<IdentityRole> roleManager, IJwtFactory jwtFactory)
 		{
 			_roleManager = roleManager;
-			_userManager = userManager;
 			_jwtFactory = jwtFactory;
 		}
 
 
-		public async Task<RoleClaimViewModel> CreateRoleClaimAsync(CreateRoleClaimCommand command)
+		public async Task<RoleClaimViewModel> CreateItemAsync(CreateRoleClaimCommand command)
 		{
 			// Confirm role exists
 			var role = await _roleManager.FindByIdAsync(command.RoleId);

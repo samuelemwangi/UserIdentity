@@ -73,7 +73,7 @@ namespace UserIdentity.Presentation.Controllers.Users
         [Route("register")]
         public async Task<ActionResult<AuthUserViewModel>> CreateUser(RegisterUserCommand command)
         {
-            AuthUserViewModel authUserVM = await _registerUserCommandHandler.CreateUserAsync(command);
+            AuthUserViewModel authUserVM = await _registerUserCommandHandler.CreateItemAsync(command);
 
             authUserVM.ResolveEditDeleteRights(UserRoleClaims, resourceName);
             authUserVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);

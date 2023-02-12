@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.WebUtilities;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Text;
+
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 
 using UserIdentity.Application.Core.Roles.Queries.GetRoleClaims;
 using UserIdentity.Application.Core.Tokens.ViewModels;
@@ -17,7 +18,7 @@ using UserIdentity.Persistence.Repositories.Users;
 
 namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 {
-    public record RegisterUserCommand : BaseCommand
+	public record RegisterUserCommand : BaseCommand
 	{
 		[Required]
 		public String? FirstName { get; init; }
@@ -34,12 +35,12 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 		public String? UserPassword { get; init; }
 	}
 
-	public class RegisterUserCommandHandler
+	public class RegisterUserCommandHandler : ICreateItemCommandHandler<RegisterUserCommand, AuthUserViewModel>
 	{
 		private readonly UserManager<IdentityUser> _userManager;
-	    private readonly RoleManager<IdentityRole> _roleManager;
+		private readonly RoleManager<IdentityRole> _roleManager;
 
-        private readonly IUserRepository _userRepository;
+		private readonly IUserRepository _userRepository;
 		private readonly IRefreshTokenRepository _refreshTokenRepository;
 		private readonly IJwtFactory _jwtFactory;
 		private readonly ITokenFactory _tokenFactory;
@@ -55,8 +56,8 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 
 		public RegisterUserCommandHandler(
 			UserManager<IdentityUser> userManager,
-            RoleManager<IdentityRole> roleManager,
-            IUserRepository userRepository,
+			RoleManager<IdentityRole> roleManager,
+			IUserRepository userRepository,
 			IRefreshTokenRepository refreshTokenRepository,
 			GetUserQueryHandler getUserQueryHandler,
 			IJwtFactory jwtFactory,
@@ -79,9 +80,9 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 			_getRoleClaimsQueryHandler = getRoleClaimsQueryHandler;
 		}
 
-		public async Task<AuthUserViewModel> CreateUserAsync(RegisterUserCommand command)
+		public async Task<AuthUserViewModel> CreateItemAsync(RegisterUserCommand command)
 		{
-            
+
 			// Check if default role is set in configs
 			String defaultRole = _configuration.GetValue<String>("DefaultRole");
 
@@ -89,25 +90,25 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 				throw new IllegalEventException("Reading Default Role", "Role");
 
 			//  Check if default is created otherwise create 
-            var defaultRoleDetails = await _roleManager.FindByNameAsync(defaultRole);
-			if(defaultRoleDetails == null)
-            {
-                var createdRoleResult = await _roleManager.CreateAsync(new IdentityRole { Name = defaultRole});
-                if (!createdRoleResult.Succeeded)
-                    throw new RecordCreationException(defaultRole, "Role");
-            }
+			var defaultRoleDetails = await _roleManager.FindByNameAsync(defaultRole);
+			if (defaultRoleDetails == null)
+			{
+				var createdRoleResult = await _roleManager.CreateAsync(new IdentityRole { Name = defaultRole });
+				if (!createdRoleResult.Succeeded)
+					throw new RecordCreationException(defaultRole, "Role");
+			}
 
-            // Check if user exists by user name, throw RecordExistsException 
-            var existingUserByUserName = await _userManager.FindByNameAsync(command.Username);
+			// Check if user exists by user name, throw RecordExistsException 
+			var existingUserByUserName = await _userManager.FindByNameAsync(command.Username);
 			if (existingUserByUserName != null)
 				throw new RecordExistsException(command.Username + "", "User");
 
 			// Check if user exists by user name, throw RecordExistsException
 			var existingUserByEmail = await _userManager.FindByEmailAsync(command.UserEmail);
-            if (existingUserByEmail != null)
-                throw new RecordExistsException(command.UserEmail + "", "User");
+			if (existingUserByEmail != null)
+				throw new RecordExistsException(command.UserEmail + "", "User");
 
-            var newUser = new IdentityUser
+			var newUser = new IdentityUser
 			{
 				Email = command.UserEmail,
 				UserName = command.Username,
@@ -126,15 +127,15 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 				throw new RecordCreationException(newUser.Id, "User");
 			}
 
-            // User vs Default Role
-            var resultUserRole = await _userManager.AddToRoleAsync(newUser, defaultRole);
+			// User vs Default Role
+			var resultUserRole = await _userManager.AddToRoleAsync(newUser, defaultRole);
 
-            if (!resultUserRole.Succeeded)
-                throw new RecordCreationException(defaultRole, "UserRole");
+			if (!resultUserRole.Succeeded)
+				throw new RecordCreationException(defaultRole, "UserRole");
 
 
-            // Create user details
-            var emailTokenBytes = Encoding.UTF8.GetBytes(await _userManager.GenerateEmailConfirmationTokenAsync(newUser));
+			// Create user details
+			var emailTokenBytes = Encoding.UTF8.GetBytes(await _userManager.GenerateEmailConfirmationTokenAsync(newUser));
 			var confirmEmailToken = WebEncoders.Base64UrlEncode(emailTokenBytes);
 
 			var userDetails = new User
@@ -149,9 +150,9 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 				LastModifiedDate = _machineDateTime.Now,
 				IsDeleted = false
 			};
-			
 
-			Int32 createUserResult =  await _userRepository.CreateUserAsync(userDetails);
+
+			Int32 createUserResult = await _userRepository.CreateUserAsync(userDetails);
 
 			if (createUserResult < 1)
 			{
@@ -169,25 +170,25 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 			(String token, Int32 expiresIn) = await _jwtFactory.GenerateEncodedTokenAsync(newUser.Id, newUser.UserName + "", userRoles, userRoleClaims);
 
 
-            //Generate and save Refresh Token details
-            var refreshToken = _tokenFactory.GenerateRefreshToken();
+			//Generate and save Refresh Token details
+			var refreshToken = _tokenFactory.GenerateRefreshToken();
 
-            var userRefreshToken = new RefreshToken
+			var userRefreshToken = new RefreshToken
 			{
 				UserId = newUser.Id,
 				Expires = _machineDateTime.Now.AddSeconds(expiresIn),
 				Token = refreshToken,
 				CreatedBy = newUser.Id,
 				CreatedDate = _machineDateTime.Now,
-				LastModifiedBy=newUser.Id,
-				LastModifiedDate= _machineDateTime.Now,
-				IsDeleted=false
+				LastModifiedBy = newUser.Id,
+				LastModifiedDate = _machineDateTime.Now,
+				IsDeleted = false
 			};
 
 
 			Int32 createTokenResult = await _refreshTokenRepository.CreateRefreshTokenAsync(userRefreshToken);
 
-			if(createTokenResult < 1)
+			if (createTokenResult < 1)
 			{
 				throw new RecordCreationException(refreshToken, "Refresh Token");
 			}
@@ -196,7 +197,7 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 			// Return registration results
 			return new AuthUserViewModel
 			{
-				UserDetails =  new UserDTO
+				UserDetails = new UserDTO
 				{
 					Id = newUser.Id,
 					UserName = newUser.UserName,
@@ -205,14 +206,14 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 					CreatedBy = newUser.Id,
 					CreatedDate = _machineDateTime.ResolveDate(userDetails.CreatedDate),
 					LastModifiedBy = newUser.Id,
-					LastModifiedDate = _machineDateTime.ResolveDate(userDetails.LastModifiedDate),	
+					LastModifiedDate = _machineDateTime.ResolveDate(userDetails.LastModifiedDate),
 				},
-				UserToken =  new AccessTokenViewModel
+				UserToken = new AccessTokenViewModel
 				{
-					AccessToken = new AccessTokenDTO { Token = token, ExpiresIn=expiresIn},
+					AccessToken = new AccessTokenDTO { Token = token, ExpiresIn = expiresIn },
 					RefreshToken = refreshToken,
 				}
-				
+
 			};
 
 		}

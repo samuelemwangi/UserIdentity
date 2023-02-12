@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-using UserIdentity.Application.Core.Roles.Queries.GetRoles;
 using UserIdentity.Application.Core.Roles.ViewModels;
 using UserIdentity.Application.Exceptions;
 

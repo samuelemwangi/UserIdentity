@@ -164,7 +164,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 		[Route("claim")]
 		public async Task<ActionResult<RoleClaimViewModel>> CreateRoleClaimAsync(CreateRoleClaimCommand command)
 		{
-			var roleClaimVM = await _createRoleClaimCommandHandler.CreateRoleClaimAsync(command);
+			var roleClaimVM = await _createRoleClaimCommandHandler.CreateItemAsync(command);
 
 			roleClaimVM.ResolveEditDeleteRights(UserRoleClaims, resourceName);
 			roleClaimVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
