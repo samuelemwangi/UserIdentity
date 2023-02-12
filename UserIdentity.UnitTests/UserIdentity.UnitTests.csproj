@@ -24,28 +24,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="FakeItEasy" Version="7.3.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="Persistence\" />
-    <None Remove="Persistence\Settings\" />
-    <None Remove="Presentation\" />
-    <None Remove="Presentation\Controllers\" />
-    <None Remove="Presentation\Controllers\Security\" />
-    <None Remove="FakeItEasy" />
-    <None Remove="Moq" />
-    <None Remove="Application\" />
-    <None Remove="Application\Core\" />
-    <None Remove="Application\Core\Extensions\" />
-    <None Remove="Application\Core\Errors\" />
-    <None Remove="Application\Core\KeySets\" />
-    <None Remove="Infrastructure\Utilities\" />
-    <None Remove="Application\Exceptions\" />
-    <None Remove="Application\Enums\" />
-    <None Remove="Domain\" />
-    <None Remove="Domain\Identity\" />
-    <None Remove="Infrastructure\Security\Helpers\" />
-  </ItemGroup>
+  </ItemGroup>	
   <ItemGroup>
     <Folder Include="Persistence\" />
     <Folder Include="Persistence\Settings\" />
