@@ -10,7 +10,7 @@ namespace UserIdentity.Application.Core.Roles.Commands.DeleteRole
 	{
 		public String RoleId { get; init; }
 	}
-	public class DeleteRoleCommandHandler
+	public class DeleteRoleCommandHandler : IDeleteItemCommandHandler<DeleteRoleCommand, DeleteRecordViewModel>
 	{
 		private readonly RoleManager<IdentityRole> _roleManager;
 		public DeleteRoleCommandHandler(RoleManager<IdentityRole> roleManager)
@@ -19,15 +19,15 @@ namespace UserIdentity.Application.Core.Roles.Commands.DeleteRole
 		}
 
 
-		public async Task<DeleteRecordViewModel> DeleteRoleAsync(DeleteRoleCommand command)
+		public async Task<DeleteRecordViewModel> DeleteItemAsync(DeleteRoleCommand command)
 		{
-			var role = await _roleManager.Roles.Where(r => r.Id == command.RoleId).FirstOrDefaultAsync();
+			var role = await _roleManager.FindByIdAsync(command.RoleId);
 
 			if (role == null)
 				throw new NoRecordException(command.RoleId, "Role");
 
 			var deleteRoleResult = await _roleManager.DeleteAsync(role);
-		
+
 
 			if (!deleteRoleResult.Succeeded)
 				throw new RecordDeletionException(command.RoleId, "Role");

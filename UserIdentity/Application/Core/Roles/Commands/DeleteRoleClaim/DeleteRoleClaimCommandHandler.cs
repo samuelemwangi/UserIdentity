@@ -2,7 +2,6 @@
 
 using Microsoft.AspNetCore.Identity;
 
-using UserIdentity.Application.Core.Roles.ViewModels;
 using UserIdentity.Application.Exceptions;
 using UserIdentity.Application.Interfaces.Security;
 
@@ -17,7 +16,7 @@ namespace UserIdentity.Application.Core.Roles.Commands.DeleteRoleClaim
 		[Required]
 		public String Action { get; init; }
 	}
-	public class DeleteRoleClaimCommandHandler
+	public class DeleteRoleClaimCommandHandler : IDeleteItemCommandHandler<DeleteRoleClaimCommand, DeleteRecordViewModel>
 	{
 		private readonly RoleManager<IdentityRole> _roleManager;
 		private readonly IJwtFactory _jwtFactory;
@@ -28,7 +27,7 @@ namespace UserIdentity.Application.Core.Roles.Commands.DeleteRoleClaim
 			_jwtFactory = jwtFactory;
 		}
 
-		public async Task<DeleteRecordViewModel> DeleteRoleClaimAsync(DeleteRoleClaimCommand command)
+		public async Task<DeleteRecordViewModel> DeleteItemAsync(DeleteRoleClaimCommand command)
 		{
 			// Confirm role exists
 			var role = await _roleManager.FindByIdAsync(command.RoleId);

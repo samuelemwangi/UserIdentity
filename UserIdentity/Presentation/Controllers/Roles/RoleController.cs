@@ -117,7 +117,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 		[Route("{roleId}")]
 		public async Task<ActionResult<DeleteRecordViewModel>> DeleteRoleAsync(string roleId)
 		{
-			var deleteRoleVM = await _deleteRoleCommandHandler.DeleteRoleAsync(new DeleteRoleCommand { RoleId = roleId });
+			var deleteRoleVM = await _deleteRoleCommandHandler.DeleteItemAsync(new DeleteRoleCommand { RoleId = roleId });
 
 			deleteRoleVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS, "Record deleted successfully");
 
@@ -190,7 +190,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 		[Route("claim")]
 		public async Task<ActionResult<DeleteRecordViewModel>> DelteRoleClaimsAsync(DeleteRoleClaimCommand command)
 		{
-			var deleteClaimVM = await _deleteRoleClaimCommandHandler.DeleteRoleClaimAsync(command);
+			var deleteClaimVM = await _deleteRoleClaimCommandHandler.DeleteItemAsync(command);
 
 			deleteClaimVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS, "Record deleted successfully");
 
