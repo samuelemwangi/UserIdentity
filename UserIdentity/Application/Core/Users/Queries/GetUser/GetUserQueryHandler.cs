@@ -12,7 +12,7 @@ namespace UserIdentity.Application.Core.Users.Queries.GetUser
 		public String UserId { get; init; }
 	}
 
-	public class GetUserQueryHandler: IGetItemQueryHandler<GetUserQuery, UserViewModel>
+	public class GetUserQueryHandler : IGetItemQueryHandler<GetUserQuery, UserViewModel>
 	{
 
 		private readonly UserManager<IdentityUser> _userManager;
@@ -31,6 +31,10 @@ namespace UserIdentity.Application.Core.Users.Queries.GetUser
 		public async Task<UserViewModel> GetItemAsync(GetUserQuery query)
 		{
 			var user = await _userManager.FindByIdAsync(query.UserId);
+
+			if (user == null)
+				throw new NoRecordException(query.UserId + "", "User");
+
 			var userDetails = await _userRepository.GetUserAsync(query.UserId);
 
 			if (userDetails == null)
