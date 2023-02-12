@@ -99,7 +99,7 @@ namespace UserIdentity.Presentation.Controllers.Users
         [Route("refresh-token")]
         public async Task<ActionResult<AccessTokenViewModel>> RefreshToken(ExchangeRefreshTokenCommand command)
         {
-            var refreshTokenVM = await _exchangeRefreshTokenCommandHandler.ExchangeRefreshTokenAsync(command);
+            var refreshTokenVM = await _exchangeRefreshTokenCommandHandler.UpdateItemAsync(command);
             refreshTokenVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS, "Refresh token generated successfully");
             return Ok(refreshTokenVM);
         }

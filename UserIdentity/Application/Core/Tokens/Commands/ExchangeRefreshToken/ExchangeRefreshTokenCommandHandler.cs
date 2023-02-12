@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 
-using UserIdentity.Application.Core.Roles.Queries.GetRoleClaims;
 using UserIdentity.Application.Core.Tokens.ViewModels;
 using UserIdentity.Application.Exceptions;
 using UserIdentity.Application.Interfaces.Security;
@@ -17,17 +16,16 @@ namespace UserIdentity.Application.Core.Tokens.Commands.ExchangeRefreshToken
 		public String RefreshToken { get; init; }
 	}
 
-	public class ExchangeRefreshTokenCommandHandler
+	public class ExchangeRefreshTokenCommandHandler: IUpdateItemCommandHandler<ExchangeRefreshTokenCommand, ExchangeRefreshTokenViewModel>
 	{
 		private readonly IJwtFactory _jwtFactory;
 		private readonly ITokenFactory _tokenFactory;
 		private readonly IJwtTokenValidator _jwtTokenValidator;
 		private readonly UserManager<IdentityUser> _userManager;
-		private readonly IUserRepository _userRepository;
 		private readonly IRefreshTokenRepository _refreshTokenRepository;
 		private readonly IMachineDateTime _machineDateTime;
 
-		private readonly GetRoleClaimsQueryHandler _getRoleClaimsQueryHandler;
+		private readonly IGetItemsQueryHandler<IList<String>, HashSet<String>> _getRoleClaimsQueryHandler;
 
 
 		public ExchangeRefreshTokenCommandHandler(
@@ -35,31 +33,29 @@ namespace UserIdentity.Application.Core.Tokens.Commands.ExchangeRefreshToken
 			ITokenFactory tokenFactory,
 			IJwtTokenValidator jwtTokenValidator,
 			UserManager<IdentityUser> userManager,
-			IUserRepository userRepository,
 			IRefreshTokenRepository refreshTokenRepository,
 			IMachineDateTime machineDateTime,
-			GetRoleClaimsQueryHandler getRoleClaimsQueryHandler
+			IGetItemsQueryHandler<IList<String>, HashSet<String>> getRoleClaimsQueryHandler
 			)
 		{
 			_jwtFactory = jwtFactory;
 			_tokenFactory = tokenFactory;
 			_jwtTokenValidator = jwtTokenValidator;
 			_userManager = userManager;
-			_userRepository = userRepository;
 			_refreshTokenRepository = refreshTokenRepository;
 			_machineDateTime = machineDateTime;
 			_getRoleClaimsQueryHandler = getRoleClaimsQueryHandler;
 		}
 
-		public async Task<ExchangeRefreshTokenViewModel> ExchangeRefreshTokenAsync(ExchangeRefreshTokenCommand command)
+		public async Task<ExchangeRefreshTokenViewModel> UpdateItemAsync(ExchangeRefreshTokenCommand command)
 		{			
 			var claimsPrincipal = _jwtTokenValidator.GetPrincipalFromToken(command.AccessToken);
 			
 			if (claimsPrincipal == null)
 				throw new SecurityTokenException("Invalid access token provided");		
 
-			var userId = claimsPrincipal.Claims.First(c => c.Type == "id");
-			var userName = claimsPrincipal.Claims.First(c => c.Subject != null);
+			var userId = claimsPrincipal.Claims.FirstOrDefault(c => c.Type == "id");
+			var userName = claimsPrincipal.Claims.FirstOrDefault(c => c.Subject != null);
 
 			if (userId == null || userName == null)
 				throw new SecurityTokenException("Invalid access token provided");
