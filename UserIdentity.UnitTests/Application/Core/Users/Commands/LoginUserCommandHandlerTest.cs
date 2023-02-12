@@ -154,7 +154,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 
 			A.CallTo(() => _jwtFactory.GenerateEncodedTokenAsync(existingIdentityUser.Id, A<String>.Ignored, userRoles, userRoleClaims)).Returns((accessToken, expiresIn));
 
-			A.CallTo(() => _refreshTokenRepository.CreateRefreshTokenAsync(A<RefreshToken>.That.Matches(x => x.Token == refreshToken))).Returns(0);
+			A.CallTo(() => _refreshTokenRepository.CreateRefreshTokenAsync(A<RefreshToken>.That.Matches(x => x.Token == refreshToken))).Returns(Task.FromResult(0));
 
 			var handler = GetLoginUserCommandHandler();
 
@@ -162,6 +162,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 			await Assert.ThrowsAsync<RecordCreationException>(() => handler.CreateItemAsync(command));
 		}
 
+		[Fact]
 		public async Task Login_With_Valid_Details_Returns_Valid_Authenticated_User()
 		{
 			// Arrange
@@ -198,7 +199,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 
 			A.CallTo(() => _jwtFactory.GenerateEncodedTokenAsync(existingIdentityUser.Id, A<String>.Ignored, userRoles, userRoleClaims)).Returns((accessToken, expiresIn));
 
-			A.CallTo(() => _refreshTokenRepository.CreateRefreshTokenAsync(A<RefreshToken>.That.Matches(x => x.Token == refreshToken))).Returns(1);
+			A.CallTo(() => _refreshTokenRepository.CreateRefreshTokenAsync(A<RefreshToken>.That.Matches(x => x.Token == refreshToken))).Returns(Task.FromResult(1));
 
 			var handler = GetLoginUserCommandHandler();
 

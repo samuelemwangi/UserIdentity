@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 
 using UserIdentity.Application.Core;
 using UserIdentity.Application.Core.Users.Commands.RegisterUser;
+using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Application.Exceptions;
 using UserIdentity.Application.Interfaces.Security;
 using UserIdentity.Application.Interfaces.Utilities;
@@ -263,7 +264,12 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 			var vm = await handler.CreateItemAsync(command);
 
 			// Assert
-			Assert.NotNull(vm);
+			Assert.IsType<AuthUserViewModel>(vm);
+			Assert.NotNull(vm.UserDetails);
+			Assert.NotNull(vm.UserToken);
+			Assert.NotNull(vm.UserToken?.AccessToken);
+			Assert.NotNull(vm.UserToken?.RefreshToken);
+			Assert.Equal(resfreshToken, vm.UserToken?.RefreshToken);
 		}
 
 

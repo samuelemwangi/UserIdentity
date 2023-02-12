@@ -70,7 +70,32 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 		}
 
 		[Fact]
-		public async Task Confirm_UpdatePassword_Token_With_Non_Existing_Token_Returns_True()
+		public async Task Confirm_UpdatePassword_Token_With_Query_Token_Exception_Returns_False()
+		{
+			// Arrange
+			var rawToken = "test123+*";
+
+			var command = new ConfirmUpdatePasswordTokenCommand
+			{
+				ConfirmPasswordToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(rawToken)),
+				UserId = "test"
+			};
+
+			A.CallTo(() => _userRepository.ValidateUpdatePasswordTokenAsync(rawToken, command.UserId)).Throws(new System.Exception());
+
+			var handler = new ConfirmUpdatePasswordTokenCommandHandler(_userRepository);
+
+			// Act
+			var vm = await handler.UpdateItemAsync(command);
+
+			// Assert
+			Assert.IsType<ConfirmUpdatePasswordTokenViewModel>(vm);
+			Assert.NotNull(vm.TokenPasswordResult);
+			Assert.False(vm.TokenPasswordResult.UpdatePasswordTokenConfirmed);
+		}
+
+		[Fact]
+		public async Task Confirm_UpdatePassword_Token_With_Existing_Token_Returns_True()
 		{
 			// Arrange
 			var rawToken = "test123+*";
