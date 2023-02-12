@@ -80,7 +80,7 @@ namespace UserIdentity.Application.Core.Users.Commands.LoginUser
 
 			var userRoles = await _userManager.GetRolesAsync(user);
 
-			var userRoleClaims = await _getRoleClaimsQueryHandler.GetRoleClaimsAsync(userRoles);
+			var userRoleClaims = await _getRoleClaimsQueryHandler.GetItemsAsync(userRoles);
 
 			var refreshToken = _tokenFactory.GenerateRefreshToken();
 

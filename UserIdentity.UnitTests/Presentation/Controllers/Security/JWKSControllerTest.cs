@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,10 +28,10 @@ namespace UserIdentity.UnitTests.Presentation.Controllers.Security
 		}
 
 		[Fact]
-		public void Get_KeySets_Returns_KeySets()
+		public async Task Get_KeySets_Returns_KeySets()
 		{
 			// Arrange
-			var actionResult = _jWKSController.GetKeySets();
+			var actionResult = await _jWKSController.GetKeySetsAsync();
 
 			// Act
 			var result = actionResult as OkObjectResult;

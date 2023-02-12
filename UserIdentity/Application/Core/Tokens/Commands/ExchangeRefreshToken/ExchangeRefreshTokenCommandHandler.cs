@@ -71,7 +71,7 @@ namespace UserIdentity.Application.Core.Tokens.Commands.ExchangeRefreshToken
 
 			var userRoles = await _userManager.GetRolesAsync(new IdentityUser { Id = userId.Value });
 
-			var userRoleClaims = await _getRoleClaimsQueryHandler.GetRoleClaimsAsync(userRoles);
+			var userRoleClaims = await _getRoleClaimsQueryHandler.GetItemsAsync(userRoles);
 
 			var updateRefreshToken = _tokenFactory.GenerateRefreshToken();
 

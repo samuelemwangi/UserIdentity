@@ -1,4 +1,6 @@
-﻿using FakeItEasy;
+﻿using System.Threading.Tasks;
+
+using FakeItEasy;
 using UserIdentity.Application.Core.KeySets.Queries.GetKeySets;
 using UserIdentity.Application.Interfaces.Security;
 using Xunit;
@@ -15,7 +17,7 @@ namespace UserIdentity.UnitTests.Application.Core.KeySets
         }
 
         [Fact]
-        public void Get_KeySets_Returns_Keysets()
+        public async Task Get_KeySets_Returns_Keysets()
         {
             GetKeySetsQuery query = new GetKeySetsQuery
             {
@@ -24,7 +26,7 @@ namespace UserIdentity.UnitTests.Application.Core.KeySets
 
             GetKeySetsQueryHandler getKeySetsQueryHandler = new GetKeySetsQueryHandler(_keySetFactory);
 
-            var keySets = getKeySetsQueryHandler.GetKeySets(query);
+            var keySets = await getKeySetsQueryHandler.GetItemsAsync(query);
 
             Assert.NotNull(keySets);
             Assert.Single(keySets);

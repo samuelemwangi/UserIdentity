@@ -12,7 +12,8 @@ namespace UserIdentity.Application.Core.Roles.Queries.GetRoleClaims
 	{
 		public String RoleId { get; init; }
 	}
-	public class GetRoleClaimsQueryHandler
+	public class GetRoleClaimsQueryHandler : IGetItemsQueryHandler<GetRoleClaimsQuery, RoleClaimsViewModel>, 
+		IGetItemsQueryHandler<IList<String>, HashSet<String>>
 	{
 		private readonly RoleManager<IdentityRole> _roleManager;
 		private readonly IJwtFactory _jwtFactory;
@@ -24,7 +25,7 @@ namespace UserIdentity.Application.Core.Roles.Queries.GetRoleClaims
 		}
 
 
-		public async Task<RoleClaimsViewModel> GetRoleClaimsAsync(GetRoleClaimsQuery query)
+		public async Task<RoleClaimsViewModel> GetItemsAsync(GetRoleClaimsQuery query)
 		{
 			var role = await _roleManager.FindByIdAsync(query.RoleId);
 
@@ -55,19 +56,19 @@ namespace UserIdentity.Application.Core.Roles.Queries.GetRoleClaims
 
 		}
 
-		public async Task<HashSet<String>> GetRoleClaimsAsync(IList<String> roles)
+		public async Task<HashSet<String>> GetItemsAsync(IList<String> roles)
 		{
 			HashSet<String> roleClaims = new();
 
-			foreach(var role in roles)
+			foreach (var role in roles)
 			{
 
 				var currentRole = await _roleManager.FindByNameAsync(role);
 				var currentRoleClaims = await _roleManager.GetClaimsAsync(currentRole);
-				
+
 
 				foreach (var claim in currentRoleClaims)
-				{					
+				{
 					roleClaims.Add(claim.Value);
 				}
 

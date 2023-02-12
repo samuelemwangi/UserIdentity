@@ -15,9 +15,9 @@ namespace UserIdentity.Presentation.Controllers.Security
 
 		[HttpGet]
 		[Route("keys")]
-		public IActionResult GetKeySets()
+		public async Task<IActionResult> GetKeySetsAsync()
 		{
-			var keySets = _getKeySetsQueryHandler.GetKeySets(new GetKeySetsQuery { });
+			var keySets = await _getKeySetsQueryHandler.GetItemsAsync(new GetKeySetsQuery { });
 			return Ok(keySets);
 		}
 	}

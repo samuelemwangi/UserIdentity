@@ -174,7 +174,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 		[Route("claim/{roleId}")]
 		public async Task<ActionResult<RoleClaimsViewModel>> GetRoleClaimsAsync(String roleId)
 		{
-			var roleClaimsVM = await _getRoleClaimsQueryHandler.GetRoleClaimsAsync(new GetRoleClaimsQuery { RoleId = roleId });
+			var roleClaimsVM = await _getRoleClaimsQueryHandler.GetItemsAsync(new GetRoleClaimsQuery { RoleId = roleId });
 
 			roleClaimsVM.ResolveCreateDownloadRights(UserRoleClaims, resourceName);
 			roleClaimsVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);

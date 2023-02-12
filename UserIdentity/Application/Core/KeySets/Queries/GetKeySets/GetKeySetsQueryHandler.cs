@@ -6,7 +6,7 @@ namespace UserIdentity.Application.Core.KeySets.Queries.GetKeySets
 	{
 
 	}
-	public class GetKeySetsQueryHandler
+	public class GetKeySetsQueryHandler : IGetItemsQueryHandler<GetKeySetsQuery, IDictionary<String, IList<Dictionary<String, String>>>>
 	{
 		private readonly IKeySetFactory _keySetFactory;
 
@@ -15,10 +15,10 @@ namespace UserIdentity.Application.Core.KeySets.Queries.GetKeySets
 			_keySetFactory = keySetFactory;
 		}
 
-		public Dictionary<string, IList<Dictionary<string, string>>> GetKeySets(GetKeySetsQuery query)
+		public async Task<IDictionary<String, IList<Dictionary<String, String>>>> GetItemsAsync(GetKeySetsQuery query)
 		{
 
-			Dictionary<string, string> keySet = new()
+			Dictionary<String, String> keySet = new()
 			{
 				{ "alg", _keySetFactory.GetAlgorithm() },
 				{ "kty", _keySetFactory.GetKeyType() },
@@ -26,12 +26,12 @@ namespace UserIdentity.Application.Core.KeySets.Queries.GetKeySets
 				{ "k", _keySetFactory.GetBase64URLEncodedSecretKey()}
 			};
 
-			List<Dictionary<string, string>> keySetList = new()
+			List<Dictionary<String, String>> keySetList = new()
 			{
 				keySet
 			};
 
-			Dictionary<string, IList<Dictionary<string, string>>> keySets = new()
+			Dictionary<String, IList<Dictionary<String, String>>> keySets = new()
 			{
 				{"keys", keySetList},
 			};
@@ -39,5 +39,6 @@ namespace UserIdentity.Application.Core.KeySets.Queries.GetKeySets
 			return keySets;
 
 		}
+
 	}
 }

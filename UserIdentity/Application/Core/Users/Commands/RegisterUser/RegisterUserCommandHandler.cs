@@ -162,7 +162,7 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 			// Get User Roles 
 			var userRoles = await _userManager.GetRolesAsync(newUser);
 
-			var userRoleClaims = await _getRoleClaimsQueryHandler.GetRoleClaimsAsync(userRoles);
+			var userRoleClaims = await _getRoleClaimsQueryHandler.GetItemsAsync(userRoles);
 
 
 			// Generate access Token
