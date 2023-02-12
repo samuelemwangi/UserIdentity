@@ -3,7 +3,6 @@ using System.Security.Authentication;
 
 using Microsoft.AspNetCore.Identity;
 
-using UserIdentity.Application.Core.Roles.Queries.GetRoleClaims;
 using UserIdentity.Application.Core.Tokens.ViewModels;
 using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Application.Exceptions;
@@ -24,7 +23,7 @@ namespace UserIdentity.Application.Core.Users.Commands.LoginUser
 		public String? Password { get; init; }
 	}
 
-	public class LoginUserCommandHandler
+	public class LoginUserCommandHandler : ICreateItemCommandHandler<LoginUserCommand, AuthUserViewModel>
 	{
 		private readonly IJwtFactory _jwtFactory;
 		private readonly ITokenFactory _tokenFactory;
@@ -33,7 +32,8 @@ namespace UserIdentity.Application.Core.Users.Commands.LoginUser
 		private readonly IRefreshTokenRepository _refreshTokenRepository;
 		private readonly IMachineDateTime _machineDateTime;
 
-		private readonly GetRoleClaimsQueryHandler _getRoleClaimsQueryHandler;
+		private readonly IGetItemsQueryHandler<IList<String>, HashSet<String>> _getRoleClaimsQueryHandler;
+
 
 		public LoginUserCommandHandler(
 			IJwtFactory jwtFactory,
@@ -43,7 +43,7 @@ namespace UserIdentity.Application.Core.Users.Commands.LoginUser
 			IRefreshTokenRepository refreshTokenRepository,
 			IMachineDateTime machineDateTime,
 
-			GetRoleClaimsQueryHandler getRoleClaimsQueryHandler
+			IGetItemsQueryHandler<IList<String>, HashSet<String>> getRoleClaimsQueryHandler
 			)
 		{
 			_jwtFactory = jwtFactory;
@@ -56,7 +56,7 @@ namespace UserIdentity.Application.Core.Users.Commands.LoginUser
 			_getRoleClaimsQueryHandler = getRoleClaimsQueryHandler;
 		}
 
-		public async Task<AuthUserViewModel> LoginUserAsync(LoginUserCommand command)
+		public async Task<AuthUserViewModel> CreateItemAsync(LoginUserCommand command)
 		{
 			var user = await _userManager.FindByNameAsync(command.UserName);
 

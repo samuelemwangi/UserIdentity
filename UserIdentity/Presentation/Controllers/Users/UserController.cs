@@ -86,7 +86,7 @@ namespace UserIdentity.Presentation.Controllers.Users
         [Route("login")]
         public async Task<ActionResult<AuthUserViewModel>> LoginUser(LoginUserCommand command)
         {
-            AuthUserViewModel authUserVM = await _loginUserCommandHandler.LoginUserAsync(command);
+            AuthUserViewModel authUserVM = await _loginUserCommandHandler.CreateItemAsync(command);
 
             authUserVM.ResolveEditDeleteRights(UserRoleClaims, resourceName);
             authUserVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
