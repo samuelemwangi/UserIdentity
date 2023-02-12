@@ -11,30 +11,17 @@ namespace UserIdentity.Application.Core.Roles.Commands.CreateRole
 		public String RoleName { get; init; }
 	}
 
-	public record CreateUserRoleCommand : BaseCommand
-	{
-		public String UserId { get; init; }
-		public String RoleId { get; init; }
-	}
 
-	public class CreateRoleCommandHandler
+
+	public class CreateRoleCommandHandler : ICreateItemCommandHandler<CreateRoleCommand, RoleViewModel>
 	{
 		private readonly RoleManager<IdentityRole> _roleManager;
-		private readonly UserManager<IdentityUser> _userManager;
-		private readonly GetUserRolesQueryHandler _getUserRolesQueryHandler;
-		public CreateRoleCommandHandler(
-			RoleManager<IdentityRole> roleManager,
-			UserManager<IdentityUser> userManager,
-			GetUserRolesQueryHandler getUserRolesQueryHandler
-			)
+		public CreateRoleCommandHandler(RoleManager<IdentityRole> roleManager)
 		{
 			_roleManager = roleManager;
-			_userManager = userManager;
-			_getUserRolesQueryHandler = getUserRolesQueryHandler;
-
 		}
 
-		public async Task<RoleViewModel> CreateRoleAsync(CreateRoleCommand command)
+		public async Task<RoleViewModel> CreateItemAsync(CreateRoleCommand command)
 		{
 			var existingRole = await _roleManager.FindByNameAsync(command.RoleName);
 			if (existingRole != null)
@@ -48,41 +35,14 @@ namespace UserIdentity.Application.Core.Roles.Commands.CreateRole
 
 			return new RoleViewModel
 			{
-				Role =  new RoleDTO
+				Role = new RoleDTO
 				{
-					Id =  newRole.Id,
+					Id = newRole.Id,
 					Name = newRole.Name
 				}
 
 			};
 		}
 
-		public async Task<UserRolesViewModel> CreateUserRoleAsync(CreateUserRoleCommand command)
-		{
-			var user = await _userManager.FindByIdAsync(command.UserId);
-
-			if (user == null)
-				throw new NoRecordException(command.UserId + "", "User");
-
-			var role = await _roleManager.FindByIdAsync(command.RoleId);
-
-			if(role == null)
-				throw new NoRecordException(command.RoleId + "", "Role");
-
-			var userRoleExists = await _userManager.IsInRoleAsync(user, role.Name);
-
-			if (userRoleExists)
-				throw new RecordExistsException(command.RoleId  , "UserRole");
-
-			var resultUserRole = await _userManager.AddToRoleAsync(user, role.Name);
-
-			if (!resultUserRole.Succeeded)
-				throw new RecordCreationException(command.RoleId, "UserRole");
-
-			// remove roles from cache
-			var resolvedRoles = await _getUserRolesQueryHandler.GetItemsAsync(new GetUserRolesQuery { UserId = command.UserId });
-
-			return resolvedRoles;
-		}
 	}
 }

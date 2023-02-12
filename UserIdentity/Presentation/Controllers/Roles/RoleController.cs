@@ -23,7 +23,8 @@ namespace UserIdentity.Presentation.Controllers.Roles
 	[ValidateModel]
 	public class RoleController : BaseController
 	{
-		private readonly CreateRoleCommandHandler _createUserRoleCommandHandler;
+		private readonly CreateRoleCommandHandler _createRoleCommandHandler;
+		private readonly CreateUserRoleCommandHandler _createUserRoleCommandHandler;
 		private readonly GetRoleQueryHandler _getRoleQueryHandler;
 		private readonly GetRolesQueryHandler _getRolesQueryHandler;
 		private readonly GetUserRolesQueryHandler _getUserRolesQueryHandler;
@@ -37,7 +38,8 @@ namespace UserIdentity.Presentation.Controllers.Roles
 
 
 		public RoleController(
-				CreateRoleCommandHandler createUserRoleCommandHandler,
+			  CreateRoleCommandHandler createRoleCommandHandler,
+				CreateUserRoleCommandHandler createUserRoleCommandHandler,
 				GetRoleQueryHandler getRoleQueryHandler,
 				GetRolesQueryHandler getRolesQueryHandler,
 				GetUserRolesQueryHandler getUserRolesQueryHandler,
@@ -48,6 +50,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 				DeleteRoleClaimCommandHandler deleteRoleClaimCommandHandler
 				)
 		{
+			_createRoleCommandHandler = _createRoleCommandHandler;
 			_createUserRoleCommandHandler = createUserRoleCommandHandler;
 			_getRoleQueryHandler = getRoleQueryHandler;
 			_getRolesQueryHandler = getRolesQueryHandler;
@@ -88,7 +91,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 		[HttpPost]
 		public async Task<ActionResult<RoleViewModel>> CreateRoleAsync(CreateRoleCommand command)
 		{
-			var roleVM = await _createUserRoleCommandHandler.CreateRoleAsync(command);
+			var roleVM = await _createRoleCommandHandler.CreateItemAsync(command);
 
 			roleVM.ResolveEditDeleteRights(UserRoleClaims, resourceName);
 			roleVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
@@ -141,7 +144,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 		[Route("user")]
 		public async Task<ActionResult<UserRolesViewModel>> CreateUserRoleAsync(CreateUserRoleCommand command)
 		{
-			var userRolesVM = await _createUserRoleCommandHandler.CreateUserRoleAsync(command);
+			var userRolesVM = await _createUserRoleCommandHandler.CreateItemAsync(command);
 
 			userRolesVM.ResolveCreateDownloadRights(UserRoleClaims, resourceName);
 			userRolesVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
