@@ -1,7 +1,7 @@
 ﻿namespace UserIdentity.Application.Core
 {
-	public interface IGetItemQueryHandler<Query, VM>
+	public interface IGetItemQueryHandler<TQuery, TResult>
 	{
-		public Task<VM> GetItemAsync(Query query);
+		public Task<TResult> GetItemAsync(TQuery query);
 	}
 }

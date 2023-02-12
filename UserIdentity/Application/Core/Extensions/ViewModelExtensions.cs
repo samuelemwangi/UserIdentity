@@ -10,7 +10,7 @@ namespace UserIdentity.Application.Core.Extensions
 			viewModel.StatusMessage = cusomStatusMessage != "" ? cusomStatusMessage : itemStatusMessage.GetDisplayName();
 		}
 
-		public static void ResolveEditDeleteRights(this ItemDetailBaseViewModel viewModel, String? userRoleClaims, String entity, Boolean isLoggedInUser =  false)
+		public static void ResolveEditDeleteRights(this ItemDetailBaseViewModel viewModel, String? userRoleClaims, String entity, Boolean isLoggedInUser = false)
 		{
 			// check if edit is enabled
 			if (isLoggedInUser || (userRoleClaims != null && userRoleClaims.ToLower().Contains(entity.ToLower() + ":edit")))
@@ -19,7 +19,7 @@ namespace UserIdentity.Application.Core.Extensions
 				viewModel.EditEnabled = false;
 
 			// check if delete is enabled
-			if (isLoggedInUser ||  (userRoleClaims != null && userRoleClaims.ToLower().Contains(entity.ToLower() + ":delete")))
+			if (isLoggedInUser || (userRoleClaims != null && userRoleClaims.ToLower().Contains(entity.ToLower() + ":delete")))
 				viewModel.DeleteEnabled = true;
 			else
 				viewModel.DeleteEnabled = false;

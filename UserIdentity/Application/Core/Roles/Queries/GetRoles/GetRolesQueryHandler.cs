@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 
 using UserIdentity.Application.Core.Roles.ViewModels;
-using UserIdentity.Application.Exceptions;
 
 namespace UserIdentity.Application.Core.Roles.Queries.GetRoles
 {
