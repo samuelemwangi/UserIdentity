@@ -12,7 +12,7 @@ namespace UserIdentity.Application.Core.Roles.Commands.UpdateRole
 		public String RoleId { get; init; }
 		public String RoleName { get; init; }
 	}
-	public class UpdateRoleCommandHandler
+	public class UpdateRoleCommandHandler: IUpdateItemCommandHandler<UpdateRoleCommand, RoleViewModel>
 	{
 		private readonly RoleManager<IdentityRole> _roleManager;
 		public UpdateRoleCommandHandler(RoleManager<IdentityRole> roleManager)
@@ -21,9 +21,9 @@ namespace UserIdentity.Application.Core.Roles.Commands.UpdateRole
 		}
 
 
-		public async Task<RoleViewModel> UpdateRoleAsync(UpdateRoleCommand command)
+		public async Task<RoleViewModel> UpdateItemAsync(UpdateRoleCommand command)
 		{
-			var role = await _roleManager.Roles.Where(r => r.Id == command.RoleId).FirstOrDefaultAsync();
+			var role = await _roleManager.FindByIdAsync(command.RoleId);
 
 			if (role == null)
 				throw new NoRecordException(command.RoleId, "Role");
@@ -31,7 +31,7 @@ namespace UserIdentity.Application.Core.Roles.Commands.UpdateRole
 			role.Name = command.RoleName;
 
 			var updateRoleResult = await _roleManager.UpdateAsync(role);
-		
+
 
 			if (!updateRoleResult.Succeeded)
 				throw new RecordUpdateException(command.RoleId, "Role");
@@ -40,8 +40,8 @@ namespace UserIdentity.Application.Core.Roles.Commands.UpdateRole
 			{
 				Role = new RoleDTO
 				{
-					Id =  role.Id,
-					Name =  role.Name
+					Id = role.Id,
+					Name = role.Name
 				}
 			};
 

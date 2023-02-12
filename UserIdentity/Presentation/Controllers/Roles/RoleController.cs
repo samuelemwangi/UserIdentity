@@ -103,7 +103,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 		[HttpPut]
 		public async Task<ActionResult<RoleViewModel>> UpdateRoleAsync(UpdateRoleCommand command)
 		{
-			var updatedRoleVM = await _updateRoleCommandHandler.UpdateRoleAsync(command);
+			var updatedRoleVM = await _updateRoleCommandHandler.UpdateItemAsync(command);
 
 			updatedRoleVM.ResolveEditDeleteRights(UserRoleClaims, resourceName);
 			updatedRoleVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
