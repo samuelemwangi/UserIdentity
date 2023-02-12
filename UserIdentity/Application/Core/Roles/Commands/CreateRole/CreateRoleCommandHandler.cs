@@ -21,11 +21,11 @@ namespace UserIdentity.Application.Core.Roles.Commands.CreateRole
 	{
 		private readonly RoleManager<IdentityRole> _roleManager;
 		private readonly UserManager<IdentityUser> _userManager;
-		private readonly GetRolesQueryHandler _getUserRolesQueryHandler;
+		private readonly GetUserRolesQueryHandler _getUserRolesQueryHandler;
 		public CreateRoleCommandHandler(
 			RoleManager<IdentityRole> roleManager,
 			UserManager<IdentityUser> userManager,
-			GetRolesQueryHandler getUserRolesQueryHandler
+			GetUserRolesQueryHandler getUserRolesQueryHandler
 			)
 		{
 			_roleManager = roleManager;
@@ -80,7 +80,7 @@ namespace UserIdentity.Application.Core.Roles.Commands.CreateRole
 				throw new RecordCreationException(command.RoleId, "UserRole");
 
 			// remove roles from cache
-			var resolvedRoles = await _getUserRolesQueryHandler.GetUserRolesAsync(new GetRolesQuery { UserId = command.UserId });
+			var resolvedRoles = await _getUserRolesQueryHandler.GetItemsAsync(new GetUserRolesQuery { UserId = command.UserId });
 
 			return resolvedRoles;
 		}
