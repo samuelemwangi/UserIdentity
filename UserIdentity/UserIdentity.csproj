@@ -12,10 +12,10 @@
 		<WarningLevel>4</WarningLevel>
 	</PropertyGroup>
 	<ItemGroup>
-	  <Compile Remove="Application\Core\Tokens\Queries\**" />
-	  <Content Remove="Application\Core\Tokens\Queries\**" />
-	  <EmbeddedResource Remove="Application\Core\Tokens\Queries\**" />
-	  <None Remove="Application\Core\Tokens\Queries\**" />
+		<Compile Remove="Application\Core\Tokens\Queries\**" />
+		<Content Remove="Application\Core\Tokens\Queries\**" />
+		<EmbeddedResource Remove="Application\Core\Tokens\Queries\**" />
+		<None Remove="Application\Core\Tokens\Queries\**" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.5" />
