@@ -70,6 +70,19 @@ namespace UserIdentity.UnitTests
 			// Assert
 			Assert.True(_services.Count >= 0);
 		}
+
+		[Fact]
+		public void AddAppIdentity_To_DI_Container_Adds_AppIdentity_To_DI_Container()
+		{
+			// Arrange
+			var configuration = _testSettings.Configuration;
+
+			// Act
+			_services.AddAppIdentity();
+
+			// Assert
+			Assert.True(_services.Count >= 0);
+		}
 	}
 }
 
