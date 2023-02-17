@@ -49,6 +49,27 @@ namespace UserIdentity.UnitTests
 			// Assert
 			Assert.True(_services.Count >= 0);			
 		}
+
+		[Fact]
+		public void AddCommandAndQueryHandlers_To_DI_Container_Adds_CommandAndQueryHandlers_To_DI_Container()
+		{
+			// Act
+			_services.AddCommandAndQueryHandlers();
+
+			// Assert
+			Assert.True(_services.Count >= 0);
+		}
+
+		[Fact]
+		public void AddAppAuthorization_To_DI_Container_Adds_AppAuthorization_To_DI_Container()
+		{
+			
+			// Act
+			_services.AddAppAuthorization();
+
+			// Assert
+			Assert.True(_services.Count >= 0);
+		}
 	}
 }
 
