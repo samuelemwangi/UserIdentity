@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -29,6 +30,45 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
 		{
 			_jwtTokenHandler = A.Fake<IJwtTokenHandler>();
 			_machineDateTime = new MachineDateTime();
+		}
+
+		[Fact]
+		public void New_JwtFactory_With_Null_Options_Throws_ArgumentNullException()
+		{
+			// Arrange
+			var jwtIssuerOptions = new OptionsWrapper<JwtIssuerOptions>(default(JwtIssuerOptions));
+
+			// Act & Assert
+			Assert.Throws<ArgumentNullException>(() => new JwtFactory(_jwtTokenHandler, jwtIssuerOptions, _machineDateTime));
+		}
+
+		[Fact]
+		public void New_JwtFactory_With_Invalid_Valid_For_JwtTokenHandler_Throws_ArgumentException()
+		{
+			// Arrange
+			var jwtIssuerOptions = new OptionsWrapper<JwtIssuerOptions>(new JwtIssuerOptions
+			{
+				ValidFor = TimeSpan.FromMinutes(-5)
+			});
+				
+
+			// Act & Assert
+			Assert.Throws<ArgumentException>(() => new JwtFactory(_jwtTokenHandler, jwtIssuerOptions, _machineDateTime));
+		}
+
+		[Fact]
+		public void New_JwtFactory_With_Null_SigningCredentials_Throws_ArgumentNullException()
+		{
+			// Arrange
+			var jwtIssuerOptions = new OptionsWrapper<JwtIssuerOptions>(new JwtIssuerOptions
+			{
+				ValidFor = TimeSpan.FromMinutes(5),
+				SigningCredentials = default(SigningCredentials)
+			});
+
+
+			// Act & Assert
+			Assert.Throws<ArgumentNullException>(() => new JwtFactory(_jwtTokenHandler, jwtIssuerOptions, _machineDateTime));
 		}
 
 
@@ -68,6 +108,7 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
 
 			var generatedToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
 
+
 			A.CallTo(() => _jwtTokenHandler.WriteToken(A<JwtSecurityToken>.That.Matches(currJwt => ResolveMathcingJWT(currJwt, userName, issuedAtEpoch, userId)))).Returns(generatedToken);
 
 			// Act
@@ -96,7 +137,38 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
 			return true;
 		}
 
+		[Fact]
+		public void Generate_Scope_Claim_Generates_Scope_Claim()
+		{
+			// Arrange
+			var resource = "testresource";
+			var action = "read";
 
+			// Act
+			var jwtFactory = new JwtFactory(_jwtTokenHandler, _jwtIssuerOptions, _machineDateTime);
+			var scopeClaim = jwtFactory.GenerateScopeClaim(resource, action);
+
+			// Assert
+			Assert.IsType<Claim>(scopeClaim);
+			Assert.Equal($"{resource}:{action}", scopeClaim.Value);
+		}
+
+		[Fact]
+		public void Decode_Sope_Claim_Decodes_Scope_Claim()
+		{
+			// // Arrange
+			var resource = "testresource";
+			var action = "read";
+			var scopeClaim = new Claim(Constants.Strings.JwtClaimIdentifiers.Scope, $"{resource}:{action}");
+
+			// Act
+			var jwtFactory = new JwtFactory(_jwtTokenHandler, _jwtIssuerOptions, _machineDateTime);
+			(String decodedResource, String decodedAction) = jwtFactory.DecodeScopeClaim(scopeClaim);
+
+			// Assert
+			Assert.Equal(resource, decodedResource);
+			Assert.Equal(action, decodedAction);
+		}
 
 
 		private static IOptions<JwtIssuerOptions> _jwtIssuerOptions => new OptionsWrapper<JwtIssuerOptions>(new JwtIssuerOptions
