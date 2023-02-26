@@ -24,22 +24,6 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="FakeItEasy" Version="7.3.1" />
-  </ItemGroup>	
-  <ItemGroup>
-    <Folder Include="Persistence\" />
-    <Folder Include="Persistence\Settings\" />
-    <Folder Include="Presentation\" />
-    <Folder Include="Presentation\Controllers\" />
-    <Folder Include="Presentation\Controllers\Security\" />
-    <Folder Include="Application\Core\Extensions\" />
-    <Folder Include="Application\Core\Errors\" />
-    <Folder Include="Application\Core\KeySets\" />
-    <Folder Include="Infrastructure\Utilities\" />
-    <Folder Include="Application\Exceptions\" />
-    <Folder Include="Application\Enums\" />
-    <Folder Include="Domain\" />
-    <Folder Include="Domain\Identity\" />
-    <Folder Include="Infrastructure\Security\Helpers\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\UserIdentity\UserIdentity.csproj" />
