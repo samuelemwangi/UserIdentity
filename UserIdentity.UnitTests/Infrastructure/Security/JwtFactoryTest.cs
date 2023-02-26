@@ -33,7 +33,7 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
 
 
 		[Fact]
-		public async Task GenerateEncodedToken_WhenCalled_ReturnsToken()
+		public async Task Generate_Encoded_Token__Returns_Token_And_ExpiresIn()
 		{
 			// Arrange
 			var issuer = _jwtIssuerOptions.Value.Issuer ?? "TestIssuer";
