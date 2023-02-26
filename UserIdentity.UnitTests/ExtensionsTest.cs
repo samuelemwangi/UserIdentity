@@ -1,16 +1,14 @@
-﻿using System;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
+
+using UserIdentity.Infrastructure.Security;
 using UserIdentity.Persistence.Repositories.RefreshTokens;
 using UserIdentity.Persistence.Repositories.Users;
+
 using Xunit;
-using FakeItEasy;
-using UserIdentity.Persistence;
-using Microsoft.Extensions.Configuration;
-using UserIdentity.Infrastructure.Security;
 
 namespace UserIdentity.UnitTests
 {
-	public class ExtensionsTest: IClassFixture<TestSettingsFixture>
+	public class ExtensionsTest : IClassFixture<TestSettingsFixture>
 	{
 		private readonly IServiceCollection _services;
 		private readonly TestSettingsFixture _testSettings;
@@ -42,12 +40,12 @@ namespace UserIdentity.UnitTests
 			// Arrange
 			var configuration = _testSettings.Configuration;
 			var jwtIssuerOptions = new JwtIssuerOptions();
-			
+
 			// Act
 			_services.AddAppAuthentication(configuration);
 
 			// Assert
-			Assert.True(_services.Count >= 0);			
+			Assert.True(_services.Count >= 0);
 		}
 
 		[Fact]
@@ -63,7 +61,7 @@ namespace UserIdentity.UnitTests
 		[Fact]
 		public void AddAppAuthorization_To_DI_Container_Adds_AppAuthorization_To_DI_Container()
 		{
-			
+
 			// Act
 			_services.AddAppAuthorization();
 
