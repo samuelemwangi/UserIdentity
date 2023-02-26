@@ -117,24 +117,7 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
 			// Assert
 			Assert.Equal(generatedToken, token);
 			Assert.Equal((int)validFor.TotalSeconds, expiresIn);
-		}
-
-		private bool ResolveMathcingJWT(JwtSecurityToken currJWT, String userName, String issuedAtEpoch, String userId)
-		{
-			//check if subject claim matches
-			if (currJWT.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub && c.Value == userName) == null)
-				return false;
-
-			// check if iat claim matches
-			if (currJWT.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Iat && c.Value == issuedAtEpoch) == null)
-				return false;
-
-			// check if id claim matches
-			if (currJWT.Claims.FirstOrDefault(c => c.Type == Constants.Strings.JwtClaimIdentifiers.Id && c.Value == userId) == null)
-				return false;
-
-			return true;
-		}
+		}	
 
 		[Fact]
 		public void Generate_Scope_Claim_Generates_Scope_Claim()
@@ -169,6 +152,22 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
 			Assert.Equal(action, decodedAction);
 		}
 
+		private Boolean ResolveMathcingJWT(JwtSecurityToken currJWT, String userName, String issuedAtEpoch, String userId)
+		{
+			//check if subject claim matches
+			if (currJWT.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub && c.Value == userName) == null)
+				return false;
+
+			// check if iat claim matches
+			if (currJWT.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Iat && c.Value == issuedAtEpoch) == null)
+				return false;
+
+			// check if id claim matches
+			if (currJWT.Claims.FirstOrDefault(c => c.Type == Constants.Strings.JwtClaimIdentifiers.Id && c.Value == userId) == null)
+				return false;
+
+			return true;
+		}
 
 		private static IOptions<JwtIssuerOptions> _jwtIssuerOptions => new OptionsWrapper<JwtIssuerOptions>(new JwtIssuerOptions
 		{
