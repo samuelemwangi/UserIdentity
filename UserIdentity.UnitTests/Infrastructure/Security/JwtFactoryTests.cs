@@ -49,7 +49,7 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
 			{
 				ValidFor = TimeSpan.FromMinutes(-5)
 			});
-				
+
 
 			// Act & Assert
 			Assert.Throws<ArgumentException>(() => new JwtFactory(_jwtTokenHandler, jwtIssuerOptions, _machineDateTime));
