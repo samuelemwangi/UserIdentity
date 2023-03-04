@@ -10,37 +10,37 @@ using Xunit;
 namespace UserIdentity.UnitTests.Application.Core.KeySets
 {
 	public class GetKeySetsQueryHandlerTests
-    {
-        private readonly IKeySetFactory _keySetFactory;
+	{
+		private readonly IKeySetFactory _keySetFactory;
 
-        public GetKeySetsQueryHandlerTests()
-        {
-            _keySetFactory = A.Fake<IKeySetFactory>();
-        }
+		public GetKeySetsQueryHandlerTests()
+		{
+			_keySetFactory = A.Fake<IKeySetFactory>();
+		}
 
-        [Fact]
-        public async Task Get_KeySets_Returns_Keysets()
-        {
-            GetKeySetsQuery query = new GetKeySetsQuery
-            {
+		[Fact]
+		public async Task Get_KeySets_Returns_Keysets()
+		{
+			var query = new GetKeySetsQuery
+			{
 
-            };
+			};
 
-            GetKeySetsQueryHandler getKeySetsQueryHandler = new GetKeySetsQueryHandler(_keySetFactory);
+			var getKeySetsQueryHandler = new GetKeySetsQueryHandler(_keySetFactory);
 
-            var keySets = await getKeySetsQueryHandler.GetItemsAsync(query);
+			var keySets = await getKeySetsQueryHandler.GetItemsAsync(query);
 
-            Assert.NotNull(keySets);
-            Assert.Single(keySets);
+			Assert.NotNull(keySets);
+			Assert.Single(keySets);
 
-            Assert.Single(keySets?["keys"]);
+			Assert.Single(keySets?["keys"]);
 
-            Assert.NotNull(keySets?["keys"][0]["alg"]);
-            Assert.NotNull(keySets?["keys"][0]["kty"]);
-            Assert.NotNull(keySets?["keys"][0]["kid"]);
-            Assert.NotNull(keySets?["keys"][0]["k"]);
-        }
+			Assert.NotNull(keySets?["keys"][0]["alg"]);
+			Assert.NotNull(keySets?["keys"][0]["kty"]);
+			Assert.NotNull(keySets?["keys"][0]["kid"]);
+			Assert.NotNull(keySets?["keys"][0]["k"]);
+		}
 
-    }
+	}
 }
 

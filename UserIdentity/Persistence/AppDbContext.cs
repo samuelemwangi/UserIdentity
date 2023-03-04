@@ -29,11 +29,11 @@ namespace UserIdentity.Persistence
 
 			modelBuilder.Entity<IdentityUser>().ToTable(_entityKeyPrefix + "users");
 			modelBuilder.Entity<IdentityRole>().ToTable(_entityKeyPrefix + "roles");
-			modelBuilder.Entity<IdentityUserClaim<string>>().ToTable(_entityKeyPrefix + "user_claims");
-			modelBuilder.Entity<IdentityRoleClaim<string>>().ToTable(_entityKeyPrefix + "role_claims");
-			modelBuilder.Entity<IdentityUserLogin<string>>().ToTable(_entityKeyPrefix + "user_logins").HasKey(i => new { i.LoginProvider, i.ProviderKey });
-			modelBuilder.Entity<IdentityUserRole<string>>().ToTable(_entityKeyPrefix + "user_roles").HasKey(i => new { i.UserId, i.RoleId });
-			modelBuilder.Entity<IdentityUserToken<string>>().ToTable(_entityKeyPrefix + "user_tokens").HasKey(i => new { i.UserId, i.LoginProvider, i.Name });
+			modelBuilder.Entity<IdentityUserClaim<String>>().ToTable(_entityKeyPrefix + "user_claims");
+			modelBuilder.Entity<IdentityRoleClaim<String>>().ToTable(_entityKeyPrefix + "role_claims");
+			modelBuilder.Entity<IdentityUserLogin<String>>().ToTable(_entityKeyPrefix + "user_logins").HasKey(i => new { i.LoginProvider, i.ProviderKey });
+			modelBuilder.Entity<IdentityUserRole<String>>().ToTable(_entityKeyPrefix + "user_roles").HasKey(i => new { i.UserId, i.RoleId });
+			modelBuilder.Entity<IdentityUserToken<String>>().ToTable(_entityKeyPrefix + "user_tokens").HasKey(i => new { i.UserId, i.LoginProvider, i.Name });
 		}
 
 
