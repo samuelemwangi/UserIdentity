@@ -1,11 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
+
 using UserIdentity.Persistence.Infrastructure;
 
 namespace UserIdentity.Persistence.Infrastructure
 {
 	public static class ContextExtensions
 	{
-		public static string? GetTableName<T>(this DbContext context) where T : class
+		public static String? GetTableName<T>(this DbContext context) where T : class
 		{
 			try
 			{
