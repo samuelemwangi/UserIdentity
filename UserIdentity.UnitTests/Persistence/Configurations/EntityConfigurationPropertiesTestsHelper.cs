@@ -37,5 +37,22 @@ namespace UserIdentity.UnitTests.Persistence.Configurations
 
 			return false;
 		}
+
+		public static Boolean ConfirmColumnHasKey(this EntityType entityType, String column)
+		{
+			var properies = entityType.GetProperties();
+
+			foreach (var prop in properies)
+			{
+				if (prop.Name == column)
+				{
+					return prop.IsKey();
+				}
+			}
+
+			return false;
+		}
+
+
 	}
 }
