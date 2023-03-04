@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 using UserIdentity.Domain.Identity;
-using UserIdentity.Persistence;
 
 using Xunit;
 
@@ -17,15 +16,11 @@ namespace UserIdentity.UnitTests.Persistence
 		public void OnModelCreating_Should_Update_Model()
 		{
 			// Arrange
-			var options = new DbContextOptionsBuilder<AppDbContext>()
-				.UseInMemoryDatabase(databaseName: "AppDbContextTests")
-				.Options;
-
 			var entityPrefix = "";
 			var stringType = "<string>";
 
 			// Act
-			using var context = new AppDbContext(options);
+			using var context = AppDbContextTestFactory.GetAppDbContext();
 
 			var entityTypes = context.Model.GetEntityTypes();
 
