@@ -6,7 +6,6 @@ using UserIdentity.Application.Exceptions;
 using UserIdentity.Application.Interfaces.Security;
 using UserIdentity.Application.Interfaces.Utilities;
 using UserIdentity.Persistence.Repositories.RefreshTokens;
-using UserIdentity.Persistence.Repositories.Users;
 
 namespace UserIdentity.Application.Core.Tokens.Commands.ExchangeRefreshToken
 {
@@ -16,7 +15,7 @@ namespace UserIdentity.Application.Core.Tokens.Commands.ExchangeRefreshToken
 		public String RefreshToken { get; init; }
 	}
 
-	public class ExchangeRefreshTokenCommandHandler: IUpdateItemCommandHandler<ExchangeRefreshTokenCommand, ExchangeRefreshTokenViewModel>
+	public class ExchangeRefreshTokenCommandHandler : IUpdateItemCommandHandler<ExchangeRefreshTokenCommand, ExchangeRefreshTokenViewModel>
 	{
 		private readonly IJwtFactory _jwtFactory;
 		private readonly ITokenFactory _tokenFactory;
@@ -48,11 +47,11 @@ namespace UserIdentity.Application.Core.Tokens.Commands.ExchangeRefreshToken
 		}
 
 		public async Task<ExchangeRefreshTokenViewModel> UpdateItemAsync(ExchangeRefreshTokenCommand command)
-		{			
+		{
 			var claimsPrincipal = _jwtTokenValidator.GetPrincipalFromToken(command.AccessToken);
-			
+
 			if (claimsPrincipal == null)
-				throw new SecurityTokenException("Invalid access token provided");		
+				throw new SecurityTokenException("Invalid access token provided");
 
 			var userId = claimsPrincipal.Claims.FirstOrDefault(c => c.Type == "id");
 			var userName = claimsPrincipal.Claims.FirstOrDefault(c => c.Subject != null);

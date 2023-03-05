@@ -31,9 +31,120 @@ namespace UserIdentity.UnitTests.Persistence.Repositories
 
 			//Assert
 			Assert.Equal(1, result);
-			Assert.Equal(refreshToken.Id, context.RefreshToken.FirstOrDefault()?.Id);
-			Assert.Equal(refreshToken.UserId, context.RefreshToken.FirstOrDefault()?.UserId);
-			Assert.Equal(refreshToken.RemoteIpAddress, context.RefreshToken.FirstOrDefault()?.RemoteIpAddress);
+
+
+			var savedRefreshToken = context.RefreshToken.Where(e => e.Id == refreshToken.Id).FirstOrDefault();
+
+			Assert.Equal(refreshToken.Id, savedRefreshToken?.Id);
+			Assert.Equal(refreshToken.UserId, savedRefreshToken?.UserId);
+			Assert.Equal(refreshToken.RemoteIpAddress, savedRefreshToken?.RemoteIpAddress);
 		}
+
+		[Fact]
+		public async Task Get_Existing_Refresh_Token_Returns_Refresh_Token()
+		{
+			// Arrange
+			var context = AppDbContextTestFactory.GetAppDbContext();
+
+			var refreshTokenRepo = new RefreshTokenRepository(context);
+
+			var refreshToken = new RefreshToken
+			{
+				Id = Guid.NewGuid(),
+				UserId = Guid.NewGuid().ToString(),
+				RemoteIpAddress = Guid.NewGuid().ToString(),
+				CreatedBy = Guid.NewGuid().ToString(),
+				Expires = DateTime.UtcNow.AddMinutes(10),
+			};
+
+			// Act
+			context.RefreshToken.Add(refreshToken);
+			await context.SaveChangesAsync();
+			var result = await refreshTokenRepo.GetRefreshTokenAsync(refreshToken.UserId, refreshToken.Token);
+
+			// Assert
+			Assert.IsType<RefreshToken>(result);
+			Assert.Equal(refreshToken.Token, result?.Token);
+			Assert.Equal(refreshToken.CreatedBy, result?.CreatedBy);
+			Assert.True(result?.Active);
+		}
+
+		[Fact]
+		public async Task Get_Non_Existing_Refresh_Token_Returns_Null()
+		{
+			// Arrange
+			var context = AppDbContextTestFactory.GetAppDbContext();
+
+			var refreshTokenRepo = new RefreshTokenRepository(context);
+
+			// Act
+			var result = await refreshTokenRepo.GetRefreshTokenAsync(Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
+
+			// Assert
+			Assert.Null(result);
+		}
+
+		[Fact]
+		public async Task Update_Existing_Refresh_Token_Updates_Refresh_Token()
+		{
+			// Arrange
+			var context = AppDbContextTestFactory.GetAppDbContext();
+
+			var refreshTokenRepo = new RefreshTokenRepository(context);
+
+			var refreshToken = new RefreshToken
+			{
+				Id = Guid.NewGuid(),
+				UserId = Guid.NewGuid().ToString(),
+				RemoteIpAddress = Guid.NewGuid().ToString(),
+				CreatedBy = Guid.NewGuid().ToString(),
+				Expires = DateTime.UtcNow.AddMinutes(10),
+			};
+
+
+			// Act
+			context.RefreshToken.Add(refreshToken);
+			context.SaveChanges();
+			var updatedRefreshToken = context.RefreshToken.Where(e => e.Id == refreshToken.Id).First();
+			updatedRefreshToken.Expires = DateTime.UtcNow.AddMinutes(-10);
+
+			var result = await refreshTokenRepo.UpdateRefreshTokenAsync(updatedRefreshToken);
+
+			// Assert
+			Assert.Equal(1, result);
+		}
+
+		[Fact]
+		public async Task Update_Non_Existing_Refresh_Token_Does_Not_Update_Refresh_Token()
+		{
+			// Arrange
+			var context = AppDbContextTestFactory.GetAppDbContext();
+
+			var refreshTokenRepo = new RefreshTokenRepository(context);
+
+			var refreshToken = new RefreshToken
+			{
+				Id = Guid.NewGuid(),
+				UserId = Guid.NewGuid().ToString(),
+				RemoteIpAddress = Guid.NewGuid().ToString(),
+				CreatedBy = Guid.NewGuid().ToString(),
+				Expires = DateTime.UtcNow.AddMinutes(10),
+			};
+
+			var updatedRefreshToken = new RefreshToken
+			{
+				Id = Guid.NewGuid(),
+				Expires = DateTime.UtcNow.AddMinutes(20),
+			};
+
+			// Act
+			context.RefreshToken.Add(refreshToken);
+			await context.SaveChangesAsync();
+			var result = await refreshTokenRepo.UpdateRefreshTokenAsync(updatedRefreshToken);
+
+			// Assert
+			Assert.Equal(0, result);
+		}
+
 	}
 }
