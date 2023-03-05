@@ -58,13 +58,11 @@ namespace UserIdentity.Persistence.Repositories.Users
 			}
 		}
 
-		public async Task<Boolean> ValidateUpdatePasswordTokenAsync(String token, String userId)
+		public async Task<Boolean> ValidateUpdatePasswordTokenAsync(String userId, String token)
 		{
 			return await _appDbContext.AppUser
 					.AnyAsync(u => (u.Id + "").Equals(userId) && (u.ForgotPasswordToken + "").Equals(token));
-
 		}
-
 
 	}
 }

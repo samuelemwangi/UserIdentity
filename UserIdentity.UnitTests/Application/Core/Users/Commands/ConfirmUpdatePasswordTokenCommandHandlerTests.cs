@@ -56,7 +56,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 				UserId = "test"
 			};
 
-			A.CallTo(() => _userRepository.ValidateUpdatePasswordTokenAsync(rawToken, command.UserId)).Returns(false);
+			A.CallTo(() => _userRepository.ValidateUpdatePasswordTokenAsync(command.UserId, rawToken)).Returns(false);
 
 			var handler = new ConfirmUpdatePasswordTokenCommandHandler(_userRepository);
 
@@ -81,7 +81,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 				UserId = "test"
 			};
 
-			A.CallTo(() => _userRepository.ValidateUpdatePasswordTokenAsync(rawToken, command.UserId)).Throws(new System.Exception());
+			A.CallTo(() => _userRepository.ValidateUpdatePasswordTokenAsync(command.UserId, rawToken)).Throws(new System.Exception());
 
 			var handler = new ConfirmUpdatePasswordTokenCommandHandler(_userRepository);
 
@@ -106,7 +106,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 				UserId = "test"
 			};
 
-			A.CallTo(() => _userRepository.ValidateUpdatePasswordTokenAsync(rawToken, command.UserId)).Returns(true);
+			A.CallTo(() => _userRepository.ValidateUpdatePasswordTokenAsync(command.UserId, rawToken)).Returns(true);
 
 			var handler = new ConfirmUpdatePasswordTokenCommandHandler(_userRepository);
 

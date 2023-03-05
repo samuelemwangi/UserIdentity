@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 using UserIdentity.Domain.Identity;
 using UserIdentity.Persistence.Repositories.Users;
+using UserIdentity.UnitTests.Utils;
 
 using Xunit;
 
@@ -21,8 +22,8 @@ namespace UserIdentity.UnitTests.Persistence.Repositories
 			var newUser = new User
 			{
 				Id = Guid.NewGuid().ToString(),
-				FirstName = "TestF",
-				LastName = "TestL",
+				FirstName = StringHelper.GenerateRandomString(15),
+				LastName = StringHelper.GenerateRandomString(10),
 			};
 
 			// Act
@@ -42,8 +43,8 @@ namespace UserIdentity.UnitTests.Persistence.Repositories
 			var newUser = new User
 			{
 				Id = Guid.NewGuid().ToString(),
-				FirstName = "TestF",
-				LastName = "TestL",
+				FirstName = StringHelper.GenerateRandomString(15),
+				LastName = StringHelper.GenerateRandomString(10),
 			};
 
 			// Act
@@ -66,8 +67,8 @@ namespace UserIdentity.UnitTests.Persistence.Repositories
 			var newUser = new User
 			{
 				Id = Guid.NewGuid().ToString(),
-				FirstName = "TestF",
-				LastName = "TestL",
+				FirstName = StringHelper.GenerateRandomString(15),
+				LastName = StringHelper.GenerateRandomString(10),
 			};
 
 			// Act
@@ -105,11 +106,11 @@ namespace UserIdentity.UnitTests.Persistence.Repositories
 			var newUser = new User
 			{
 				Id = Guid.NewGuid().ToString(),
-				FirstName = "TestF",
-				LastName = "TestL",
+				FirstName = StringHelper.GenerateRandomString(15),
+				LastName = StringHelper.GenerateRandomString(10),
 			};
 
-			var resetPasswordToken = "Ribaloshongilogasheshiakili";
+			var resetPasswordToken = StringHelper.GenerateRandomString(300);
 
 			// Act 
 			context.AppUser.Add(newUser);
@@ -132,7 +133,7 @@ namespace UserIdentity.UnitTests.Persistence.Repositories
 			var userRepo = new UserRepository(context);
 
 
-			var resetPasswordToken = "Ribaloshongilogasheshiakili";
+			var resetPasswordToken = StringHelper.GenerateRandomString(300);
 
 			// Act 
 			var result = await userRepo.UpdateResetPasswordTokenAsync(Guid.NewGuid().ToString(), resetPasswordToken);
@@ -142,20 +143,53 @@ namespace UserIdentity.UnitTests.Persistence.Repositories
 		}
 
 		[Fact]
-		public async Task Update_Reset_Password_Token_Failure_Does_Not_Update_Reset_Password_Token()
+		public async Task Validate_Update_Password_Token_Validates_Password_Token()
+		{
+			// Arrange
+			var context = AppDbContextTestFactory.GetAppDbContext();
+			var userRepo = new UserRepository(context);
+			var forgotPasswordToken = StringHelper.GenerateRandomString(304);
+
+			var newUser = new User
+			{
+				Id = Guid.NewGuid().ToString(),
+				FirstName = StringHelper.GenerateRandomString(15),
+				LastName = StringHelper.GenerateRandomString(10),
+				ForgotPasswordToken = forgotPasswordToken
+			};
+
+			// Act
+			context.AppUser.Add(newUser);
+			await context.SaveChangesAsync();
+
+			var result = await userRepo.ValidateUpdatePasswordTokenAsync(newUser.Id, forgotPasswordToken);
+
+			// Assert
+			Assert.True(result);
+		}
+
+		[Fact]
+		public async Task Validate_Update_Password_Token_With_Invalid_Details_Validates_Password_Token()
 		{
 			// Arrange
 			var context = AppDbContextTestFactory.GetAppDbContext();
 			var userRepo = new UserRepository(context);
 
+			var newUser = new User
+			{
+				Id = Guid.NewGuid().ToString(),
+				FirstName = StringHelper.GenerateRandomString(15),
+				LastName = StringHelper.GenerateRandomString(10),
+				ForgotPasswordToken = StringHelper.GenerateRandomString(255)
+			};
 
-			var resetPasswordToken = "Ribaloshongilogasheshiakili";
+			var forgotPasswordToken = StringHelper.GenerateRandomString(304);
 
-			// Act 
-			var result = await userRepo.UpdateResetPasswordTokenAsync(Guid.NewGuid().ToString(), resetPasswordToken);
+			// Act
+			var result = await userRepo.ValidateUpdatePasswordTokenAsync(newUser.Id, forgotPasswordToken);
 
 			// Assert
-			Assert.Equal(0, result);
+			Assert.False(result);
 		}
 	}
 }
