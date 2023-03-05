@@ -3,9 +3,9 @@ using System.Text;
 
 namespace UserIdentity.UnitTests.Utils
 {
-	internal static class StringHelper
+	internal static class TestStringHelper
 	{
-		public static string GenerateRandomString(Int32 length)
+		public static String GenerateRandomString(Int32 length)
 		{
 			const String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 			var random = new Random();

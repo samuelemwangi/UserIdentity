@@ -76,7 +76,7 @@ namespace UserIdentity.Presentation.Helpers
 			}
 			else if (typeof(InvalidCredentialException).IsInstanceOfType(exception))
 			{
-				errorMessage = "Provided username & password combination is invalid";
+				errorMessage = "Provided username and password combination is invalid";
 				statusCode = HttpStatusCode.Unauthorized;
 			}
 			else
@@ -94,10 +94,10 @@ namespace UserIdentity.Presentation.Helpers
 
 			context.Response.StatusCode = (int)statusCode;
 
-			if(errorViewModel.Error != null)
-            {
+			if (errorViewModel.Error != null)
+			{
 				errorViewModel.Error.Message = errorMessage.Substring(errorMessage.IndexOf(":") + 1);
-            }
+			}
 
 			var serializerOptions = new JsonSerializerOptions
 			{

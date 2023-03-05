@@ -22,8 +22,8 @@ namespace UserIdentity.UnitTests.Persistence.Repositories
 			var newUser = new User
 			{
 				Id = Guid.NewGuid().ToString(),
-				FirstName = StringHelper.GenerateRandomString(15),
-				LastName = StringHelper.GenerateRandomString(10),
+				FirstName = TestStringHelper.GenerateRandomString(15),
+				LastName = TestStringHelper.GenerateRandomString(10),
 			};
 
 			// Act
@@ -43,8 +43,8 @@ namespace UserIdentity.UnitTests.Persistence.Repositories
 			var newUser = new User
 			{
 				Id = Guid.NewGuid().ToString(),
-				FirstName = StringHelper.GenerateRandomString(15),
-				LastName = StringHelper.GenerateRandomString(10),
+				FirstName = TestStringHelper.GenerateRandomString(15),
+				LastName = TestStringHelper.GenerateRandomString(10),
 			};
 
 			// Act
@@ -67,8 +67,8 @@ namespace UserIdentity.UnitTests.Persistence.Repositories
 			var newUser = new User
 			{
 				Id = Guid.NewGuid().ToString(),
-				FirstName = StringHelper.GenerateRandomString(15),
-				LastName = StringHelper.GenerateRandomString(10),
+				FirstName = TestStringHelper.GenerateRandomString(15),
+				LastName = TestStringHelper.GenerateRandomString(10),
 			};
 
 			// Act
@@ -106,11 +106,11 @@ namespace UserIdentity.UnitTests.Persistence.Repositories
 			var newUser = new User
 			{
 				Id = Guid.NewGuid().ToString(),
-				FirstName = StringHelper.GenerateRandomString(15),
-				LastName = StringHelper.GenerateRandomString(10),
+				FirstName = TestStringHelper.GenerateRandomString(15),
+				LastName = TestStringHelper.GenerateRandomString(10),
 			};
 
-			var resetPasswordToken = StringHelper.GenerateRandomString(300);
+			var resetPasswordToken = TestStringHelper.GenerateRandomString(300);
 
 			// Act 
 			context.AppUser.Add(newUser);
@@ -133,7 +133,7 @@ namespace UserIdentity.UnitTests.Persistence.Repositories
 			var userRepo = new UserRepository(context);
 
 
-			var resetPasswordToken = StringHelper.GenerateRandomString(300);
+			var resetPasswordToken = TestStringHelper.GenerateRandomString(300);
 
 			// Act 
 			var result = await userRepo.UpdateResetPasswordTokenAsync(Guid.NewGuid().ToString(), resetPasswordToken);
@@ -148,13 +148,13 @@ namespace UserIdentity.UnitTests.Persistence.Repositories
 			// Arrange
 			var context = AppDbContextTestFactory.GetAppDbContext();
 			var userRepo = new UserRepository(context);
-			var forgotPasswordToken = StringHelper.GenerateRandomString(304);
+			var forgotPasswordToken = TestStringHelper.GenerateRandomString(304);
 
 			var newUser = new User
 			{
 				Id = Guid.NewGuid().ToString(),
-				FirstName = StringHelper.GenerateRandomString(15),
-				LastName = StringHelper.GenerateRandomString(10),
+				FirstName = TestStringHelper.GenerateRandomString(15),
+				LastName = TestStringHelper.GenerateRandomString(10),
 				ForgotPasswordToken = forgotPasswordToken
 			};
 
@@ -178,12 +178,12 @@ namespace UserIdentity.UnitTests.Persistence.Repositories
 			var newUser = new User
 			{
 				Id = Guid.NewGuid().ToString(),
-				FirstName = StringHelper.GenerateRandomString(15),
-				LastName = StringHelper.GenerateRandomString(10),
-				ForgotPasswordToken = StringHelper.GenerateRandomString(255)
+				FirstName = TestStringHelper.GenerateRandomString(15),
+				LastName = TestStringHelper.GenerateRandomString(10),
+				ForgotPasswordToken = TestStringHelper.GenerateRandomString(255)
 			};
 
-			var forgotPasswordToken = StringHelper.GenerateRandomString(304);
+			var forgotPasswordToken = TestStringHelper.GenerateRandomString(304);
 
 			// Act
 			var result = await userRepo.ValidateUpdatePasswordTokenAsync(newUser.Id, forgotPasswordToken);
