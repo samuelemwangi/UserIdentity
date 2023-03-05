@@ -31,7 +31,7 @@ namespace UserIdentity.Application.Core.Users.Commands.ConfirmUpdatePasswordToke
 				{
 					TokenPasswordResult = new ConfirmUpdatePasswordDTO
 					{
-						UpdatePasswordTokenConfirmed = await _userRepository.ValidateUpdatePasswordTokenAsync(rawToken, command.UserId)
+						UpdatePasswordTokenConfirmed = await _userRepository.ValidateUpdatePasswordTokenAsync(command.UserId, rawToken)
 					}
 				};
 

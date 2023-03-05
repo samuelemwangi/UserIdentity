@@ -36,7 +36,7 @@ namespace UserIdentity.Application.Core.KeySets.Queries.GetKeySets
 				{"keys", keySetList},
 			};
 
-			return keySets;
+			return await Task.FromResult(keySets);
 
 		}
 

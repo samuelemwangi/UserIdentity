@@ -15,6 +15,8 @@ namespace UserIdentity.Persistence.Configurations.Identity
 			builder.Property(e => e.FirstName).HasMaxLength(20);
 
 			builder.Property(e => e.LastName).HasMaxLength(20);
+
+			builder.Property(e=>e.ForgotPasswordToken).HasMaxLength(600);
 		}
 	}
 }
