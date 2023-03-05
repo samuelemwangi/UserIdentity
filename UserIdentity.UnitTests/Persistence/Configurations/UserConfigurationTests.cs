@@ -21,6 +21,7 @@ namespace UserIdentity.UnitTests.Persistence.Configurations
 			Assert.True(entityType.ConfirmMaxColumnLength(nameof(User.EmailConfirmationToken), 600));
 			Assert.True(entityType.ConfirmMaxColumnLength(nameof(User.FirstName), 20));
 			Assert.True(entityType.ConfirmMaxColumnLength(nameof(User.LastName), 20));
+			Assert.True(entityType.ConfirmMaxColumnLength(nameof(User.ForgotPasswordToken), 600));
 
 			Assert.True(entityType.ConfirmColumnHasKey(nameof(User.Id)));
 		}

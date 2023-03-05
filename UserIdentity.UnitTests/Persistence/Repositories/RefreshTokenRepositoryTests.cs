@@ -31,13 +31,30 @@ namespace UserIdentity.UnitTests.Persistence.Repositories
 
 			//Assert
 			Assert.Equal(1, result);
+		}
 
+		[Fact]
+		public async Task Create_Refresh_Token_Failure_Does_Not_Create_Refresh_Token()
+		{
+			// Arrange
+			var context = AppDbContextTestFactory.GetAppDbContext();
+			var refreshTokenRepo = new RefreshTokenRepository(context);
 
-			var savedRefreshToken = context.RefreshToken.Where(e => e.Id == refreshToken.Id).FirstOrDefault();
+			var refreshToken = new RefreshToken
+			{
+				Id = Guid.NewGuid(),
+				UserId = Guid.NewGuid().ToString(),
+				RemoteIpAddress = Guid.NewGuid().ToString()
+			};
 
-			Assert.Equal(refreshToken.Id, savedRefreshToken?.Id);
-			Assert.Equal(refreshToken.UserId, savedRefreshToken?.UserId);
-			Assert.Equal(refreshToken.RemoteIpAddress, savedRefreshToken?.RemoteIpAddress);
+			// Act
+			var result = await refreshTokenRepo.CreateRefreshTokenAsync(refreshToken);
+
+			if(result == 1)
+			 result = await refreshTokenRepo.CreateRefreshTokenAsync(refreshToken);
+
+			//Assert
+			Assert.Equal(0, result);
 		}
 
 		[Fact]

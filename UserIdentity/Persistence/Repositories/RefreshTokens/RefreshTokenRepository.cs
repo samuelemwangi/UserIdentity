@@ -14,9 +14,16 @@ namespace UserIdentity.Persistence.Repositories.RefreshTokens
 		}
 		public async Task<Int32> CreateRefreshTokenAsync(RefreshToken refreshToken)
 		{
-			_appDbContext.RefreshToken?.Add(refreshToken);
+			try
+			{
+				_appDbContext.RefreshToken?.Add(refreshToken);
 
-			return await _appDbContext.SaveChangesAsync();
+				return await _appDbContext.SaveChangesAsync();
+			}
+			catch (Exception)
+			{
+				return 0;
+			}
 		}
 
 		public async Task<RefreshToken?> GetRefreshTokenAsync(String? userId, String? token)
