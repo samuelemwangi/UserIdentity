@@ -59,14 +59,14 @@ namespace UserIdentity.Presentation.Helpers
 				errorMessage = exception.Message;
 				statusCode = HttpStatusCode.NotAcceptable;
 			}
-			else if (typeof(SecurityTokenException).IsInstanceOfType(exception))
-			{
-				errorMessage = exception.Message;
-				statusCode = HttpStatusCode.Unauthorized;
-			}
 			else if (typeof(SecurityTokenExpiredException).IsInstanceOfType(exception))
 			{
 				errorMessage = "An expired access token was provided";
+				statusCode = HttpStatusCode.Unauthorized;
+			}
+			else if (typeof(SecurityTokenException).IsInstanceOfType(exception))
+			{
+				errorMessage = exception.Message;
 				statusCode = HttpStatusCode.Unauthorized;
 			}
 			else if (typeof(SecurityTokenReadException).IsInstanceOfType(exception))

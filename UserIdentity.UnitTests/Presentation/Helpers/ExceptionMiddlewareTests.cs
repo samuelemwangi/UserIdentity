@@ -59,12 +59,16 @@ namespace UserIdentity.UnitTests.Presentation.Helpers
 		[Theory]
 		[InlineData(typeof(NoRecordException), HttpStatusCode.NotFound)]
 		[InlineData(typeof(RecordExistsException), HttpStatusCode.BadRequest)]
+
 		[InlineData(typeof(RecordCreationException), HttpStatusCode.InternalServerError)]
 		[InlineData(typeof(RecordUpdateException), HttpStatusCode.InternalServerError)]
+
 		[InlineData(typeof(InvalidOperationException), HttpStatusCode.NotAcceptable)]
+
 		[InlineData(typeof(SecurityTokenException), HttpStatusCode.Unauthorized)]
 		[InlineData(typeof(SecurityTokenExpiredException), HttpStatusCode.Unauthorized, "An expired access token was provided")]
 		[InlineData(typeof(SecurityTokenReadException), HttpStatusCode.Unauthorized, "An invalid access token was provided")]
+
 		[InlineData(typeof(InvalidCredentialException), HttpStatusCode.Unauthorized, "Provided username and password combination is invalid")]
 
 		[InlineData(typeof(DivideByZeroException), HttpStatusCode.InternalServerError)]
@@ -72,7 +76,8 @@ namespace UserIdentity.UnitTests.Presentation.Helpers
 		public async Task Invoke_Exception_Middleware_With_Exception_Returns_Error_Response(Type exceptionType, HttpStatusCode httpStatusCode, String errorMessage = "")
 		{
 			// Arrange
-			var exceptionErrorMessage = errorMessage == "" ? "Error" + TestStringHelper.GenerateRandomString(5) : errorMessage;
+			var exceptionErrorMessage = "Error" + TestStringHelper.GenerateRandomString(5);
+			var expectedExceptionErrorMessage = errorMessage == "" ? exceptionErrorMessage : errorMessage;
 
 			RequestDelegate next = (HttpContext context) =>
 			{
@@ -98,7 +103,7 @@ namespace UserIdentity.UnitTests.Presentation.Helpers
 			context.Response.Body.Seek(0, SeekOrigin.Begin);
 			var body = new StreamReader(context.Response.Body).ReadToEnd();
 
-			Assert.Contains(exceptionErrorMessage, body);
+			Assert.Contains(expectedExceptionErrorMessage, body);
 		}
 
 		private static void ThrowException(Type exceptionType, String exceptionErrorMessage)
