@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 
 using FakeItEasy;
@@ -64,10 +65,12 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var controller = GetUserController();
 			controller.UpdateContext(Controllername);
 			var actionResult = await controller.GetUser(userId);
-			var result = actionResult?.Result as OkObjectResult;
+			var result = actionResult?.Result as ObjectResult;
 			var vm = result?.Value as UserViewModel;
 
 			// Assert
+			Assert.Equal((Int32)HttpStatusCode.OK, result?.StatusCode);
+
 			Assert.NotNull(vm);
 			Assert.Equal(userId, vm?.User?.Id);
 			Assert.Equal(userFName + userLName, vm?.User?.FullName);
@@ -104,10 +107,12 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var controller = GetUserController();
 			controller.UpdateContext(Controllername);
 			var actionResult = await controller.CreateUser(command);
-			var result = actionResult?.Result as OkObjectResult;
+			var result = actionResult?.Result as ObjectResult;
 			var vm = result?.Value as AuthUserViewModel;
 
 			// Assert
+			Assert.Equal((Int32)HttpStatusCode.Created, result?.StatusCode);
+
 			Assert.NotNull(vm);
 			Assert.Equal(userId, vm?.UserDetails?.Id);
 			Assert.Equal(userFName + userLName, vm?.UserDetails?.FullName);
@@ -147,10 +152,12 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var controller = GetUserController();
 			controller.UpdateContext(Controllername);
 			var actionResult = await controller.LoginUser(command);
-			var result = actionResult?.Result as OkObjectResult;
+			var result = actionResult?.Result as ObjectResult;
 			var vm = result?.Value as AuthUserViewModel;
 
 			// Assert
+			Assert.Equal((Int32)HttpStatusCode.OK, result?.StatusCode);
+
 			Assert.NotNull(vm);
 			Assert.Equal(userId, vm?.UserDetails?.Id);
 			Assert.Equal(userFName + userLName, vm?.UserDetails?.FullName);
@@ -187,10 +194,12 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var controller = GetUserController();
 			controller.UpdateContext(Controllername);
 			var actionResult = await controller.RefreshToken(command);
-			var result = actionResult?.Result as OkObjectResult;
+			var result = actionResult?.Result as ObjectResult;
 			var vm = result?.Value as ExchangeRefreshTokenViewModel;
 
 			// Assert
+			Assert.Equal((Int32)HttpStatusCode.OK, result?.StatusCode);
+
 			Assert.NotNull(vm);
 			Assert.Equal(newAccesstoken, vm?.UserToken?.AccessToken?.Token);
 			Assert.Equal(newRefreshToken, vm?.UserToken?.RefreshToken);
@@ -219,10 +228,12 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var controller = GetUserController();
 			controller.UpdateContext(Controllername);
 			var actionResult = await controller.ResetPassword(command);
-			var result = actionResult?.Result as OkObjectResult;
+			var result = actionResult?.Result as ObjectResult;
 			var vm = result?.Value as ResetPasswordViewModel;
 
 			// Assert
+			Assert.Equal((Int32)HttpStatusCode.OK, result?.StatusCode);
+
 			Assert.NotNull(vm);
 			Assert.Equal(emailMessage, vm?.ResetPasswordDetails?.EmailMessage);
 
@@ -246,10 +257,12 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var controller = GetUserController();
 			controller.UpdateContext(Controllername);
 			var actionResult = await controller.ConfirmPasswordToken(command);
-			var result = actionResult?.Result as OkObjectResult;
+			var result = actionResult?.Result as ObjectResult;
 			var vm = result?.Value as ConfirmUpdatePasswordTokenViewModel;
 
 			// Assert
+			Assert.Equal((Int32)HttpStatusCode.OK, result?.StatusCode);
+
 			Assert.NotNull(vm);
 			Assert.True(vm?.TokenPasswordResult?.UpdatePasswordTokenConfirmed);
 
@@ -275,10 +288,12 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var controller = GetUserController();
 			controller.UpdateContext(Controllername);
 			var actionResult = await controller.UpdatePassword(command);
-			var result = actionResult?.Result as OkObjectResult;
+			var result = actionResult?.Result as ObjectResult;
 			var vm = result?.Value as UpdatePasswordViewModel;
 
 			// Assert
+			Assert.Equal((Int32)HttpStatusCode.OK, result?.StatusCode);
+
 			Assert.NotNull(vm);
 			Assert.True(vm?.UpdatePasswordResult?.PassWordUpdated);
 

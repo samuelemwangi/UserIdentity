@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Net;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using UserIdentity.Application.Core;
@@ -66,7 +68,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 			userVM.ResolveEditDeleteRights(UserRoleClaims, resourceName, ownedByLoggedInUser);
 			userVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
 
-			return Ok(userVM);
+			return StatusCode((Int32)HttpStatusCode.OK, userVM);
 		}
 
 		[AllowAnonymous]
@@ -79,7 +81,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 			authUserVM.ResolveEditDeleteRights(UserRoleClaims, resourceName);
 			authUserVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
 
-			return Ok(authUserVM);
+			return StatusCode((Int32)HttpStatusCode.Created, authUserVM);
 		}
 
 		[AllowAnonymous]
@@ -92,7 +94,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 			authUserVM.ResolveEditDeleteRights(UserRoleClaims, resourceName);
 			authUserVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
 
-			return Ok(authUserVM);
+			return StatusCode((Int32)HttpStatusCode.OK, authUserVM);
 		}
 
 		[AllowAnonymous]
@@ -102,7 +104,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 		{
 			var refreshTokenVM = await _exchangeRefreshTokenCommandHandler.UpdateItemAsync(command);
 			refreshTokenVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS, "Refresh token generated successfully");
-			return Ok(refreshTokenVM);
+			return StatusCode((Int32)HttpStatusCode.OK, refreshTokenVM);
 		}
 
 		[AllowAnonymous]
@@ -112,7 +114,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 		{
 			var resetPassWordVM = await _resetPasswordCommandHandler.CreateItemAsync(command);
 			resetPassWordVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
-			return Ok(resetPassWordVM);
+			return StatusCode((Int32)HttpStatusCode.OK, resetPassWordVM);
 		}
 
 		[AllowAnonymous]
@@ -122,7 +124,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 		{
 			var confirmPassWordTokenVM = await _confirmUpdatePasswordTokenCommandHandler.UpdateItemAsync(command);
 			confirmPassWordTokenVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
-			return Ok(confirmPassWordTokenVM);
+			return StatusCode((Int32)HttpStatusCode.OK, confirmPassWordTokenVM);
 		}
 
 		[AllowAnonymous]
@@ -132,7 +134,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 		{
 			var updatePasswordVM = await _updatePasswordCommandHandler.UpdateItemAsync(command);
 			updatePasswordVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
-			return Ok(updatePasswordVM);
+			return StatusCode((Int32)HttpStatusCode.OK, updatePasswordVM);
 		}
 	}
 }
