@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+using UserIdentity.Application.Core;
 using UserIdentity.Application.Core.Extensions;
 using UserIdentity.Application.Core.Tokens.Commands.ExchangeRefreshToken;
 using UserIdentity.Application.Core.Tokens.ViewModels;
@@ -18,120 +19,120 @@ using UserIdentity.Presentation.Helpers.ValidationExceptions;
 
 namespace UserIdentity.Presentation.Controllers.Users
 {
-    [Authorize]
-    [ValidateModel]
-    public class UserController : BaseController
-    {
-        private readonly GetUserQueryHandler _getUserQueryHandler;
-        private readonly RegisterUserCommandHandler _registerUserCommandHandler;
-        private readonly LoginUserCommandHandler _loginUserCommandHandler;
-        private readonly ExchangeRefreshTokenCommandHandler _exchangeRefreshTokenCommandHandler;
-        private readonly ResetPasswordCommandHandler _resetPasswordCommandHandler;
-        private readonly ConfirmUpdatePasswordTokenCommandHandler _confirmUpdatePasswordTokenCommandHandler;
-        private readonly UpdatePasswordCommandHandler _updatePasswordCommandHandler;
+	[Authorize]
+	[ValidateModel]
+	public class UserController : BaseController
+	{
+		private readonly IGetItemQueryHandler<GetUserQuery, UserViewModel> _getUserQueryHandler;
+		private readonly ICreateItemCommandHandler<RegisterUserCommand, AuthUserViewModel> _registerUserCommandHandler;
+		private readonly ICreateItemCommandHandler<LoginUserCommand, AuthUserViewModel> _loginUserCommandHandler;
+		private readonly IUpdateItemCommandHandler<ExchangeRefreshTokenCommand, ExchangeRefreshTokenViewModel> _exchangeRefreshTokenCommandHandler;
+		private readonly ICreateItemCommandHandler<ResetPasswordCommand, ResetPasswordViewModel> _resetPasswordCommandHandler;
+		private readonly IUpdateItemCommandHandler<ConfirmUpdatePasswordTokenCommand, ConfirmUpdatePasswordTokenViewModel> _confirmUpdatePasswordTokenCommandHandler;
+		private readonly IUpdateItemCommandHandler<UpdatePasswordCommand, UpdatePasswordViewModel> _updatePasswordCommandHandler;
 
-        private String resourceName => EntityName ?? "user";
-
-
-        public UserController(
-            GetUserQueryHandler getUserQueryHandler,
-            RegisterUserCommandHandler registerUserComandHandler,
-            LoginUserCommandHandler loginUserCommandHandler,
-            ExchangeRefreshTokenCommandHandler exchangeRefreshTokenCommandHandler,
-            ResetPasswordCommandHandler resetPasswordCommandHandler,
-            ConfirmUpdatePasswordTokenCommandHandler confirmUpdatePasswordTokenCommandHandler,
-            UpdatePasswordCommandHandler updatePasswordCommandHandler
-            )
-        {
-            _getUserQueryHandler = getUserQueryHandler;
-            _registerUserCommandHandler = registerUserComandHandler;
-            _loginUserCommandHandler = loginUserCommandHandler;
-            _exchangeRefreshTokenCommandHandler = exchangeRefreshTokenCommandHandler;
-            _resetPasswordCommandHandler = resetPasswordCommandHandler;
-            _confirmUpdatePasswordTokenCommandHandler = confirmUpdatePasswordTokenCommandHandler;
-            _updatePasswordCommandHandler = updatePasswordCommandHandler;
-        }
+		private String resourceName => EntityName ?? "user";
 
 
-        [HttpGet]
-        [Route("{UserId}")]
-        public async Task<ActionResult<UserViewModel>> GetUser(String UserId)
-        {
+		public UserController(
+				IGetItemQueryHandler<GetUserQuery, UserViewModel> getUserQueryHandler,
+				ICreateItemCommandHandler<RegisterUserCommand, AuthUserViewModel> registerUserComandHandler,
+				ICreateItemCommandHandler<LoginUserCommand, AuthUserViewModel> loginUserCommandHandler,
+				IUpdateItemCommandHandler<ExchangeRefreshTokenCommand, ExchangeRefreshTokenViewModel> exchangeRefreshTokenCommandHandler,
+				ICreateItemCommandHandler<ResetPasswordCommand, ResetPasswordViewModel> resetPasswordCommandHandler,
+				IUpdateItemCommandHandler<ConfirmUpdatePasswordTokenCommand, ConfirmUpdatePasswordTokenViewModel> confirmUpdatePasswordTokenCommandHandler,
+				IUpdateItemCommandHandler<UpdatePasswordCommand, UpdatePasswordViewModel> updatePasswordCommandHandler
+				)
+		{
+			_getUserQueryHandler = getUserQueryHandler;
+			_registerUserCommandHandler = registerUserComandHandler;
+			_loginUserCommandHandler = loginUserCommandHandler;
+			_exchangeRefreshTokenCommandHandler = exchangeRefreshTokenCommandHandler;
+			_resetPasswordCommandHandler = resetPasswordCommandHandler;
+			_confirmUpdatePasswordTokenCommandHandler = confirmUpdatePasswordTokenCommandHandler;
+			_updatePasswordCommandHandler = updatePasswordCommandHandler;
+		}
 
-            UserViewModel userVM = await _getUserQueryHandler.GetItemAsync(new GetUserQuery { UserId = UserId });
 
-            var ownedByLoggedInUser = userVM.User?.CreatedBy == LoggedInUserId || userVM.User?.LastModifiedBy == LoggedInUserId;
+		[HttpGet]
+		[Route("{UserId}")]
+		public async Task<ActionResult<UserViewModel>> GetUser(String UserId)
+		{
 
-            userVM.ResolveEditDeleteRights(UserRoleClaims, resourceName, ownedByLoggedInUser);
-            userVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
+			UserViewModel userVM = await _getUserQueryHandler.GetItemAsync(new GetUserQuery { UserId = UserId });
 
-            return Ok(userVM);
-        }
+			var ownedByLoggedInUser = userVM.User.OwnedByLoggedInUser(LoggedInUserId);
 
-        [AllowAnonymous]
-        [HttpPost]
-        [Route("register")]
-        public async Task<ActionResult<AuthUserViewModel>> CreateUser(RegisterUserCommand command)
-        {
-            AuthUserViewModel authUserVM = await _registerUserCommandHandler.CreateItemAsync(command);
+			userVM.ResolveEditDeleteRights(UserRoleClaims, resourceName, ownedByLoggedInUser);
+			userVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
 
-            authUserVM.ResolveEditDeleteRights(UserRoleClaims, resourceName);
-            authUserVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
+			return Ok(userVM);
+		}
 
-            return Ok(authUserVM);
-        }
+		[AllowAnonymous]
+		[HttpPost]
+		[Route("register")]
+		public async Task<ActionResult<AuthUserViewModel>> CreateUser(RegisterUserCommand command)
+		{
+			AuthUserViewModel authUserVM = await _registerUserCommandHandler.CreateItemAsync(command);
 
-        [AllowAnonymous]
-        [HttpPost]
-        [Route("login")]
-        public async Task<ActionResult<AuthUserViewModel>> LoginUser(LoginUserCommand command)
-        {
-            AuthUserViewModel authUserVM = await _loginUserCommandHandler.CreateItemAsync(command);
+			authUserVM.ResolveEditDeleteRights(UserRoleClaims, resourceName);
+			authUserVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
 
-            authUserVM.ResolveEditDeleteRights(UserRoleClaims, resourceName);
-            authUserVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
+			return Ok(authUserVM);
+		}
 
-            return Ok(authUserVM);
-        }
+		[AllowAnonymous]
+		[HttpPost]
+		[Route("login")]
+		public async Task<ActionResult<AuthUserViewModel>> LoginUser(LoginUserCommand command)
+		{
+			AuthUserViewModel authUserVM = await _loginUserCommandHandler.CreateItemAsync(command);
 
-        [AllowAnonymous]
-        [HttpPost]
-        [Route("refresh-token")]
-        public async Task<ActionResult<AccessTokenViewModel>> RefreshToken(ExchangeRefreshTokenCommand command)
-        {
-            var refreshTokenVM = await _exchangeRefreshTokenCommandHandler.UpdateItemAsync(command);
-            refreshTokenVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS, "Refresh token generated successfully");
-            return Ok(refreshTokenVM);
-        }
+			authUserVM.ResolveEditDeleteRights(UserRoleClaims, resourceName);
+			authUserVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
 
-        [AllowAnonymous]
-        [HttpPost]
-        [Route("reset-password")]
-        public async Task<ActionResult<AccessTokenViewModel>> ResetPassword(ResetPasswordCommand command)
-        {
-            var resetPassWordVM = await _resetPasswordCommandHandler.CreateItemAsync(command);
-            resetPassWordVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
-            return Ok(resetPassWordVM);
-        }
+			return Ok(authUserVM);
+		}
 
-        [AllowAnonymous]
-        [HttpPost]
-        [Route("confirm-update-password-token")]
-        public async Task<ActionResult<AccessTokenViewModel>> ConfirmPasswordTokne(ConfirmUpdatePasswordTokenCommand command)
-        {
-            var confirmPassWordTokenVM = await _confirmUpdatePasswordTokenCommandHandler.UpdateItemAsync(command);
-            confirmPassWordTokenVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
-            return Ok(confirmPassWordTokenVM);
-        }
+		[AllowAnonymous]
+		[HttpPost]
+		[Route("refresh-token")]
+		public async Task<ActionResult<AccessTokenViewModel>> RefreshToken(ExchangeRefreshTokenCommand command)
+		{
+			var refreshTokenVM = await _exchangeRefreshTokenCommandHandler.UpdateItemAsync(command);
+			refreshTokenVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS, "Refresh token generated successfully");
+			return Ok(refreshTokenVM);
+		}
 
-        [AllowAnonymous]
-        [HttpPost]
-        [Route("update-password")]
-        public async Task<ActionResult<AccessTokenViewModel>> UpdatePassWord(UpdatePasswordCommand command)
-        {
-            var updatePasswordVM = await _updatePasswordCommandHandler.UpdateItemAsync(command);
-            updatePasswordVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
-            return Ok(updatePasswordVM);
-        }
-    }
+		[AllowAnonymous]
+		[HttpPost]
+		[Route("reset-password")]
+		public async Task<ActionResult<AccessTokenViewModel>> ResetPassword(ResetPasswordCommand command)
+		{
+			var resetPassWordVM = await _resetPasswordCommandHandler.CreateItemAsync(command);
+			resetPassWordVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
+			return Ok(resetPassWordVM);
+		}
+
+		[AllowAnonymous]
+		[HttpPost]
+		[Route("confirm-update-password-token")]
+		public async Task<ActionResult<AccessTokenViewModel>> ConfirmPasswordTokne(ConfirmUpdatePasswordTokenCommand command)
+		{
+			var confirmPassWordTokenVM = await _confirmUpdatePasswordTokenCommandHandler.UpdateItemAsync(command);
+			confirmPassWordTokenVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
+			return Ok(confirmPassWordTokenVM);
+		}
+
+		[AllowAnonymous]
+		[HttpPost]
+		[Route("update-password")]
+		public async Task<ActionResult<AccessTokenViewModel>> UpdatePassWord(UpdatePasswordCommand command)
+		{
+			var updatePasswordVM = await _updatePasswordCommandHandler.UpdateItemAsync(command);
+			updatePasswordVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
+			return Ok(updatePasswordVM);
+		}
+	}
 }
