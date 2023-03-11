@@ -59,7 +59,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 		public async Task<ActionResult<UserViewModel>> GetUser(String UserId)
 		{
 
-			UserViewModel userVM = await _getUserQueryHandler.GetItemAsync(new GetUserQuery { UserId = UserId });
+			var userVM = await _getUserQueryHandler.GetItemAsync(new GetUserQuery { UserId = UserId });
 
 			var ownedByLoggedInUser = userVM.User.OwnedByLoggedInUser(LoggedInUserId);
 
@@ -74,7 +74,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 		[Route("register")]
 		public async Task<ActionResult<AuthUserViewModel>> CreateUser(RegisterUserCommand command)
 		{
-			AuthUserViewModel authUserVM = await _registerUserCommandHandler.CreateItemAsync(command);
+			var authUserVM = await _registerUserCommandHandler.CreateItemAsync(command);
 
 			authUserVM.ResolveEditDeleteRights(UserRoleClaims, resourceName);
 			authUserVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
@@ -87,7 +87,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 		[Route("login")]
 		public async Task<ActionResult<AuthUserViewModel>> LoginUser(LoginUserCommand command)
 		{
-			AuthUserViewModel authUserVM = await _loginUserCommandHandler.CreateItemAsync(command);
+			var authUserVM = await _loginUserCommandHandler.CreateItemAsync(command);
 
 			authUserVM.ResolveEditDeleteRights(UserRoleClaims, resourceName);
 			authUserVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
@@ -118,7 +118,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 		[AllowAnonymous]
 		[HttpPost]
 		[Route("confirm-update-password-token")]
-		public async Task<ActionResult<AccessTokenViewModel>> ConfirmPasswordTokne(ConfirmUpdatePasswordTokenCommand command)
+		public async Task<ActionResult<AccessTokenViewModel>> ConfirmPasswordToken(ConfirmUpdatePasswordTokenCommand command)
 		{
 			var confirmPassWordTokenVM = await _confirmUpdatePasswordTokenCommandHandler.UpdateItemAsync(command);
 			confirmPassWordTokenVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
@@ -128,7 +128,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 		[AllowAnonymous]
 		[HttpPost]
 		[Route("update-password")]
-		public async Task<ActionResult<AccessTokenViewModel>> UpdatePassWord(UpdatePasswordCommand command)
+		public async Task<ActionResult<AccessTokenViewModel>> UpdatePassword(UpdatePasswordCommand command)
 		{
 			var updatePasswordVM = await _updatePasswordCommandHandler.UpdateItemAsync(command);
 			updatePasswordVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
