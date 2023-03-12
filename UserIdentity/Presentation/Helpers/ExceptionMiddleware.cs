@@ -4,7 +4,9 @@ using System.Net;
 using System.Security.Authentication;
 using System.Text.Json;
 
+using UserIdentity.Application.Core;
 using UserIdentity.Application.Core.Errors.Queries.GerError;
+using UserIdentity.Application.Core.Errors.ViewModels;
 using UserIdentity.Application.Exceptions;
 
 namespace UserIdentity.Presentation.Helpers
@@ -18,10 +20,10 @@ namespace UserIdentity.Presentation.Helpers
 
 		}
 
-		public async Task InvokeAsync(HttpContext httpContext, GetErrorQueryHandler getErrorQueryHandler)
+		public async Task InvokeAsync(HttpContext httpContext, IGetItemQueryHandler<GetErrorQuery, ErrorViewModel> getErrorQueryHandler)
 		{
 
-			GetErrorQueryHandler _getErrorQueryHandler = getErrorQueryHandler;
+			IGetItemQueryHandler<GetErrorQuery, ErrorViewModel> _getErrorQueryHandler = getErrorQueryHandler;
 
 			try
 			{
@@ -34,7 +36,7 @@ namespace UserIdentity.Presentation.Helpers
 
 		}
 
-		private static async Task HandleExceptionAsync(HttpContext context, Exception exception, GetErrorQueryHandler _getErrorQueryHandler)
+		private static async Task HandleExceptionAsync(HttpContext context, Exception exception, IGetItemQueryHandler<GetErrorQuery, ErrorViewModel> _getErrorQueryHandler)
 		{
 			context.Response.ContentType = "application/json";
 			HttpStatusCode statusCode;

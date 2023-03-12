@@ -12,12 +12,6 @@
 		<WarningLevel>4</WarningLevel>
 	</PropertyGroup>
 	<ItemGroup>
-		<Compile Remove="Application\Core\Tokens\Queries\**" />
-		<Content Remove="Application\Core\Tokens\Queries\**" />
-		<EmbeddedResource Remove="Application\Core\Tokens\Queries\**" />
-		<None Remove="Application\Core\Tokens\Queries\**" />
-	</ItemGroup>
-	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.5" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.5" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.5">
@@ -32,7 +26,6 @@
 		<PackageReference Include="System.Linq.Async" Version="6.0.1" />
 	</ItemGroup>
 	<ItemGroup>
-		<Folder Include="Application\Interfaces\Identity\" />
 		<Folder Include="Application\Core\Users\Commands\ResetPassword\" />
 		<Folder Include="Application\Core\Users\Commands\ConfirmUpdatePasswordToken\" />
 		<Folder Include="Application\Core\Users\Commands\UpdatePassword\" />

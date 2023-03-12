@@ -22,7 +22,7 @@ namespace UserIdentity.Presentation.Helpers.ValidationExceptions
 		}
 	}
 
-	public class ErrorDTO
+	public class ValidationErrorDTO
 	{
 		public String? Message { get; internal set; }
 		public DateTime? Timestamp { get; internal set; }
@@ -34,7 +34,7 @@ namespace UserIdentity.Presentation.Helpers.ValidationExceptions
 		public String? RequestStatus { get; internal set; }
 		public String? StatusMessage { get; internal set; }
 
-		public ErrorDTO? Error { get; internal set; }
+		public ValidationErrorDTO? Error { get; internal set; }
 
 
 		public ValidationResultModel(ModelStateDictionary modelState)
@@ -54,7 +54,7 @@ namespace UserIdentity.Presentation.Helpers.ValidationExceptions
 				}
 
 			}
-			Error = new ErrorDTO
+			Error = new ValidationErrorDTO
 			{
 				Message = "Validation Failed",
 				Timestamp = DateTime.UtcNow,
