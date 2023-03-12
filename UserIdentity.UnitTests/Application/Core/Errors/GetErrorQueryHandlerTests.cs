@@ -27,14 +27,14 @@ namespace UserIdentity.UnitTests.Application.Core.Errors
 		}
 
 		[Fact]
-		public async Task Get_Error_Returns_ErrorViewModel()
+		public async Task Get_Error_Returns_Error_ViewModel()
 		{
 			// Arrange
 			var errorMessage = "Testing error message";
 			var statusMessage = "Failed badly";
 
 
-			GetErrorQuery query = new()
+			var query = new GetErrorQuery()
 			{
 				Exception = new Exception(errorMessage),
 				ErrorMessage = errorMessage,
@@ -51,8 +51,8 @@ namespace UserIdentity.UnitTests.Application.Core.Errors
 			// Assert
 			Assert.NotNull(vm);
 
-			Assert.Equal(vm.StatusMessage, statusMessage.ToUpper());
-			Assert.Equal(vm.RequestStatus, RequestStatus.FAILED.GetDisplayName());
+			Assert.Equal(statusMessage.ToUpper(), vm.StatusMessage);
+			Assert.Equal(RequestStatus.FAILED.GetDisplayName(), vm.RequestStatus);
 
 			Assert.NotNull(vm.Error);
 
@@ -61,7 +61,37 @@ namespace UserIdentity.UnitTests.Application.Core.Errors
 
 			Assert.IsType<DateTime>(vm.Error?.Timestamp);
 			Assert.NotNull(vm.Error?.Timestamp);
+		}
 
+		[Fact]
+		public async Task Get_Error_With_Null_Status_Message_Returns_Error_ViewMode()
+		{
+			// Arrange
+			var query = new GetErrorQuery()
+			{
+				Exception = new Exception("Testing error message"),
+				ErrorMessage = "Testing error message",
+				StatusMessage = null
+			};
+
+			var getErrorQueryHandler = new GetErrorQueryHandler(_machineDateTime, _stringHelper, _logHelper);
+
+			// Act
+			var vm = await getErrorQueryHandler.GetItemAsync(query);
+
+			// Assert
+			Assert.NotNull(vm);
+
+			Assert.Equal(ItemStatusMessage.FAILED.GetDisplayName(), vm.StatusMessage);
+			Assert.Equal(RequestStatus.FAILED.GetDisplayName(), vm.RequestStatus);
+
+			Assert.NotNull(vm.Error);
+
+			Assert.IsType<String>(vm.Error?.Message);
+			Assert.NotNull(vm.Error?.Message);
+
+			Assert.IsType<DateTime>(vm.Error?.Timestamp);
+			Assert.NotNull(vm.Error?.Timestamp);
 		}
 	}
 

@@ -11,9 +11,9 @@ namespace UserIdentity.Infrastructure.Utilities
 			_loggerFactory = loggerFactory;
 
 		}
-		public void LogEvent(string message, LogLevel logLevel)
+		public void LogEvent(String message, LogLevel logLevel)
 		{
-			ILogger<T> logger = _loggerFactory.CreateLogger<T>();
+			ILogger logger = _loggerFactory.CreateLogger<T>();
 
 			string resolvedMessage = message + "";
 

@@ -8,7 +8,7 @@ namespace UserIdentity.Presentation.Controllers.Security
 	{
 		private readonly GetKeySetsQueryHandler _getKeySetsQueryHandler;
 
-		public JWKSController(GetKeySetsQueryHandler getKeySetsQueryHandler)
+		public JWKSController(GetKeySetsQueryHandler getKeySetsQueryHandler) 
 		{
 			_getKeySetsQueryHandler = getKeySetsQueryHandler;
 		}

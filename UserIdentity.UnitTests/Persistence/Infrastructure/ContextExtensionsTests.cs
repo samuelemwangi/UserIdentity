@@ -44,7 +44,7 @@ namespace UserIdentity.UnitTests.Persistence.Infrastructure
 		public void Get_Schema_Name_Returns_Actual_Schema_Name()
 		{
 			// Act
-			using var context = AppDbContextTestFactory.GetAppDbContext();	
+			using var context = AppDbContextTestFactory.GetAppDbContext();
 
 			// Assert	
 			Assert.Null(context.GetSchemaName<User>());
