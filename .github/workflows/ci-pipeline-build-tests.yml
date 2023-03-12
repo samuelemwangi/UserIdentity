@@ -1,16 +1,19 @@
 name: Build Tests
 
 on:
+  push:
+    branches: ["main"]
+
   pull_request:
     branches: ["main"]
     types: [opened, synchronize]
 
 jobs:
-  build:
+  build-tests:
     runs-on: ubuntu-latest
 
     steps:
-      - name : Checkout Code
+      - name: Checkout Code
         uses: actions/checkout@v3
 
       - name: Rename .env file
@@ -27,5 +30,8 @@ jobs:
       - name: Build
         run: dotnet build --no-restore
 
-      - name: Test
+      - name: Unit Tests
         run: dotnet test ./UserIdentity.UnitTests/UserIdentity.UnitTests.csproj --settings ./UserIdentity.UnitTests/coverlet.runsettings --no-build --verbosity normal
+
+      - name: Integration Tests
+        run: dotnet test ./UserIdentity.IntegrationTests/UserIdentity.IntegrationTests.csproj --no-build --verbosity normal
