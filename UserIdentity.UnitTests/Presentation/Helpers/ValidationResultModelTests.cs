@@ -32,5 +32,6 @@ namespace UserIdentity.UnitTests.Presentation.Helpers
 
 			Assert.True(validationResultModel.Error?.ErrorList?.Where(e => e.Field == errorKey && e.Message == errorValue).Any());
 		}
+
 	}
 }

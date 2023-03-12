@@ -13,7 +13,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 		public static String UserRoles = "role1,role2,role3";
 		public static String UserScopes = "scope1:edit,scope2:read,scope3:delete";
 
-		public static void UpdateContext(this BaseController controller, String controllerName, bool addUserId = false, bool addUserRoles = false, bool addUserScopes = false)
+		public static void UpdateContext(this BaseController controller, String? controllerName, bool addUserId = false, bool addUserRoles = false, bool addUserScopes = false)
 		{
 			// Route data
 			var routedData = new RouteData();

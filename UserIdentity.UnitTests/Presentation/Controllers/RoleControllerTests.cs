@@ -28,7 +28,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 
 	public class RoleControllerTests
 	{
-		private static String Controllername = "role";
+		private static readonly String Controllername = "role";
 
 		private readonly ICreateItemCommandHandler<CreateRoleCommand, RoleViewModel> _createRoleCommandHandler;
 		private readonly ICreateItemCommandHandler<CreateUserRoleCommand, UserRolesViewModel> _createUserRoleCommandHandler;
@@ -83,7 +83,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			A.CallTo(() => _getRolesQueryHandler.GetItemsAsync(query)).Returns(rolesVM);
 
 			var controller = GetRoleController();
-			controller.UpdateContext(Controllername);
+			controller.UpdateContext(null);
 
 			var actionResult = await controller.GetRolesAsync();
 			var result = actionResult?.Result as ObjectResult;
@@ -219,7 +219,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			A.CallTo(() => _updateRoleCommandHandler.UpdateItemAsync(command)).Returns(roleVM);
 
 			var controller = GetRoleController();
-			controller.UpdateContext(Controllername);
+			controller.UpdateContext(null);
 
 			var actionResult = await controller.UpdateRoleAsync(roleId, command);
 			var result = actionResult?.Result as ObjectResult;
@@ -340,7 +340,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			A.CallTo(() => _createUserRoleCommandHandler.CreateItemAsync(command)).Returns(userRolesVM);
 
 			var controller = GetRoleController();
-			controller.UpdateContext(Controllername);
+			controller.UpdateContext(null);
 
 			var actionResult = await controller.CreateUserRoleAsync(command);
 			var result = actionResult?.Result as ObjectResult;

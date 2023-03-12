@@ -25,7 +25,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 {
 	public class UserControllerTests
 	{
-		private static String Controllername = "user";
+		private readonly static String Controllername = "user";
 
 		private readonly IGetItemQueryHandler<GetUserQuery, UserViewModel> _getUserQueryHandler;
 		private readonly ICreateItemCommandHandler<RegisterUserCommand, AuthUserViewModel> _registerUserCommandHandler;
@@ -63,7 +63,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			A.CallTo(() => _getUserQueryHandler.GetItemAsync(getUserQuery)).Returns(userVM);
 
 			var controller = GetUserController();
-			controller.UpdateContext(Controllername);
+			controller.UpdateContext(null);
 			var actionResult = await controller.GetUser(userId);
 			var result = actionResult?.Result as ObjectResult;
 			var vm = result?.Value as UserViewModel;
@@ -105,7 +105,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			A.CallTo(() => _registerUserCommandHandler.CreateItemAsync(command)).Returns(authVM);
 
 			var controller = GetUserController();
-			controller.UpdateContext(Controllername);
+			controller.UpdateContext(null);
 			var actionResult = await controller.CreateUser(command);
 			var result = actionResult?.Result as ObjectResult;
 			var vm = result?.Value as AuthUserViewModel;
@@ -192,7 +192,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			A.CallTo(() => _exchangeRefreshTokenCommandHandler.UpdateItemAsync(command)).Returns(exchangeRefreshTokenVM);
 
 			var controller = GetUserController();
-			controller.UpdateContext(Controllername);
+			controller.UpdateContext(null);
 			var actionResult = await controller.RefreshToken(command);
 			var result = actionResult?.Result as ObjectResult;
 			var vm = result?.Value as ExchangeRefreshTokenViewModel;

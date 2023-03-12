@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using UserIdentity.Persistence;
 
 namespace UserIdentity.Persistence.Migrations
 {
