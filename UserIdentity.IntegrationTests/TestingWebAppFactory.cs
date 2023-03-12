@@ -9,7 +9,7 @@ using UserIdentity.Persistence;
 
 namespace UserIdentity.IntegrationTests
 {
-	internal class TestingWebAppFactory : WebApplicationFactory<Program>
+	public class TestingWebAppFactory : WebApplicationFactory<Program>
 	{
 		protected override void ConfigureWebHost(IWebHostBuilder webHostBuilder)
 		{
@@ -33,7 +33,8 @@ namespace UserIdentity.IntegrationTests
 
 				appContext.Database.EnsureCreated();
 
-			});
+			});			
+
 		}
 	}
 }

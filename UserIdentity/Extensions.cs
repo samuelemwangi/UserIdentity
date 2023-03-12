@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Text;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -14,12 +13,35 @@ namespace UserIdentity
 	{
 		public static void AddCommandAndQueryHandlers(this IServiceCollection services)
 		{
-			// Register all command and query handlers
+			// Add Query Handlers
 			foreach (var executingType in Assembly.GetExecutingAssembly().GetTypes())
 			{
-				if (executingType.IsClass && !executingType.IsAbstract && (executingType.Name.Contains("QueryHandler") || executingType.Name.Contains("CommandHandler")))
+				if (executingType.IsClass && !executingType.IsAbstract && executingType.Name.Contains("QueryHandler"))
 				{
-					services.AddScoped(executingType);
+
+					var executingTypeInterfaces = executingType.GetInterfaces().Where(x => x.Name.Contains("QueryHandler"));
+					if (executingTypeInterfaces.Any())
+					{
+						foreach (var executingInterface in executingTypeInterfaces)
+							services.AddScoped(executingInterface, executingType);
+					}
+
+				}
+			}
+
+			// Add Command Handlers
+			foreach (var executingType in Assembly.GetExecutingAssembly().GetTypes())
+			{
+				if (executingType.IsClass && !executingType.IsAbstract && executingType.Name.Contains("CommandHandler"))
+				{
+
+					var executingTypeInterfaces = executingType.GetInterfaces().Where(x => x.Name.Contains("CommandHandler"));
+					if (executingTypeInterfaces.Any())
+					{
+						foreach(var executingInterface in executingTypeInterfaces)
+							services.AddScoped(executingInterface, executingType);
+					}
+
 				}
 			}
 
@@ -37,7 +59,6 @@ namespace UserIdentity
 						services.AddScoped(executingTypeInterfaces.First(), executingType);
 
 				}
-
 			}
 		}
 
@@ -54,12 +75,22 @@ namespace UserIdentity
 			// JWT wire up
 			var jwtAppSettingOptions = configuration.GetSection(nameof(JwtIssuerOptions));
 
+			var issuer = configuration.GetValue<String>(jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)]) ?? jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)] ?? "";
+			var audience = configuration.GetValue<String>(jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)]) ?? jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)] ?? "";
+			var validForString = configuration.GetValue<String>(jwtAppSettingOptions[nameof(JwtIssuerOptions.ValidFor)]) ?? jwtAppSettingOptions[nameof(JwtIssuerOptions.ValidFor)];
+
+			var validFor = 15.0d;
+
+			if(Double.TryParse(validForString, out var validForDouble))
+				validFor = validForDouble;
+
+
 			// Configure JwtIssuerOptions
 			services.Configure<JwtIssuerOptions>(options =>
 			{
-				options.Issuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
-				options.Audience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)];
-				options.ValidFor = TimeSpan.FromSeconds(Double.Parse(jwtAppSettingOptions[nameof(JwtIssuerOptions.ValidFor)]));
+				options.Issuer = issuer;
+				options.Audience = audience;
+				options.ValidFor = TimeSpan.FromSeconds(validFor);
 				options.SigningCredentials = signingCredentials;
 			});
 
@@ -67,10 +98,10 @@ namespace UserIdentity
 			var tokenValidationParameters = new TokenValidationParameters
 			{
 				ValidateIssuer = true,
-				ValidIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)],
+				ValidIssuer = issuer,
 
 				ValidateAudience = true,
-				ValidAudience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)],
+				ValidAudience = audience,
 
 				ValidateIssuerSigningKey = true,
 				IssuerSigningKey = signingKey,
@@ -88,7 +119,7 @@ namespace UserIdentity
 
 			}).AddJwtBearer(configureOptions =>
 			{
-				configureOptions.ClaimsIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
+				configureOptions.ClaimsIssuer = issuer;
 				configureOptions.TokenValidationParameters = tokenValidationParameters;
 				configureOptions.SaveToken = true;
 

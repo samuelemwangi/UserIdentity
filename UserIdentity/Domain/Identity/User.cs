@@ -4,14 +4,14 @@ namespace UserIdentity.Domain.Identity
 {
 	public class User : BaseEntity
 	{
-		public new String? Id { get; internal set; }
+		public new String? Id { get;  set; }
 
-		public String? FirstName { get; internal set; }
+		public String? FirstName { get;  set; }
 
-		public String? LastName { get; internal set; }
+		public String? LastName { get; set; }
 
-		public String? EmailConfirmationToken { get; internal set; }
+		public String? EmailConfirmationToken { get; set; }
 
-		public String? ForgotPasswordToken { get; internal set; }
+		public String? ForgotPasswordToken { get; set; }
 	}
 }

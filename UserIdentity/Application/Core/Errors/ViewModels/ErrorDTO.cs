@@ -2,7 +2,7 @@
 {
 	public record ErrorDTO
 	{
-		public string? Message { get; internal set; }
+		public String? Message { get; internal set; }
 		public DateTime? Timestamp { get; internal set; }
 	}
 }
