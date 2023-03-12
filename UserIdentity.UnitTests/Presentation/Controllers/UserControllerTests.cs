@@ -226,7 +226,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			A.CallTo(() => _resetPasswordCommandHandler.CreateItemAsync(command)).Returns(resetPasswordVM);
 
 			var controller = GetUserController();
-			controller.UpdateContext(Controllername);
+			controller.UpdateContext(Controllername, true, true);
 			var actionResult = await controller.ResetPassword(command);
 			var result = actionResult?.Result as ObjectResult;
 			var vm = result?.Value as ResetPasswordViewModel;
@@ -255,7 +255,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			A.CallTo(() => _confirmUpdatePasswordTokenCommandHandler.UpdateItemAsync(command)).Returns(confirmUpdatePasswordTokenVM);
 
 			var controller = GetUserController();
-			controller.UpdateContext(Controllername);
+			controller.UpdateContext(Controllername,true);
 			var actionResult = await controller.ConfirmPasswordToken(command);
 			var result = actionResult?.Result as ObjectResult;
 			var vm = result?.Value as ConfirmUpdatePasswordTokenViewModel;
@@ -286,7 +286,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			A.CallTo(() => _updatePasswordCommandHandler.UpdateItemAsync(command)).Returns(updatePasswordViewModel);
 
 			var controller = GetUserController();
-			controller.UpdateContext(Controllername);
+			controller.UpdateContext(Controllername, true, true, true);
 			var actionResult = await controller.UpdatePassword(command);
 			var result = actionResult?.Result as ObjectResult;
 			var vm = result?.Value as UpdatePasswordViewModel;

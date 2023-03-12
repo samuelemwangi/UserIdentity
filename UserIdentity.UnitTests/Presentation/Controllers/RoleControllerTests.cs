@@ -403,7 +403,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			A.CallTo(() => _createRoleClaimCommandHandler.CreateItemAsync(command)).Returns(roleClaimVM);
 
 			var controller = GetRoleController();
-			controller.UpdateContext(Controllername);
+			controller.UpdateContext(Controllername, true, true);
 
 			var actionResult = await controller.CreateRoleClaimAsync(command);
 			var result = actionResult?.Result as ObjectResult;
@@ -444,7 +444,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			A.CallTo(() => _getRoleClaimsQueryHandler.GetItemsAsync(query)).Returns(roleClaimsVM);
 
 			var controller = GetRoleController();
-			controller.UpdateContext(Controllername);
+			controller.UpdateContext(Controllername,true);
 
 			var actionResult = await controller.GetRoleClaimsAsync(roleId);
 			var result = actionResult?.Result as ObjectResult;
@@ -500,7 +500,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			A.CallTo(() => _deleteRoleClaimCommandHandler.DeleteItemAsync(command)).Returns(deleteRoleClaimVM);
 
 			var controller = GetRoleController();
-			controller.UpdateContext(Controllername);
+			controller.UpdateContext(Controllername, true, true,true);
 
 			var actionResult = await controller.DelteRoleClaimAsync(command);
 			var result = actionResult?.Result as ObjectResult;
