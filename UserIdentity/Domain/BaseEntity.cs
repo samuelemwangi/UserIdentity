@@ -2,16 +2,16 @@
 {
 	public abstract class BaseEntity
 	{
-		public Guid Id { get; set; }
+		public Guid Id { get; internal set; }
 
-		public String? CreatedBy { get; set; }
+		public String? CreatedBy { get; internal set; }
 
-		public DateTime? CreatedDate { get; set; }
+		public DateTime? CreatedDate { get; internal set; }
 
-		public String? LastModifiedBy { get; set; }
+		public String? LastModifiedBy { get; internal set; }
 
-		public DateTime? LastModifiedDate { get; set; }
+		public DateTime? LastModifiedDate { get; internal set; }
 
-		public Boolean IsDeleted { get; set; }
+		public Boolean IsDeleted { get; internal set; }
 	}
 }
