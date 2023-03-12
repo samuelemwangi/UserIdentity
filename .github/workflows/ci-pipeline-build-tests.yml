@@ -1,0 +1,31 @@
+name: Build Tests
+
+on:
+  pull_request:
+    branches: ["main"]
+    types: [opened, synchronize]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name : Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Rename .env file
+        run: mv ./UserIdentity.UnitTests/.env.example ./UserIdentity.UnitTests/.env
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 6.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore
+
+      - name: Test
+        run: dotnet test ./UserIdentity.UnitTests/UserIdentity.UnitTests.csproj --settings ./UserIdentity.UnitTests/coverlet.runsettings --no-build --verbosity normal
