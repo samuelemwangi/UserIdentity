@@ -843,6 +843,80 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 			Assert.True(updatePasswordDTO?.PassWordUpdated);
 		}
 
+		[Fact]
+		public async Task Update_Password_With_Invalid_Token_Does_Not_Update_Password()
+		{
+			// Arrange
+			DBContexUtils.SeedDatabase(_appDbContext);
+			var resetPasswordToken = DBContexUtils.UpdateResetPasswordToken(_appDbContext, _userManager);
+
+			var requestPayload = new
+			{
+				NewPassword = "12345",
+				UserSettings.UserId,
+				PasswordResetToken = resetPasswordToken + "897455\\f",
+			};
+
+			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/update-password");
+			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
+
+			// Act
+			var response = await _httpClient.SendAsync(httpRequest);
+			var responseString = await response.Content.ReadAsStringAsync();
+
+			// Assert
+			Assert.Equal(HttpStatusCode.NotAcceptable, response.StatusCode);
+			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+
+			Assert.NotNull(jsonObject);
+
+			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
+			Assert.Equal("Password update failed", jsonObject["statusMessage"]);
+
+
+			var updatePasswordDTO = jsonObject["updatePasswordResult"]?.ToObject<UpdatePasswordDTO>();
+
+			Assert.NotNull(updatePasswordDTO);
+			Assert.False(updatePasswordDTO?.PassWordUpdated);
+		}
+
+		[Fact]
+		public async Task Update_Password_With_Non_Existent_Token_Does_Not_Update_Password()
+		{
+			// Arrange
+			DBContexUtils.SeedDatabase(_appDbContext);
+			var resetPasswordToken = DBContexUtils.UpdateResetPasswordToken(_appDbContext, _userManager);
+
+			var requestPayload = new
+			{
+				NewPassword = "12345",
+				UserSettings.UserId,
+				PasswordResetToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(TestStringHelper.GenerateRandomString(56))),
+			};
+
+			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/update-password");
+			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
+
+			// Act
+			var response = await _httpClient.SendAsync(httpRequest);
+			var responseString = await response.Content.ReadAsStringAsync();
+
+			// Assert
+			Assert.Equal(HttpStatusCode.NotAcceptable, response.StatusCode);
+			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+
+			Assert.NotNull(jsonObject);
+
+			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
+			Assert.Equal("Password update failed", jsonObject["statusMessage"]);
+
+
+			var updatePasswordDTO = jsonObject["updatePasswordResult"]?.ToObject<UpdatePasswordDTO>();
+
+			Assert.NotNull(updatePasswordDTO);
+			Assert.False(updatePasswordDTO?.PassWordUpdated);
+		}
+
 
 	}
 }
