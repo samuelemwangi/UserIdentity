@@ -202,7 +202,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 		}
 
 		[Fact]
-		public async Task Register_User_With_Valid_Request_Payload_Creates_User()
+		public async Task Register_User_With_Valid_Request_Payload_Registers_User()
 		{
 			// Arrange
 			var requestPayload = new
@@ -245,6 +245,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 
 			Assert.NotNull(userToken);
 			Assert.IsType<AccessTokenDTO>(userToken.AccessToken);
+			Assert.Equal(_props["APP_VALID_FOR"], userToken.AccessToken.ExpiresIn + "");
 		}
 
 		[Fact]
@@ -317,6 +318,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 
 			Assert.NotNull(jsonObject);
 
+			_outputHelper.WriteLine(jsonObject + "");
+
 			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
 			Assert.Equal("Item(s) fetched successfully", jsonObject["statusMessage"]);
 
@@ -332,6 +335,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 
 			Assert.NotNull(userToken);
 			Assert.IsType<AccessTokenDTO>(userToken.AccessToken);
+			Assert.Equal(_props["APP_VALID_FOR"], userToken.AccessToken.ExpiresIn + "");
 		}
 
 		[Fact]
@@ -644,7 +648,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
 			Assert.NotNull(jsonObject);
-
+			
 			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
 			Assert.Equal("Item(s) fetched successfully", jsonObject["statusMessage"]);
 
@@ -652,7 +656,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 			var resetPasswordDTO = jsonObject["resetPasswordDetails"]?.ToObject<ResetPasswordDTO>();
 
 			Assert.NotNull(resetPasswordDTO);
-			Assert.Equal("APP_DEFAULT_RESET_PASSWORD_MESSAGE", resetPasswordDTO?.EmailMessage);
+			Assert.Equal(_props["APP_DEFAULT_RESET_PASSWORD_MESSAGE"], resetPasswordDTO?.EmailMessage);
 		}
 
 		[Fact]
