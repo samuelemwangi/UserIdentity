@@ -127,6 +127,18 @@ namespace UserIdentity.IntegrationTests.Persistence
 			SeedRefreshToken(appDbContext);
 		}
 
+		public static void ClearAppUser(AppDbContext appDbContext)
+		{
+			appDbContext.RemoveRange(appDbContext.AppUser);
+			appDbContext.SaveChanges();
+		}
+
+		public static void ClearRefreshToken(AppDbContext appDbContext)
+		{
+			appDbContext.RemoveRange(appDbContext.RefreshToken);
+			appDbContext.SaveChanges();
+		}
+
 		public static void ClearDatabase(AppDbContext appDbContext)
 		{
 			appDbContext.RemoveRange(appDbContext.UserRoles);

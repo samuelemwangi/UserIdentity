@@ -113,6 +113,48 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 		}
 
 		[Fact]
+		public async Task Get_Non_Existing_AppUser_Does_Not_Get_User_Details()
+		{
+			// Arrange
+			DBContexUtils.SeedDatabase(_appDbContext);
+
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+
+			DBContexUtils.ClearAppUser(_appDbContext);
+
+			Assert.NotNull(userToken);
+			Assert.NotNull(refreshToken);
+
+			var nonExistingUserId = Guid.NewGuid().ToString();
+
+			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri + "/" + nonExistingUserId);
+			httpRequest.AddAuthHeader(userToken);
+
+			// Act
+			var response = await _httpClient.SendAsync(httpRequest);
+			var responseString = await response.Content.ReadAsStringAsync();
+
+			// Assert
+			Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+
+			Assert.NotNull(jsonObject);
+
+			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
+			Assert.Equal("404 - NOT FOUND", jsonObject["statusMessage"]);
+
+			Assert.Equal($"No record exists for the provided identifier - {nonExistingUserId}", jsonObject["error"]?["message"]);
+
+			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
+
+			Assert.NotNull(dateTime);
+			Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
+			Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
+			Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
+		}
+
+		[Fact]
 		public async Task Register_User_With_Invalid_Request_Payload_Returns_Validation_Errors()
 		{
 			// Arrange
@@ -300,6 +342,85 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 			{
 				UserName = UserSettings.Username,
 				Password = UserSettings.UserPassword
+			};
+
+
+			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/login");
+			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
+
+			// Act
+			var response = await _httpClient.SendAsync(httpRequest);
+			var responseString = await response.Content.ReadAsStringAsync();
+
+			// Assert
+			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+
+			Assert.NotNull(jsonObject);
+
+			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
+			Assert.Equal("401 - UNAUTHORIZED", jsonObject["statusMessage"]);
+
+			Assert.Equal("Provided username and password combination is invalid", jsonObject["error"]?["message"]);
+
+			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
+
+			Assert.NotNull(dateTime);
+			Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
+			Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
+			Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
+		}
+
+		[Fact]
+		public async Task Login_Existing_Non_Existent_AppUser_Does_Not_Log_In_User()
+		{
+			// Arrange
+			DBContexUtils.SeedDatabase(_appDbContext);
+			DBContexUtils.ClearAppUser(_appDbContext);
+
+			var requestPayload = new
+			{
+				UserName = UserSettings.Username,
+				Password = UserSettings.UserPassword
+			};
+
+
+			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/login");
+			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
+
+			// Act
+			var response = await _httpClient.SendAsync(httpRequest);
+			var responseString = await response.Content.ReadAsStringAsync();
+
+			// Assert
+			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+
+			Assert.NotNull(jsonObject);
+
+			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
+			Assert.Equal("401 - UNAUTHORIZED", jsonObject["statusMessage"]);
+
+			Assert.Equal("Provided username and password combination is invalid", jsonObject["error"]?["message"]);
+
+			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
+
+			Assert.NotNull(dateTime);
+			Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
+			Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
+			Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
+		}
+
+		[Fact]
+		public async Task Login_Existing_With_Invalid_Password_Does_Not_Log_In_User()
+		{
+			// Arrange
+			DBContexUtils.SeedDatabase(_appDbContext);
+
+			var requestPayload = new
+			{
+				UserName = UserSettings.Username,
+				Password = UserSettings.UserPassword + "123"
 			};
 
 
@@ -803,6 +924,43 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 			Assert.True(errorList?.Any(x => x.Field == "NewPassword" && x.Message == "The NewPassword field is required.") ?? false);
 			Assert.True(errorList?.Any(x => x.Field == "UserId" && x.Message == "The UserId field is required.") ?? false);
 			Assert.True(errorList?.Any(x => x.Field == "PasswordResetToken" && x.Message == "The PasswordResetToken field is required.") ?? false);
+		}
+
+		[Fact]
+		public async Task Update_Password_For_Non_Existent_User_Does_Not_Update_Password()
+		{
+			// Arrange
+			DBContexUtils.SeedDatabase(_appDbContext);
+			var resetPasswordToken = DBContexUtils.UpdateResetPasswordToken(_appDbContext, _userManager);
+
+			var requestPayload = new
+			{
+				NewPassword = "12345",
+				UserId = Guid.NewGuid().ToString(),
+				PasswordResetToken = resetPasswordToken
+			};
+
+			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/update-password");
+			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
+
+			// Act
+			var response = await _httpClient.SendAsync(httpRequest);
+			var responseString = await response.Content.ReadAsStringAsync();
+
+			// Assert
+			Assert.Equal(HttpStatusCode.NotAcceptable, response.StatusCode);
+			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+
+			Assert.NotNull(jsonObject);
+
+			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
+			Assert.Equal("Password update failed", jsonObject["statusMessage"]);
+
+
+			var updatePasswordDTO = jsonObject["updatePasswordResult"]?.ToObject<UpdatePasswordDTO>();
+
+			Assert.NotNull(updatePasswordDTO);
+			Assert.False(updatePasswordDTO?.PassWordUpdated);
 		}
 
 		[Fact]
