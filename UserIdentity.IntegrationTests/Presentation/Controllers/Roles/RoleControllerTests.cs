@@ -294,7 +294,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 		}
 
 		[Fact]
-		public async Task Create_Existing_Role_Returns_Does_Not_Create_Role()
+		public async Task Create_Existing_Role_Does_Not_Create_Role()
 		{
 			// Arrange
 			DBContexUtils.SeedDatabase(_appDbContext);
@@ -1067,7 +1067,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 		}
 
 		[Fact]
-		public async Task Create_Existing_User_Role_Returns_Does_Not_Create_Role()
+		public async Task Create_Existing_User_Role_Does_Not_Create_Role()
 		{
 			// Arrange
 			DBContexUtils.SeedDatabase(_appDbContext);
@@ -1251,6 +1251,263 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			Assert.NotNull(refreshToken);
 
 			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/user");
+			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
+			httpRequest.AddAuthHeader(userToken);
+
+			// Act
+			var response = await _httpClient.SendAsync(httpRequest);
+
+			// Assert
+			Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+		}
+
+		[Fact]
+		public async Task Create_Valid_Role_Claim_Returns_Role_Details()
+		{
+			// Arrange
+			DBContexUtils.SeedDatabase(_appDbContext);
+
+			var additionalRoleId = Guid.NewGuid().ToString();
+			var additionalRolename = "additionalRole";
+
+			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
+
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+
+			Assert.NotNull(userToken);
+			Assert.NotNull(refreshToken);
+
+			var requestPayload = new
+			{
+				RoleSettings.RoleId,
+				Resource = "user",
+				Action = "create",
+			};
+
+
+			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/claim");
+			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
+			httpRequest.AddAuthHeader(userToken);
+
+			// Act
+			var response = await _httpClient.SendAsync(httpRequest);
+			var responseString = await response.Content.ReadAsStringAsync();
+
+			// Assert
+			Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+
+			Assert.NotNull(jsonObject);
+
+			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
+			Assert.Equal("Item(s) fetched successfully", jsonObject["statusMessage"]);
+
+			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
+			Assert.Equal("Item(s) fetched successfully", jsonObject["statusMessage"]);
+
+			var roleClaim = jsonObject["roleClaim"]?.ToObject<RoleClaimDTO>();
+
+			Assert.NotNull(roleClaim);
+			Assert.Equal(requestPayload.Resource, roleClaim.Resource);
+			Assert.Equal(requestPayload.Action, roleClaim.Action);
+			Assert.Equal(requestPayload.Resource + ":" + requestPayload.Action, roleClaim.Scope);
+		}
+
+		[Fact]
+		public async Task Create_Existing_User_Role_Claim_Does_Not_Create_Role_Claim()
+		{
+			// Arrange
+			DBContexUtils.SeedDatabase(_appDbContext);
+
+			var additionalRoleId = Guid.NewGuid().ToString();
+			var additionalRolename = "additionalRole";
+
+			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
+
+			var createRoleClaimResult = DBContexUtils.UpdateRoleClaim(_appDbContext, _roleManager);
+
+			Assert.True(createRoleClaimResult);
+
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+
+			Assert.NotNull(userToken);
+			Assert.NotNull(refreshToken);
+
+			var requestPayload = new
+			{
+				RoleSettings.RoleId,
+				ScopeClaimSettings.Resource,
+				ScopeClaimSettings.Action,
+			};
+
+
+			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/claim");
+			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
+			httpRequest.AddAuthHeader(userToken);
+
+			// Act
+			var response = await _httpClient.SendAsync(httpRequest);
+			var responseString = await response.Content.ReadAsStringAsync();
+
+			// Assert
+			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+
+			Assert.NotNull(jsonObject);
+
+			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
+			Assert.Equal("400 - BAD REQUEST", jsonObject["statusMessage"]);
+
+			Assert.Equal($"A record identified with - {ScopeClaimSettings.ScopeClaim} - exists", jsonObject["error"]?["message"]);
+
+			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
+
+			Assert.NotNull(dateTime);
+			Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
+			Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
+			Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
+		}
+
+
+		[Fact]
+		public async Task Create_Role_Claim_With_Invalid_Payload_Returns_Validation_Result()
+		{
+			// Arrange
+			DBContexUtils.SeedDatabase(_appDbContext);
+
+			var additionalRoleId = Guid.NewGuid().ToString();
+			var additionalRolename = "additionalRole";
+
+			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
+
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+
+			Assert.NotNull(userToken);
+			Assert.NotNull(refreshToken);
+
+			var requestPayload = new
+			{
+			};
+
+			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/claim");
+			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
+			httpRequest.AddAuthHeader(userToken);
+
+			// Act
+			var response = await _httpClient.SendAsync(httpRequest);
+			var responseString = await response.Content.ReadAsStringAsync();
+
+			// Assert
+			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+
+			Assert.NotNull(jsonObject);
+
+			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
+			Assert.Equal("400 - BAD REQUEST", jsonObject["statusMessage"]);
+
+			Assert.Equal("Validation Failed", jsonObject["error"]?["message"]);
+
+			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
+
+			Assert.NotNull(dateTime);
+			Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
+			Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
+			Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
+
+			var errorList = jsonObject["error"]?["errorList"]?.ToObject<List<ValidationError>>();
+
+			Assert.Equal(3, errorList?.Count);
+
+			Assert.True(errorList?.Any(x => x.Field == "RoleId" && x.Message == "The RoleId field is required.") ?? false);
+			Assert.True(errorList?.Any(x => x.Field == "Resource" && x.Message == "The Resource field is required.") ?? false);
+			Assert.True(errorList?.Any(x => x.Field == "Action" && x.Message == "The Action field is required.") ?? false);
+		}
+
+		[Fact]
+		public async Task Create_Role_Claim_With_No_Auth_Returns_Auth_Error()
+		{
+			// Arrange
+			DBContexUtils.SeedDatabase(_appDbContext);
+
+			var additionalRoleId = Guid.NewGuid().ToString();
+			var additionalRolename = "additionalRole";
+
+			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
+
+			var requestPayload = new
+			{
+				RoleSettings.RoleId,
+				Resource = "user",
+				Action = "create",
+			};
+
+			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/claim");
+			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
+
+			// Act
+			var response = await _httpClient.SendAsync(httpRequest);
+
+			// Assert
+			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+		}
+
+		[Fact]
+		public async Task Create_Role_Claim_With_Invalid_Auth_Returns_Auth_Error()
+		{
+			// Arrange
+			DBContexUtils.SeedDatabase(_appDbContext);
+
+
+			var additionalRoleId = Guid.NewGuid().ToString();
+			var additionalRolename = "additionalRole";
+
+			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
+
+			var requestPayload = new
+			{
+				RoleSettings.RoleId,
+				Resource = "user",
+				Action = "create",
+			};
+
+			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/claim");
+			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
+			httpRequest.AddAuthHeader(UserSettings.InvalidUserToken);
+
+			// Act
+			var response = await _httpClient.SendAsync(httpRequest);
+
+			// Assert
+			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+		}
+
+		[Fact]
+		public async Task Create_Role_Claim_With_Invalid_Permissions_Returns_Auth_Error()
+		{
+			// Arrange
+			DBContexUtils.SeedIdentityUser(_appDbContext);
+			var roleId = Guid.NewGuid().ToString();
+			var roleName = "additionalRole";
+			DBContexUtils.SeedIdentityRole(_appDbContext, roleId, roleName);
+			DBContexUtils.SeedAppUser(_appDbContext);
+			DBContexUtils.SeedRefreshToken(_appDbContext);
+
+			var requestPayload = new
+			{
+				RoleSettings.RoleId,
+				Resource = "user",
+				Action = "create",
+			};
+
+
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+
+			Assert.NotNull(userToken);
+			Assert.NotNull(refreshToken);
+
+			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/claim");
 			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
 			httpRequest.AddAuthHeader(userToken);
 

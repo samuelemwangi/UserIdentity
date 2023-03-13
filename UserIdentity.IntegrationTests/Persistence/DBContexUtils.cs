@@ -1,166 +1,182 @@
 ﻿using System;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 
 using UserIdentity.Domain.Identity;
+using UserIdentity.Infrastructure.Security.Helpers;
 using UserIdentity.IntegrationTests.TestUtils;
 using UserIdentity.Persistence;
 
 namespace UserIdentity.IntegrationTests.Persistence
 {
-    internal class DBContexUtils
-    {
+	internal class DBContexUtils
+	{
 
 
-        public static void SeedIdentityUser(AppDbContext appDbContext)
-        {
-            var user = new IdentityUser
-            {
-                UserName = UserSettings.Username,
-                PhoneNumber = UserSettings.PhoneNumber,
-                Id = UserSettings.UserId.ToString(),
-                Email = UserSettings.UserEmail,
-                EmailConfirmed = true,
-                NormalizedEmail = UserSettings.UserEmail.ToUpper(),
-                NormalizedUserName = UserSettings.Username.ToUpper(),
-                ConcurrencyStamp = DateTime.Now.Ticks.ToString(),
-            };
+		public static void SeedIdentityUser(AppDbContext appDbContext)
+		{
+			var user = new IdentityUser
+			{
+				UserName = UserSettings.Username,
+				PhoneNumber = UserSettings.PhoneNumber,
+				Id = UserSettings.UserId.ToString(),
+				Email = UserSettings.UserEmail,
+				EmailConfirmed = true,
+				NormalizedEmail = UserSettings.UserEmail.ToUpper(),
+				NormalizedUserName = UserSettings.Username.ToUpper(),
+				ConcurrencyStamp = DateTime.Now.Ticks.ToString(),
+			};
 
-            user.PasswordHash = new PasswordHasher<IdentityUser>().HashPassword(user, UserSettings.UserPassword);
+			user.PasswordHash = new PasswordHasher<IdentityUser>().HashPassword(user, UserSettings.UserPassword);
 
-            appDbContext.Users.Add(user);
-            appDbContext.SaveChanges();
-        }
+			appDbContext.Users.Add(user);
+			appDbContext.SaveChanges();
+		}
 
-        public static void SeedIdentityRole(AppDbContext appDbContext, String roleId = "", String roleName = "")
-        {
-            var role = new IdentityRole
-            {
-                Id = RoleSettings.RoleId,
-                Name = RoleSettings.RoleName,
-                NormalizedName = RoleSettings.RoleName.ToUpper(),
-                ConcurrencyStamp = DateTime.Now.Ticks.ToString()
-            };
+		public static void SeedIdentityRole(AppDbContext appDbContext, String roleId = "", String roleName = "")
+		{
+			var role = new IdentityRole
+			{
+				Id = RoleSettings.RoleId,
+				Name = RoleSettings.RoleName,
+				NormalizedName = RoleSettings.RoleName.ToUpper(),
+				ConcurrencyStamp = DateTime.Now.Ticks.ToString()
+			};
 
-            if (!String.IsNullOrEmpty(roleId))
-                role.Id = roleId;
+			if (!String.IsNullOrEmpty(roleId))
+				role.Id = roleId;
 
-            if (!String.IsNullOrEmpty(roleName))
-            {
-                role.Name = roleName;
-                role.NormalizedName = roleName.ToUpper();
-            }
+			if (!String.IsNullOrEmpty(roleName))
+			{
+				role.Name = roleName;
+				role.NormalizedName = roleName.ToUpper();
+			}
 
-            appDbContext.Roles.Add(role);
-            appDbContext.SaveChanges();
-        }
+			appDbContext.Roles.Add(role);
+			appDbContext.SaveChanges();
+		}
 
-        public static void SeedIdentityUserRole(AppDbContext appDbContext, String roleId = "")
-        {
-            var userRole = new IdentityUserRole<String>
-            {
-                RoleId = RoleSettings.RoleId,
-                UserId = UserSettings.UserId.ToString()
-            };
+		public static void SeedIdentityUserRole(AppDbContext appDbContext, String roleId = "")
+		{
+			var userRole = new IdentityUserRole<String>
+			{
+				RoleId = RoleSettings.RoleId,
+				UserId = UserSettings.UserId.ToString()
+			};
 
-            if (!String.IsNullOrEmpty(roleId))
-                userRole.RoleId = roleId;
+			if (!String.IsNullOrEmpty(roleId))
+				userRole.RoleId = roleId;
 
-            appDbContext.UserRoles.Add(userRole);
-            appDbContext.SaveChanges();
-        }
+			appDbContext.UserRoles.Add(userRole);
+			appDbContext.SaveChanges();
+		}
 
-        public static void SeedAppUser(AppDbContext appDbContext)
-        {
-            var appuser = new User
-            {
-                Id = UserSettings.UserId.ToString(),
-                FirstName = UserSettings.FirstName,
-                LastName = UserSettings.LastName,
-                CreatedBy = UserSettings.UserId.ToString(),
-                CreatedDate = DateTime.UtcNow,
-                LastModifiedBy = UserSettings.UserId.ToString(),
-                LastModifiedDate = DateTime.UtcNow
-            };
+		public static void SeedAppUser(AppDbContext appDbContext)
+		{
+			var appuser = new User
+			{
+				Id = UserSettings.UserId.ToString(),
+				FirstName = UserSettings.FirstName,
+				LastName = UserSettings.LastName,
+				CreatedBy = UserSettings.UserId.ToString(),
+				CreatedDate = DateTime.UtcNow,
+				LastModifiedBy = UserSettings.UserId.ToString(),
+				LastModifiedDate = DateTime.UtcNow
+			};
 
-            appDbContext.AppUser.Add(appuser);
-            appDbContext.SaveChanges();
-        }
+			appDbContext.AppUser.Add(appuser);
+			appDbContext.SaveChanges();
+		}
 
-        public static void SeedRefreshToken(AppDbContext appDbContext)
-        {
-            var refreshToken = new RefreshToken
-            {
-                UserId = UserSettings.UserId.ToString(),
-                CreatedBy = UserSettings.UserId.ToString(),
-                CreatedDate = DateTime.UtcNow,
-                LastModifiedBy = UserSettings.UserId.ToString(),
-                LastModifiedDate = DateTime.UtcNow
-            };
+		public static void SeedRefreshToken(AppDbContext appDbContext)
+		{
+			var refreshToken = new RefreshToken
+			{
+				UserId = UserSettings.UserId.ToString(),
+				CreatedBy = UserSettings.UserId.ToString(),
+				CreatedDate = DateTime.UtcNow,
+				LastModifiedBy = UserSettings.UserId.ToString(),
+				LastModifiedDate = DateTime.UtcNow
+			};
 
-            appDbContext.RefreshToken.Add(refreshToken);
-            appDbContext.SaveChanges();
-        }
+			appDbContext.RefreshToken.Add(refreshToken);
+			appDbContext.SaveChanges();
+		}
 
-        public static String? UpdateResetPasswordToken(AppDbContext appDbContext, UserManager<IdentityUser> userManager)
-        {
-            var user = userManager.FindByIdAsync(UserSettings.UserId.ToString()).Result;
+		public static String? UpdateResetPasswordToken(AppDbContext appDbContext, UserManager<IdentityUser> userManager)
+		{
+			var user = userManager.FindByIdAsync(UserSettings.UserId.ToString()).Result;
 
-            if (user == null)
-                return null as String;
+			if (user == null)
+				return null as String;
 
 
-            var resetPasswordToken = userManager.GeneratePasswordResetTokenAsync(user).Result;
+			var resetPasswordToken = userManager.GeneratePasswordResetTokenAsync(user).Result;
 
-            if (resetPasswordToken == null)
-                return null as String;
+			if (resetPasswordToken == null)
+				return null as String;
 
-            var appuser = appDbContext.AppUser.Where(e => e.Id == UserSettings.UserId.ToString()).FirstOrDefault();
+			var appuser = appDbContext.AppUser.Where(e => e.Id == UserSettings.UserId.ToString()).FirstOrDefault();
 
-            if (appuser == null)
-                return null as String;
+			if (appuser == null)
+				return null as String;
 
-            appuser.ForgotPasswordToken = resetPasswordToken;
+			appuser.ForgotPasswordToken = resetPasswordToken;
 
-            appDbContext.SaveChanges();
+			appDbContext.SaveChanges();
 
-            return WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(resetPasswordToken));
-        }
+			return WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(resetPasswordToken));
+		}
 
-        public static void SeedDatabase(AppDbContext appDbContext)
-        {
-            SeedIdentityUser(appDbContext);
-            SeedIdentityRole(appDbContext);
-            SeedIdentityUserRole(appDbContext);
-            SeedAppUser(appDbContext);
-            SeedRefreshToken(appDbContext);
-        }
+		public static Boolean? UpdateRoleClaim(AppDbContext appDbContext, RoleManager<IdentityRole> roleManager)
+		{
+			var role = roleManager.FindByIdAsync(RoleSettings.RoleId).Result;
 
-        public static void ClearAppUser(AppDbContext appDbContext)
-        {
-            appDbContext.RemoveRange(appDbContext.AppUser);
-            appDbContext.SaveChanges();
-        }
+			var roleClaim = new Claim(Constants.Strings.JwtClaimIdentifiers.Scope, ScopeClaimSettings.ScopeClaim);
 
-        public static void ClearRefreshToken(AppDbContext appDbContext)
-        {
-            appDbContext.RemoveRange(appDbContext.RefreshToken);
-            appDbContext.SaveChanges();
-        }
+			var result = roleManager.AddClaimAsync(role, roleClaim);
 
-        public static void ClearDatabase(AppDbContext appDbContext)
-        {
-            appDbContext.RemoveRange(appDbContext.UserRoles);
-            appDbContext.RemoveRange(appDbContext.Roles);
-            appDbContext.RemoveRange(appDbContext.Users);
+			return result.Result.Succeeded;
+		}
 
-            appDbContext.RemoveRange(appDbContext.AppUser);
-            appDbContext.RemoveRange(appDbContext.RefreshToken);
+		public static void SeedDatabase(AppDbContext appDbContext)
+		{
+			SeedIdentityUser(appDbContext);
+			SeedIdentityRole(appDbContext);
+			SeedIdentityUserRole(appDbContext);
+			SeedAppUser(appDbContext);
+			SeedRefreshToken(appDbContext);
+		}
 
-            appDbContext.SaveChanges();
-        }
-    }
+		public static void ClearAppUser(AppDbContext appDbContext)
+		{
+			appDbContext.RemoveRange(appDbContext.AppUser);
+			appDbContext.SaveChanges();
+		}
+
+		public static void ClearRefreshToken(AppDbContext appDbContext)
+		{
+			appDbContext.RemoveRange(appDbContext.RefreshToken);
+			appDbContext.SaveChanges();
+		}
+
+		public static void ClearDatabase(AppDbContext appDbContext)
+		{
+			appDbContext.RemoveRange(appDbContext.UserRoles);
+			appDbContext.RemoveRange(appDbContext.Roles);
+			appDbContext.RemoveRange(appDbContext.Users);
+
+			appDbContext.RemoveRange(appDbContext.RoleClaims);
+			appDbContext.RemoveRange(appDbContext.UserClaims);
+
+			appDbContext.RemoveRange(appDbContext.AppUser);
+			appDbContext.RemoveRange(appDbContext.RefreshToken);
+
+			appDbContext.SaveChanges();
+		}
+	}
 }
