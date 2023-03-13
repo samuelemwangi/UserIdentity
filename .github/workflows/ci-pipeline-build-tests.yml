@@ -16,8 +16,11 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Rename .env file
+      - name: Rename UserIdentity.UnitTest example.env file
         run: mv ./UserIdentity.UnitTests/example.env ./UserIdentity.UnitTests/.env
+
+      - name: Rename UserIdentity.IntegrationTests example.env file
+        run: mv ./UserIdentity.IntegrationTests/example.env ./UserIdentity.IntegrationTests/.env
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
@@ -34,4 +37,4 @@ jobs:
         run: dotnet test ./UserIdentity.UnitTests/UserIdentity.UnitTests.csproj --settings ./UserIdentity.UnitTests/coverlet.runsettings --no-build --verbosity normal
 
       - name: Integration Tests
-        run: dotnet test ./UserIdentity.IntegrationTests/UserIdentity.IntegrationTests.csproj --no-build --verbosity normal
+        run: dotnet test ./UserIdentity.IntegrationTests/UserIdentity.IntegrationTests.csproj --settings ./UserIdentity.IntegrationTests/coverlet.runsettings --no-build --verbosity normal
