@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Linq;
+using System.Text;
 
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 
 using UserIdentity.Domain.Identity;
 using UserIdentity.IntegrationTests.TestUtils;
@@ -88,6 +91,21 @@ namespace UserIdentity.IntegrationTests.Persistence
 
 			appDbContext.RefreshToken.Add(refreshToken);
 			appDbContext.SaveChanges();
+		}
+
+		public static String? UpdateResetPasswordToken(AppDbContext appDbContext)
+		{
+			var resetPasswordToken = TestStringHelper.GenerateRandomString(64);
+			var appuser = appDbContext.AppUser.Where(e => e.Id == UserSettings.UserId.ToString()).FirstOrDefault();
+
+			if (appuser == null)
+				return null as String;
+
+			appuser.ForgotPasswordToken = resetPasswordToken;
+
+			appDbContext.SaveChanges();
+
+			return WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(resetPasswordToken));
 		}
 
 		public static void SeedDatabase(AppDbContext appDbContext)

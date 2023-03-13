@@ -1,4 +1,4 @@
-﻿namespace UserIdentity.UnitTests.Utils
+﻿namespace UserIdentity.UnitTests.TestUtils
 {
 	internal static class ObjectHelper
 	{

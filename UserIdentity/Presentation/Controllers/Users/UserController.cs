@@ -123,8 +123,19 @@ namespace UserIdentity.Presentation.Controllers.Users
 		public async Task<ActionResult<AccessTokenViewModel>> ConfirmPasswordToken(ConfirmUpdatePasswordTokenCommand command)
 		{
 			var confirmPassWordTokenVM = await _confirmUpdatePasswordTokenCommandHandler.UpdateItemAsync(command);
-			confirmPassWordTokenVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
-			return StatusCode((Int32)HttpStatusCode.OK, confirmPassWordTokenVM);
+
+			HttpStatusCode httpStatusCode = HttpStatusCode.OK;
+			if (confirmPassWordTokenVM.TokenPasswordResult.UpdatePasswordTokenConfirmed)
+			{
+				confirmPassWordTokenVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS, "Token confirmation successful");
+			}
+			else
+			{
+				confirmPassWordTokenVM.ResolveRequestStatus(RequestStatus.FAILED, ItemStatusMessage.FAILED, "Token confirmation failed");
+				httpStatusCode = HttpStatusCode.NotAcceptable;
+			}
+
+			return StatusCode((Int32)httpStatusCode, confirmPassWordTokenVM);
 		}
 
 		[AllowAnonymous]

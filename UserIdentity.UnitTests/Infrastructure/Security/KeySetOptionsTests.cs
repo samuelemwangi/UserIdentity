@@ -1,5 +1,5 @@
 ﻿using UserIdentity.Infrastructure.Security;
-using UserIdentity.UnitTests.Utils;
+using UserIdentity.UnitTests.TestUtils;
 
 using Xunit;
 

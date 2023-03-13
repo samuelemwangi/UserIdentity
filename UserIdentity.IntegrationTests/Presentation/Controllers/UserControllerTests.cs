@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.IdentityModel.Tokens;
 
 using Newtonsoft.Json.Linq;
 
 using UserIdentity.Application.Core.Tokens.ViewModels;
 using UserIdentity.Application.Core.Users.ViewModels;
+using UserIdentity.Domain.Identity;
 using UserIdentity.IntegrationTests.Persistence;
 using UserIdentity.IntegrationTests.Presentation.Helpers;
 using UserIdentity.IntegrationTests.TestUtils;
@@ -603,7 +606,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 
 			var appDbContext = ServiceResolver.ResolveDBContext(_serviceProvider);
 			DBContexUtils.SeedIdentityUser(appDbContext);
-			
+
 
 			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/reset-password");
 			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
@@ -633,6 +636,166 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 			Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
 			Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
 		}
+
+		[Fact]
+		public async Task Confirm_Password_Token_With_Invalid_Payload_Returns_Validation_Results()
+		{
+			// Arrange
+			var requestPayload = new
+			{
+			};
+
+			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/confirm-update-password-token");
+			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
+
+			// Act
+			var response = await _httpClient.SendAsync(httpRequest);
+			var responseString = await response.Content.ReadAsStringAsync();
+
+			// Assert
+			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+
+			Assert.NotNull(jsonObject);
+
+			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
+			Assert.Equal("400 - BAD REQUEST", jsonObject["statusMessage"]);
+
+			Assert.Equal("Validation Failed", jsonObject["error"]?["message"]);
+
+			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
+
+			Assert.NotNull(dateTime);
+			Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
+			Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
+			Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
+
+			var errorList = jsonObject["error"]?["errorList"]?.ToObject<List<ValidationError>>();
+
+			Assert.Equal(2, errorList?.Count);
+
+			Assert.True(errorList?.Any(x => x.Field == "ConfirmPasswordToken" && x.Message == "The ConfirmPasswordToken field is required.") ?? false);
+			Assert.True(errorList?.Any(x => x.Field == "UserId" && x.Message == "The UserId field is required.") ?? false);
+		}
+
+		[Fact]
+		public async Task Confirm_Password_Token_With_Valid_Payload_Confirms_Password_Token()
+		{
+			// Arrange
+			var appDbContext = ServiceResolver.ResolveDBContext(_serviceProvider);
+			DBContexUtils.SeedDatabase(appDbContext);
+			var resetPasswordToken = DBContexUtils.UpdateResetPasswordToken(appDbContext);
+
+
+			var requestPayload = new
+			{
+				ConfirmPasswordToken = resetPasswordToken,
+				UserSettings.UserId
+			};
+
+			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/confirm-update-password-token");
+			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
+
+			// Act
+			var response = await _httpClient.SendAsync(httpRequest);
+			var responseString = await response.Content.ReadAsStringAsync();
+			DBContexUtils.ClearDatabase(appDbContext);
+
+			// Assert
+			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+
+			Assert.NotNull(jsonObject);
+
+			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
+			Assert.Equal("Token confirmation successful", jsonObject["statusMessage"]);
+
+
+			var resetPasswordDTO = jsonObject["tokenPasswordResult"]?.ToObject<ConfirmUpdatePasswordDTO>();
+
+			Assert.NotNull(resetPasswordDTO);
+			Assert.True(resetPasswordDTO?.UpdatePasswordTokenConfirmed);
+		}
+
+
+		[Fact]
+		public async Task Confirm_Password_Token_With_Invalid_Token_Does_Not_Confirm_Password_Token()
+		{
+			// Arrange
+			var appDbContext = ServiceResolver.ResolveDBContext(_serviceProvider);
+			DBContexUtils.SeedDatabase(appDbContext);
+			var resetPasswordToken = DBContexUtils.UpdateResetPasswordToken(appDbContext);
+
+
+			var requestPayload = new
+			{
+				ConfirmPasswordToken = resetPasswordToken + "897455\\f",
+				UserSettings.UserId
+			};
+
+			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/confirm-update-password-token");
+			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
+
+			// Act
+			var response = await _httpClient.SendAsync(httpRequest);
+			var responseString = await response.Content.ReadAsStringAsync();
+			DBContexUtils.ClearDatabase(appDbContext);
+
+			// Assert
+			Assert.Equal(HttpStatusCode.NotAcceptable, response.StatusCode);
+			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+
+			Assert.NotNull(jsonObject);
+
+			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
+			Assert.Equal("Token confirmation failed", jsonObject["statusMessage"]);
+
+
+			var resetPasswordDTO = jsonObject["tokenPasswordResult"]?.ToObject<ConfirmUpdatePasswordDTO>();
+
+			Assert.NotNull(resetPasswordDTO);
+			Assert.False(resetPasswordDTO?.UpdatePasswordTokenConfirmed);
+		}
+
+		[Fact]
+		public async Task Confirm_Password_Token_With_Non_Existent_Token_Does_Not_Confirm_Password_Token()
+		{
+			// Arrange
+			var appDbContext = ServiceResolver.ResolveDBContext(_serviceProvider);
+			DBContexUtils.SeedDatabase(appDbContext);
+			var resetPasswordToken = DBContexUtils.UpdateResetPasswordToken(appDbContext);
+
+
+			var requestPayload = new
+			{
+				ConfirmPasswordToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(resetPasswordToken + "897455989")),
+				UserSettings.UserId
+			};
+
+			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/confirm-update-password-token");
+			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
+
+			// Act
+			var response = await _httpClient.SendAsync(httpRequest);
+			var responseString = await response.Content.ReadAsStringAsync();
+			DBContexUtils.ClearDatabase(appDbContext);
+
+			// Assert
+			Assert.Equal(HttpStatusCode.NotAcceptable, response.StatusCode);
+			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+
+			Assert.NotNull(jsonObject);
+
+			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
+			Assert.Equal("Token confirmation failed", jsonObject["statusMessage"]);
+
+
+			var resetPasswordDTO = jsonObject["tokenPasswordResult"]?.ToObject<ConfirmUpdatePasswordDTO>();
+
+			Assert.NotNull(resetPasswordDTO);
+			Assert.False(resetPasswordDTO?.UpdatePasswordTokenConfirmed);
+		}
+
 
 		public void Dispose()
 		{
