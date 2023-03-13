@@ -12,12 +12,10 @@ namespace UserIdentity.Application.Core.Roles.Queries.GetRoles
 	public class GetRolesQueryHandler : IGetItemsQueryHandler<GetRolesQuery, RolesViewModel>
 	{
 		private readonly RoleManager<IdentityRole> _roleManager;
-		private readonly UserManager<IdentityUser> _userManager;
 
-		public GetRolesQueryHandler(RoleManager<IdentityRole> roleManager, UserManager<IdentityUser> userManager)
+		public GetRolesQueryHandler(RoleManager<IdentityRole> roleManager)
 		{
 			_roleManager = roleManager;
-			_userManager = userManager;
 		}
 
 		public async Task<RolesViewModel> GetItemsAsync(GetRolesQuery query)

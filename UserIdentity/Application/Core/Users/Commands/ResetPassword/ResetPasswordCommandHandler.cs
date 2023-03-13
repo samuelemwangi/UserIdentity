@@ -18,7 +18,7 @@ namespace UserIdentity.Application.Core.Users.Commands.ResetPassword
 		public String UserEmail { get; init; }
 	}
 
-	public class ResetPasswordCommandHandler: ICreateItemCommandHandler<ResetPasswordCommand, ResetPasswordViewModel>
+	public class ResetPasswordCommandHandler : ICreateItemCommandHandler<ResetPasswordCommand, ResetPasswordViewModel>
 	{
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly IUserRepository _userRepository;
@@ -36,7 +36,7 @@ namespace UserIdentity.Application.Core.Users.Commands.ResetPassword
 			var existingUser = await _userManager.FindByEmailAsync(command.UserEmail);
 
 			// Check if default message is set in configs
-			String defaultResetPasswordMessage = _configuration.GetValue<String>("DefaultResetPasswordMessage");
+			String defaultResetPasswordMessage = _configuration.GetValue<String>(_configuration.GetValue<String>("DefaultResetPasswordMessage"));
 			String emailMessage = defaultResetPasswordMessage ?? "Kindly check your email for instructions to reset your password";
 
 			if (existingUser == null)

@@ -37,7 +37,7 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Queries
 
 			A.CallTo(() => _roleManager.Roles).Returns(roles.AsQueryable());
 
-			var handler = new GetRolesQueryHandler(_roleManager, _userManager);
+			var handler = new GetRolesQueryHandler(_roleManager);
 
 			// Act
 			var vm = await handler.GetItemsAsync(new GetRolesQuery { });
@@ -56,7 +56,7 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Queries
 			var roles = new List<IdentityRole>();
 			A.CallTo(() => _roleManager.Roles).Returns(roles.AsQueryable());
 
-			var handler = new GetRolesQueryHandler(_roleManager, _userManager);
+			var handler = new GetRolesQueryHandler(_roleManager);
 
 			// Act
 			var vm = await handler.GetItemsAsync(new GetRolesQuery { });

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 using Microsoft.AspNetCore.Identity;
@@ -14,8 +15,13 @@ namespace UserIdentity.Application.Core.Users.Commands.UpdatePassword
 {
 	public record UpdatePasswordCommand : BaseCommand
 	{
+		[Required]
 		public String NewPassword { get; init; }
+
+		[Required]
 		public String UserId { get; init; }
+
+		[Required]
 		public String PasswordResetToken { get; init; }
 	}
 
