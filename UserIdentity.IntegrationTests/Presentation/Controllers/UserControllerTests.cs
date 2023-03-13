@@ -13,35 +13,31 @@ using Newtonsoft.Json.Linq;
 
 using UserIdentity.Application.Core.Tokens.ViewModels;
 using UserIdentity.Application.Core.Users.ViewModels;
-using UserIdentity.Domain.Identity;
 using UserIdentity.IntegrationTests.Persistence;
 using UserIdentity.IntegrationTests.Presentation.Helpers;
 using UserIdentity.IntegrationTests.TestUtils;
 using UserIdentity.Presentation.Helpers.ValidationExceptions;
 
 using Xunit;
+using Xunit.Abstractions;
 
 namespace UserIdentity.IntegrationTests.Presentation.Controllers
 {
-	public class UserControllerTests : IClassFixture<TestingWebAppFactory>, IDisposable
+	public class UserControllerTests : BaseControllerTests
 	{
 
-		private readonly HttpClient _httpClient;
-		private readonly IServiceProvider _serviceProvider;
 		private readonly static String _baseUri = "/api/v1/user";
 
-		public UserControllerTests(TestingWebAppFactory testingWebAppFactory)
+		public UserControllerTests(TestingWebAppFactory testingWebAppFactory, ITestOutputHelper outputHelper) 
+			: base(testingWebAppFactory, outputHelper)
 		{
-			_httpClient = testingWebAppFactory.CreateClient();
-			_serviceProvider = testingWebAppFactory.Services;
 		}
 
 		[Fact]
 		public async Task Get_Existing_User_Gets_User_Details()
 		{
 			// Arrange
-			var appDbContext = ServiceResolver.ResolveDBContext(_serviceProvider);
-			DBContexUtils.SeedDatabase(appDbContext);
+			DBContexUtils.SeedDatabase(_appDbContext);
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
 
@@ -54,7 +50,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 			// Act
 			var response = await _httpClient.SendAsync(httpRequest);
 			var responseString = await response.Content.ReadAsStringAsync();
-			DBContexUtils.ClearDatabase(appDbContext);
 
 			// Assert
 			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -80,8 +75,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 		public async Task Get_Non_Existing_User_Does_Not_Get_User_Details()
 		{
 			// Arrange
-			var appDbContext = ServiceResolver.ResolveDBContext(_serviceProvider);
-			DBContexUtils.SeedDatabase(appDbContext);
+			DBContexUtils.SeedDatabase(_appDbContext);
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
 
@@ -96,7 +90,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 			// Act
 			var response = await _httpClient.SendAsync(httpRequest);
 			var responseString = await response.Content.ReadAsStringAsync();
-			DBContexUtils.ClearDatabase(appDbContext);
 
 			// Assert
 			Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -216,6 +209,9 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 		public async Task Register_Existing_User_With_Valid_Request_Payload_Does_Not_Create_User()
 		{
 			// Arrange
+			DBContexUtils.SeedDatabase(_appDbContext);
+
+
 			var requestPayload = new
 			{
 				UserSettings.FirstName,
@@ -227,18 +223,12 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 
 			};
 
-
-			var appDbContext = ServiceResolver.ResolveDBContext(_serviceProvider);
-			DBContexUtils.SeedDatabase(appDbContext);
-
 			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/register");
 			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
 
 			// Act
 			var response = await _httpClient.SendAsync(httpRequest);
 			var responseString = await response.Content.ReadAsStringAsync();
-
-			DBContexUtils.ClearDatabase(appDbContext);
 
 			// Assert
 			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -263,14 +253,13 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 		public async Task Login_Existing_User_Logs_In_User()
 		{
 			// Arrange
+			DBContexUtils.SeedDatabase(_appDbContext);
+
 			var requestPayload = new
 			{
 				UserName = UserSettings.Username,
 				Password = UserSettings.UserPassword
 			};
-
-			var appDbContext = ServiceResolver.ResolveDBContext(_serviceProvider);
-			DBContexUtils.SeedDatabase(appDbContext);
 
 
 			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/login");
@@ -279,8 +268,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 			// Act
 			var response = await _httpClient.SendAsync(httpRequest);
 			var responseString = await response.Content.ReadAsStringAsync();
-
-			DBContexUtils.ClearDatabase(appDbContext);
 
 			// Assert
 			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -346,8 +333,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 		public async Task Refresh_Valid_User_Token_Refreshes_User_token()
 		{
 			// Arrange
-			var appDbContext = ServiceResolver.ResolveDBContext(_serviceProvider);
-			DBContexUtils.SeedDatabase(appDbContext);
+			DBContexUtils.SeedDatabase(_appDbContext);
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
 
@@ -366,7 +352,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 			// Act
 			var response = await _httpClient.SendAsync(httpRequest);
 			var responseString = await response.Content.ReadAsStringAsync();
-			DBContexUtils.ClearDatabase(appDbContext);
 
 			// Assert
 			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -393,8 +378,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 		public async Task Refresh_User_Token_With_Invalid_Refresh_Token_Does_Not_Refresh_User_token()
 		{
 			// Arrange
-			var appDbContext = ServiceResolver.ResolveDBContext(_serviceProvider);
-			DBContexUtils.SeedDatabase(appDbContext);
+			DBContexUtils.SeedDatabase(_appDbContext);
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
 
@@ -413,7 +397,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 			// Act
 			var response = await _httpClient.SendAsync(httpRequest);
 			var responseString = await response.Content.ReadAsStringAsync();
-			DBContexUtils.ClearDatabase(appDbContext);
 
 			// Assert
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
@@ -438,8 +421,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 		public async Task Refresh_User_Token_With_Invalid_Access_Token_Does_Not_Refresh_User_token()
 		{
 			// Arrange
-			var appDbContext = ServiceResolver.ResolveDBContext(_serviceProvider);
-			DBContexUtils.SeedDatabase(appDbContext);
+			DBContexUtils.SeedDatabase(_appDbContext);
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
 
@@ -458,7 +440,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 			// Act
 			var response = await _httpClient.SendAsync(httpRequest);
 			var responseString = await response.Content.ReadAsStringAsync();
-			DBContexUtils.ClearDatabase(appDbContext);
 
 			// Assert
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
@@ -523,13 +504,12 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 		public async Task Reset_Password_For_Existing_User_Resets_Password()
 		{
 			// Arrange
+			DBContexUtils.SeedDatabase(_appDbContext);
+
 			var requestPayload = new
 			{
 				UserSettings.UserEmail,
 			};
-
-			var appDbContext = ServiceResolver.ResolveDBContext(_serviceProvider);
-			DBContexUtils.SeedDatabase(appDbContext);
 
 			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/reset-password");
 			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
@@ -537,7 +517,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 			// Act
 			var response = await _httpClient.SendAsync(httpRequest);
 			var responseString = await response.Content.ReadAsStringAsync();
-			DBContexUtils.ClearDatabase(appDbContext);
 
 			// Assert
 			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -559,13 +538,13 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 		public async Task Reset_Password_For_Non_Existing_User_Does_Not_Reset_Password()
 		{
 			// Arrange
+			DBContexUtils.SeedDatabase(_appDbContext);
+
 			var requestPayload = new
 			{
 				UserEmail = "hello@test.com",
 			};
 
-			var appDbContext = ServiceResolver.ResolveDBContext(_serviceProvider);
-			DBContexUtils.SeedDatabase(appDbContext);
 
 			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/reset-password");
 			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
@@ -573,7 +552,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 			// Act
 			var response = await _httpClient.SendAsync(httpRequest);
 			var responseString = await response.Content.ReadAsStringAsync();
-			DBContexUtils.ClearDatabase(appDbContext);
 
 			// Assert
 			Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -599,13 +577,12 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 		public async Task Reset_Password_For_Non_Existing_UserDetails_Record_Does_Not_Reset_Password()
 		{
 			// Arrange
+			DBContexUtils.SeedIdentityUser(_appDbContext);
+
 			var requestPayload = new
 			{
 				UserSettings.UserEmail
 			};
-
-			var appDbContext = ServiceResolver.ResolveDBContext(_serviceProvider);
-			DBContexUtils.SeedIdentityUser(appDbContext);
 
 
 			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/reset-password");
@@ -614,7 +591,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 			// Act
 			var response = await _httpClient.SendAsync(httpRequest);
 			var responseString = await response.Content.ReadAsStringAsync();
-			DBContexUtils.ClearDatabase(appDbContext);
 
 			// Assert
 			Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
@@ -682,10 +658,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 		public async Task Confirm_Password_Token_With_Valid_Payload_Confirms_Password_Token()
 		{
 			// Arrange
-			var appDbContext = ServiceResolver.ResolveDBContext(_serviceProvider);
-			DBContexUtils.SeedDatabase(appDbContext);
-			var resetPasswordToken = DBContexUtils.UpdateResetPasswordToken(appDbContext);
-
+			DBContexUtils.SeedDatabase(_appDbContext);
+			var resetPasswordToken = DBContexUtils.UpdateResetPasswordToken(_appDbContext, _userManager);
 
 			var requestPayload = new
 			{
@@ -699,7 +673,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 			// Act
 			var response = await _httpClient.SendAsync(httpRequest);
 			var responseString = await response.Content.ReadAsStringAsync();
-			DBContexUtils.ClearDatabase(appDbContext);
 
 			// Assert
 			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -722,10 +695,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 		public async Task Confirm_Password_Token_With_Invalid_Token_Does_Not_Confirm_Password_Token()
 		{
 			// Arrange
-			var appDbContext = ServiceResolver.ResolveDBContext(_serviceProvider);
-			DBContexUtils.SeedDatabase(appDbContext);
-			var resetPasswordToken = DBContexUtils.UpdateResetPasswordToken(appDbContext);
-
+			DBContexUtils.SeedDatabase(_appDbContext);
+			var resetPasswordToken = DBContexUtils.UpdateResetPasswordToken(_appDbContext, _userManager);
 
 			var requestPayload = new
 			{
@@ -739,7 +710,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 			// Act
 			var response = await _httpClient.SendAsync(httpRequest);
 			var responseString = await response.Content.ReadAsStringAsync();
-			DBContexUtils.ClearDatabase(appDbContext);
 
 			// Assert
 			Assert.Equal(HttpStatusCode.NotAcceptable, response.StatusCode);
@@ -761,10 +731,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 		public async Task Confirm_Password_Token_With_Non_Existent_Token_Does_Not_Confirm_Password_Token()
 		{
 			// Arrange
-			var appDbContext = ServiceResolver.ResolveDBContext(_serviceProvider);
-			DBContexUtils.SeedDatabase(appDbContext);
-			var resetPasswordToken = DBContexUtils.UpdateResetPasswordToken(appDbContext);
-
+			DBContexUtils.SeedDatabase(_appDbContext);
+			var resetPasswordToken = DBContexUtils.UpdateResetPasswordToken(_appDbContext, _userManager);
 
 			var requestPayload = new
 			{
@@ -778,7 +746,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 			// Act
 			var response = await _httpClient.SendAsync(httpRequest);
 			var responseString = await response.Content.ReadAsStringAsync();
-			DBContexUtils.ClearDatabase(appDbContext);
 
 			// Assert
 			Assert.Equal(HttpStatusCode.NotAcceptable, response.StatusCode);
@@ -796,11 +763,86 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 			Assert.False(resetPasswordDTO?.UpdatePasswordTokenConfirmed);
 		}
 
-
-		public void Dispose()
+		[Fact]
+		public async Task Update_Password_With_Invalid_Payload_Returns_Validation_Results()
 		{
-			var appDbContext = ServiceResolver.ResolveDBContext(_serviceProvider);
-			appDbContext.Dispose();
+			// Arrange
+			var requestPayload = new
+			{
+			};
+
+			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/update-password");
+			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
+
+			// Act
+			var response = await _httpClient.SendAsync(httpRequest);
+			var responseString = await response.Content.ReadAsStringAsync();
+
+			// Assert
+			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+
+			Assert.NotNull(jsonObject);
+
+			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
+			Assert.Equal("400 - BAD REQUEST", jsonObject["statusMessage"]);
+
+			Assert.Equal("Validation Failed", jsonObject["error"]?["message"]);
+
+			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
+
+			Assert.NotNull(dateTime);
+			Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
+			Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
+			Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
+
+			var errorList = jsonObject["error"]?["errorList"]?.ToObject<List<ValidationError>>();
+
+			Assert.Equal(3, errorList?.Count);
+
+			Assert.True(errorList?.Any(x => x.Field == "NewPassword" && x.Message == "The NewPassword field is required.") ?? false);
+			Assert.True(errorList?.Any(x => x.Field == "UserId" && x.Message == "The UserId field is required.") ?? false);
+			Assert.True(errorList?.Any(x => x.Field == "PasswordResetToken" && x.Message == "The PasswordResetToken field is required.") ?? false);
 		}
+
+		[Fact]
+		public async Task Update_Password_With_Valid_Payload_Updates_Password()
+		{
+			// Arrange
+			DBContexUtils.SeedDatabase(_appDbContext);
+			var resetPasswordToken = DBContexUtils.UpdateResetPasswordToken(_appDbContext, _userManager);
+
+
+			var requestPayload = new
+			{
+				NewPassword = "12345",
+				UserSettings.UserId,
+				PasswordResetToken = resetPasswordToken
+			};
+
+			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/update-password");
+			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
+
+			// Act
+			var response = await _httpClient.SendAsync(httpRequest);
+			var responseString = await response.Content.ReadAsStringAsync();
+
+			// Assert
+			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+
+			Assert.NotNull(jsonObject);
+
+			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
+			Assert.Equal("Password updated successfully", jsonObject["statusMessage"]);
+
+
+			var updatePasswordDTO = jsonObject["updatePasswordResult"]?.ToObject<UpdatePasswordDTO>();
+
+			Assert.NotNull(updatePasswordDTO);
+			Assert.True(updatePasswordDTO?.PassWordUpdated);
+		}
+
+
 	}
 }

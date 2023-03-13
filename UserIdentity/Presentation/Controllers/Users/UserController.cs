@@ -124,7 +124,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 		{
 			var confirmPassWordTokenVM = await _confirmUpdatePasswordTokenCommandHandler.UpdateItemAsync(command);
 
-			HttpStatusCode httpStatusCode = HttpStatusCode.OK;
+			var httpStatusCode = HttpStatusCode.OK;
 			if (confirmPassWordTokenVM.TokenPasswordResult.UpdatePasswordTokenConfirmed)
 			{
 				confirmPassWordTokenVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS, "Token confirmation successful");
@@ -144,8 +144,18 @@ namespace UserIdentity.Presentation.Controllers.Users
 		public async Task<ActionResult<AccessTokenViewModel>> UpdatePassword(UpdatePasswordCommand command)
 		{
 			var updatePasswordVM = await _updatePasswordCommandHandler.UpdateItemAsync(command);
-			updatePasswordVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
-			return StatusCode((Int32)HttpStatusCode.OK, updatePasswordVM);
+
+			var httpStatusCode = HttpStatusCode.OK;
+			if (updatePasswordVM.UpdatePasswordResult.PassWordUpdated)
+			{
+				updatePasswordVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS, "Password updated successfully");
+			}
+			else
+			{
+				updatePasswordVM.ResolveRequestStatus(RequestStatus.FAILED, ItemStatusMessage.FAILED, "Password update failed");
+				httpStatusCode= HttpStatusCode.NotAcceptable;
+			}
+			return StatusCode((Int32)httpStatusCode, updatePasswordVM);
 		}
 	}
 }

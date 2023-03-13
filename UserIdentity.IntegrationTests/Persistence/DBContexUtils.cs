@@ -93,9 +93,19 @@ namespace UserIdentity.IntegrationTests.Persistence
 			appDbContext.SaveChanges();
 		}
 
-		public static String? UpdateResetPasswordToken(AppDbContext appDbContext)
+		public static String? UpdateResetPasswordToken(AppDbContext appDbContext, UserManager<IdentityUser> userManager)
 		{
-			var resetPasswordToken = TestStringHelper.GenerateRandomString(64);
+			var user = userManager.FindByIdAsync(UserSettings.UserId.ToString()).Result;
+
+			if(user == null) 
+				return null as String;
+
+
+			var resetPasswordToken = userManager.GeneratePasswordResetTokenAsync(user).Result;
+
+			if (resetPasswordToken == null)
+				return null as String;
+
 			var appuser = appDbContext.AppUser.Where(e => e.Id == UserSettings.UserId.ToString()).FirstOrDefault();
 
 			if (appuser == null)

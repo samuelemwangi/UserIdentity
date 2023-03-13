@@ -298,7 +298,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			Assert.True(vm?.UpdatePasswordResult?.PassWordUpdated);
 
 			Assert.Contains(RequestStatus.SUCCESSFUL.GetDisplayName(), vm?.RequestStatus);
-			Assert.Contains(ItemStatusMessage.SUCCESS.GetDisplayName(), vm?.StatusMessage);
+			Assert.Contains("Password updated successfully", vm?.StatusMessage);
 		}
 
 		private UserController GetUserController()
