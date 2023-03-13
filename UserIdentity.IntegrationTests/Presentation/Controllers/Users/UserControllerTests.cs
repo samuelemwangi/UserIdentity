@@ -21,15 +21,15 @@ using UserIdentity.Presentation.Helpers.ValidationExceptions;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace UserIdentity.IntegrationTests.Presentation.Controllers
+namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 {
 	public class UserControllerTests : BaseControllerTests
 	{
 
-		private readonly static String _baseUri = "/api/v1/user";
+		private readonly static string _baseUri = "/api/v1/user";
 
-		public UserControllerTests(TestingWebAppFactory testingWebAppFactory, ITestOutputHelper outputHelper) 
-			: base(testingWebAppFactory, outputHelper)
+		public UserControllerTests(TestingWebAppFactory testingWebAppFactory, ITestOutputHelper outputHelper)
+				: base(testingWebAppFactory, outputHelper)
 		{
 		}
 
@@ -648,7 +648,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
 			Assert.NotNull(jsonObject);
-			
+
 			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
 			Assert.Equal("Item(s) fetched successfully", jsonObject["statusMessage"]);
 

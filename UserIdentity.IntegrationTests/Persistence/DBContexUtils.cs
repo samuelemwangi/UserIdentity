@@ -35,7 +35,7 @@ namespace UserIdentity.IntegrationTests.Persistence
 			appDbContext.SaveChanges();
 		}
 
-		public static void SeedIdentityRole(AppDbContext appDbContext)
+		public static void SeedIdentityRole(AppDbContext appDbContext, String roleId = "", String roleName = "")
 		{
 			var role = new IdentityRole
 			{
@@ -44,6 +44,15 @@ namespace UserIdentity.IntegrationTests.Persistence
 				NormalizedName = RoleSettings.RoleName.ToUpper(),
 				ConcurrencyStamp = DateTime.Now.Ticks.ToString()
 			};
+
+			if (!String.IsNullOrEmpty(roleId))
+				role.Id = roleId;
+
+			if (!String.IsNullOrEmpty(roleName))
+			{
+				role.Name = roleName;
+				role.NormalizedName = roleName.ToUpper();
+			}
 
 			appDbContext.Roles.Add(role);
 			appDbContext.SaveChanges();
@@ -97,7 +106,7 @@ namespace UserIdentity.IntegrationTests.Persistence
 		{
 			var user = userManager.FindByIdAsync(UserSettings.UserId.ToString()).Result;
 
-			if(user == null) 
+			if (user == null)
 				return null as String;
 
 
