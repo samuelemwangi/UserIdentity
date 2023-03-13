@@ -7,7 +7,7 @@
 
 		}
 
-		public RecordExistsException(String id, String className) : base(className + ":A record identified with - " + id + " - exists")
+		public RecordExistsException(String id, String className) : base(className + ": A record identified with - " + id + " - exists")
 		{
 
 		}

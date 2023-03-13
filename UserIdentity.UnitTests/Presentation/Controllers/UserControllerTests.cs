@@ -267,7 +267,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			Assert.True(vm?.TokenPasswordResult?.UpdatePasswordTokenConfirmed);
 
 			Assert.Contains(RequestStatus.SUCCESSFUL.GetDisplayName(), vm?.RequestStatus);
-			Assert.Contains(ItemStatusMessage.SUCCESS.GetDisplayName(), vm?.StatusMessage);
+			Assert.Contains("Token confirmation successful", vm?.StatusMessage);
 		}
 
 		[Fact]

@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text;
 
 using Microsoft.AspNetCore.WebUtilities;
 
@@ -9,7 +10,9 @@ namespace UserIdentity.Application.Core.Users.Commands.ConfirmUpdatePasswordToke
 {
 	public record ConfirmUpdatePasswordTokenCommand : BaseCommand
 	{
+		[Required]
 		public String ConfirmPasswordToken { get; init; }
+		[Required]
 		public String UserId { get; init; }
 	}
 	public class ConfirmUpdatePasswordTokenCommandHandler: IUpdateItemCommandHandler<ConfirmUpdatePasswordTokenCommand, ConfirmUpdatePasswordTokenViewModel>

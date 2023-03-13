@@ -12,7 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using UserIdentity.Application.Core.Errors.Queries.GerError;
 using UserIdentity.Application.Exceptions;
 using UserIdentity.Presentation.Helpers;
-using UserIdentity.UnitTests.Utils;
+using UserIdentity.UnitTests.TestUtils;
 
 using Xunit;
 

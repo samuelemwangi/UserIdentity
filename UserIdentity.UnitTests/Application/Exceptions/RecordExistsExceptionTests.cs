@@ -27,7 +27,7 @@ namespace UserIdentity.UnitTests.Application.Exceptions
 			var className = "RecordExistsClass";
 			var id = "123QWERTY";
 
-			var expectedMessage = className + ":A record identified with - " + id + " - exists";
+			var expectedMessage = className + ": A record identified with - " + id + " - exists";
 
 
 			// Act & Assert

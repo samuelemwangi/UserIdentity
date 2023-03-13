@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace UserIdentity.UnitTests.Utils
+namespace UserIdentity.UnitTests.TestUtils
 {
 	internal static class TestStringHelper
 	{

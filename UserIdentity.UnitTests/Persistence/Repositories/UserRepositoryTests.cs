@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 using UserIdentity.Domain.Identity;
 using UserIdentity.Persistence.Repositories.Users;
-using UserIdentity.UnitTests.Utils;
+using UserIdentity.UnitTests.TestUtils;
 
 using Xunit;
 

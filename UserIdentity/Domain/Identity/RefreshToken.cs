@@ -2,14 +2,14 @@
 {
 	public class RefreshToken : BaseEntity
 	{
-		public String? Token { get;  set; }
+		public String? Token { get; internal set; }
 
-		public DateTime Expires { get;  set; }
+		public DateTime Expires { get; internal set; }
 
-		public String? UserId { get; set; }
+		public String? UserId { get; internal set; }
 
 		public Boolean? Active => DateTime.UtcNow <= Expires;
 
-		public String? RemoteIpAddress { get; set; }
+		public String? RemoteIpAddress { get; internal set; }
 	}
 }

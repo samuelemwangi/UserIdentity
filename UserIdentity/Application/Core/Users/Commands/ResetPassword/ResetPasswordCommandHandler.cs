@@ -40,7 +40,7 @@ namespace UserIdentity.Application.Core.Users.Commands.ResetPassword
 			String emailMessage = defaultResetPasswordMessage ?? "Kindly check your email for instructions to reset your password";
 
 			if (existingUser == null)
-				throw new NoRecordException(emailMessage);
+				throw new NoRecordException(command.UserEmail, "User");
 
 			// generate token
 			String resetPasswordToken = await _userManager.GeneratePasswordResetTokenAsync(existingUser);
@@ -49,7 +49,7 @@ namespace UserIdentity.Application.Core.Users.Commands.ResetPassword
 			var updateResult = await _userRepository.UpdateResetPasswordTokenAsync(existingUser.Id, resetPasswordToken);
 
 			if (updateResult < 1)
-				throw new RecordUpdateException(emailMessage);
+				throw new RecordUpdateException(command.UserEmail, "User");
 
 			// Send Email Logic here
 			String emailToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(resetPasswordToken));
