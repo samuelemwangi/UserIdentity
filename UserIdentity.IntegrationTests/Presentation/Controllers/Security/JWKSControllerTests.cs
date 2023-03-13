@@ -18,6 +18,7 @@ using Xunit.Abstractions;
 
 namespace UserIdentity.IntegrationTests.Presentation.Controllers.Security
 {
+
 	public class JWKSControllerTests : BaseControllerTests
 	{
 
