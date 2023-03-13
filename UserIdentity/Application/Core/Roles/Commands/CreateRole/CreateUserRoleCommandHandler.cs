@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.ComponentModel.DataAnnotations;
+
+using Microsoft.AspNetCore.Identity;
 
 using UserIdentity.Application.Core.Roles.Queries.GetRoles;
 using UserIdentity.Application.Core.Roles.ViewModels;
@@ -8,7 +10,9 @@ namespace UserIdentity.Application.Core.Roles.Commands.CreateRole
 {
 	public record CreateUserRoleCommand : BaseCommand
 	{
+		[Required]
 		public String UserId { get; init; }
+		[Required]
 		public String RoleId { get; init; }
 	}
 
