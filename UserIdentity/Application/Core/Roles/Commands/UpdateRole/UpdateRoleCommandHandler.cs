@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.ComponentModel.DataAnnotations;
+
+using Microsoft.AspNetCore.Identity;
 
 using UserIdentity.Application.Core.Roles.ViewModels;
 using UserIdentity.Application.Exceptions;
@@ -8,7 +10,10 @@ namespace UserIdentity.Application.Core.Roles.Commands.UpdateRole
 
 	public record UpdateRoleCommand : BaseCommand
 	{
-		public String RoleId { get; internal set; }
+		[Required]
+		public String RoleId { get; set; }
+
+		[Required]
 		public String RoleName { get; init; }
 	}
 	public class UpdateRoleCommandHandler : IUpdateItemCommandHandler<UpdateRoleCommand, RoleViewModel>
