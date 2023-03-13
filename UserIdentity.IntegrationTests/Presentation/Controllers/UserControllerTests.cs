@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 using Newtonsoft.Json.Linq;
 
+using UserIdentity.Application.Core.Errors.ViewModels;
 using UserIdentity.Application.Core.Tokens.ViewModels;
 using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.IntegrationTests.Persistence;
@@ -32,6 +33,89 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 		}
 
 		[Fact]
+		public async Task Get_Existing_User_Gets_User_Details()
+		{
+			// Arrange
+			var appDbContext = ServiceResolver.ResolveDBContext(_serviceProvider);
+			DBContexUtils.SeedDatabase(appDbContext);
+
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+
+			Assert.NotNull(userToken);
+			Assert.NotNull(refreshToken);
+
+			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri + "/" + UserSettings.UserId);
+			httpRequest.AddAuthHeader(userToken);
+
+			// Act
+			var response = await _httpClient.SendAsync(httpRequest);
+			var responseString = await response.Content.ReadAsStringAsync();
+			DBContexUtils.ClearDatabase(appDbContext);
+
+			// Assert
+			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+
+			Assert.NotNull(jsonObject);
+
+
+			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
+			Assert.Equal("Item(s) fetched successfully", jsonObject["statusMessage"]);
+
+			var userDetails = jsonObject["user"]?.ToObject<UserDTO>();
+
+			Assert.Equal(UserSettings.FirstName + " " + UserSettings.LastName, userDetails?.FullName);
+			Assert.Equal(UserSettings.Username, userDetails?.UserName);
+			Assert.Equal(UserSettings.UserEmail, userDetails?.Email);
+			Assert.Equal(userDetails?.Id, userDetails?.CreatedBy);
+			Assert.Equal(userDetails?.Id, userDetails?.LastModifiedBy);
+		}
+
+		[Fact]
+		public async Task Get_Non_Existing_User_Does_Not_Get_User_Details()
+		{
+			// Arrange
+			var appDbContext = ServiceResolver.ResolveDBContext(_serviceProvider);
+			DBContexUtils.SeedDatabase(appDbContext);
+
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+
+			Assert.NotNull(userToken);
+			Assert.NotNull(refreshToken);
+
+			var nonExistingUserId = Guid.NewGuid().ToString();
+
+			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri + "/" + nonExistingUserId);
+			httpRequest.AddAuthHeader(userToken);
+
+			// Act
+			var response = await _httpClient.SendAsync(httpRequest);
+			var responseString = await response.Content.ReadAsStringAsync();
+			DBContexUtils.ClearDatabase(appDbContext);
+
+			// Assert
+			Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+
+			Assert.NotNull(jsonObject);
+
+
+			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
+			Assert.Equal("404 - NOT FOUND", jsonObject["statusMessage"]);
+
+			Assert.Equal($"No record exists for the provided identifier - {nonExistingUserId}", jsonObject["error"]?["message"]);
+
+			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
+
+			Assert.NotNull(dateTime);
+			Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
+			Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
+			Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
+		}
+
+		[Fact]
 		public async Task Register_User_With_Invalid_Request_Payload_Returns_Validation_Errors()
 		{
 			// Arrange
@@ -43,12 +127,12 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 				UserSettings.UserPassword,
 			};
 
-			var uri = "/register";
+			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/register");
 
-			var postRequestContent = SerDe.ConvertToHttpContent(requestPayload);
+			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
 
 			// Act
-			var response = await _httpClient.PostAsync(_baseUri + uri, postRequestContent);
+			var response = await _httpClient.SendAsync(httpRequest);
 			var responseString = await response.Content.ReadAsStringAsync();
 
 			// Assert
@@ -93,12 +177,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 
 			};
 
-			var uri = "/register";
-
-			var postRequestContent = SerDe.ConvertToHttpContent(requestPayload);
+			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/register");
+			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
 
 			// Act
-			var response = await _httpClient.PostAsync(_baseUri + uri, postRequestContent);
+			var response = await _httpClient.SendAsync(httpRequest);
 			var responseString = await response.Content.ReadAsStringAsync();
 
 			// Assert
@@ -142,18 +225,13 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 
 
 			var appDbContext = ServiceResolver.ResolveDBContext(_serviceProvider);
-			DBContexUtils.SeedIdentityUser(appDbContext);
-			DBContexUtils.SeedIdentityRole(appDbContext);
-			DBContexUtils.SeedIdentityUserRole(appDbContext);
-			DBContexUtils.SeedAppUser(appDbContext);
-			DBContexUtils.SeedRefreshToken(appDbContext);
+			DBContexUtils.SeedDatabase(appDbContext);
 
-			var uri = "/register";
-
-			var postRequestContent = SerDe.ConvertToHttpContent(requestPayload);
+			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/register");
+			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
 
 			// Act
-			var response = await _httpClient.PostAsync(_baseUri + uri, postRequestContent);
+			var response = await _httpClient.SendAsync(httpRequest);
 			var responseString = await response.Content.ReadAsStringAsync();
 
 			DBContexUtils.ClearDatabase(appDbContext);
@@ -188,18 +266,14 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 			};
 
 			var appDbContext = ServiceResolver.ResolveDBContext(_serviceProvider);
-			DBContexUtils.SeedIdentityUser(appDbContext);
-			DBContexUtils.SeedIdentityRole(appDbContext);
-			DBContexUtils.SeedIdentityUserRole(appDbContext);
-			DBContexUtils.SeedAppUser(appDbContext);
-			DBContexUtils.SeedRefreshToken(appDbContext);
+			DBContexUtils.SeedDatabase(appDbContext);
 
-			var uri = "/login";
+
+			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/login");
+			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
 
 			// Act
-			var postRequestContent = SerDe.ConvertToHttpContent(requestPayload);
-
-			var response = await _httpClient.PostAsync(_baseUri + uri, postRequestContent);
+			var response = await _httpClient.SendAsync(httpRequest);
 			var responseString = await response.Content.ReadAsStringAsync();
 
 			DBContexUtils.ClearDatabase(appDbContext);
@@ -238,12 +312,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 			};
 
 
-			var uri = "/login";
+			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/login");
+			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
 
 			// Act
-			var postRequestContent = SerDe.ConvertToHttpContent(requestPayload);
-
-			var response = await _httpClient.PostAsync(_baseUri + uri, postRequestContent);
+			var response = await _httpClient.SendAsync(httpRequest);
 			var responseString = await response.Content.ReadAsStringAsync();
 
 			// Assert

@@ -98,7 +98,7 @@ namespace UserIdentity.Presentation.Helpers
 
 			if (errorViewModel.Error != null)
 			{
-				errorViewModel.Error.Message = errorMessage.Substring(errorMessage.IndexOf(":") + 1);
+				errorViewModel.Error.Message = errorMessage.Substring(errorMessage.IndexOf(":") + 1).Trim();
 			}
 
 			var serializerOptions = new JsonSerializerOptions

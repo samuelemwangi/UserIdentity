@@ -11,6 +11,7 @@ namespace UserIdentity.IntegrationTests.Persistence
 	internal class DBContexUtils
 	{
 
+
 		public static void SeedIdentityUser(AppDbContext appDbContext)
 		{
 			var user = new IdentityUser
@@ -87,6 +88,15 @@ namespace UserIdentity.IntegrationTests.Persistence
 
 			appDbContext.RefreshToken.Add(refreshToken);
 			appDbContext.SaveChanges();
+		}
+
+		public static void SeedDatabase(AppDbContext appDbContext)
+		{
+			SeedIdentityUser(appDbContext);
+			SeedIdentityRole(appDbContext);
+			SeedIdentityUserRole(appDbContext);
+			SeedAppUser(appDbContext);
+			SeedRefreshToken(appDbContext);
 		}
 
 		public static void ClearDatabase(AppDbContext appDbContext)
