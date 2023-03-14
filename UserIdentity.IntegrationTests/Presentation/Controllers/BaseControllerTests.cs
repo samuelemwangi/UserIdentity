@@ -22,6 +22,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 
 		protected readonly AppDbContext _appDbContext;
 		protected readonly UserManager<IdentityUser> _userManager;
+		protected readonly RoleManager<IdentityRole> _roleManager;
 
 		public BaseControllerTests(TestingWebAppFactory testingWebAppFactory, ITestOutputHelper outputHelper)
 		{
@@ -33,6 +34,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 
 			_appDbContext = ServiceResolver.ResolveService<AppDbContext>(_serviceProvider);
 			_userManager = ServiceResolver.ResolveService<UserManager<IdentityUser>>(_serviceProvider);
+			_roleManager = ServiceResolver.ResolveService<RoleManager<IdentityRole>>(_serviceProvider);
 
 			SetUp();
 		}

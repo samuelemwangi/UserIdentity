@@ -51,13 +51,13 @@ namespace UserIdentity.Application.Core.Roles.Commands.DeleteRoleClaim
 			}
 
 			if (!claimFound)
-				throw new NoRecordException(command.ToString(), "RoleClaim");
+				throw new NoRecordException($"{command.Resource}:{command.Action}", "RoleClaim");
 
 			// Delete Claim
 			var deleteRoleClaimResults = await _roleManager.RemoveClaimAsync(role, scopeClaim);
 
 			if (!deleteRoleClaimResults.Succeeded)
-				throw new RecordDeletionException(command.ToString(), "RoleClaim");
+				throw new RecordDeletionException($"{command.Resource}:{command.Action}", "RoleClaim");
 
 			return new DeleteRecordViewModel
 			{

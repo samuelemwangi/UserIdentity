@@ -102,7 +102,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 		[Authorize(Roles = "Administrator, SuperAdministrator")]
 		[HttpPut]
 		[Route("{roleId}")]
-		public async Task<ActionResult<RoleViewModel>> UpdateRoleAsync(String roleId, UpdateRoleCommand command)
+		public async Task<ActionResult<RoleViewModel>> UpdateRoleAsync(String roleId, [FromBody] UpdateRoleCommand command)
 		{
 			command.RoleId = roleId;
 
