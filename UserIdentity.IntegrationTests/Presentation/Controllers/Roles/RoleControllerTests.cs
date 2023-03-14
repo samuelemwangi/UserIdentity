@@ -627,7 +627,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var errorList = jsonObject["error"]?["errorList"]?.ToObject<List<ValidationError>>();
 
 			Assert.Equal(2, errorList?.Count);
-			_outputHelper.WriteLine(responseString);
+
 			Assert.True(errorList?.Any(x => x.Field == "roleId" && x.Message == "The RoleId field is required.") ?? false);
 			Assert.True(errorList?.Any(x => x.Field == "RoleName" && x.Message == "The RoleName field is required.") ?? false);
 		}
@@ -1051,8 +1051,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
 			Assert.Equal("Item(s) fetched successfully", jsonObject["statusMessage"]);
-
-			_outputHelper.WriteLine(responseString);
 
 			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
 			Assert.Equal("Item(s) fetched successfully", jsonObject["statusMessage"]);
@@ -1518,7 +1516,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
 		}
 
-		
+
 		[Fact]
 		public async Task Get_Role_Claims_Returns_Role_Claims()
 		{
@@ -1550,7 +1548,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
-			_outputHelper.WriteLine(responseString);
 			Assert.NotNull(jsonObject);
 
 			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
@@ -1722,7 +1719,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			Assert.Equal("Record deleted successfully", jsonObject["statusMessage"]);
 		}
 
-		
+
 		[Fact]
 		public async Task Delete_Non_Existing_Role_Claim_Does_Not_Delete_Role_Claim()
 		{
@@ -1761,8 +1758,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
 			Assert.NotNull(jsonObject);
-
-			_outputHelper.WriteLine(jsonObject.ToString());	
 
 			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
 			Assert.Equal("404 - NOT FOUND", jsonObject["statusMessage"]);
