@@ -70,6 +70,8 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 		{
 			// Arrange
 			var defaultRole = _testSettings.Configuration.GetValue<String>(defaultRoleKey);
+			defaultRole = _testSettings.Configuration.GetValue<String>(defaultRole) ?? defaultRole;
+
 			var command = GetRegisterUserCommand();
 
 			A.CallTo(() => _roleManager.FindByNameAsync(defaultRole)).Returns(default(IdentityRole));
@@ -230,6 +232,8 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 		{
 			// Arrange
 			var defaultRole = _testSettings.Configuration.GetValue<String>(defaultRoleKey);
+			defaultRole = _testSettings.Configuration.GetValue<String>(defaultRole) ?? defaultRole;
+
 			var command = GetRegisterUserCommand();
 			var defaultRoleIdentity = GetIdentityRole();
 			var identityUser = GetIdentityUser();
