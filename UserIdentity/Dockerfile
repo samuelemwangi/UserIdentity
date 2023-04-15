@@ -1,4 +1,4 @@
-#See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
+#See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
@@ -7,16 +7,16 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY ["Users/Users.csproj", "Users/"]
-RUN dotnet restore "Users/Users.csproj"
+COPY ["UserIdentity/UserIdentity.csproj", "UserIdentity/"]
+RUN dotnet restore "UserIdentity/UserIdentity.csproj"
 COPY . .
-WORKDIR "/src/Users"
-RUN dotnet build "Users.csproj" -c Release -o /app/build
+WORKDIR "/src/UserIdentity"
+RUN dotnet build "UserIdentity.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "Users.csproj" -c Release -o /app/publish
+RUN dotnet publish "UserIdentity.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Users.dll"]
+ENTRYPOINT ["dotnet", "UserIdentity.dll"]
