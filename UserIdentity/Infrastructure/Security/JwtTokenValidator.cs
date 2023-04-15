@@ -31,7 +31,7 @@ namespace UserIdentity.Infrastructure.Security
 
 				ValidateIssuerSigningKey = true,
 				IssuerSigningKey = _keySetFactory.GetSigningKey(),
-				ValidateLifetime = false // we check expired tokens here
+				ValidateLifetime = false 
 			});
 		}
 	}
