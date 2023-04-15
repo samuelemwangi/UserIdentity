@@ -1,5 +1,5 @@
 # Summary 
-Useridentity is a RESTful API that manages user identities and handles user creation and role management. You can easily create and update user accounts, as well as assign and revoke roles for each user. 
+Useridentity is an easy-to-use RESTful API that simplifies user management by providing a set of endpoints for managing user identities, creating user accounts, and handling role management. You can easily create and update user accounts, and assign or revoke roles for each user. 
 
 ## Running the App
 ### Prerequisites
