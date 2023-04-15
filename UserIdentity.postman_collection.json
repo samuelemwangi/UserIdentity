@@ -1,0 +1,796 @@
+{
+	"info": {
+		"_postman_id": "39bfb41d-4ec5-4d78-868a-5b2f074d36c3",
+		"name": "UserIdentity",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "19675852"
+	},
+	"item": [
+		{
+			"name": "JWKS",
+			"item": [
+				{
+					"name": "Get Keys",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Get Keys - Status is 200\", ()=>{\r",
+									"    pm.response.to.have.status(200);\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{user_identity_base_url}}/jwks/keys",
+							"host": [
+								"{{user_identity_base_url}}"
+							],
+							"path": [
+								"jwks",
+								"keys"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Register",
+			"item": [
+				{
+					"name": "Valid Registration",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful Login request - Status is 201\", ()=>{\r",
+									"     pm.response.to.have.status(201);\r",
+									"    const response =  pm.response.json();\r",
+									"    pm.environment.set(\"user_id\", response.userDetails.id);\r",
+									"    pm.environment.set(\"user_access_token\", response.userToken.accessToken.token);\r",
+									"    pm.environment.set(\"user_refresh_token\", response.userToken.refreshToken);\r",
+									"    pm.environment.set(\"user_email\", response.userDetails.email);    \r",
+									"  \r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"first_name\",pm.variables.replaceIn(\"{{$randomFirstName}}\"));\r",
+									"pm.environment.set(\"last_name\", pm.variables.replaceIn(\"{{$randomLastName}}\"));\r",
+									"pm.environment.set(\"phone_number\", parseInt(\"+254711\" + `${_.random(100000, 999999)}`));\r",
+									"pm.environment.set(\"user_email\", pm.variables.replaceIn(\"{{$randomExampleEmail}}\"));\r",
+									"pm.environment.set(\"user_password\",\"P@22W0rd\")"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"firstName\": \"{{first_name}}\",\r\n  \"lastName\": \"{{last_name}}\",\r\n  \"username\": \"{{phone_number}}\",\r\n  \"phoneNumber\": \"{{phone_number}}\",\r\n  \"userEmail\": \"{{user_email}}\",\r\n  \"userPassword\": \"{{user_password}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{user_identity_base_url}}/user/register",
+							"host": [
+								"{{user_identity_base_url}}"
+							],
+							"path": [
+								"user",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Registration Existing Details",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Registration with exisiting details - Status is 400\", ()=>{\r",
+									"  pm.response.to.have.status(400);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"firstName\": \"{{first_name}}\",\r\n  \"lastName\": \"{{last_name}}\",\r\n  \"username\": \"{{phone_number}}\",\r\n  \"phoneNumber\": \"{{phone_number}}\",\r\n  \"userEmail\": \"{{user_email}}\",\r\n  \"userPassword\": \"{{user_password}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{user_identity_base_url}}/user/register",
+							"host": [
+								"{{user_identity_base_url}}"
+							],
+							"path": [
+								"user",
+								"register"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Login",
+			"item": [
+				{
+					"name": "Successful Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"pm.test(\"Successful Login request - Status is 200\", ()=>{\r",
+									"  pm.response.to.have.status(200);\r",
+									"  const response =  pm.response.json();\r",
+									"  pm.environment.set(\"user_id\", response.userDetails.id);\r",
+									"  pm.environment.set(\"user_access_token\", response.userToken.accessToken.token);\r",
+									"  pm.environment.set(\"user_refresh_token\", response.userToken.refreshToken);\r",
+									"  pm.environment.set(\"user_email\", response.userDetails.email);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userName\": \"{{phone_number}}\",\r\n    \"password\": \"{{user_password}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{user_identity_base_url}}/user/login",
+							"host": [
+								"{{user_identity_base_url}}"
+							],
+							"path": [
+								"user",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"pm.test(\"Invalid Login request - Status is 401\", ()=>{\r",
+									"  pm.response.to.have.status(401);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userName\": \"{{phone_number}}\",\r\n    \"password\": \"1*2&34Q\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{user_identity_base_url}}/user/login",
+							"host": [
+								"{{user_identity_base_url}}"
+							],
+							"path": [
+								"user",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Reset Password",
+			"item": [
+				{
+					"name": "Reset Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Reset Passowrd request - Status is 200\", ()=>{\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userEmail\": \"{{user_email}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{user_identity_base_url}}/user/reset-password",
+							"host": [
+								"{{user_identity_base_url}}"
+							],
+							"path": [
+								"user",
+								"reset-password"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Token",
+			"item": [
+				{
+					"name": "Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Refresh Token - Status is 200\", ()=>{\r",
+									"  pm.response.to.have.status(200);\r",
+									"  const response =  pm.response.json();\r",
+									"  pm.environment.set(\"user_access_token\", response.userToken.accessToken.token);\r",
+									"  pm.environment.set(\"user_refresh_token\", response.userToken.refreshToken);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"accessToken\": \"{{user_access_token}}\",\r\n    \"refreshToken\": \"{{user_refresh_token}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{user_identity_base_url}}/user/refresh-token",
+							"host": [
+								"{{user_identity_base_url}}"
+							],
+							"path": [
+								"user",
+								"refresh-token"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User Details",
+			"item": [
+				{
+					"name": "Get User Details",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Get User Details - Status is 200\", ()=>{\r",
+									"    pm.response.to.have.status(200);\r",
+									"    const firstName =  pm.environment.get(\"first_name\");\r",
+									"    const lastName =  pm.environment.get(\"last_name\");\r",
+									"    const userEmail =  pm.environment.get(\"user_email\");\r",
+									"    const userName =  pm.environment.get(\"phone_number\");\r",
+									"\r",
+									"    const response =  pm.response.json();\r",
+									"    \r",
+									"    pm.expect(response.user).to.not.be.undefined;\r",
+									"    pm.expect(response.user).to.not.be.null;\r",
+									"    pm.expect(response.user.id).to.not.be.null;\r",
+									"    pm.expect(response.user.fullName).to.be.eq(firstName + \" \" + lastName);\r",
+									"    pm.expect(response.user.userName).to.be.eq(userName + \"\");\r",
+									"    pm.expect(response.user.email).to.be.eq(userEmail);\r",
+									"\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{user_access_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{user_identity_base_url}}/user/{{user_id}}",
+							"host": [
+								"{{user_identity_base_url}}"
+							],
+							"path": [
+								"user",
+								"{{user_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Non-existent User Details",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Get Non-existent User Details - Status is 404\", ()=>{\r",
+									"    pm.response.to.have.status(404);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{user_access_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{user_identity_base_url}}/user/{{default_guid}}",
+							"host": [
+								"{{user_identity_base_url}}"
+							],
+							"path": [
+								"user",
+								"{{default_guid}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Roles",
+			"item": [
+				{
+					"name": "Get User Roles",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{user_access_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{user_identity_base_url}}/role/user/{{user_id}}",
+							"host": [
+								"{{user_identity_base_url}}"
+							],
+							"path": [
+								"role",
+								"user",
+								"{{user_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Roles",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{user_access_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{user_identity_base_url}}/role",
+							"host": [
+								"{{user_identity_base_url}}"
+							],
+							"path": [
+								"role"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Role",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{user_access_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{user_identity_base_url}}/role/{{user_role_id}}",
+							"host": [
+								"{{user_identity_base_url}}"
+							],
+							"path": [
+								"role",
+								"{{user_role_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Role",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{user_access_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"roleId\":\"{{user_role_id}}\",\r\n    \"roleName\": \"Administrator\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{user_identity_base_url}}/role",
+							"host": [
+								"{{user_identity_base_url}}"
+							],
+							"path": [
+								"role"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Role",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{user_access_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{user_identity_base_url}}/role/{{user_role_id}}",
+							"host": [
+								"{{user_identity_base_url}}"
+							],
+							"path": [
+								"role",
+								"{{user_role_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add User Role",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{user_access_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userId\":\"{{user_id}}\",\r\n    \"roleId\": \"{{user_role_id}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{user_identity_base_url}}/role/user",
+							"host": [
+								"{{user_identity_base_url}}"
+							],
+							"path": [
+								"role",
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Role",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{user_access_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"roleName\": \"Test\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{user_identity_base_url}}/role",
+							"host": [
+								"{{user_identity_base_url}}"
+							],
+							"path": [
+								"role"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Role Claim",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{user_access_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"roleId\": \"{{user_role_id}}\",\r\n    \"resource\": \"itemtype\",\r\n    \"action\": \"download\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{user_identity_base_url}}/role/claim",
+							"host": [
+								"{{user_identity_base_url}}"
+							],
+							"path": [
+								"role",
+								"claim"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Role Claim",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{user_access_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"roleId\": \"{{user_role_id}}\",\r\n    \"resource\": \"role\",\r\n    \"action\": \"create\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{user_identity_base_url}}/role/claim",
+							"host": [
+								"{{user_identity_base_url}}"
+							],
+							"path": [
+								"role",
+								"claim"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Role Claim",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{user_access_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{user_identity_base_url}}/role/claim/{{user_role_id}}",
+							"host": [
+								"{{user_identity_base_url}}"
+							],
+							"path": [
+								"role",
+								"claim",
+								"{{user_role_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
