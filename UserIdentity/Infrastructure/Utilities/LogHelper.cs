@@ -15,7 +15,7 @@ namespace UserIdentity.Infrastructure.Utilities
 		{
 			ILogger logger = _loggerFactory.CreateLogger<T>();
 
-			string resolvedMessage = message + "";
+			String resolvedMessage = message + "";
 
 			switch (logLevel)
 			{

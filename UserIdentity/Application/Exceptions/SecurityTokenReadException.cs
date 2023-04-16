@@ -2,7 +2,7 @@
 {
 	public class SecurityTokenReadException : Exception
 	{
-		public SecurityTokenReadException(string message) : base(message)
+		public SecurityTokenReadException(String message) : base(message)
 		{
 
 		}

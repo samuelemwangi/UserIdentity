@@ -8,8 +8,7 @@ using FakeItEasy;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-
-using UserIdentity.Application.Core;
+using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Tokens.Commands.ExchangeRefreshToken;
 using UserIdentity.Application.Core.Tokens.ViewModels;
 using UserIdentity.Application.Exceptions;
@@ -23,7 +22,7 @@ using Xunit;
 
 namespace UserIdentity.UnitTests.Application.Core.Tokens.Commands
 {
-	public class ExchangeRefreshTokenCommandHandlerTests
+    public class ExchangeRefreshTokenCommandHandlerTests
 	{
 		private readonly IJwtFactory _jwtFactory;
 		private readonly ITokenFactory _tokenFactory;

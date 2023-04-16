@@ -9,6 +9,7 @@ using FakeItEasy;
 using Microsoft.AspNetCore.Mvc;
 
 using UserIdentity.Application.Core;
+using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Roles.Commands.CreateRole;
 using UserIdentity.Application.Core.Roles.Commands.CreateRoleClaim;
 using UserIdentity.Application.Core.Roles.Commands.DeleteRole;
@@ -26,7 +27,7 @@ using Xunit;
 namespace UserIdentity.UnitTests.Presentation.Controllers
 {
 
-	public class RoleControllerTests
+    public class RoleControllerTests
 	{
 		private static readonly String Controllername = "role";
 

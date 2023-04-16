@@ -1,14 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
 using Microsoft.AspNetCore.Identity;
-
+using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Roles.ViewModels;
 using UserIdentity.Application.Exceptions;
 
 namespace UserIdentity.Application.Core.Roles.Commands.UpdateRole
 {
 
-	public record UpdateRoleCommand : BaseCommand
+    public record UpdateRoleCommand : BaseCommand
 	{
 		[Required]
 		public String RoleId { get; set; }

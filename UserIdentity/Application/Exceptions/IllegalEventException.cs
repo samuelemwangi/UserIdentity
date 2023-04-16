@@ -2,12 +2,12 @@
 {
     public class IllegalEventException : Exception
     {
-        public IllegalEventException(string message) : base(message)
+        public IllegalEventException(String message) : base(message)
         {
 
         }
 
-        public IllegalEventException(string operation, string classNme) : base(classNme + ": The event - " + operation + " - is not allowed")
+        public IllegalEventException(String operation, String classNme) : base(classNme + ": The event - " + operation + " - is not allowed")
         {
         }
     }

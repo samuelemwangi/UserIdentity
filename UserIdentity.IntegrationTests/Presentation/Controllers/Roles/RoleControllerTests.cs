@@ -21,7 +21,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 	public class RoleControllerTests : BaseControllerTests
 	{
-		private readonly static string _baseUri = "/api/v1/role";
+		private readonly static String _baseUri = "/api/v1/role";
 
 		public RoleControllerTests(TestingWebAppFactory testingWebAppFactory, ITestOutputHelper outputHelper)
 						: base(testingWebAppFactory, outputHelper)

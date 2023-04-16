@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 using FakeItEasy;
 
 using Microsoft.AspNetCore.Identity;
-
-using UserIdentity.Application.Core;
+using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Users.Commands.LoginUser;
 using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Application.Exceptions;
@@ -22,7 +21,7 @@ using Xunit;
 
 namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 {
-	public class LoginUserCommandHandlerTests
+    public class LoginUserCommandHandlerTests
 	{
 		private readonly IJwtFactory _jwtFactory;
 		private readonly ITokenFactory _tokenFactory;

@@ -1,4 +1,6 @@
-﻿namespace UserIdentity.Application.Core.Extensions
+﻿using UserIdentity.Domain;
+
+namespace UserIdentity.Application.Core.Extensions
 {
 	public static class DTOExtensions
 	{
@@ -8,8 +10,16 @@
 						 (loggedInUserId != null) &&
 						 (
 							dto?.CreatedBy == loggedInUserId ||
-							dto?.LastModifiedBy == loggedInUserId
+							dto?.UpdatedBy == loggedInUserId
 						 );
+		}
+
+		public static void SetDTOAuditFields(this BaseEntityDTO dto, BaseEntity entity, Func<DateTime?, String?> resolveDateTime)
+		{
+			dto.CreatedBy = entity.CreatedBy;
+			dto.CreatedAt = resolveDateTime(entity.CreatedAt);
+			dto.UpdatedBy = entity.UpdatedBy;
+			dto.UpdatedAt = resolveDateTime(entity.UpdatedAt);
 		}
 	}
 }

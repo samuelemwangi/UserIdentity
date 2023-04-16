@@ -1,13 +1,12 @@
 ﻿using System.Net;
 
 using Microsoft.AspNetCore.Mvc;
-
-using UserIdentity.Application.Core;
+using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.KeySets.Queries.GetKeySets;
 
 namespace UserIdentity.Presentation.Controllers.Security
 {
-	public class JWKSController : BaseController
+    public class JWKSController : BaseController
 	{
 		private readonly IGetItemsQueryHandler<GetKeySetsQuery, IDictionary<String, IList<Dictionary<String, String>>>> _getKeySetsQueryHandler;
 

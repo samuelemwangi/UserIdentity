@@ -2,13 +2,13 @@
 using System.Text;
 
 using Microsoft.AspNetCore.WebUtilities;
-
+using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Persistence.Repositories.Users;
 
 namespace UserIdentity.Application.Core.Users.Commands.ConfirmUpdatePasswordToken
 {
-	public record ConfirmUpdatePasswordTokenCommand : BaseCommand
+    public record ConfirmUpdatePasswordTokenCommand : BaseCommand
 	{
 		[Required]
 		public String ConfirmPasswordToken { get; init; }

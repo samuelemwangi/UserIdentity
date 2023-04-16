@@ -4,7 +4,7 @@ using System.Text;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
-
+using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Application.Exceptions;
 using UserIdentity.Persistence.Repositories.Users;
@@ -13,7 +13,7 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace UserIdentity.Application.Core.Users.Commands.UpdatePassword
 {
-	public record UpdatePasswordCommand : BaseCommand
+    public record UpdatePasswordCommand : BaseCommand
 	{
 		[Required]
 		public String NewPassword { get; init; }

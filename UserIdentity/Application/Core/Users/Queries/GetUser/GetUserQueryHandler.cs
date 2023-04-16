@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
+using UserIdentity.Application.Core.Extensions;
+using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Application.Exceptions;
 using UserIdentity.Application.Interfaces.Utilities;
+using UserIdentity.Domain.Identity;
 using UserIdentity.Persistence.Repositories.Users;
 
 namespace UserIdentity.Application.Core.Users.Queries.GetUser
@@ -40,20 +43,22 @@ namespace UserIdentity.Application.Core.Users.Queries.GetUser
 			if (userDetails == null)
 				throw new NoRecordException(query.UserId + "", "User");
 
+			var userDTO = new UserDTO
+			{
+				Id = user.Id,
+				UserName = user != null ? user.UserName : "",
+				FullName = userDetails.FirstName + " " + userDetails.LastName,
+				Email = user != null ? user.Email : "",
+			};
+
+			userDTO.SetDTOAuditFields(userDetails, _machineDateTime.ResolveDate);
+
 			var vm = new UserViewModel
 			{
-				User = new UserDTO
-				{
-					Id = user.Id,
-					UserName = user != null ? user.UserName : "",
-					FullName = userDetails.FirstName + " " + userDetails.LastName,
-					Email = user != null ? user.Email : "",
-					CreatedBy = userDetails.CreatedBy,
-					CreatedDate = _machineDateTime.ResolveDate(userDetails.CreatedDate),
-					LastModifiedBy = userDetails.LastModifiedBy,
-					LastModifiedDate = _machineDateTime.ResolveDate(userDetails.LastModifiedDate)
-				}
+				User = userDTO
+
 			};
+
 
 			return vm;
 		}

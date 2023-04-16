@@ -1,8 +1,9 @@
-﻿using UserIdentity.Application.Interfaces.Security;
+﻿using UserIdentity.Application.Core.Interfaces;
+using UserIdentity.Application.Interfaces.Security;
 
 namespace UserIdentity.Application.Core.KeySets.Queries.GetKeySets
 {
-	public record GetKeySetsQuery : BaseQuery
+    public record GetKeySetsQuery : BaseQuery
 	{
 
 	}

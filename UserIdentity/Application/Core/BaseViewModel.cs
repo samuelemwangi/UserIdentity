@@ -2,7 +2,7 @@
 {
 	public abstract record BaseViewModel
 	{
-		public string? RequestStatus { get; internal set; }
-		public string? StatusMessage { get; internal set; }
+		public String? RequestStatus { get; internal set; }
+		public String? StatusMessage { get; internal set; }
 	}
 }

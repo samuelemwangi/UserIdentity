@@ -8,6 +8,6 @@ namespace UserIdentity.Infrastructure.Security.Interfaces
 	public interface IJwtTokenHandler
 	{
 		String WriteToken(JwtSecurityToken jwt);
-		ClaimsPrincipal ValidateToken(string? token, TokenValidationParameters tokenValidationParameters);
+		ClaimsPrincipal ValidateToken(String? token, TokenValidationParameters tokenValidationParameters);
 	}
 }

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using UserIdentity.Application.Core;
 using UserIdentity.Application.Core.Extensions;
+using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Roles.Commands.CreateRole;
 using UserIdentity.Application.Core.Roles.Commands.CreateRoleClaim;
 using UserIdentity.Application.Core.Roles.Commands.DeleteRole;
@@ -19,7 +20,7 @@ using UserIdentity.Presentation.Helpers.ValidationExceptions;
 
 namespace UserIdentity.Presentation.Controllers.Roles
 {
-	[Authorize]
+    [Authorize]
 	[ValidateModel]
 	public class RoleController : BaseController
 	{

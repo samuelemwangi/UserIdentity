@@ -2,3 +2,6 @@
 dotnet test --settings coverlet.runsettings
 # Generate Coverage Report
 reportgenerator -reports:"Path\To\TestProject\TestResults\{guid}\coverage.cobertura.xml" -targetdir:"coveragereport" -reporttypes:Html
+
+# Adding Migration
+dotnet-ef migrations add -c MigrationName

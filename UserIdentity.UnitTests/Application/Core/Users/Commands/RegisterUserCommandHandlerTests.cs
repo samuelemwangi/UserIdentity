@@ -6,8 +6,7 @@ using FakeItEasy;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
-
-using UserIdentity.Application.Core;
+using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Users.Commands.RegisterUser;
 using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Application.Exceptions;
@@ -22,7 +21,7 @@ using Xunit;
 
 namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 {
-	public class RegisterUserCommandHandlerTests : IClassFixture<TestSettingsFixture>
+    public class RegisterUserCommandHandlerTests : IClassFixture<TestSettingsFixture>
 	{
 		private static String defaultRoleKey = "DefaultRole";
 
@@ -196,7 +195,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 			var command = GetRegisterUserCommand();
 			var defaultRoleIdentity = GetIdentityRole();
 			var identityUser = GetIdentityUser();
-			var userRoles = new List<string> { defaultRole };
+			var userRoles = new List<String> { defaultRole };
 			var userRoleClaims = new HashSet<String> { "claim1", "claim2" };
 
 			A.CallTo(() => _roleManager.FindByNameAsync(defaultRole)).Returns(defaultRoleIdentity);
@@ -237,7 +236,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 			var command = GetRegisterUserCommand();
 			var defaultRoleIdentity = GetIdentityRole();
 			var identityUser = GetIdentityUser();
-			var userRoles = new List<string> { defaultRole };
+			var userRoles = new List<String> { defaultRole };
 			var userRoleClaims = new HashSet<String> { "claim1", "claim2" };
 			var resfreshToken = "resfreshToken";
 

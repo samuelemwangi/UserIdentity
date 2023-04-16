@@ -83,9 +83,9 @@ namespace UserIdentity.IntegrationTests.Persistence
 				FirstName = UserSettings.FirstName,
 				LastName = UserSettings.LastName,
 				CreatedBy = UserSettings.UserId.ToString(),
-				CreatedDate = DateTime.UtcNow,
-				LastModifiedBy = UserSettings.UserId.ToString(),
-				LastModifiedDate = DateTime.UtcNow
+				CreatedAt = DateTime.UtcNow,
+				UpdatedBy = UserSettings.UserId.ToString(),
+				UpdatedAt = DateTime.UtcNow
 			};
 
 			appDbContext.AppUser.Add(appuser);
@@ -98,9 +98,9 @@ namespace UserIdentity.IntegrationTests.Persistence
 			{
 				UserId = UserSettings.UserId.ToString(),
 				CreatedBy = UserSettings.UserId.ToString(),
-				CreatedDate = DateTime.UtcNow,
-				LastModifiedBy = UserSettings.UserId.ToString(),
-				LastModifiedDate = DateTime.UtcNow
+				CreatedAt = DateTime.UtcNow,
+				UpdatedBy = UserSettings.UserId.ToString(),
+				UpdatedAt = DateTime.UtcNow
 			};
 
 			appDbContext.RefreshToken.Add(refreshToken);

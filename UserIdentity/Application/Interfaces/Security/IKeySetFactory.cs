@@ -4,11 +4,11 @@ namespace UserIdentity.Application.Interfaces.Security
 {
 	public interface IKeySetFactory
 	{
-		string GetAlgorithm();
-		string GetKeyType();
-		string GetKeyId();
-		string GetSecretKey();
+		String GetAlgorithm();
+		String GetKeyType();
+		String GetKeyId();
+		String GetSecretKey();
 		SymmetricSecurityKey GetSigningKey();
-		string GetBase64URLEncodedSecretKey();
+		String GetBase64URLEncodedSecretKey();
 	}
 }

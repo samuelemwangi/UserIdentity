@@ -2,9 +2,8 @@
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
-using UserIdentity.Application.Core;
 using UserIdentity.Application.Core.Extensions;
+using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Tokens.Commands.ExchangeRefreshToken;
 using UserIdentity.Application.Core.Tokens.ViewModels;
 using UserIdentity.Application.Core.Users.Commands.ConfirmUpdatePasswordToken;
@@ -21,7 +20,7 @@ using UserIdentity.Presentation.Helpers.ValidationExceptions;
 
 namespace UserIdentity.Presentation.Controllers.Users
 {
-	[Authorize]
+    [Authorize]
 	[ValidateModel]
 	public class UserController : BaseController
 	{

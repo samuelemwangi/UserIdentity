@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-
+using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Exceptions;
 
 namespace UserIdentity.Application.Core.Roles.Commands.DeleteRole
 {
 
-	public record DeleteRoleCommand : BaseCommand
+    public record DeleteRoleCommand : BaseCommand
 	{
 		public String RoleId { get; init; }
 	}
