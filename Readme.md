@@ -40,7 +40,7 @@ Useridentity is an easy-to-use RESTful API that simplifies user management by pr
 #### Running the App Using Docker Compose
 1. Clone the repository
 2. `cd` into the cloned folder
-3. Run the docker-compose file using `docker-compose up -d`
+3. Run the docker-compose file using `docker-compose up -d` or `docker compose -f docker-compose.build.yml up --build -d` to build the image locally
 4. Use the included postman collection and environment to test the endpoints
 
 
