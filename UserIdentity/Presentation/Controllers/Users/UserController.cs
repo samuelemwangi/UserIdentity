@@ -65,7 +65,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 			var ownedByLoggedInUser = userVM.User.OwnedByLoggedInUser(LoggedInUserId);
 
 			userVM.ResolveEditDeleteRights(UserRoleClaims, resourceName, ownedByLoggedInUser);
-			userVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
+			userVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEM_SUCCESSFUL);
 
 			return StatusCode((Int32)HttpStatusCode.OK, userVM);
 		}
@@ -78,7 +78,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 			var authUserVM = await _registerUserCommandHandler.CreateItemAsync(command);
 
 			authUserVM.ResolveEditDeleteRights(UserRoleClaims, resourceName);
-			authUserVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
+			authUserVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.CREATE_ITEM_SUCCESSFUL);
 
 			return StatusCode((Int32)HttpStatusCode.Created, authUserVM);
 		}
@@ -91,7 +91,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 			var authUserVM = await _loginUserCommandHandler.CreateItemAsync(command);
 
 			authUserVM.ResolveEditDeleteRights(UserRoleClaims, resourceName);
-			authUserVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
+			authUserVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEM_SUCCESSFUL, "Login successful");
 
 			return StatusCode((Int32)HttpStatusCode.OK, authUserVM);
 		}
@@ -102,7 +102,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 		public async Task<ActionResult<AccessTokenViewModel>> RefreshToken(ExchangeRefreshTokenCommand command)
 		{
 			var refreshTokenVM = await _exchangeRefreshTokenCommandHandler.UpdateItemAsync(command);
-			refreshTokenVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS, "Refresh token generated successfully");
+			refreshTokenVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEM_SUCCESSFUL, "Refresh token generated successfully");
 			return StatusCode((Int32)HttpStatusCode.OK, refreshTokenVM);
 		}
 
@@ -112,7 +112,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 		public async Task<ActionResult<AccessTokenViewModel>> ResetPassword(ResetPasswordCommand command)
 		{
 			var resetPassWordVM = await _resetPasswordCommandHandler.CreateItemAsync(command);
-			resetPassWordVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
+			resetPassWordVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEM_SUCCESSFUL, "Password reset request successful");
 			return StatusCode((Int32)HttpStatusCode.OK, resetPassWordVM);
 		}
 
@@ -126,11 +126,11 @@ namespace UserIdentity.Presentation.Controllers.Users
 			var httpStatusCode = HttpStatusCode.OK;
 			if (confirmPassWordTokenVM.TokenPasswordResult.UpdatePasswordTokenConfirmed)
 			{
-				confirmPassWordTokenVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS, "Token confirmation successful");
+				confirmPassWordTokenVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.UPDATE_ITEM_SUCCESSFUL, "Token confirmation successful");
 			}
 			else
 			{
-				confirmPassWordTokenVM.ResolveRequestStatus(RequestStatus.FAILED, ItemStatusMessage.FAILED, "Token confirmation failed");
+				confirmPassWordTokenVM.ResolveRequestStatus(RequestStatus.FAILED, ItemStatusMessage.FETCH_ITEM_FAILED, "Token confirmation failed");
 				httpStatusCode = HttpStatusCode.NotAcceptable;
 			}
 
@@ -147,11 +147,11 @@ namespace UserIdentity.Presentation.Controllers.Users
 			var httpStatusCode = HttpStatusCode.OK;
 			if (updatePasswordVM.UpdatePasswordResult.PassWordUpdated)
 			{
-				updatePasswordVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS, "Password updated successfully");
+				updatePasswordVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.UPDATE_ITEM_SUCCESSFUL, "Password updated successfully");
 			}
 			else
 			{
-				updatePasswordVM.ResolveRequestStatus(RequestStatus.FAILED, ItemStatusMessage.FAILED, "Password update failed");
+				updatePasswordVM.ResolveRequestStatus(RequestStatus.FAILED, ItemStatusMessage.FETCH_ITEM_FAILED, "Password update failed");
 				httpStatusCode= HttpStatusCode.NotAcceptable;
 			}
 			return StatusCode((Int32)httpStatusCode, updatePasswordVM);

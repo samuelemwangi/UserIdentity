@@ -46,7 +46,7 @@ namespace UserIdentity.Application.Core.Errors.Queries.GerError
 			var statusMessage = query.StatusMessage != null ? _stringHelper.AddSpacesToSentence(query.StatusMessage, true).ToUpper() : "";
 
 
-			errorVM.ResolveRequestStatus(RequestStatus.FAILED, ItemStatusMessage.FAILED, statusMessage);
+			errorVM.ResolveRequestStatus(RequestStatus.FAILED, ItemStatusMessage.FETCH_ITEM_FAILED, statusMessage);
 
 			return await Task.FromResult(errorVM);
 

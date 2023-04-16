@@ -69,7 +69,7 @@ namespace UserIdentity.UnitTests.Domain
 			Assert.Equal(createdByUserId, testEntity2.CreatedBy);
 			Assert.Equal(userId, testEntity2.UpdatedBy);
 			Assert.Equal(createdDateTime, testEntity2.CreatedAt);
-			Assert.Equal(createdDateTime, testEntity2.UpdatedAt);
+			Assert.Equal(now, testEntity2.UpdatedAt);
 			Assert.True(testEntity2.IsDeleted);
 
 		}

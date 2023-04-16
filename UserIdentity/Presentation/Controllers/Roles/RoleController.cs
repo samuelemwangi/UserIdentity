@@ -70,7 +70,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 			var rolesVM = await _getRolesQueryHandler.GetItemsAsync(new GetRolesQuery { });
 
 			rolesVM.ResolveCreateDownloadRights(UserRoleClaims, resourceName);
-			rolesVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
+			rolesVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEMS_SUCCESSFUL);
 
 			return StatusCode((Int32)HttpStatusCode.OK, rolesVM);
 		}
@@ -83,7 +83,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 			var roleVM = await _getRoleQueryHandler.GetItemAsync(new GetRoleQuery { RoleId = roleId });
 
 			roleVM.ResolveEditDeleteRights(UserRoleClaims, resourceName);
-			roleVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
+			roleVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEM_SUCCESSFUL);
 
 			return StatusCode((Int32)HttpStatusCode.OK, roleVM);
 		}
@@ -95,7 +95,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 			var roleVM = await _createRoleCommandHandler.CreateItemAsync(command);
 
 			roleVM.ResolveEditDeleteRights(UserRoleClaims, resourceName);
-			roleVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
+			roleVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.CREATE_ITEM_SUCCESSFUL);
 
 			return StatusCode((Int32)HttpStatusCode.Created, roleVM);
 		}
@@ -110,7 +110,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 			var updatedRoleVM = await _updateRoleCommandHandler.UpdateItemAsync(command);
 
 			updatedRoleVM.ResolveEditDeleteRights(UserRoleClaims, resourceName);
-			updatedRoleVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
+			updatedRoleVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.UPDATE_ITEM_SUCCESSFUL);
 
 			return StatusCode((Int32)HttpStatusCode.OK, updatedRoleVM);
 		}
@@ -123,7 +123,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 		{
 			var deleteRoleVM = await _deleteRoleCommandHandler.DeleteItemAsync(new DeleteRoleCommand { RoleId = roleId });
 
-			deleteRoleVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS, "Record deleted successfully");
+			deleteRoleVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.DELETE_ITEM_SUCCESSFUL, "Record deleted successfully");
 
 			return StatusCode((Int32)HttpStatusCode.OK, deleteRoleVM);
 		}
@@ -136,7 +136,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 			var userRolesVM = await _getUserRolesQueryHandler.GetItemsAsync(new GetUserRolesQuery { UserId = userId });
 
 			userRolesVM.ResolveCreateDownloadRights(UserRoleClaims, resourceName);
-			userRolesVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
+			userRolesVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEMS_SUCCESSFUL);
 
 			return StatusCode((Int32)HttpStatusCode.OK, userRolesVM);
 		}
@@ -151,7 +151,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 			var userRolesVM = await _createUserRoleCommandHandler.CreateItemAsync(command);
 
 			userRolesVM.ResolveCreateDownloadRights(UserRoleClaims, resourceName);
-			userRolesVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
+			userRolesVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.CREATE_ITEM_SUCCESSFUL);
 
 			return StatusCode((Int32)HttpStatusCode.Created, userRolesVM);
 		}
@@ -171,7 +171,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 			var roleClaimVM = await _createRoleClaimCommandHandler.CreateItemAsync(command);
 
 			roleClaimVM.ResolveEditDeleteRights(UserRoleClaims, resourceName);
-			roleClaimVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
+			roleClaimVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.CREATE_ITEM_SUCCESSFUL);
 
 			return StatusCode((Int32)HttpStatusCode.Created, roleClaimVM);
 		}
@@ -184,7 +184,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 			var roleClaimsVM = await _getRoleClaimsQueryHandler.GetItemsAsync(new GetRoleClaimsQuery { RoleId = roleId });
 
 			roleClaimsVM.ResolveCreateDownloadRights(UserRoleClaims, resourceName);
-			roleClaimsVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
+			roleClaimsVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEMS_SUCCESSFUL);
 
 			return StatusCode((Int32)HttpStatusCode.OK, roleClaimsVM);
 		}
@@ -196,7 +196,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 		{
 			var deleteClaimVM = await _deleteRoleClaimCommandHandler.DeleteItemAsync(command);
 
-			deleteClaimVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS, "Record deleted successfully");
+			deleteClaimVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.DELETE_ITEM_SUCCESSFUL, "Record deleted successfully");
 
 			return StatusCode((Int32)HttpStatusCode.OK, deleteClaimVM);
 		}

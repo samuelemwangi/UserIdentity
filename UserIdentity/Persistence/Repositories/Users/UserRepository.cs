@@ -33,7 +33,7 @@ namespace UserIdentity.Persistence.Repositories.Users
 		public async Task<User?> GetUserAsync(String? Id)
 		{
 			return await _appDbContext.AppUser
-					.Where(u => (u.Id + "").Equals(Id))
+					.Where(u => (u.Id + "").Equals(Id) && !u.IsDeleted)
 					.FirstOrDefaultAsync();
 		}
 
@@ -61,7 +61,7 @@ namespace UserIdentity.Persistence.Repositories.Users
 		public async Task<Boolean> ValidateUpdatePasswordTokenAsync(String userId, String token)
 		{
 			return await _appDbContext.AppUser
-					.AnyAsync(u => (u.Id + "").Equals(userId) && (u.ForgotPasswordToken + "").Equals(token));
+					.AnyAsync(u => (u.Id + "").Equals(userId) && (u.ForgotPasswordToken + "").Equals(token) && !u.IsDeleted);
 		}
 
 	}

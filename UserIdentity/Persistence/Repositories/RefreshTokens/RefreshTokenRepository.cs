@@ -29,7 +29,7 @@ namespace UserIdentity.Persistence.Repositories.RefreshTokens
 		public async Task<RefreshToken?> GetRefreshTokenAsync(String? userId, String? token)
 		{
 			var refreshToken = await _appDbContext.RefreshToken
-				.Where(e => e.UserId == userId && e.Token == token)
+				.Where(e => e.UserId == userId && e.Token == token && !e.IsDeleted)
 				.FirstOrDefaultAsync();
 
 			return refreshToken;

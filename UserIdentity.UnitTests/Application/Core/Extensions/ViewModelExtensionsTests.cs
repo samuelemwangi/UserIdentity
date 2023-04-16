@@ -31,11 +31,11 @@ namespace UserIdentity.UnitTests.Application.Core.Extensions
 			var vm = new TestBaseVM();
 
 			// Act
-			vm.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.SUCCESS);
+			vm.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEM_SUCCESSFUL);
 
 			// Assert
 			Assert.Equal(RequestStatus.SUCCESSFUL.GetDisplayName(), vm.RequestStatus);
-			Assert.Equal(ItemStatusMessage.SUCCESS.GetDisplayName(), vm.StatusMessage);
+			Assert.Equal(ItemStatusMessage.FETCH_ITEM_SUCCESSFUL.GetDisplayName(), vm.StatusMessage);
 		}
 
 		[Fact]
@@ -46,7 +46,7 @@ namespace UserIdentity.UnitTests.Application.Core.Extensions
 			var customMesage = "Failed but looks like success";
 
 			// Act
-			vm.ResolveRequestStatus(RequestStatus.FAILED, ItemStatusMessage.SUCCESS, customMesage);
+			vm.ResolveRequestStatus(RequestStatus.FAILED, ItemStatusMessage.FETCH_ITEM_SUCCESSFUL, customMesage);
 
 			// Assert
 			Assert.Equal(RequestStatus.FAILED.GetDisplayName(), vm.RequestStatus);

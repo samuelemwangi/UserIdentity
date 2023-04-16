@@ -80,7 +80,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			Assert.False(vm?.DeleteEnabled);
 
 			Assert.Contains(RequestStatus.SUCCESSFUL.GetDisplayName(), vm?.RequestStatus);
-			Assert.Contains(ItemStatusMessage.SUCCESS.GetDisplayName(), vm?.StatusMessage);
+			Assert.Contains(ItemStatusMessage.FETCH_ITEM_SUCCESSFUL.GetDisplayName(), vm?.StatusMessage);
 		}
 
 		[Fact]
@@ -125,7 +125,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			Assert.False(vm?.DeleteEnabled);
 
 			Assert.Contains(RequestStatus.SUCCESSFUL.GetDisplayName(), vm?.RequestStatus);
-			Assert.Contains(ItemStatusMessage.SUCCESS.GetDisplayName(), vm?.StatusMessage);
+			Assert.Contains(ItemStatusMessage.CREATE_ITEM_SUCCESSFUL.GetDisplayName(), vm?.StatusMessage);
 		}
 
 		[Fact]
@@ -141,6 +141,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var userEmail = username + "@test.com";
 
 			var refreshToken = "abmsmmsrefreshToken";
+			var loginMessage = "Login successful";
 
 			var command = new LoginUserCommand { UserName = username, Password = userPassword };
 			var authVM = new AuthUserViewModel { UserDetails = new UserDTO { Id = userId, FullName = userFName + userLName, UserName = username, Email = userEmail }, UserToken = new AccessTokenViewModel { RefreshToken = refreshToken } };
@@ -168,7 +169,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			Assert.False(vm?.DeleteEnabled);
 
 			Assert.Contains(RequestStatus.SUCCESSFUL.GetDisplayName(), vm?.RequestStatus);
-			Assert.Contains(ItemStatusMessage.SUCCESS.GetDisplayName(), vm?.StatusMessage);
+			Assert.Contains(loginMessage, vm?.StatusMessage);
 		}
 
 		[Fact]
@@ -217,6 +218,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var userEmail = "user-email123@server.com";
 
 			var emailMessage = "Password reset email sent successfully";
+			var resetMessage = "Password reset request successful";
 
 			var command = new ResetPasswordCommand { UserEmail = userEmail };
 			var resetPasswordVM = new ResetPasswordViewModel { ResetPasswordDetails = new ResetPasswordDTO { EmailMessage = emailMessage } };
@@ -237,7 +239,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			Assert.Equal(emailMessage, vm?.ResetPasswordDetails?.EmailMessage);
 
 			Assert.Contains(RequestStatus.SUCCESSFUL.GetDisplayName(), vm?.RequestStatus);
-			Assert.Contains(ItemStatusMessage.SUCCESS.GetDisplayName(), vm?.StatusMessage);
+			Assert.Contains(resetMessage, vm?.StatusMessage);
 		}
 
 		[Fact]
