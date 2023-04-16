@@ -23,6 +23,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: ${{ secrets.DOCKERHUB_USERNAME }}/useridentity
+          tags: latest
 
       - name: Build and Push
         uses: docker/build-push-action@v4
@@ -31,4 +32,3 @@ jobs:
           file: ./UserIdentity/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
