@@ -82,7 +82,7 @@ namespace UserIdentity.UnitTests.Application.Core.Errors
 			// Assert
 			Assert.NotNull(vm);
 
-			Assert.Equal(ItemStatusMessage.FAILED.GetDisplayName(), vm.StatusMessage);
+			Assert.Equal(ItemStatusMessage.FETCH_ITEM_FAILED.GetDisplayName(), vm.StatusMessage);
 			Assert.Equal(RequestStatus.FAILED.GetDisplayName(), vm.RequestStatus);
 
 			Assert.NotNull(vm.Error);

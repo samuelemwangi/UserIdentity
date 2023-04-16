@@ -109,7 +109,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			Assert.False(vm?.CreateEnabled);
 
 			Assert.Contains(RequestStatus.SUCCESSFUL.GetDisplayName(), vm?.RequestStatus);
-			Assert.Contains(ItemStatusMessage.SUCCESS.GetDisplayName(), vm?.StatusMessage);
+			Assert.Contains(ItemStatusMessage.FETCH_ITEMS_SUCCESSFUL.GetDisplayName(), vm?.StatusMessage);
 		}
 
 		[Fact]
@@ -149,7 +149,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			Assert.False(vm?.DeleteEnabled);
 
 			Assert.Contains(RequestStatus.SUCCESSFUL.GetDisplayName(), vm?.RequestStatus);
-			Assert.Contains(ItemStatusMessage.SUCCESS.GetDisplayName(), vm?.StatusMessage);
+			Assert.Contains(ItemStatusMessage.FETCH_ITEM_SUCCESSFUL.GetDisplayName(), vm?.StatusMessage);
 		}
 
 		[Fact]
@@ -192,7 +192,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			Assert.False(vm?.DeleteEnabled);
 
 			Assert.Contains(RequestStatus.SUCCESSFUL.GetDisplayName(), vm?.RequestStatus);
-			Assert.Contains(ItemStatusMessage.SUCCESS.GetDisplayName(), vm?.StatusMessage);
+			Assert.Contains(ItemStatusMessage.CREATE_ITEM_SUCCESSFUL.GetDisplayName(), vm?.StatusMessage);
 		}
 
 		[Fact]
@@ -237,7 +237,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			Assert.False(vm?.DeleteEnabled);
 
 			Assert.Contains(RequestStatus.SUCCESSFUL.GetDisplayName(), vm?.RequestStatus);
-			Assert.Contains(ItemStatusMessage.SUCCESS.GetDisplayName(), vm?.StatusMessage);
+			Assert.Contains(ItemStatusMessage.UPDATE_ITEM_SUCCESSFUL.GetDisplayName(), vm?.StatusMessage);
 		}
 
 		[Fact]
@@ -316,7 +316,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			Assert.True(allRolesExist);
 
 			Assert.Contains(RequestStatus.SUCCESSFUL.GetDisplayName(), vm?.RequestStatus);
-			Assert.Contains(ItemStatusMessage.SUCCESS.GetDisplayName(), vm?.StatusMessage);
+			Assert.Contains(ItemStatusMessage.FETCH_ITEMS_SUCCESSFUL.GetDisplayName(), vm?.StatusMessage);
 		}
 
 		[Fact]
@@ -372,7 +372,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			Assert.True(allRolesExist);
 
 			Assert.Contains(RequestStatus.SUCCESSFUL.GetDisplayName(), vm?.RequestStatus);
-			Assert.Contains(ItemStatusMessage.SUCCESS.GetDisplayName(), vm?.StatusMessage);
+			Assert.Contains(ItemStatusMessage.CREATE_ITEM_SUCCESSFUL.GetDisplayName(), vm?.StatusMessage);
 		}
 
 		[Fact]
@@ -476,7 +476,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			Assert.True(allClaimsExist);
 
 			Assert.Contains(RequestStatus.SUCCESSFUL.GetDisplayName(), vm?.RequestStatus);
-			Assert.Contains(ItemStatusMessage.SUCCESS.GetDisplayName(), vm?.StatusMessage);
+			Assert.Contains(ItemStatusMessage.FETCH_ITEMS_SUCCESSFUL.GetDisplayName(), vm?.StatusMessage);
 		}
 
 		[Fact]

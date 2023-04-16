@@ -61,7 +61,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 
 
 			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
-			Assert.Equal("Item(s) fetched successfully", jsonObject["statusMessage"]);
+			Assert.Equal("Item fetched successfully", jsonObject["statusMessage"]);
 
 			var userDetails = jsonObject["user"]?.ToObject<UserDTO>();
 
@@ -231,8 +231,9 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 
 			Assert.NotNull(jsonObject);
 
+
 			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
-			Assert.Equal("Item(s) fetched successfully", jsonObject["statusMessage"]);
+			Assert.Equal("Item created successfully", jsonObject["statusMessage"]);
 
 			var userDetails = jsonObject["userDetails"]?.ToObject<UserDTO>();
 
@@ -320,13 +321,9 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			Assert.NotNull(jsonObject);
 
 			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
-			Assert.Equal("Item(s) fetched successfully", jsonObject["statusMessage"]);
+			Assert.Equal("Login successful", jsonObject["statusMessage"]);
 
 			var userDetails = jsonObject["userDetails"]?.ToObject<UserDTO>();
-
-
-
-			_outputHelper.WriteLine(jsonObject + "");
 
 			Assert.Equal(UserSettings.FirstName + " " + UserSettings.LastName, userDetails?.FullName);
 			Assert.Equal(requestPayload.UserName, userDetails?.UserName);
@@ -652,8 +649,9 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 
 			Assert.NotNull(jsonObject);
 
+
 			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
-			Assert.Equal("Item(s) fetched successfully", jsonObject["statusMessage"]);
+			Assert.Equal("Password reset request successful", jsonObject["statusMessage"]);
 
 
 			var resetPasswordDTO = jsonObject["resetPasswordDetails"]?.ToObject<ResetPasswordDTO>();

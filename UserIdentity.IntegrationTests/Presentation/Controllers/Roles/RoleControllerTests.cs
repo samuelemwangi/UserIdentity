@@ -60,7 +60,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 
 			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
-			Assert.Equal("Item(s) fetched successfully", jsonObject["statusMessage"]);
+			Assert.Equal("Items fetched successfully", jsonObject["statusMessage"]);
 
 			var roles = jsonObject["roles"]?.ToObject<List<RoleDTO>>();
 
@@ -170,7 +170,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			Assert.NotNull(jsonObject);
 
 			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
-			Assert.Equal("Item(s) fetched successfully", jsonObject["statusMessage"]);
+			Assert.Equal("Item fetched successfully", jsonObject["statusMessage"]);
 
 			var role = jsonObject["role"]?.ToObject<RoleDTO>();
 
@@ -284,7 +284,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			Assert.NotNull(jsonObject);
 
 			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
-			Assert.Equal("Item(s) fetched successfully", jsonObject["statusMessage"]);
+			Assert.Equal("Item created successfully", jsonObject["statusMessage"]);
 
 			var role = jsonObject["role"]?.ToObject<RoleDTO>();
 
@@ -519,7 +519,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			Assert.NotNull(jsonObject);
 
 			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
-			Assert.Equal("Item(s) fetched successfully", jsonObject["statusMessage"]);
+			Assert.Equal("Item updated successfully", jsonObject["statusMessage"]);
 
 			var role = jsonObject["role"]?.ToObject<RoleDTO>();
 
@@ -893,7 +893,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			Assert.NotNull(jsonObject);
 
 			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
-			Assert.Equal("Item(s) fetched successfully", jsonObject["statusMessage"]);
+			Assert.Equal("Items fetched successfully", jsonObject["statusMessage"]);
 
 			var roles = jsonObject["userRoles"]?.ToObject<List<String>>();
 
@@ -1050,10 +1050,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			Assert.NotNull(jsonObject);
 
 			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
-			Assert.Equal("Item(s) fetched successfully", jsonObject["statusMessage"]);
-
-			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
-			Assert.Equal("Item(s) fetched successfully", jsonObject["statusMessage"]);
+			Assert.Equal("Item created successfully", jsonObject["statusMessage"]);
 
 			var roles = jsonObject["userRoles"]?.ToObject<List<String>>();
 
@@ -1299,10 +1296,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			Assert.NotNull(jsonObject);
 
 			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
-			Assert.Equal("Item(s) fetched successfully", jsonObject["statusMessage"]);
-
-			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
-			Assert.Equal("Item(s) fetched successfully", jsonObject["statusMessage"]);
+			Assert.Equal("Item created successfully", jsonObject["statusMessage"]);
 
 			var roleClaim = jsonObject["roleClaim"]?.ToObject<RoleClaimDTO>();
 
@@ -1551,10 +1545,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			Assert.NotNull(jsonObject);
 
 			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
-			Assert.Equal("Item(s) fetched successfully", jsonObject["statusMessage"]);
-
-			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
-			Assert.Equal("Item(s) fetched successfully", jsonObject["statusMessage"]);
+			Assert.Equal("Items fetched successfully", jsonObject["statusMessage"]);
 
 			var roleClaims = jsonObject["roleClaims"]?.ToObject<List<RoleClaimDTO>>();
 
