@@ -20,7 +20,7 @@ using UserIdentity.Presentation.Helpers.ValidationExceptions;
 
 namespace UserIdentity.Presentation.Controllers.Roles
 {
-    [Authorize]
+	[Authorize]
 	[ValidateModel]
 	public class RoleController : BaseController
 	{
@@ -63,7 +63,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 			_deleteRoleClaimCommandHandler = deleteRoleClaimCommandHandler;
 		}
 
-		[Authorize(Roles = "Administrator, SuperAdministrator")]
+		[Authorize(Roles = "role:useridentity:administrator, role:useridentity:super-administrator")]
 		[HttpGet]
 		public async Task<ActionResult<RolesViewModel>> GetRolesAsync()
 		{
@@ -75,7 +75,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 			return StatusCode((Int32)HttpStatusCode.OK, rolesVM);
 		}
 
-		[Authorize(Roles = "Administrator, SuperAdministrator")]
+		[Authorize(Roles = "role:useridentity:administrator, role:useridentity:super-administrator")]
 		[HttpGet]
 		[Route("{roleId}")]
 		public async Task<ActionResult<RoleViewModel>> GetRoleAsync(String roleId)
@@ -88,7 +88,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 			return StatusCode((Int32)HttpStatusCode.OK, roleVM);
 		}
 
-		[Authorize(Roles = "Administrator, SuperAdministrator")]
+		[Authorize(Roles = "role:useridentity:administrator, role:useridentity:super-administrator")]
 		[HttpPost]
 		public async Task<ActionResult<RoleViewModel>> CreateRoleAsync(CreateRoleCommand command)
 		{
@@ -100,7 +100,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 			return StatusCode((Int32)HttpStatusCode.Created, roleVM);
 		}
 
-		[Authorize(Roles = "Administrator, SuperAdministrator")]
+		[Authorize(Roles = "role:useridentity:administrator, role:useridentity:super-administrator")]
 		[HttpPut]
 		[Route("{roleId}")]
 		public async Task<ActionResult<RoleViewModel>> UpdateRoleAsync(String roleId, [FromBody] UpdateRoleCommand command)
@@ -116,7 +116,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 		}
 
 
-		[Authorize(Roles = "Administrator, SuperAdministrator")]
+		[Authorize(Roles = "role:useridentity:administrator, role:useridentity:super-administrator")]
 		[HttpDelete]
 		[Route("{roleId}")]
 		public async Task<ActionResult<DeleteRecordViewModel>> DeleteRoleAsync(String roleId)
@@ -128,7 +128,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 			return StatusCode((Int32)HttpStatusCode.OK, deleteRoleVM);
 		}
 
-		[Authorize(Roles = "Administrator, SuperAdministrator")]
+		[Authorize(Roles = "role:useridentity:administrator, role:useridentity:super-administrator")]
 		[HttpGet]
 		[Route("user/{userId}")]
 		public async Task<ActionResult<UserRolesViewModel>> GetUserRolesAsync(String userId)
@@ -143,7 +143,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 
 
 
-		[Authorize(Roles = "Administrator, SuperAdministrator")]
+		[Authorize(Roles = "role:useridentity:administrator, role:useridentity:super-administrator")]
 		[HttpPost]
 		[Route("user")]
 		public async Task<ActionResult<UserRolesViewModel>> CreateUserRoleAsync(CreateUserRoleCommand command)
@@ -163,7 +163,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 		/// <param name="command"></param>
 		/// <returns></returns>
 
-		[Authorize(Roles = "Administrator, SuperAdministrator")]
+		[Authorize(Roles = "role:useridentity:administrator, role:useridentity:super-administrator")]
 		[HttpPost]
 		[Route("claim")]
 		public async Task<ActionResult<RoleClaimViewModel>> CreateRoleClaimAsync(CreateRoleClaimCommand command)
@@ -176,7 +176,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 			return StatusCode((Int32)HttpStatusCode.Created, roleClaimVM);
 		}
 
-		[Authorize(Roles = "Administrator, SuperAdministrator")]
+		[Authorize(Roles = "role:useridentity:administrator, role:useridentity:super-administrator")]
 		[HttpGet]
 		[Route("claim/{roleId}")]
 		public async Task<ActionResult<RoleClaimsViewModel>> GetRoleClaimsAsync(String roleId)
@@ -189,7 +189,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 			return StatusCode((Int32)HttpStatusCode.OK, roleClaimsVM);
 		}
 
-		[Authorize(Roles = "Administrator, SuperAdministrator")]
+		[Authorize(Roles = "role:useridentity:administrator, role:useridentity:super-administrator")]
 		[HttpDelete]
 		[Route("claim")]
 		public async Task<ActionResult<DeleteRecordViewModel>> DelteRoleClaimAsync(DeleteRoleClaimCommand command)
