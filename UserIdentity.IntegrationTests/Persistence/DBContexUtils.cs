@@ -158,9 +158,28 @@ namespace UserIdentity.IntegrationTests.Persistence
 			appDbContext.SaveChanges();
 		}
 
+		public static void DeleteAppUser(AppDbContext appDbContext)
+		{
+			var appuser = appDbContext.AppUser.Where(e => e.Id == UserSettings.UserId.ToString()).FirstOrDefault();
+
+			if (appuser == null)
+				return;
+			appuser.IsDeleted = true;
+			appDbContext.SaveChanges();
+		}
+
 		public static void ClearRefreshToken(AppDbContext appDbContext)
 		{
 			appDbContext.RemoveRange(appDbContext.RefreshToken);
+			appDbContext.SaveChanges();
+		}
+
+		public static void DeleteRefreshToken(AppDbContext appDbContext)
+		{
+			var refreshToken = appDbContext.RefreshToken.Where(e => e.UserId == UserSettings.UserId.ToString()).FirstOrDefault();
+			if (refreshToken == null)
+				return;
+			refreshToken.IsDeleted = true;
 			appDbContext.SaveChanges();
 		}
 

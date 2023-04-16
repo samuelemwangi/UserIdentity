@@ -15,13 +15,9 @@
 			entity.UpdatedBy = userId;
 
 			if (IsDeleted)
-			{
 				entity.IsDeleted = true;
-			}
-			else
-			{
-				entity.UpdatedAt = dateTime;
-			}
+
+			entity.UpdatedAt = dateTime;
 		}
 
 	}

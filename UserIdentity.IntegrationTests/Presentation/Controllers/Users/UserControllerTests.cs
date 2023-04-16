@@ -156,6 +156,48 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 		}
 
 		[Fact]
+		public async Task Get_Deleted_AppUser_Does_Not_Get_User_Details()
+		{
+			// Arrange
+			DBContexUtils.SeedDatabase(_appDbContext);
+
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+
+			DBContexUtils.ClearAppUser(_appDbContext);
+
+			Assert.NotNull(userToken);
+			Assert.NotNull(refreshToken);
+
+			var nonExistingUserId = Guid.NewGuid().ToString();
+
+			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri + "/" + nonExistingUserId);
+			httpRequest.AddAuthHeader(userToken);
+
+			// Act
+			var response = await _httpClient.SendAsync(httpRequest);
+			var responseString = await response.Content.ReadAsStringAsync();
+
+			// Assert
+			Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+
+			Assert.NotNull(jsonObject);
+
+			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
+			Assert.Equal("404 - NOT FOUND", jsonObject["statusMessage"]);
+
+			Assert.Equal($"No record exists for the provided identifier - {nonExistingUserId}", jsonObject["error"]?["message"]);
+
+			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
+
+			Assert.NotNull(dateTime);
+			Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
+			Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
+			Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
+		}
+
+		[Fact]
 		public async Task Register_User_With_Invalid_Request_Payload_Returns_Validation_Errors()
 		{
 			// Arrange
@@ -416,6 +458,46 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 		}
 
 		[Fact]
+		public async Task Login_Existing_Deleted_AppUser_Does_Not_Log_In_User()
+		{
+			// Arrange
+			DBContexUtils.SeedDatabase(_appDbContext);
+			DBContexUtils.DeleteAppUser(_appDbContext);
+
+			var requestPayload = new
+			{
+				UserName = UserSettings.Username,
+				Password = UserSettings.UserPassword
+			};
+
+
+			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/login");
+			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
+
+			// Act
+			var response = await _httpClient.SendAsync(httpRequest);
+			var responseString = await response.Content.ReadAsStringAsync();
+
+			// Assert
+			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+
+			Assert.NotNull(jsonObject);
+
+			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
+			Assert.Equal("401 - UNAUTHORIZED", jsonObject["statusMessage"]);
+
+			Assert.Equal("Provided username and password combination is invalid", jsonObject["error"]?["message"]);
+
+			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
+
+			Assert.NotNull(dateTime);
+			Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
+			Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
+			Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
+		}
+
+		[Fact]
 		public async Task Login_Existing_With_Invalid_Password_Does_Not_Log_In_User()
 		{
 			// Arrange
@@ -509,6 +591,51 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
+
+			var requestPayload = new
+			{
+				AccessToken = userToken,
+				RefreshToken = Base64UrlEncoder.Encode(refreshToken)
+			};
+
+			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/refresh-token");
+			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
+
+			// Act
+			var response = await _httpClient.SendAsync(httpRequest);
+			var responseString = await response.Content.ReadAsStringAsync();
+
+			// Assert
+			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+
+			Assert.NotNull(jsonObject);
+
+			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
+			Assert.Equal("401 - UNAUTHORIZED", jsonObject["statusMessage"]);
+
+			Assert.Equal("Invalid refresh token provided", jsonObject["error"]?["message"]);
+
+			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
+
+			Assert.NotNull(dateTime);
+			Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
+			Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
+			Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
+		}
+
+		[Fact]
+		public async Task Refresh_User_Token_With_Deleted_Refresh_Token_Does_Not_Refresh_User_token()
+		{
+			// Arrange
+			DBContexUtils.SeedDatabase(_appDbContext);
+
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+
+			Assert.NotNull(userToken);
+			Assert.NotNull(refreshToken);
+
+			DBContexUtils.DeleteRefreshToken(_appDbContext);
 
 			var requestPayload = new
 			{
@@ -738,6 +865,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
 			Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
 		}
+
 
 		[Fact]
 		public async Task Confirm_Password_Token_With_Invalid_Payload_Returns_Validation_Results()
