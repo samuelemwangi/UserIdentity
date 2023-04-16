@@ -27,7 +27,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 	public class UserControllerTests : BaseControllerTests
 	{
 
-		private readonly static string _baseUri = "/api/v1/user";
+		private readonly static String _baseUri = "/api/v1/user";
 
 		public UserControllerTests(TestingWebAppFactory testingWebAppFactory, ITestOutputHelper outputHelper)
 				: base(testingWebAppFactory, outputHelper)

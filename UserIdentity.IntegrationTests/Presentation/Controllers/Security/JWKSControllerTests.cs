@@ -22,7 +22,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Security
 	public class JWKSControllerTests : BaseControllerTests
 	{
 
-		private readonly static string _baseUri = "/api/v1/JWKS/keys";
+		private readonly static String _baseUri = "/api/v1/JWKS/keys";
 
 		public JWKSControllerTests(TestingWebAppFactory testingWebAppFactory, ITestOutputHelper outputHelper)
 				: base(testingWebAppFactory, outputHelper)
