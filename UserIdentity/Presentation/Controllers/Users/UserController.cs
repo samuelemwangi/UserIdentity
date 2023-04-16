@@ -2,6 +2,7 @@
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using UserIdentity.Application.Core.Extensions;
 using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Tokens.Commands.ExchangeRefreshToken;
@@ -20,7 +21,7 @@ using UserIdentity.Presentation.Helpers.ValidationExceptions;
 
 namespace UserIdentity.Presentation.Controllers.Users
 {
-    [Authorize]
+	[Authorize]
 	[ValidateModel]
 	public class UserController : BaseController
 	{
@@ -152,7 +153,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 			else
 			{
 				updatePasswordVM.ResolveRequestStatus(RequestStatus.FAILED, ItemStatusMessage.FETCH_ITEM_FAILED, "Password update failed");
-				httpStatusCode= HttpStatusCode.NotAcceptable;
+				httpStatusCode = HttpStatusCode.NotAcceptable;
 			}
 			return StatusCode((Int32)httpStatusCode, updatePasswordVM);
 		}
