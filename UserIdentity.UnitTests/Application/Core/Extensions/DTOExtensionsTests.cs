@@ -23,9 +23,9 @@ namespace UserIdentity.UnitTests.Application.Core.Extensions
 
 			var testDTO = null as TestBaseEntityDTO;
 			var testDTO1 = new TestBaseEntityDTO();
-			var testDTO2 = new TestBaseEntityDTO {Id=id, CreatedBy = userId, LastModifiedBy = userId };
-			var testDTO3 = new TestBaseEntityDTO { Id=id,CreatedBy = userId, LastModifiedBy = otherUserId };
-			var testDTO4 = new TestBaseEntityDTO { Id=id,CreatedBy = otherUserId, LastModifiedBy = userId };
+			var testDTO2 = new TestBaseEntityDTO {Id=id, CreatedBy = userId, UpdatedBy = userId };
+			var testDTO3 = new TestBaseEntityDTO { Id=id,CreatedBy = userId, UpdatedBy = otherUserId };
+			var testDTO4 = new TestBaseEntityDTO { Id=id,CreatedBy = otherUserId, UpdatedBy = userId };
 
 
 			// Act & Assert

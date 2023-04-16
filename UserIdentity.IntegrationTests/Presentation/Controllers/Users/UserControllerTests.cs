@@ -69,7 +69,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			Assert.Equal(UserSettings.Username, userDetails?.UserName);
 			Assert.Equal(UserSettings.UserEmail, userDetails?.Email);
 			Assert.Equal(userDetails?.Id, userDetails?.CreatedBy);
-			Assert.Equal(userDetails?.Id, userDetails?.LastModifiedBy);
+			Assert.Equal(userDetails?.Id, userDetails?.UpdatedBy);
 		}
 
 		[Fact]
@@ -240,7 +240,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			Assert.Equal(requestPayload.Username, userDetails?.UserName);
 			Assert.Equal(requestPayload.UserEmail, userDetails?.Email);
 			Assert.Equal(userDetails?.Id, userDetails?.CreatedBy);
-			Assert.Equal(userDetails?.Id, userDetails?.LastModifiedBy);
+			Assert.Equal(userDetails?.Id, userDetails?.UpdatedBy);
 
 			var userToken = jsonObject["userToken"]?.ToObject<AccessTokenViewModel>();
 
@@ -319,18 +319,20 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 
 			Assert.NotNull(jsonObject);
 
-			_outputHelper.WriteLine(jsonObject + "");
-
 			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
 			Assert.Equal("Item(s) fetched successfully", jsonObject["statusMessage"]);
 
 			var userDetails = jsonObject["userDetails"]?.ToObject<UserDTO>();
 
+
+
+			_outputHelper.WriteLine(jsonObject + "");
+
 			Assert.Equal(UserSettings.FirstName + " " + UserSettings.LastName, userDetails?.FullName);
 			Assert.Equal(requestPayload.UserName, userDetails?.UserName);
 			Assert.Equal(UserSettings.UserEmail, userDetails?.Email);
 			Assert.Equal(userDetails?.Id, userDetails?.CreatedBy);
-			Assert.Equal(userDetails?.Id, userDetails?.LastModifiedBy);
+			Assert.Equal(userDetails?.Id, userDetails?.UpdatedBy);
 
 			var userToken = jsonObject["userToken"]?.ToObject<AccessTokenViewModel>();
 

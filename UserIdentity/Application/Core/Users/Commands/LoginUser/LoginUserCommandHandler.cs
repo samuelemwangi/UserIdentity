@@ -2,19 +2,22 @@
 using System.Security.Authentication;
 
 using Microsoft.AspNetCore.Identity;
+
+using UserIdentity.Application.Core.Extensions;
 using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Tokens.ViewModels;
 using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Application.Exceptions;
 using UserIdentity.Application.Interfaces.Security;
 using UserIdentity.Application.Interfaces.Utilities;
+using UserIdentity.Domain;
 using UserIdentity.Domain.Identity;
 using UserIdentity.Persistence.Repositories.RefreshTokens;
 using UserIdentity.Persistence.Repositories.Users;
 
 namespace UserIdentity.Application.Core.Users.Commands.LoginUser
 {
-    public record LoginUserCommand : BaseCommand
+	public record LoginUserCommand : BaseCommand
 	{
 		[Required]
 		public String? UserName { get; init; }
@@ -88,30 +91,31 @@ namespace UserIdentity.Application.Core.Users.Commands.LoginUser
 
 			var newRefreshToken = new RefreshToken
 			{
-				CreatedDate = _machineDateTime.Now,
 				Expires = _machineDateTime.Now.AddSeconds((long)expiresIn),
 				UserId = user.Id,
 				Token = refreshToken,
 			};
+
+			newRefreshToken.SetAuditFields(user.Id, _machineDateTime.Now);
 
 			Int32 createTokenResult = await _refreshTokenRepository.CreateRefreshTokenAsync(newRefreshToken);
 
 			if (createTokenResult < 1)
 				throw new RecordCreationException(refreshToken, "Refresh Token");
 
+			var userDTO = new UserDTO
+			{
+				Id = user.Id,
+				UserName = user.UserName,
+				FullName = appUserDetails.FirstName + " " + appUserDetails.LastName,
+				Email = user.Email,
+			};
+
+			userDTO.SetDTOAuditFields(appUserDetails, _machineDateTime.ResolveDate);
+
 			return new AuthUserViewModel
 			{
-				UserDetails = new UserDTO
-				{
-					Id = user.Id,
-					UserName = user.UserName,
-					FullName = appUserDetails.FirstName + " " + appUserDetails.LastName,
-					Email = user.Email,
-					CreatedBy = appUserDetails.CreatedBy,
-					CreatedDate = _machineDateTime.ResolveDate(appUserDetails.CreatedDate),
-					LastModifiedBy = user.Id,
-					LastModifiedDate = _machineDateTime.ResolveDate(appUserDetails.LastModifiedDate),
-				},
+				UserDetails = userDTO,
 				UserToken = new AccessTokenViewModel
 				{
 					AccessToken = new AccessTokenDTO { Token = token, ExpiresIn = expiresIn },

@@ -14,7 +14,7 @@ namespace UserIdentity.Application.Core.Extensions
 						 );
 		}
 
-		public static void SetDTOAuditFields(this BaseEntityDTO dto, BaseEntity entity, Func<DateTime?, String> resolveDateTime)
+		public static void SetDTOAuditFields(this BaseEntityDTO dto, BaseEntity entity, Func<DateTime?, String?> resolveDateTime)
 		{
 			dto.CreatedBy = entity.CreatedBy;
 			dto.CreatedAt = resolveDateTime(entity.CreatedAt);

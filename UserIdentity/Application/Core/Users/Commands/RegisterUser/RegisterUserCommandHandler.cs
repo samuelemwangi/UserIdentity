@@ -4,19 +4,22 @@ using System.Text;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
+
+using UserIdentity.Application.Core.Extensions;
 using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Tokens.ViewModels;
 using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Application.Exceptions;
 using UserIdentity.Application.Interfaces.Security;
 using UserIdentity.Application.Interfaces.Utilities;
+using UserIdentity.Domain;
 using UserIdentity.Domain.Identity;
 using UserIdentity.Persistence.Repositories.RefreshTokens;
 using UserIdentity.Persistence.Repositories.Users;
 
 namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 {
-    public record RegisterUserCommand : BaseCommand
+	public record RegisterUserCommand : BaseCommand
 	{
 		[Required]
 		public String? FirstName { get; init; }
@@ -83,7 +86,7 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 			// Check if default role is set in configs
 			String defaultRoleKey = _configuration.GetValue<String>("DefaultRole");
 
-            // Use env role if role is set in the env
+			// Use env role if role is set in the env
 			String defaultRole = _configuration.GetValue<String>(defaultRoleKey) ?? defaultRoleKey;
 
 			if (String.IsNullOrEmpty(defaultRole))
@@ -144,12 +147,10 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 				FirstName = command.FirstName,
 				LastName = command.LastName,
 				EmailConfirmationToken = confirmEmailToken,
-				CreatedBy = newUser.Id,
-				LastModifiedBy = newUser.Id,
-				CreatedDate = _machineDateTime.Now,
-				LastModifiedDate = _machineDateTime.Now,
 				IsDeleted = false
 			};
+
+			userDetails.SetAuditFields(newUser.Id, _machineDateTime.Now);
 
 
 			Int32 createUserResult = await _userRepository.CreateUserAsync(userDetails);
@@ -177,13 +178,10 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 			{
 				UserId = newUser.Id,
 				Expires = _machineDateTime.Now.AddSeconds(expiresIn),
-				Token = refreshToken,
-				CreatedBy = newUser.Id,
-				CreatedDate = _machineDateTime.Now,
-				LastModifiedBy = newUser.Id,
-				LastModifiedDate = _machineDateTime.Now,
-				IsDeleted = false
+				Token = refreshToken
 			};
+
+			userRefreshToken.SetAuditFields(newUser.Id, _machineDateTime.Now);
 
 
 			Int32 createTokenResult = await _refreshTokenRepository.CreateRefreshTokenAsync(userRefreshToken);
@@ -194,20 +192,20 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 			}
 
 
+			var userDTO = new UserDTO
+			{
+				Id = newUser.Id,
+				UserName = newUser.UserName,
+				FullName = userDetails.FirstName + " " + userDetails.LastName,
+				Email = newUser.Email
+			};
+
+			userDTO.SetDTOAuditFields(userDetails, _machineDateTime.ResolveDate);
+
 			// Return registration results
 			return new AuthUserViewModel
 			{
-				UserDetails = new UserDTO
-				{
-					Id = newUser.Id,
-					UserName = newUser.UserName,
-					FullName = userDetails.FirstName + " " + userDetails.LastName,
-					Email = newUser.Email,
-					CreatedBy = newUser.Id,
-					CreatedDate = _machineDateTime.ResolveDate(userDetails.CreatedDate),
-					LastModifiedBy = newUser.Id,
-					LastModifiedDate = _machineDateTime.ResolveDate(userDetails.LastModifiedDate),
-				},
+				UserDetails = userDTO,
 				UserToken = new AccessTokenViewModel
 				{
 					AccessToken = new AccessTokenDTO { Token = token, ExpiresIn = expiresIn },

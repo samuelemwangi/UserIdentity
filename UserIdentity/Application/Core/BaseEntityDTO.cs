@@ -3,9 +3,9 @@
 	public abstract record BaseEntityDTO
 	{
 		public Guid? Id { get; init; }
-		public string? CreatedBy { get; internal set; }
-		public string? CreatedAt { get; internal set; }
-		public string? UpdatedBy { get; internal set; }
-		public string? UpdatedAt { get; internal set; }
+		public String? CreatedBy { get; set; }
+		public String? CreatedAt { get; set; }
+		public String? UpdatedBy { get; set; }
+		public String? UpdatedAt { get; set; }
 	}
 }
