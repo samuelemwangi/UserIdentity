@@ -5,8 +5,7 @@ using System.Threading.Tasks;
 using FakeItEasy;
 
 using Microsoft.AspNetCore.Identity;
-
-using UserIdentity.Application.Core;
+using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Roles.Commands.CreateRole;
 using UserIdentity.Application.Core.Roles.Queries.GetRoles;
 using UserIdentity.Application.Core.Roles.ViewModels;
@@ -16,7 +15,7 @@ using Xunit;
 
 namespace UserIdentity.UnitTests.Application.Core.Roles.Commands
 {
-	public class CreateUserRoleCommandHandlerTests
+    public class CreateUserRoleCommandHandlerTests
     {
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<IdentityUser> _userManager;

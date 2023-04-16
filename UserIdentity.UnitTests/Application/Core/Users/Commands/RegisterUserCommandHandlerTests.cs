@@ -6,8 +6,7 @@ using FakeItEasy;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
-
-using UserIdentity.Application.Core;
+using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Users.Commands.RegisterUser;
 using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Application.Exceptions;
@@ -22,7 +21,7 @@ using Xunit;
 
 namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 {
-	public class RegisterUserCommandHandlerTests : IClassFixture<TestSettingsFixture>
+    public class RegisterUserCommandHandlerTests : IClassFixture<TestSettingsFixture>
 	{
 		private static String defaultRoleKey = "DefaultRole";
 

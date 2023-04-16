@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-
+using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Tokens.ViewModels;
 using UserIdentity.Application.Exceptions;
 using UserIdentity.Application.Interfaces.Security;
@@ -9,7 +9,7 @@ using UserIdentity.Persistence.Repositories.RefreshTokens;
 
 namespace UserIdentity.Application.Core.Tokens.Commands.ExchangeRefreshToken
 {
-	public record ExchangeRefreshTokenCommand : BaseCommand
+    public record ExchangeRefreshTokenCommand : BaseCommand
 	{
 		public String AccessToken { get; init; }
 		public String RefreshToken { get; init; }

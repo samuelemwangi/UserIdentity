@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity;
-
+using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Roles.ViewModels;
 using UserIdentity.Application.Exceptions;
 using UserIdentity.Application.Interfaces.Security;
 
 namespace UserIdentity.Application.Core.Roles.Queries.GetRoleClaims
 {
-	public record GetRoleClaimsQuery : BaseQuery
+    public record GetRoleClaimsQuery : BaseQuery
 	{
 		public String RoleId { get; init; }
 	}

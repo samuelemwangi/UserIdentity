@@ -2,7 +2,7 @@
 using System.Security.Authentication;
 
 using Microsoft.AspNetCore.Identity;
-
+using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Tokens.ViewModels;
 using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Application.Exceptions;
@@ -14,7 +14,7 @@ using UserIdentity.Persistence.Repositories.Users;
 
 namespace UserIdentity.Application.Core.Users.Commands.LoginUser
 {
-	public record LoginUserCommand : BaseCommand
+    public record LoginUserCommand : BaseCommand
 	{
 		[Required]
 		public String? UserName { get; init; }

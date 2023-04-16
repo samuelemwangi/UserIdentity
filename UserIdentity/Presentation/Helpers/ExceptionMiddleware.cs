@@ -3,15 +3,14 @@
 using System.Net;
 using System.Security.Authentication;
 using System.Text.Json;
-
-using UserIdentity.Application.Core;
 using UserIdentity.Application.Core.Errors.Queries.GerError;
 using UserIdentity.Application.Core.Errors.ViewModels;
+using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Exceptions;
 
 namespace UserIdentity.Presentation.Helpers
 {
-	public class ExceptionMiddleware
+    public class ExceptionMiddleware
 	{
 		private readonly RequestDelegate _next;
 		public ExceptionMiddleware(RequestDelegate requestDelegate)

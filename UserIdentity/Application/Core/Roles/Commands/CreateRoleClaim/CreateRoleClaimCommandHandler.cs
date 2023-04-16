@@ -1,14 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
 using Microsoft.AspNetCore.Identity;
-
+using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Roles.ViewModels;
 using UserIdentity.Application.Exceptions;
 using UserIdentity.Application.Interfaces.Security;
 
 namespace UserIdentity.Application.Core.Roles.Commands.CreateRoleClaim
 {
-	public record CreateRoleClaimCommand : BaseCommand
+    public record CreateRoleClaimCommand : BaseCommand
 	{
 		[Required]
 		public String RoleId { get; init; }

@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
-
+using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Application.Exceptions;
 using UserIdentity.Application.Interfaces.Utilities;
@@ -7,7 +7,7 @@ using UserIdentity.Persistence.Repositories.Users;
 
 namespace UserIdentity.Application.Core.Users.Queries.GetUser
 {
-	public record GetUserQuery : BaseQuery
+    public record GetUserQuery : BaseQuery
 	{
 		public String UserId { get; init; }
 	}

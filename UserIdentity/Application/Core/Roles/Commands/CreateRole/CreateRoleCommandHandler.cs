@@ -1,13 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
 using Microsoft.AspNetCore.Identity;
-
+using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Roles.ViewModels;
 using UserIdentity.Application.Exceptions;
 
 namespace UserIdentity.Application.Core.Roles.Commands.CreateRole
 {
-	public record CreateRoleCommand : BaseCommand
+    public record CreateRoleCommand : BaseCommand
 	{
 		[Required]
 		public String RoleName { get; init; }

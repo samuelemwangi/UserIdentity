@@ -5,8 +5,7 @@ using System.Threading.Tasks;
 using FakeItEasy;
 
 using Microsoft.AspNetCore.Mvc;
-
-using UserIdentity.Application.Core;
+using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Tokens.Commands.ExchangeRefreshToken;
 using UserIdentity.Application.Core.Tokens.ViewModels;
 using UserIdentity.Application.Core.Users.Commands.ConfirmUpdatePasswordToken;
@@ -23,7 +22,7 @@ using Xunit;
 
 namespace UserIdentity.UnitTests.Presentation.Controllers
 {
-	public class UserControllerTests
+    public class UserControllerTests
 	{
 		private readonly static String Controllername = "user";
 

@@ -4,14 +4,14 @@ using System.Text;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
-
+using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Application.Exceptions;
 using UserIdentity.Persistence.Repositories.Users;
 
 namespace UserIdentity.Application.Core.Users.Commands.ResetPassword
 {
-	public record ResetPasswordCommand : BaseCommand
+    public record ResetPasswordCommand : BaseCommand
 	{
 		[Required]
 		[EmailAddress]

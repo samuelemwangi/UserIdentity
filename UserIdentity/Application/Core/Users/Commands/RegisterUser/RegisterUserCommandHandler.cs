@@ -4,7 +4,7 @@ using System.Text;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
-
+using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Tokens.ViewModels;
 using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Application.Exceptions;
@@ -16,7 +16,7 @@ using UserIdentity.Persistence.Repositories.Users;
 
 namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 {
-	public record RegisterUserCommand : BaseCommand
+    public record RegisterUserCommand : BaseCommand
 	{
 		[Required]
 		public String? FirstName { get; init; }
