@@ -195,7 +195,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 			var command = GetRegisterUserCommand();
 			var defaultRoleIdentity = GetIdentityRole();
 			var identityUser = GetIdentityUser();
-			var userRoles = new List<string> { defaultRole };
+			var userRoles = new List<String> { defaultRole };
 			var userRoleClaims = new HashSet<String> { "claim1", "claim2" };
 
 			A.CallTo(() => _roleManager.FindByNameAsync(defaultRole)).Returns(defaultRoleIdentity);
@@ -236,7 +236,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 			var command = GetRegisterUserCommand();
 			var defaultRoleIdentity = GetIdentityRole();
 			var identityUser = GetIdentityUser();
-			var userRoles = new List<string> { defaultRole };
+			var userRoles = new List<String> { defaultRole };
 			var userRoleClaims = new HashSet<String> { "claim1", "claim2" };
 			var resfreshToken = "resfreshToken";
 

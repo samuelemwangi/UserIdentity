@@ -37,12 +37,12 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 
 			// Act
 			var result = actionResult as ObjectResult;
-			var kvp = result?.Value as Dictionary<string, IList<Dictionary<string, string>>>;
+			var kvp = result?.Value as Dictionary<String, IList<Dictionary<String, String>>>;
 
 
 			// Assert
 			Assert.NotNull(result);
-			Assert.IsType<Dictionary<string, IList<Dictionary<string, string>>>>(result?.Value);
+			Assert.IsType<Dictionary<String, IList<Dictionary<String, String>>>>(result?.Value);
 			Assert.NotNull(kvp?["keys"]);
 
 			Assert.Equal(kvp?["keys"]?[0]["alg"], _testSettings.Configuration.GetSection("KeySetOptions")["Alg"]);

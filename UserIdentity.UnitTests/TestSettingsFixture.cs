@@ -33,7 +33,7 @@ namespace UserIdentity.UnitTests
 
 		public Dictionary<String, String> GetProps()
 		{
-			Dictionary<String, String> props = new Dictionary<string, string>();
+			Dictionary<String, String> props = new Dictionary<String, String>();
 			String filePath = ".env";
 			if (!File.Exists(filePath))
 				return props;
