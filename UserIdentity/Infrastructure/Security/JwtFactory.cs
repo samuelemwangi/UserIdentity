@@ -87,7 +87,7 @@ namespace UserIdentity.Infrastructure.Security
 			return (scopeValues[0], scopeValues[1]);
 		}
 
-		private static ClaimsIdentity GenerateClaimsIdentity(string id, string userName)
+		private static ClaimsIdentity GenerateClaimsIdentity(String id, String userName)
 		{
 			return new ClaimsIdentity(new GenericIdentity(userName, "Token"), new[]
 							 {

@@ -7,7 +7,7 @@ namespace UserIdentity.Application.Core.Roles.Queries.GetRole
 {
     public record GetRoleQuery : BaseQuery
 	{
-		public string RoleId { get; init; }
+		public String RoleId { get; init; }
 	}
 
 	public class GetRoleQueryHandler : IGetItemQueryHandler<GetRoleQuery, RoleViewModel>

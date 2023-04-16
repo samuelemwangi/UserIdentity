@@ -8,7 +8,7 @@ namespace UserIdentity.Persistence
 {
 	public class AppDbContext : IdentityDbContext<IdentityUser>
 	{
-		private readonly string _entityKeyPrefix = "";
+		private readonly String _entityKeyPrefix = "";
 		public AppDbContext(DbContextOptions<AppDbContext> dbContextOptions) : base(dbContextOptions)
 		{
 

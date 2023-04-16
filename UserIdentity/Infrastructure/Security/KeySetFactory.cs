@@ -57,10 +57,10 @@ namespace UserIdentity.Infrastructure.Security
 			return new SymmetricSecurityKey(Encoding.ASCII.GetBytes(GetSecretKey()));
 		}
 
-		public string GetBase64URLEncodedSecretKey()
+		public String GetBase64URLEncodedSecretKey()
 		{
 
-			string secretKey = GetSecretKey();
+			String secretKey = GetSecretKey();
 
 			return Base64UrlEncoder.Encode(secretKey);
 		}
