@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 
+using UserIdentity.Application.Attributes;
 using UserIdentity.Application.Core.Extensions;
 using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Tokens.ViewModels;
@@ -29,8 +30,10 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 		[Required]
 		public String? UserName { get; init; }
 
+		[EitherOr(nameof(RegisterUserCommand.PhoneNumber), nameof(RegisterUserCommand.UserEmail))]
 		public String? PhoneNumber { get; init; }
 
+		[EitherOr(nameof(RegisterUserCommand.PhoneNumber), nameof(RegisterUserCommand.UserEmail))]
 		public String? UserEmail { get; init; }
 
 		[Required]

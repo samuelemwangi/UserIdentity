@@ -39,7 +39,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -124,7 +124,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			DBContexUtils.SeedAppUser(_appDbContext);
 			DBContexUtils.SeedRefreshToken(_appDbContext);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -150,7 +150,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -232,7 +232,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			DBContexUtils.SeedAppUser(_appDbContext);
 			DBContexUtils.SeedRefreshToken(_appDbContext);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -258,7 +258,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -304,7 +304,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -353,7 +353,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -465,7 +465,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 				RoleName = "newRole",
 			};
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -492,7 +492,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -539,7 +539,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -589,7 +589,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -702,7 +702,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 				RoleName = "UpdatedRole",
 			};
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -729,7 +729,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -761,7 +761,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			var nonExistentRuleId = Guid.NewGuid().ToString();
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -846,7 +846,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			DBContexUtils.SeedAppUser(_appDbContext);
 			DBContexUtils.SeedRefreshToken(_appDbContext);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -872,7 +872,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -911,7 +911,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			var nonExistentUserId = Guid.NewGuid().ToString();
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -996,7 +996,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			DBContexUtils.SeedAppUser(_appDbContext);
 			DBContexUtils.SeedRefreshToken(_appDbContext);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -1022,7 +1022,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -1072,7 +1072,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -1123,7 +1123,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -1240,7 +1240,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			};
 
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -1267,7 +1267,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -1321,7 +1321,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			Assert.True(createRoleClaimResult);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -1373,7 +1373,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -1494,7 +1494,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			};
 
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -1525,7 +1525,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			Assert.True(createRoleClaimResult);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -1564,7 +1564,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			var nonExistentRoleId = Guid.NewGuid().ToString();
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -1649,7 +1649,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			DBContexUtils.SeedAppUser(_appDbContext);
 			DBContexUtils.SeedRefreshToken(_appDbContext);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -1679,7 +1679,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			Assert.True(createRoleClaimResult);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -1722,7 +1722,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -1775,7 +1775,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -1896,7 +1896,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			};
 
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);

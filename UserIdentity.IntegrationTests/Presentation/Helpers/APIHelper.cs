@@ -13,12 +13,12 @@ namespace UserIdentity.IntegrationTests.Presentation.Helpers
 	{
 		public static String loginUrl = "/api/v1/user/login";
 
-		public static async Task<(String?, String?)> LoginUserAsync(this HttpClient httpClient, String username, String userPassword)
+		public static async Task<(String?, String?)> LoginUserAsync(this HttpClient httpClient, String userName, String userPassword)
 		{
 			// Arrange
 			var requestPayload = new
 			{
-				UserName = username,
+				UserName = userName,
 				Password = userPassword
 			};
 

@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 
 using Newtonsoft.Json.Linq;
@@ -40,7 +41,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			// Arrange
 			DBContexUtils.SeedDatabase(_appDbContext);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -66,7 +67,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			var userDetails = jsonObject["user"]?.ToObject<UserDTO>();
 
 			Assert.Equal(UserSettings.FirstName + " " + UserSettings.LastName, userDetails?.FullName);
-			Assert.Equal(UserSettings.Username, userDetails?.UserName);
+			Assert.Equal(UserSettings.UserName, userDetails?.UserName);
 			Assert.Equal(UserSettings.UserEmail, userDetails?.Email);
 			Assert.Equal(userDetails?.Id, userDetails?.CreatedBy);
 			Assert.Equal(userDetails?.Id, userDetails?.UpdatedBy);
@@ -78,8 +79,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			// Arrange
 			DBContexUtils.SeedDatabase(_appDbContext);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
-
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
+				
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
 
@@ -119,7 +120,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			// Arrange
 			DBContexUtils.SeedDatabase(_appDbContext);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			DBContexUtils.ClearAppUser(_appDbContext);
 
@@ -161,7 +162,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			// Arrange
 			DBContexUtils.SeedDatabase(_appDbContext);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			DBContexUtils.ClearAppUser(_appDbContext);
 
@@ -245,6 +246,52 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 		}
 
 		[Fact]
+		public async Task Register_User_With_Invalid_Request_Missing_Email_Phone_Number_Payload_Returns_Validation_Errors()
+		{
+			// Arrange
+			var requestPayload = new
+			{
+				UserSettings.FirstName,
+				UserSettings.UserName,
+				UserSettings.UserPassword
+			};
+
+			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/register");
+
+			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
+
+			// Act
+			var response = await _httpClient.SendAsync(httpRequest);
+			var responseString = await response.Content.ReadAsStringAsync();
+
+			// Assert
+			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+
+			Assert.NotNull(jsonObject);
+
+			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
+			Assert.Equal("400 - BAD REQUEST", jsonObject["statusMessage"]);
+
+			Assert.Equal("Validation Failed", jsonObject["error"]?["message"]);
+
+			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
+
+			Assert.NotNull(dateTime);
+			Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
+			Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
+			Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
+
+			var errorList = jsonObject["error"]?["errorList"]?.ToObject<List<ValidationError>>();
+
+			Assert.Equal(2, errorList?.Count);
+
+			Assert.True(errorList?.Any(x => x.Field == "UserEmail" && x.Message == "Either PhoneNumber or UserEmail must be provided.") ?? false);
+			Assert.True(errorList?.Any(x => x.Field == "PhoneNumber" && x.Message == "Either PhoneNumber or UserEmail must be provided.") ?? false);
+		}
+
+		[Fact]
 		public async Task Register_User_With_Valid_Request_Payload_Registers_User()
 		{
 			// Arrange
@@ -252,7 +299,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			{
 				UserSettings.FirstName,
 				UserSettings.LastName,
-				UserSettings.Username,
+				UserSettings.UserName,
 				UserSettings.PhoneNumber,
 				UserSettings.UserEmail,
 				UserSettings.UserPassword
@@ -280,7 +327,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			var userDetails = jsonObject["userDetails"]?.ToObject<UserDTO>();
 
 			Assert.Equal(requestPayload.FirstName + " " + requestPayload.LastName, userDetails?.FullName);
-			Assert.Equal(requestPayload.Username, userDetails?.UserName);
+			Assert.Equal(requestPayload.UserName, userDetails?.UserName);
 			Assert.Equal(requestPayload.UserEmail, userDetails?.Email);
 			Assert.Equal(userDetails?.Id, userDetails?.CreatedBy);
 			Assert.Equal(userDetails?.Id, userDetails?.UpdatedBy);
@@ -292,16 +339,21 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			Assert.Equal(_props["APP_VALID_FOR"], userToken.AccessToken.ExpiresIn + "");
 		}
 
-		[Fact]
-		public async Task Register_User_With_Only_Required_Request_Payload_Registers_User()
+		[Theory]
+		[InlineData("random@test.com", null)]
+		[InlineData("random@test.com", "")]
+		[InlineData(null, "712121212")]
+		[InlineData("", "712121212")]
+		public async Task Register_User_With_Only_Required_Request_Payload_Registers_User(String UserEmail, String PhoneNumber)
 		{
 			// Arrange
 			var requestPayload = new
 			{
 				UserSettings.FirstName,
-				UserSettings.Username,
-				UserSettings.UserPassword
-
+				UserSettings.UserName,
+				UserSettings.UserPassword,
+				UserEmail,
+				PhoneNumber
 			};
 
 			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/register");
@@ -310,6 +362,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			// Act
 			var response = await _httpClient.SendAsync(httpRequest);
 			var responseString = await response.Content.ReadAsStringAsync();
+			_outputHelper.WriteLine(responseString);
 
 			// Assert
 			Assert.Equal(HttpStatusCode.Created, response.StatusCode);
@@ -327,8 +380,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			_outputHelper.WriteLine(responseString);
 
 			Assert.Equal(requestPayload.FirstName, userDetails?.FullName);
-			Assert.Equal(requestPayload.Username, userDetails?.UserName);
-			Assert.Null(userDetails?.Email);
+			Assert.Equal(requestPayload.UserName, userDetails?.UserName);
+			Assert.Equal(UserEmail, userDetails?.Email);
 			Assert.Equal(userDetails?.Id, userDetails?.CreatedBy);
 			Assert.Equal(userDetails?.Id, userDetails?.UpdatedBy);
 
@@ -350,7 +403,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			{
 				UserSettings.FirstName,
 				UserSettings.LastName,
-				UserSettings.Username,
+				UserSettings.UserName,
 				UserSettings.PhoneNumber,
 				UserSettings.UserEmail,
 				UserSettings.UserPassword
@@ -373,7 +426,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
 			Assert.Equal("400 - BAD REQUEST", jsonObject["statusMessage"]);
 
-			Assert.Equal($"A record identified with - {requestPayload.Username} - exists", jsonObject["error"]?["message"]);
+			Assert.Equal($"A record identified with - {requestPayload.UserName} - exists", jsonObject["error"]?["message"]);
 
 			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
 
@@ -391,7 +444,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 
 			var requestPayload = new
 			{
-				UserName = UserSettings.Username,
+				UserName = UserSettings.UserName,
 				Password = UserSettings.UserPassword
 			};
 
@@ -433,7 +486,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			// Arrange
 			var requestPayload = new
 			{
-				UserName = UserSettings.Username,
+				UserName = UserSettings.UserName,
 				Password = UserSettings.UserPassword
 			};
 
@@ -454,7 +507,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
 			Assert.Equal("401 - UNAUTHORIZED", jsonObject["statusMessage"]);
 
-			Assert.Equal("Provided username and password combination is invalid", jsonObject["error"]?["message"]);
+			Assert.Equal("Provided credentials are invalid", jsonObject["error"]?["message"]);
 
 			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
 
@@ -473,7 +526,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 
 			var requestPayload = new
 			{
-				UserName = UserSettings.Username,
+				UserName = UserSettings.UserName,
 				Password = UserSettings.UserPassword
 			};
 
@@ -494,7 +547,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
 			Assert.Equal("401 - UNAUTHORIZED", jsonObject["statusMessage"]);
 
-			Assert.Equal("Provided username and password combination is invalid", jsonObject["error"]?["message"]);
+			Assert.Equal("Provided credentials are invalid", jsonObject["error"]?["message"]);
 
 			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
 
@@ -513,7 +566,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 
 			var requestPayload = new
 			{
-				UserName = UserSettings.Username,
+				UserName = UserSettings.UserName,
 				Password = UserSettings.UserPassword
 			};
 
@@ -534,7 +587,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
 			Assert.Equal("401 - UNAUTHORIZED", jsonObject["statusMessage"]);
 
-			Assert.Equal("Provided username and password combination is invalid", jsonObject["error"]?["message"]);
+			Assert.Equal("Provided credentials are invalid", jsonObject["error"]?["message"]);
 
 			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
 
@@ -552,7 +605,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 
 			var requestPayload = new
 			{
-				UserName = UserSettings.Username,
+				UserName = UserSettings.UserName,
 				Password = UserSettings.UserPassword + "123"
 			};
 
@@ -573,7 +626,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
 			Assert.Equal("401 - UNAUTHORIZED", jsonObject["statusMessage"]);
 
-			Assert.Equal("Provided username and password combination is invalid", jsonObject["error"]?["message"]);
+			Assert.Equal("Provided credentials are invalid", jsonObject["error"]?["message"]);
 
 			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
 
@@ -589,7 +642,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			// Arrange
 			DBContexUtils.SeedDatabase(_appDbContext);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -634,7 +687,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			// Arrange
 			DBContexUtils.SeedDatabase(_appDbContext);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -677,7 +730,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			// Arrange
 			DBContexUtils.SeedDatabase(_appDbContext);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
@@ -722,7 +775,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			// Arrange
 			DBContexUtils.SeedDatabase(_appDbContext);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.Username, UserSettings.UserPassword);
+			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
