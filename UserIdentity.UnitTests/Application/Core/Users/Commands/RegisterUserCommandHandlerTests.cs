@@ -92,7 +92,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 			var identityUser = GetIdentityUser();
 
 			A.CallTo(() => _roleManager.FindByNameAsync(defaultRole)).Returns(defaultRoleIdentity);
-			A.CallTo(() => _userManager.FindByNameAsync(command.Username)).Returns(identityUser);
+			A.CallTo(() => _userManager.FindByNameAsync(command.UserName)).Returns(identityUser);
 
 			var handler = GetRegisterUserCommandHandler();
 
@@ -110,7 +110,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 			var identityUser = GetIdentityUser();
 
 			A.CallTo(() => _roleManager.FindByNameAsync(defaultRole)).Returns(defaultRoleIdentity);
-			A.CallTo(() => _userManager.FindByNameAsync(command.Username)).Returns(default(IdentityUser));
+			A.CallTo(() => _userManager.FindByNameAsync(command.UserName)).Returns(default(IdentityUser));
 			A.CallTo(() => _userManager.FindByEmailAsync(command.UserEmail)).Returns(identityUser);
 
 			var handler = GetRegisterUserCommandHandler();
@@ -128,10 +128,10 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 			var defaultRoleIdentity = GetIdentityRole();
 
 			A.CallTo(() => _roleManager.FindByNameAsync(defaultRole)).Returns(defaultRoleIdentity);
-			A.CallTo(() => _userManager.FindByNameAsync(command.Username)).Returns(default(IdentityUser));
+			A.CallTo(() => _userManager.FindByNameAsync(command.UserName)).Returns(default(IdentityUser));
 			A.CallTo(() => _userManager.FindByEmailAsync(command.UserEmail)).Returns(default(IdentityUser));
 
-			A.CallTo(() => _userManager.CreateAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.Username), command.UserPassword)).Returns(IdentityResult.Failed());
+			A.CallTo(() => _userManager.CreateAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName), command.UserPassword)).Returns(IdentityResult.Failed());
 
 			var handler = GetRegisterUserCommandHandler();
 
@@ -149,11 +149,11 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 			var identityUser = GetIdentityUser();
 
 			A.CallTo(() => _roleManager.FindByNameAsync(defaultRole)).Returns(defaultRoleIdentity);
-			A.CallTo(() => _userManager.FindByNameAsync(command.Username)).Returns(default(IdentityUser));
+			A.CallTo(() => _userManager.FindByNameAsync(command.UserName)).Returns(default(IdentityUser));
 			A.CallTo(() => _userManager.FindByEmailAsync(command.UserEmail)).Returns(default(IdentityUser));
 
-			A.CallTo(() => _userManager.CreateAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.Username), command.UserPassword)).Returns(IdentityResult.Success);
-			A.CallTo(() => _userManager.AddToRoleAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.Username), defaultRole)).Returns(IdentityResult.Failed());
+			A.CallTo(() => _userManager.CreateAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName), command.UserPassword)).Returns(IdentityResult.Success);
+			A.CallTo(() => _userManager.AddToRoleAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName), defaultRole)).Returns(IdentityResult.Failed());
 
 			var handler = GetRegisterUserCommandHandler();
 
@@ -171,13 +171,13 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 			var identityUser = GetIdentityUser();
 
 			A.CallTo(() => _roleManager.FindByNameAsync(defaultRole)).Returns(defaultRoleIdentity);
-			A.CallTo(() => _userManager.FindByNameAsync(command.Username)).Returns(default(IdentityUser));
+			A.CallTo(() => _userManager.FindByNameAsync(command.UserName)).Returns(default(IdentityUser));
 			A.CallTo(() => _userManager.FindByEmailAsync(command.UserEmail)).Returns(default(IdentityUser));
 
-			A.CallTo(() => _userManager.CreateAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.Username), command.UserPassword)).Returns(IdentityResult.Success);
-			A.CallTo(() => _userManager.AddToRoleAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.Username), defaultRole)).Returns(IdentityResult.Success);
+			A.CallTo(() => _userManager.CreateAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName), command.UserPassword)).Returns(IdentityResult.Success);
+			A.CallTo(() => _userManager.AddToRoleAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName), defaultRole)).Returns(IdentityResult.Success);
 
-			A.CallTo(() => _userManager.GenerateEmailConfirmationTokenAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.Username))).Returns("token");
+			A.CallTo(() => _userManager.GenerateEmailConfirmationTokenAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName))).Returns("token");
 
 			A.CallTo(() => _userRepository.CreateUserAsync(A<User>.That.Matches(x => x.FirstName == command.FirstName))).Returns(Task.FromResult(0));
 
@@ -199,17 +199,17 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 			var userRoleClaims = new HashSet<String> { "claim1", "claim2" };
 
 			A.CallTo(() => _roleManager.FindByNameAsync(defaultRole)).Returns(defaultRoleIdentity);
-			A.CallTo(() => _userManager.FindByNameAsync(command.Username)).Returns(default(IdentityUser));
+			A.CallTo(() => _userManager.FindByNameAsync(command.UserName)).Returns(default(IdentityUser));
 			A.CallTo(() => _userManager.FindByEmailAsync(command.UserEmail)).Returns(default(IdentityUser));
 
-			A.CallTo(() => _userManager.CreateAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.Username), command.UserPassword)).Returns(IdentityResult.Success);
-			A.CallTo(() => _userManager.AddToRoleAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.Username), defaultRole)).Returns(IdentityResult.Success);
+			A.CallTo(() => _userManager.CreateAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName), command.UserPassword)).Returns(IdentityResult.Success);
+			A.CallTo(() => _userManager.AddToRoleAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName), defaultRole)).Returns(IdentityResult.Success);
 
-			A.CallTo(() => _userManager.GenerateEmailConfirmationTokenAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.Username))).Returns("token");
+			A.CallTo(() => _userManager.GenerateEmailConfirmationTokenAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName))).Returns("token");
 
 			A.CallTo(() => _userRepository.CreateUserAsync(A<User>.That.Matches(x => x.FirstName == command.FirstName))).Returns(Task.FromResult(1));
 
-			A.CallTo(() => _userManager.GetRolesAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.Username))).Returns(userRoles);
+			A.CallTo(() => _userManager.GetRolesAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName))).Returns(userRoles);
 
 			A.CallTo(() => _getRoleClaimsQueryHandler.GetItemsAsync(A<List<String>>.That.Contains(defaultRole))).Returns(Task.FromResult(userRoleClaims));
 
@@ -241,17 +241,71 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 			var resfreshToken = "resfreshToken";
 
 			A.CallTo(() => _roleManager.FindByNameAsync(defaultRole)).Returns(defaultRoleIdentity);
-			A.CallTo(() => _userManager.FindByNameAsync(command.Username)).Returns(default(IdentityUser));
+			A.CallTo(() => _userManager.FindByNameAsync(command.UserName)).Returns(default(IdentityUser));
 			A.CallTo(() => _userManager.FindByEmailAsync(command.UserEmail)).Returns(default(IdentityUser));
 
-			A.CallTo(() => _userManager.CreateAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.Username), command.UserPassword)).Returns(IdentityResult.Success);
-			A.CallTo(() => _userManager.AddToRoleAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.Username), defaultRole)).Returns(IdentityResult.Success);
+			A.CallTo(() => _userManager.CreateAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName), command.UserPassword)).Returns(IdentityResult.Success);
+			A.CallTo(() => _userManager.AddToRoleAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName), defaultRole)).Returns(IdentityResult.Success);
 
-			A.CallTo(() => _userManager.GenerateEmailConfirmationTokenAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.Username))).Returns("token");
+			A.CallTo(() => _userManager.GenerateEmailConfirmationTokenAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName))).Returns("token");
 
 			A.CallTo(() => _userRepository.CreateUserAsync(A<User>.That.Matches(x => x.FirstName == command.FirstName))).Returns(Task.FromResult(1));
 
-			A.CallTo(() => _userManager.GetRolesAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.Username))).Returns(userRoles);
+			A.CallTo(() => _userManager.GetRolesAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName))).Returns(userRoles);
+
+			A.CallTo(() => _getRoleClaimsQueryHandler.GetItemsAsync(A<List<String>>.That.Contains(defaultRole))).Returns(Task.FromResult(userRoleClaims));
+
+			A.CallTo(() => _jwtFactory.GenerateEncodedTokenAsync(identityUser.Id, identityUser.UserName + "", userRoles, userRoleClaims)).Returns(Task.FromResult(("token", 2)));
+
+			A.CallTo(() => _tokenFactory.GenerateRefreshToken(32)).Returns(resfreshToken);
+
+			A.CallTo(() => _refreshTokenRepository.CreateRefreshTokenAsync(A<RefreshToken>.That.Matches(x => x.Token == resfreshToken))).Returns(Task.FromResult(1));
+
+			var handler = GetRegisterUserCommandHandler();
+
+			// Act 
+			var vm = await handler.CreateItemAsync(command);
+
+			// Assert
+			Assert.IsType<AuthUserViewModel>(vm);
+			Assert.NotNull(vm.UserDetails);
+			Assert.NotNull(vm.UserToken);
+			Assert.NotNull(vm.UserToken?.AccessToken);
+			Assert.NotNull(vm.UserToken?.RefreshToken);
+			Assert.Equal(resfreshToken, vm.UserToken?.RefreshToken);
+		}
+
+		[Fact]
+		public async Task Create_User_With_Valid_User_Datails_With_Null_Email_Creates_Valid_User()
+		{
+			// Arrange
+			var defaultRole = _testSettings.Configuration.GetValue<String>(defaultRoleKey);
+			defaultRole = _testSettings.Configuration.GetValue<String>(defaultRole) ?? defaultRole;
+
+			var command = GetRegisterUserCommand() with { UserEmail = null};
+
+			var defaultRoleIdentity = GetIdentityRole();
+
+			var identityUser = GetIdentityUser();
+			identityUser.Email = null;
+			identityUser.NormalizedEmail = null;
+
+			var userRoles = new List<String> { defaultRole };
+			var userRoleClaims = new HashSet<String> { "claim1", "claim2" };
+			var resfreshToken = "resfreshToken";
+
+			A.CallTo(() => _roleManager.FindByNameAsync(defaultRole)).Returns(defaultRoleIdentity);
+			A.CallTo(() => _userManager.FindByNameAsync(command.UserName)).Returns(default(IdentityUser));
+			A.CallTo(() => _userManager.FindByEmailAsync(command.UserEmail)).Returns(default(IdentityUser));
+
+			A.CallTo(() => _userManager.CreateAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName), command.UserPassword)).Returns(IdentityResult.Success);
+			A.CallTo(() => _userManager.AddToRoleAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName), defaultRole)).Returns(IdentityResult.Success);
+
+			A.CallTo(() => _userManager.GenerateEmailConfirmationTokenAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName))).Returns("token");
+
+			A.CallTo(() => _userRepository.CreateUserAsync(A<User>.That.Matches(x => x.FirstName == command.FirstName))).Returns(Task.FromResult(1));
+
+			A.CallTo(() => _userManager.GetRolesAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName))).Returns(userRoles);
 
 			A.CallTo(() => _getRoleClaimsQueryHandler.GetItemsAsync(A<List<String>>.That.Contains(defaultRole))).Returns(Task.FromResult(userRoleClaims));
 
@@ -301,7 +355,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 			{
 				FirstName = "FName",
 				LastName = "LName",
-				Username = "UName",
+				UserName = "UName",
 				PhoneNumber = "1234567890",
 				UserEmail = "test@email.com",
 				UserPassword = "Password@123"
@@ -327,8 +381,8 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 				return new IdentityUser
 				{
 					Id = "1",
-					UserName = command.Username,
-					NormalizedUserName = command?.Username?.ToUpper(),
+					UserName = command.UserName,
+					NormalizedUserName = command?.UserName?.ToUpper(),
 					Email = command?.UserEmail,
 					NormalizedEmail = command?.UserEmail?.ToUpper(),
 					PhoneNumber = command?.PhoneNumber,

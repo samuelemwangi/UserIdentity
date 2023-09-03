@@ -107,7 +107,7 @@ namespace UserIdentity.Application.Core.Users.Commands.LoginUser
 			{
 				Id = user.Id,
 				UserName = user.UserName,
-				FullName = appUserDetails.FirstName + " " + appUserDetails.LastName,
+				FullName = (appUserDetails.FirstName + " " + appUserDetails.LastName).Trim(),
 				Email = user.Email,
 			};
 
