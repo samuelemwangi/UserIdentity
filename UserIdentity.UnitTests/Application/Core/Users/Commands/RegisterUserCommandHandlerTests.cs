@@ -275,20 +275,25 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 			Assert.Equal(resfreshToken, vm.UserToken?.RefreshToken);
 		}
 
-		[Fact]
-		public async Task Create_User_With_Valid_User_Datails_With_Null_Email_Creates_Valid_User()
+		[Theory]
+		[InlineData("random@test.com", null)]
+		[InlineData("random@test.com", "")]
+		[InlineData(null, "712121212")]
+		[InlineData("", "712121212")]
+		public async Task Create_User_With_All_Required_Details_Creates_Valid_User(String? UserEmail, String? PhoneNumber)
 		{
 			// Arrange
 			var defaultRole = _testSettings.Configuration.GetValue<String>(defaultRoleKey);
 			defaultRole = _testSettings.Configuration.GetValue<String>(defaultRole) ?? defaultRole;
 
-			var command = GetRegisterUserCommand() with { UserEmail = null};
+			var command = GetRegisterUserCommand() with { UserEmail = UserEmail, PhoneNumber = PhoneNumber};
 
 			var defaultRoleIdentity = GetIdentityRole();
 
 			var identityUser = GetIdentityUser();
-			identityUser.Email = null;
-			identityUser.NormalizedEmail = null;
+			identityUser.Email = UserEmail;
+			identityUser.NormalizedEmail = UserEmail?.ToUpper();
+			identityUser.PhoneNumber = PhoneNumber;			
 
 			var userRoles = new List<String> { defaultRole };
 			var userRoleClaims = new HashSet<String> { "claim1", "claim2" };

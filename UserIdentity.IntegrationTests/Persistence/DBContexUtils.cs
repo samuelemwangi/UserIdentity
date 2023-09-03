@@ -21,13 +21,13 @@ namespace UserIdentity.IntegrationTests.Persistence
 		{
 			var user = new IdentityUser
 			{
-				UserName = UserSettings.Username,
+				UserName = UserSettings.UserName,
 				PhoneNumber = UserSettings.PhoneNumber,
 				Id = UserSettings.UserId.ToString(),
 				Email = UserSettings.UserEmail,
 				EmailConfirmed = true,
 				NormalizedEmail = UserSettings.UserEmail.ToUpper(),
-				NormalizedUserName = UserSettings.Username.ToUpper(),
+				NormalizedUserName = UserSettings.UserName.ToUpper(),
 				ConcurrencyStamp = DateTime.Now.Ticks.ToString(),
 			};
 
