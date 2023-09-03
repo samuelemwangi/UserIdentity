@@ -125,7 +125,7 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 				String errors = String.Join(" ", identityResult.Errors.Select(e => e.Description));
 
 				_logHelper.LogEvent(errors, LogLevel.Error);
-				throw new RecordCreationException(newUser.Id, "User");
+				throw new RecordCreationException(errors);
 			}
 
 			// User vs Default Role
