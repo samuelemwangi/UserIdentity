@@ -27,12 +27,13 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 		public String? LastName { get; init; }
 
 		[Required]
-		public String? Username { get; init; }
+		public String? UserName { get; init; }
 
 		public String? PhoneNumber { get; init; }
 
 		public String? UserEmail { get; init; }
 
+		[Required]
 		public String? UserPassword { get; init; }
 	}
 
@@ -93,28 +94,22 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 				throw new IllegalEventException("Reading Default Role", "Role");
 
 			//  Check if default is created otherwise create 
-			var defaultRoleDetails = await _roleManager.FindByNameAsync(defaultRole);
-			if (defaultRoleDetails == null)
-			{
-				var createdRoleResult = await _roleManager.CreateAsync(new IdentityRole { Name = defaultRole });
-				if (!createdRoleResult.Succeeded)
+			if (await _roleManager.FindByNameAsync(defaultRole) == null)
+				if (!(await _roleManager.CreateAsync(new IdentityRole { Name = defaultRole })).Succeeded)
 					throw new RecordCreationException(defaultRole, "Role");
-			}
 
 			// Check if user exists by user name, throw RecordExistsException 
-			var existingUserByUserName = await _userManager.FindByNameAsync(command.Username);
-			if (existingUserByUserName != null)
-				throw new RecordExistsException(command.Username + "", "User");
+			if (await _userManager.FindByNameAsync(command.UserName) != null)
+				throw new RecordExistsException(command.UserName + "", "User");
 
-			// Check if user exists by user name, throw RecordExistsException
-			var existingUserByEmail = await _userManager.FindByEmailAsync(command.UserEmail);
-			if (existingUserByEmail != null)
+			// Check if user exists by user email, throw RecordExistsException
+			if (command.UserEmail != null && (await _userManager.FindByEmailAsync(command.UserEmail) != null))
 				throw new RecordExistsException(command.UserEmail + "", "User");
 
 			var newUser = new IdentityUser
 			{
 				Email = command.UserEmail,
-				UserName = command.Username,
+				UserName = command.UserName,
 				PhoneNumber = command.PhoneNumber,
 				PhoneNumberConfirmed = false,
 				EmailConfirmed = false
@@ -156,9 +151,7 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 			Int32 createUserResult = await _userRepository.CreateUserAsync(userDetails);
 
 			if (createUserResult < 1)
-			{
 				throw new RecordCreationException(newUser.Id, "User");
-			}
 
 
 			// Get User Roles 
@@ -187,16 +180,14 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 			Int32 createTokenResult = await _refreshTokenRepository.CreateRefreshTokenAsync(userRefreshToken);
 
 			if (createTokenResult < 1)
-			{
 				throw new RecordCreationException(refreshToken, $"Refresh Token {userRefreshToken.UserId}");
-			}
 
 
 			var userDTO = new UserDTO
 			{
 				Id = newUser.Id,
 				UserName = newUser.UserName,
-				FullName = userDetails.FirstName + " " + userDetails.LastName,
+				FullName = (userDetails.FirstName + " " + userDetails.LastName).Trim(),
 				Email = newUser.Email
 			};
 

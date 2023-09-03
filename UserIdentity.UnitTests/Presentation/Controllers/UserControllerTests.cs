@@ -96,7 +96,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 
 			var refreshToken = "abmsmmsrefreshToken";
 
-			var command = new RegisterUserCommand { FirstName = userFName, LastName = userLName, Username = username, UserEmail = userEmail, UserPassword = userPassword };
+			var command = new RegisterUserCommand { FirstName = userFName, LastName = userLName, UserName = username, UserEmail = userEmail, UserPassword = userPassword };
 
 			var authVM = new AuthUserViewModel { UserDetails = new UserDTO { Id = userId, FullName = userFName + userLName, UserName = username, Email = userEmail }, UserToken = new AccessTokenViewModel { RefreshToken = refreshToken } };
 

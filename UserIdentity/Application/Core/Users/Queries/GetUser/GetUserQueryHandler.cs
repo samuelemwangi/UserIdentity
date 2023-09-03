@@ -47,9 +47,11 @@ namespace UserIdentity.Application.Core.Users.Queries.GetUser
 			{
 				Id = user.Id,
 				UserName = user != null ? user.UserName : "",
-				FullName = userDetails.FirstName + " " + userDetails.LastName,
+				FullName = (userDetails.FirstName + " " + userDetails.LastName).Trim(),
 				Email = user != null ? user.Email : "",
 			};
+
+			userDTO.FullName.Trim();
 
 			userDTO.SetDTOAuditFields(userDetails, _machineDateTime.ResolveDate);
 

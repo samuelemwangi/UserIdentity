@@ -205,8 +205,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			{
 				UserSettings.LastName,
 				UserSettings.PhoneNumber,
-				UserSettings.UserEmail,
-				UserSettings.UserPassword,
+				UserSettings.UserEmail
 			};
 
 			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/register");
@@ -238,10 +237,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 
 			var errorList = jsonObject["error"]?["errorList"]?.ToObject<List<ValidationError>>();
 
-			Assert.Equal(2, errorList?.Count);
+			Assert.Equal(3, errorList?.Count);
 
 			Assert.True(errorList?.Any(x => x.Field == "FirstName" && x.Message == "The FirstName field is required.") ?? false);
-			Assert.True(errorList?.Any(x => x.Field == "Username" && x.Message == "The Username field is required.") ?? false);
+			Assert.True(errorList?.Any(x => x.Field == "UserName" && x.Message == "The UserName field is required.") ?? false);
+			Assert.True(errorList?.Any(x => x.Field == "UserPassword" && x.Message == "The UserPassword field is required.") ?? false);
 		}
 
 		[Fact]
@@ -282,6 +282,53 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			Assert.Equal(requestPayload.FirstName + " " + requestPayload.LastName, userDetails?.FullName);
 			Assert.Equal(requestPayload.Username, userDetails?.UserName);
 			Assert.Equal(requestPayload.UserEmail, userDetails?.Email);
+			Assert.Equal(userDetails?.Id, userDetails?.CreatedBy);
+			Assert.Equal(userDetails?.Id, userDetails?.UpdatedBy);
+
+			var userToken = jsonObject["userToken"]?.ToObject<AccessTokenViewModel>();
+
+			Assert.NotNull(userToken);
+			Assert.IsType<AccessTokenDTO>(userToken.AccessToken);
+			Assert.Equal(_props["APP_VALID_FOR"], userToken.AccessToken.ExpiresIn + "");
+		}
+
+		[Fact]
+		public async Task Register_User_With_Only_Required_Request_Payload_Registers_User()
+		{
+			// Arrange
+			var requestPayload = new
+			{
+				UserSettings.FirstName,
+				UserSettings.Username,
+				UserSettings.UserPassword
+
+			};
+
+			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/register");
+			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
+
+			// Act
+			var response = await _httpClient.SendAsync(httpRequest);
+			var responseString = await response.Content.ReadAsStringAsync();
+
+			// Assert
+			Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+
+			Assert.NotNull(jsonObject);
+
+
+			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
+			Assert.Equal("Item created successfully", jsonObject["statusMessage"]);
+
+			var userDetails = jsonObject["userDetails"]?.ToObject<UserDTO>();
+
+			_outputHelper.WriteLine(responseString);
+
+			Assert.Equal(requestPayload.FirstName, userDetails?.FullName);
+			Assert.Equal(requestPayload.Username, userDetails?.UserName);
+			Assert.Null(userDetails?.Email);
 			Assert.Equal(userDetails?.Id, userDetails?.CreatedBy);
 			Assert.Equal(userDetails?.Id, userDetails?.UpdatedBy);
 
