@@ -507,7 +507,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
 			Assert.Equal("401 - UNAUTHORIZED", jsonObject["statusMessage"]);
 
-			Assert.Equal("Provided username and password combination is invalid", jsonObject["error"]?["message"]);
+			Assert.Equal("Provided credentials are invalid", jsonObject["error"]?["message"]);
 
 			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
 
@@ -547,7 +547,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
 			Assert.Equal("401 - UNAUTHORIZED", jsonObject["statusMessage"]);
 
-			Assert.Equal("Provided username and password combination is invalid", jsonObject["error"]?["message"]);
+			Assert.Equal("Provided credentials are invalid", jsonObject["error"]?["message"]);
 
 			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
 
@@ -587,7 +587,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
 			Assert.Equal("401 - UNAUTHORIZED", jsonObject["statusMessage"]);
 
-			Assert.Equal("Provided username and password combination is invalid", jsonObject["error"]?["message"]);
+			Assert.Equal("Provided credentials are invalid", jsonObject["error"]?["message"]);
 
 			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
 
@@ -626,7 +626,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
 			Assert.Equal("401 - UNAUTHORIZED", jsonObject["statusMessage"]);
 
-			Assert.Equal("Provided username and password combination is invalid", jsonObject["error"]?["message"]);
+			Assert.Equal("Provided credentials are invalid", jsonObject["error"]?["message"]);
 
 			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
 

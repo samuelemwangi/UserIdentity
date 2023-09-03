@@ -77,7 +77,7 @@ namespace UserIdentity.Presentation.Helpers
 			}
 			else if (typeof(InvalidCredentialException).IsInstanceOfType(exception))
 			{
-				errorMessage = "Provided username and password combination is invalid";
+				errorMessage = "Provided credentials are invalid";
 				statusCode = HttpStatusCode.Unauthorized;
 			}
 			else

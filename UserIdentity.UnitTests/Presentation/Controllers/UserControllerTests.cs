@@ -53,10 +53,10 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var userId = Guid.NewGuid().ToString();
 			var userFName = "Test";
 			var userLName = "User";
-			var username = "test.user";
-			var userEmail = username + "@test.com";
+			var userName = "test.user";
+			var userEmail = userName + "@test.com";
 			var getUserQuery = new GetUserQuery { UserId = userId };
-			var userVM = new UserViewModel { User = new UserDTO { Id = userId, FullName = userFName + userLName, UserName = username, Email = userEmail } };
+			var userVM = new UserViewModel { User = new UserDTO { Id = userId, FullName = userFName + userLName, UserName = userName, Email = userEmail } };
 
 			// Act
 			A.CallTo(() => _getUserQueryHandler.GetItemAsync(getUserQuery)).Returns(userVM);
@@ -73,7 +73,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			Assert.NotNull(vm);
 			Assert.Equal(userId, vm?.User?.Id);
 			Assert.Equal(userFName + userLName, vm?.User?.FullName);
-			Assert.Equal(username, vm?.User?.UserName);
+			Assert.Equal(userName, vm?.User?.UserName);
 			Assert.Equal(userEmail, vm?.User?.Email);
 
 			Assert.False(vm?.EditEnabled);
@@ -90,15 +90,15 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var userId = Guid.NewGuid().ToString();
 			var userFName = "Test";
 			var userLName = "User";
-			var username = "test.user";
-			var userEmail = username + "@test.com";
+			var userName = "test.user";
+			var userEmail = userName + "@test.com";
 			var userPassword = "testPassword";
 
 			var refreshToken = "abmsmmsrefreshToken";
 
-			var command = new RegisterUserCommand { FirstName = userFName, LastName = userLName, UserName = username, UserEmail = userEmail, UserPassword = userPassword };
+			var command = new RegisterUserCommand { FirstName = userFName, LastName = userLName, UserName = userName, UserEmail = userEmail, UserPassword = userPassword };
 
-			var authVM = new AuthUserViewModel { UserDetails = new UserDTO { Id = userId, FullName = userFName + userLName, UserName = username, Email = userEmail }, UserToken = new AccessTokenViewModel { RefreshToken = refreshToken } };
+			var authVM = new AuthUserViewModel { UserDetails = new UserDTO { Id = userId, FullName = userFName + userLName, UserName = userName, Email = userEmail }, UserToken = new AccessTokenViewModel { RefreshToken = refreshToken } };
 
 			// Act
 			A.CallTo(() => _registerUserCommandHandler.CreateItemAsync(command)).Returns(authVM);
@@ -115,7 +115,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			Assert.NotNull(vm);
 			Assert.Equal(userId, vm?.UserDetails?.Id);
 			Assert.Equal(userFName + userLName, vm?.UserDetails?.FullName);
-			Assert.Equal(username, vm?.UserDetails?.UserName);
+			Assert.Equal(userName, vm?.UserDetails?.UserName);
 			Assert.Equal(userEmail, vm?.UserDetails?.Email);
 
 
@@ -132,19 +132,19 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 		public async Task Login_User_Should_Login_User()
 		{
 			// Arrange
-			var username = "test.user";
+			var userName = "test.user";
 			var userPassword = "-test.user*1+";
 
 			var userId = Guid.NewGuid().ToString();
 			var userFName = "Test";
 			var userLName = "User";
-			var userEmail = username + "@test.com";
+			var userEmail = userName + "@test.com";
 
 			var refreshToken = "abmsmmsrefreshToken";
 			var loginMessage = "Login successful";
 
-			var command = new LoginUserCommand { UserName = username, Password = userPassword };
-			var authVM = new AuthUserViewModel { UserDetails = new UserDTO { Id = userId, FullName = userFName + userLName, UserName = username, Email = userEmail }, UserToken = new AccessTokenViewModel { RefreshToken = refreshToken } };
+			var command = new LoginUserCommand { UserName = userName, Password = userPassword };
+			var authVM = new AuthUserViewModel { UserDetails = new UserDTO { Id = userId, FullName = userFName + userLName, UserName = userName, Email = userEmail }, UserToken = new AccessTokenViewModel { RefreshToken = refreshToken } };
 
 			// Act
 			A.CallTo(() => _loginUserCommandHandler.CreateItemAsync(command)).Returns(authVM);
@@ -161,7 +161,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			Assert.NotNull(vm);
 			Assert.Equal(userId, vm?.UserDetails?.Id);
 			Assert.Equal(userFName + userLName, vm?.UserDetails?.FullName);
-			Assert.Equal(username, vm?.UserDetails?.UserName);
+			Assert.Equal(userName, vm?.UserDetails?.UserName);
 			Assert.Equal(userEmail, vm?.UserDetails?.Email);
 			Assert.Equal(refreshToken, vm?.UserToken?.RefreshToken);
 

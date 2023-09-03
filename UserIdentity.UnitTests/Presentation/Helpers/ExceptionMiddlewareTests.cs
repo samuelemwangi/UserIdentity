@@ -69,7 +69,7 @@ namespace UserIdentity.UnitTests.Presentation.Helpers
 		[InlineData(typeof(SecurityTokenExpiredException), HttpStatusCode.Unauthorized, "An expired access token was provided")]
 		[InlineData(typeof(SecurityTokenReadException), HttpStatusCode.Unauthorized, "An invalid access token was provided")]
 
-		[InlineData(typeof(InvalidCredentialException), HttpStatusCode.Unauthorized, "Provided username and password combination is invalid")]
+		[InlineData(typeof(InvalidCredentialException), HttpStatusCode.Unauthorized, "Provided credentials are invalid")]
 
 		[InlineData(typeof(DivideByZeroException), HttpStatusCode.InternalServerError)]
 		[InlineData(typeof(Exception), HttpStatusCode.InternalServerError)]
