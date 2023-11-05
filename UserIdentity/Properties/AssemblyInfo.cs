@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 
 // Expose internals to unit tests & integration tests
 [assembly: InternalsVisibleTo("UserIdentity.UnitTests")]

@@ -2,9 +2,9 @@
 
 namespace UserIdentity.Application.Core.Users.ViewModels
 {
-	public record AuthUserViewModel: ItemDetailBaseViewModel
-	{
-		public UserDTO? UserDetails { get; init; }
-		public AccessTokenViewModel? UserToken { get; init; }
-	}
+  public record AuthUserViewModel : ItemDetailBaseViewModel
+  {
+    public UserDTO? UserDetails { get; init; }
+    public AccessTokenViewModel? UserToken { get; init; }
+  }
 }
