@@ -20,6 +20,4 @@ namespace UserIdentity.Infrastructure.Security
       throw new NotImplementedException();
     }
   }
-
-
 }
