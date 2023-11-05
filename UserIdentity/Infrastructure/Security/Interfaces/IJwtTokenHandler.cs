@@ -5,9 +5,9 @@ using System.Security.Claims;
 
 namespace UserIdentity.Infrastructure.Security.Interfaces
 {
-	public interface IJwtTokenHandler
-	{
-		String WriteToken(JwtSecurityToken jwt);
-		ClaimsPrincipal ValidateToken(String? token, TokenValidationParameters tokenValidationParameters);
-	}
+  public interface IJwtTokenHandler
+  {
+    String WriteToken(JwtSecurityToken jwt);
+    ClaimsPrincipal ValidateToken(String? token, TokenValidationParameters tokenValidationParameters);
+  }
 }

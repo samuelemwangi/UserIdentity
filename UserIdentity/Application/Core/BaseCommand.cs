@@ -1,6 +1,6 @@
 ﻿namespace UserIdentity.Application.Core
 {
-	public abstract record BaseCommand
-	{
-	}
+  public abstract record BaseCommand
+  {
+  }
 }

@@ -1,7 +1,7 @@
 ﻿namespace UserIdentity.Application.Core.Roles.ViewModels
 {
-	public record RoleClaimsViewModel : ItemsBaseViewModel
-	{
-		public ICollection<RoleClaimDTO> RoleClaims { get; init; }
-	}
+  public record RoleClaimsViewModel : ItemsBaseViewModel
+  {
+    public ICollection<RoleClaimDTO> RoleClaims { get; init; }
+  }
 }
