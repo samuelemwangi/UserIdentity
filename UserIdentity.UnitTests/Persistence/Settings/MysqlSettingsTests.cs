@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System;
 
-using System;
+using Microsoft.Extensions.Configuration;
 
 using UserIdentity.Persistence.Settings.Mysql;
 

@@ -1,9 +1,9 @@
-﻿using FakeItEasy;
+﻿using System;
+using System.Threading.Tasks;
+
+using FakeItEasy;
 
 using Microsoft.AspNetCore.Identity;
-
-using System;
-using System.Threading.Tasks;
 
 using UserIdentity.Application.Core.Users.Commands.UpdatePassword;
 using UserIdentity.Application.Core.Users.ViewModels;

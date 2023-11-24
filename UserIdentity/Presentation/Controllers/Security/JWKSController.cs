@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Net;
 
-using System.Net;
+using Microsoft.AspNetCore.Mvc;
 
 using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.KeySets.Queries.GetKeySets;

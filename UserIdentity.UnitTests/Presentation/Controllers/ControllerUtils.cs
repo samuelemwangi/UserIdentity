@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
+﻿using System;
 
-using System;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 
 using UserIdentity.Presentation.Controllers;
 

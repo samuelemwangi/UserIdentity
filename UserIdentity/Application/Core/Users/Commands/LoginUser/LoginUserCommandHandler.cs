@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity;
-
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Security.Authentication;
+
+using Microsoft.AspNetCore.Identity;
 
 using UserIdentity.Application.Core.Extensions;
 using UserIdentity.Application.Core.Interfaces;

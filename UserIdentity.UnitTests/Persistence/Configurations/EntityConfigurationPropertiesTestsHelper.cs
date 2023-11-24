@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+﻿using System;
 
-using System;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 
 namespace UserIdentity.UnitTests.Persistence.Configurations

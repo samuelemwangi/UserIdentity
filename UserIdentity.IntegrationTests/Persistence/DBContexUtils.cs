@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.WebUtilities;
-
-using System;
+﻿using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 
 using UserIdentity.Domain.Identity;
 using UserIdentity.Infrastructure.Security.Helpers;

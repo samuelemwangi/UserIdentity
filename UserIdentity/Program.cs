@@ -1,6 +1,6 @@
-using Microsoft.EntityFrameworkCore;
-
 using System.Net.Mime;
+
+using Microsoft.EntityFrameworkCore;
 
 using UserIdentity;
 using UserIdentity.Application.Interfaces.Security;

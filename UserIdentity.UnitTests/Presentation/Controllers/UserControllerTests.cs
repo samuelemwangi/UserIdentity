@@ -1,10 +1,10 @@
-﻿using FakeItEasy;
-
-using Microsoft.AspNetCore.Mvc;
-
-using System;
+﻿using System;
 using System.Net;
 using System.Threading.Tasks;
+
+using FakeItEasy;
+
+using Microsoft.AspNetCore.Mvc;
 
 using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Tokens.Commands.ExchangeRefreshToken;

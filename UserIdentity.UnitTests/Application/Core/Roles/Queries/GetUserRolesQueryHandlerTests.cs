@@ -1,10 +1,10 @@
-﻿using FakeItEasy;
-
-using Microsoft.AspNetCore.Identity;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+
+using FakeItEasy;
+
+using Microsoft.AspNetCore.Identity;
 
 using UserIdentity.Application.Core.Roles.Queries.GetRoles;
 using UserIdentity.Application.Core.Roles.ViewModels;

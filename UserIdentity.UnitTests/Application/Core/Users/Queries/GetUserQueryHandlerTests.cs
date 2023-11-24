@@ -1,8 +1,8 @@
-﻿using FakeItEasy;
+﻿using System.Threading.Tasks;
+
+using FakeItEasy;
 
 using Microsoft.AspNetCore.Identity;
-
-using System.Threading.Tasks;
 
 using UserIdentity.Application.Core.Users.Queries.GetUser;
 using UserIdentity.Application.Core.Users.ViewModels;

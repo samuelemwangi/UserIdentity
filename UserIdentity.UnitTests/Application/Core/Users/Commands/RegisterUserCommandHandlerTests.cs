@@ -1,11 +1,11 @@
-﻿using FakeItEasy;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+using FakeItEasy;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
-
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Users.Commands.RegisterUser;

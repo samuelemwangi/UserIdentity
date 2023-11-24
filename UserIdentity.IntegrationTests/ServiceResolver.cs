@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System;
 
-using System;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace UserIdentity.IntegrationTests
 {

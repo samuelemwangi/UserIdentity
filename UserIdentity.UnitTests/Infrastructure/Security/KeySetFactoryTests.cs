@@ -1,7 +1,7 @@
-using Microsoft.IdentityModel.Tokens;
-
 using System;
 using System.Text;
+
+using Microsoft.IdentityModel.Tokens;
 
 using UserIdentity.Infrastructure.Security;
 

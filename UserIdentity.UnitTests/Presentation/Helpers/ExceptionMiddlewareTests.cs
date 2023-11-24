@@ -1,13 +1,13 @@
-﻿using FakeItEasy;
-
-using Microsoft.AspNetCore.Http;
-using Microsoft.IdentityModel.Tokens;
-
-using System;
+﻿using System;
 using System.IO;
 using System.Net;
 using System.Security.Authentication;
 using System.Threading.Tasks;
+
+using FakeItEasy;
+
+using Microsoft.AspNetCore.Http;
+using Microsoft.IdentityModel.Tokens;
 
 using UserIdentity.Application.Core.Errors.Queries.GerError;
 using UserIdentity.Application.Exceptions;

@@ -1,6 +1,6 @@
-﻿using FakeItEasy;
+﻿using System.Threading.Tasks;
 
-using System.Threading.Tasks;
+using FakeItEasy;
 
 using UserIdentity.Application.Core.KeySets.Queries.GetKeySets;
 using UserIdentity.Application.Interfaces.Security;

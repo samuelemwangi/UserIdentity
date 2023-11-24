@@ -1,8 +1,8 @@
-﻿using FakeItEasy;
+﻿using System.Threading.Tasks;
+
+using FakeItEasy;
 
 using Microsoft.AspNetCore.Identity;
-
-using System.Threading.Tasks;
 
 using UserIdentity.Application.Core.Roles.Commands.CreateRole;
 using UserIdentity.Application.Core.Roles.ViewModels;

@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System;
 
-using System;
+using Microsoft.AspNetCore.Identity;
 
 using UserIdentity.Domain.Identity;
 using UserIdentity.Persistence.Infrastructure;

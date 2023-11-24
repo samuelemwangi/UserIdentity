@@ -1,7 +1,7 @@
-﻿using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
+﻿using System.Security.Claims;
 
-using System.Security.Claims;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 
 using UserIdentity.Application.Interfaces.Security;
 using UserIdentity.Infrastructure.Security.Interfaces;

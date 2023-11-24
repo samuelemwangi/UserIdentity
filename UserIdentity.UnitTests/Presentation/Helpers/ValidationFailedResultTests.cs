@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
-
-using System;
+﻿using System;
 using System.Net;
+
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 using UserIdentity.Presentation.Helpers.ValidationExceptions;
 

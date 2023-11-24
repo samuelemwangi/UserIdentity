@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.Options;
-
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Principal;
+
+using Microsoft.Extensions.Options;
 
 using UserIdentity.Application.Interfaces.Security;
 using UserIdentity.Application.Interfaces.Utilities;

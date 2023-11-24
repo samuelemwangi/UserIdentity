@@ -1,8 +1,8 @@
-﻿using MELT;
+﻿using System;
+
+using MELT;
 
 using Microsoft.Extensions.Logging;
-
-using System;
 
 using UserIdentity.Infrastructure.Utilities;
 

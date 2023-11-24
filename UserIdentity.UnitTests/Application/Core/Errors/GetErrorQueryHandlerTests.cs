@@ -1,7 +1,7 @@
-﻿using FakeItEasy;
-
-using System;
+﻿using System;
 using System.Threading.Tasks;
+
+using FakeItEasy;
 
 using UserIdentity.Application.Core.Errors.Queries.GerError;
 using UserIdentity.Application.Enums;

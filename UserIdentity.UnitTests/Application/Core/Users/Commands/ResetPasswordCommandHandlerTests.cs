@@ -1,10 +1,10 @@
-﻿using FakeItEasy;
+﻿using System;
+using System.Threading.Tasks;
+
+using FakeItEasy;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
-
-using System;
-using System.Threading.Tasks;
 
 using UserIdentity.Application.Core.Users.Commands.ResetPassword;
 using UserIdentity.Application.Core.Users.ViewModels;

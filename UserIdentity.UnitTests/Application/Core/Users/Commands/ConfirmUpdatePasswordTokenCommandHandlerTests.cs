@@ -1,9 +1,9 @@
-﻿using FakeItEasy;
+﻿using System.Text;
+using System.Threading.Tasks;
+
+using FakeItEasy;
 
 using Microsoft.AspNetCore.WebUtilities;
-
-using System.Text;
-using System.Threading.Tasks;
 
 using UserIdentity.Application.Core.Users.Commands.ConfirmUpdatePasswordToken;
 using UserIdentity.Application.Core.Users.ViewModels;

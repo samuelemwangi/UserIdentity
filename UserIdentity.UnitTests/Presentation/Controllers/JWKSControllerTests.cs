@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+
+using Microsoft.AspNetCore.Mvc;
 
 using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.KeySets.Queries.GetKeySets;

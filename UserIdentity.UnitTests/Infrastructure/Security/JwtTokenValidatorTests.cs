@@ -1,11 +1,11 @@
-﻿using FakeItEasy;
+﻿using System;
+using System.Collections.Generic;
+using System.Security.Claims;
+
+using FakeItEasy;
 
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-
-using System;
-using System.Collections.Generic;
-using System.Security.Claims;
 
 using UserIdentity.Application.Interfaces.Security;
 using UserIdentity.Infrastructure.Security;
