@@ -30,7 +30,7 @@ services:
       APP_VALID_FOR: 10
       APP_AUDIENCE: https://test.app.com
       APP_KEY_ID: V1APP_KEY_IDV1
-      APP_SECRET_KEY: c8pgjBdXIJtjbaEAvzEt
+      APP_SECRET_KEY: c8pgjBdXIJtjbaEAvzEt5H0ULD>32CH8Rz
       APP_DEFAULT_ROLE: Default
       APP_DEFAULT_RESET_PASSWORD_MESSAGE: If we have an account matching your email address, you will receive an email with a link to reset your password.
     depends_on:
