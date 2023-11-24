@@ -40,3 +40,4 @@ networks:
   services_network:
     name: app_services_network
     driver: bridge
+    

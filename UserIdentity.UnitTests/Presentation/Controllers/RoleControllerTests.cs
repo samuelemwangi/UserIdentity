@@ -534,7 +534,4 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 							_deleteRoleClaimCommandHandler);
 		}
 	}
-
-
-
 }
