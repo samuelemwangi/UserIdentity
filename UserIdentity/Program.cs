@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+
 using System.Net.Mime;
+
 using UserIdentity;
 using UserIdentity.Application.Interfaces.Security;
 using UserIdentity.Application.Interfaces.Utilities;
@@ -32,12 +34,12 @@ builder.Services.AddAppIdentity();
 // Controllers
 builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
 {
-  options.InvalidModelStateResponseFactory = context =>
-  {
-    var result = new ValidationFailedResult(context.ModelState);
-    result.ContentTypes.Add(MediaTypeNames.Application.Json);
-    return result;
-  };
+	options.InvalidModelStateResponseFactory = context =>
+	{
+		var result = new ValidationFailedResult(context.ModelState);
+		result.ContentTypes.Add(MediaTypeNames.Application.Json);
+		return result;
+	};
 });
 
 // Swagger
@@ -70,8 +72,8 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-  app.UseSwagger();
-  app.UseSwaggerUI();
+	app.UseSwagger();
+	app.UseSwaggerUI();
 }
 
 // Handle Exceptions

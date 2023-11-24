@@ -1,6 +1,6 @@
 ﻿namespace UserIdentity.Application.Core
 {
-  public record DeleteRecordViewModel : BaseViewModel
-  {
-  }
+	public record DeleteRecordViewModel : BaseViewModel
+	{
+	}
 }

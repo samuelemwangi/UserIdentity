@@ -6,35 +6,35 @@ using Xunit;
 
 namespace UserIdentity.UnitTests.Application.Exceptions
 {
-  public class InvalidOperationExceptionTests
-  {
+	public class InvalidOperationExceptionTests
+	{
 
-    [Fact]
-    public async Task Invalid_Operation_With_Message_Throws_InvalidOperationException()
-    {
-      // Arrange
-      var message = "An invalid operation occured";
+		[Fact]
+		public async Task Invalid_Operation_With_Message_Throws_InvalidOperationException()
+		{
+			// Arrange
+			var message = "An invalid operation occured";
 
-      // Act  & Assert
-      var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => throw new InvalidOperationException(message));
+			// Act  & Assert
+			var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => throw new InvalidOperationException(message));
 
-      Assert.Equal(exception.Message, message);
-    }
+			Assert.Equal(exception.Message, message);
+		}
 
-    [Fact]
-    public async Task Invalid_Operation_With_Message_and_Classname_Throws_InvalidOperationException()
-    {
-      // Arrange
-      var message = "An invalid operation occured";
-      var className = "InvalidOperationTester";
+		[Fact]
+		public async Task Invalid_Operation_With_Message_and_Classname_Throws_InvalidOperationException()
+		{
+			// Arrange
+			var message = "An invalid operation occured";
+			var className = "InvalidOperationTester";
 
-      var expectedMessage = className + ": The operation - " + message + " - is not allowed";
+			var expectedMessage = className + ": The operation - " + message + " - is not allowed";
 
-      // Act & Assert
-      var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => throw new InvalidOperationException(message, className));
+			// Act & Assert
+			var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => throw new InvalidOperationException(message, className));
 
-      Assert.Equal(exception.Message, expectedMessage);
-    }
-  }
+			Assert.Equal(exception.Message, expectedMessage);
+		}
+	}
 }
 
