@@ -4,10 +4,10 @@ namespace UserIdentity.Application.Attributes
 {
 	public class EitherOrAttribute : ValidationAttribute
 	{
-		private readonly String _firstProperty;
-		private readonly String _secondProperty;
+		private readonly string _firstProperty;
+		private readonly string _secondProperty;
 
-		public EitherOrAttribute(String firstProperty, String secondProperty)
+		public EitherOrAttribute(string firstProperty, string secondProperty)
 		{
 			_firstProperty = firstProperty;
 			_secondProperty = secondProperty;

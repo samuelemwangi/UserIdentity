@@ -17,7 +17,7 @@ namespace UserIdentity.Infrastructure.Security
 		private readonly JwtIssuerOptions _jwtOptions;
 		private readonly IMachineDateTime _machineDateTime;
 
-		private Char scopeClaimSeparator => ':';
+		private char scopeClaimSeparator => ':';
 
 		public JwtFactory(IJwtTokenHandler jwtTokenHandler, IOptions<JwtIssuerOptions> jwtOptions, IMachineDateTime machineDateTime)
 		{
@@ -27,19 +27,17 @@ namespace UserIdentity.Infrastructure.Security
 			ThrowIfInvalidOptions(_jwtOptions);
 
 		}
-		public async Task<(String, Int32)> GenerateEncodedTokenAsync(String id, String userName, IList<String> userRoles, HashSet<String> userRoleClaims)
+		public async Task<(string, int)> GenerateEncodedTokenAsync(string id, string userName, IList<string> userRoles, HashSet<string> userRoleClaims)
 		{
 			var identity = GenerateClaimsIdentity(id, userName);
 			var roleClaims = userRoles.Select(x => new Claim(Constants.Strings.JwtClaimIdentifiers.Rol, x)).ToArray();
 
-			var claims = new[]
-									{
-																 new Claim(JwtRegisteredClaimNames.Sub, userName),
-																 new Claim(JwtRegisteredClaimNames.Jti, await _jwtOptions.JtiGenerator()),
-																 new Claim(JwtRegisteredClaimNames.Iat, _machineDateTime.ToUnixEpochDate(_jwtOptions.IssuedAt).ToString(), ClaimValueTypes.Integer64),
-
-																 identity.FindFirst(Constants.Strings.JwtClaimIdentifiers.Id),
-												 };
+			var claims = new[]{
+				new Claim(JwtRegisteredClaimNames.Sub, userName),
+				new Claim(JwtRegisteredClaimNames.Jti, await _jwtOptions.JtiGenerator()),
+				new Claim(JwtRegisteredClaimNames.Iat, _machineDateTime.ToUnixEpochDate(_jwtOptions.IssuedAt).ToString(), ClaimValueTypes.Integer64),
+				identity.FindFirst(Constants.Strings.JwtClaimIdentifiers.Id),
+			};
 
 
 			var combinedClaims = new Claim[roleClaims.Length + claims.Length];
@@ -51,11 +49,11 @@ namespace UserIdentity.Infrastructure.Security
 			Array.Copy(roleClaims, 0, combinedClaims, claims.Length, roleClaims.Length);
 
 			// Get Scopes
-			String scopes = "";
+			string scopes = "";
 			bool scopesExist = false;
 			if (userRoleClaims.Count > 0)
 			{
-				scopes = String.Join(" ", userRoleClaims);
+				scopes = string.Join(" ", userRoleClaims);
 				scopesExist = true;
 			}
 
@@ -74,26 +72,25 @@ namespace UserIdentity.Infrastructure.Security
 
 		}
 
-		public Claim GenerateScopeClaim(String resource, String action)
+		public Claim GenerateScopeClaim(string resource, string action)
 		{
 			var scope = $"{resource}{scopeClaimSeparator}{action}".ToLower();
 			return new Claim(Constants.Strings.JwtClaimIdentifiers.Scope, scope);
 		}
 
-		public (String, String) DecodeScopeClaim(Claim scopeClaim)
+		public (string, string) DecodeScopeClaim(Claim scopeClaim)
 		{
 			var scopeValues = scopeClaim.Value.Split(scopeClaimSeparator);
 
 			return (scopeValues[0], scopeValues[1]);
 		}
 
-		private static ClaimsIdentity GenerateClaimsIdentity(String id, String userName)
+		private static ClaimsIdentity GenerateClaimsIdentity(string id, string userName)
 		{
-			return new ClaimsIdentity(new GenericIdentity(userName, "Token"), new[]
-							 {
-																new Claim(Constants.Strings.JwtClaimIdentifiers.Id, id),
-												}
-							 );
+			return new ClaimsIdentity(
+				new GenericIdentity(userName, "Token"),
+				new[] { new Claim(Constants.Strings.JwtClaimIdentifiers.Id, id), }
+				);
 		}
 
 		private static void ThrowIfInvalidOptions(JwtIssuerOptions options)

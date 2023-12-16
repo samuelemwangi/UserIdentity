@@ -28,13 +28,13 @@ namespace UserIdentity.UnitTests.Persistence.Infrastructure
 			Assert.Equal(entityPrefix + "users", context.GetTableName<IdentityUser>());
 			Assert.Equal(entityPrefix + "roles", context.GetTableName<IdentityRole>());
 
-			Assert.Equal(entityPrefix + "user_claims", context.GetTableName<IdentityUserClaim<String>>());
-			Assert.Equal(entityPrefix + "role_claims", context.GetTableName<IdentityRoleClaim<String>>());
+			Assert.Equal(entityPrefix + "user_claims", context.GetTableName<IdentityUserClaim<string>>());
+			Assert.Equal(entityPrefix + "role_claims", context.GetTableName<IdentityRoleClaim<string>>());
 
-			Assert.Equal(entityPrefix + "user_logins", context.GetTableName<IdentityUserLogin<String>>());
-			Assert.Equal(entityPrefix + "user_roles", context.GetTableName<IdentityUserRole<String>>());
+			Assert.Equal(entityPrefix + "user_logins", context.GetTableName<IdentityUserLogin<string>>());
+			Assert.Equal(entityPrefix + "user_roles", context.GetTableName<IdentityUserRole<string>>());
 
-			Assert.Equal(entityPrefix + "user_tokens", context.GetTableName<IdentityUserToken<String>>());
+			Assert.Equal(entityPrefix + "user_tokens", context.GetTableName<IdentityUserToken<string>>());
 
 			// For non-existent entity
 			Assert.Null(context.GetTableName<Random>());
@@ -53,13 +53,13 @@ namespace UserIdentity.UnitTests.Persistence.Infrastructure
 			Assert.Null(context.GetSchemaName<IdentityUser>());
 			Assert.Null(context.GetSchemaName<IdentityRole>());
 
-			Assert.Null(context.GetSchemaName<IdentityUserClaim<String>>());
-			Assert.Null(context.GetSchemaName<IdentityRoleClaim<String>>());
+			Assert.Null(context.GetSchemaName<IdentityUserClaim<string>>());
+			Assert.Null(context.GetSchemaName<IdentityRoleClaim<string>>());
 
-			Assert.Null(context.GetSchemaName<IdentityUserLogin<String>>());
-			Assert.Null(context.GetSchemaName<IdentityUserRole<String>>());
+			Assert.Null(context.GetSchemaName<IdentityUserLogin<string>>());
+			Assert.Null(context.GetSchemaName<IdentityUserRole<string>>());
 
-			Assert.Null(context.GetSchemaName<IdentityUserToken<String>>());
+			Assert.Null(context.GetSchemaName<IdentityUserToken<string>>());
 
 			// For non-existent entity
 			Assert.Null(context.GetTableName<Random>());

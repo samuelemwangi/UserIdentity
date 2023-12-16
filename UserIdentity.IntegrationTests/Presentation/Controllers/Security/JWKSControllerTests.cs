@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 using Microsoft.IdentityModel.Tokens;
 
 using Newtonsoft.Json.Linq;
 
-using UserIdentity.Application.Core.Tokens.ViewModels;
 using UserIdentity.IntegrationTests.Presentation.Helpers;
 
 using Xunit;
@@ -22,7 +19,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Security
 	public class JWKSControllerTests : BaseControllerTests
 	{
 
-		private readonly static String _baseUri = "/api/v1/JWKS/keys";
+		private readonly static string _baseUri = "/api/v1/JWKS/keys";
 
 		public JWKSControllerTests(TestingWebAppFactory testingWebAppFactory, ITestOutputHelper outputHelper)
 				: base(testingWebAppFactory, outputHelper)
@@ -46,7 +43,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Security
 
 			Assert.NotNull(jsonObject);
 
-			var keySets = jsonObject?.ToObject<IDictionary<String, IList<Dictionary<String, String>>>>();
+			var keySets = jsonObject?.ToObject<IDictionary<string, IList<Dictionary<string, string>>>>();
 
 			Assert.NotNull(keySets);
 

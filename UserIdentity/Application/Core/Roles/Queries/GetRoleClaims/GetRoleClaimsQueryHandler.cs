@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+
 using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Roles.ViewModels;
 using UserIdentity.Application.Exceptions;
@@ -6,12 +7,12 @@ using UserIdentity.Application.Interfaces.Security;
 
 namespace UserIdentity.Application.Core.Roles.Queries.GetRoleClaims
 {
-    public record GetRoleClaimsQuery : BaseQuery
+	public record GetRoleClaimsQuery : BaseQuery
 	{
-		public String RoleId { get; init; }
+		public string RoleId { get; init; }
 	}
 	public class GetRoleClaimsQueryHandler : IGetItemsQueryHandler<GetRoleClaimsQuery, RoleClaimsViewModel>,
-		IGetItemsQueryHandler<IList<String>, HashSet<String>>
+		IGetItemsQueryHandler<IList<string>, HashSet<string>>
 	{
 		private readonly RoleManager<IdentityRole> _roleManager;
 		private readonly IJwtFactory _jwtFactory;
@@ -36,7 +37,7 @@ namespace UserIdentity.Application.Core.Roles.Queries.GetRoleClaims
 
 			foreach (var roleClaim in roleClaims)
 			{
-				(String resource, String action) = _jwtFactory.DecodeScopeClaim(roleClaim);
+				(string resource, string action) = _jwtFactory.DecodeScopeClaim(roleClaim);
 				RoleClaimDTO claimDTO = new()
 				{
 					Resource = resource,
@@ -54,9 +55,9 @@ namespace UserIdentity.Application.Core.Roles.Queries.GetRoleClaims
 
 		}
 
-		public async Task<HashSet<String>> GetItemsAsync(IList<String> roles)
+		public async Task<HashSet<string>> GetItemsAsync(IList<string> roles)
 		{
-			HashSet<String> roleClaims = new();
+			HashSet<string> roleClaims = new();
 
 			foreach (var role in roles)
 			{

@@ -8,7 +8,7 @@ namespace UserIdentity.UnitTests.Persistence.Configurations
 	internal static class EntityConfigurationPropertiesTestsHelper
 	{
 
-		public static Boolean ConfirmMaxColumnLength(this EntityType entityType, String column, Int32 columnLength)
+		public static bool ConfirmMaxColumnLength(this EntityType entityType, string column, int columnLength)
 		{
 			var properies = entityType.GetProperties();
 
@@ -23,7 +23,7 @@ namespace UserIdentity.UnitTests.Persistence.Configurations
 			return false;
 		}
 
-		public static Boolean ConfirmColumnHasIndex(this EntityType entityType, String column)
+		public static bool ConfirmColumnHasIndex(this EntityType entityType, string column)
 		{
 			var properies = entityType.GetProperties();
 
@@ -38,7 +38,7 @@ namespace UserIdentity.UnitTests.Persistence.Configurations
 			return false;
 		}
 
-		public static Boolean ConfirmColumnHasKey(this EntityType entityType, String column)
+		public static bool ConfirmColumnHasKey(this EntityType entityType, string column)
 		{
 			var properies = entityType.GetProperties();
 

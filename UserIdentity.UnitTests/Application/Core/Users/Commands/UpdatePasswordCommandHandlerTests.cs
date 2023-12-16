@@ -99,7 +99,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 			A.CallTo(() => _userManager.FindByIdAsync(command.UserId)).Returns(existingIdentityUser);
 
 
-			A.CallTo(() => _userManager.ResetPasswordAsync(existingIdentityUser, A<String>.Ignored, command.NewPassword)).Returns(IdentityResult.Success);
+			A.CallTo(() => _userManager.ResetPasswordAsync(existingIdentityUser, A<string>.Ignored, command.NewPassword)).Returns(IdentityResult.Success);
 
 			var handler = new UpdatePasswordCommandHandler(_userManager);
 

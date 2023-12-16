@@ -5,14 +5,13 @@ using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Application.Exceptions;
 using UserIdentity.Application.Interfaces.Utilities;
-using UserIdentity.Domain.Identity;
 using UserIdentity.Persistence.Repositories.Users;
 
 namespace UserIdentity.Application.Core.Users.Queries.GetUser
 {
 	public record GetUserQuery : BaseQuery
 	{
-		public String UserId { get; init; }
+		public string UserId { get; init; }
 	}
 
 	public class GetUserQueryHandler : IGetItemQueryHandler<GetUserQuery, UserViewModel>

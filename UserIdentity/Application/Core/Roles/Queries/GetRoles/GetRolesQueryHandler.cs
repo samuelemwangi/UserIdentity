@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+
 using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Roles.ViewModels;
 
 namespace UserIdentity.Application.Core.Roles.Queries.GetRoles
 {
-    public record GetRolesQuery : BaseQuery
+	public record GetRolesQuery : BaseQuery
 	{
 	}
 

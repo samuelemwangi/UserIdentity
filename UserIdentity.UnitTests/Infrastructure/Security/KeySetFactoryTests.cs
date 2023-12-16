@@ -101,7 +101,7 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
 			_testSettings.SetConfiguration();
 
 			// Assert
-			Assert.NotNull(actualKeyId);			
+			Assert.NotNull(actualKeyId);
 		}
 
 		[Fact]
@@ -137,7 +137,30 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
 			_testSettings.SetConfiguration();
 
 			// Assert
-			Assert.NotNull(actualSecretKey);
+			Assert.Equal(expectedScretKey, actualSecretKey);
+		}
+
+		[Fact]
+		public void Get_Env_SecretKey_Less_Than_32_Chars_Throws_SecurityTokenInvalidSigningKeyException()
+		{
+			// Arrange
+			var key = "APP_SECRET_KEY";
+			var secretKey = Environment.GetEnvironmentVariable(key);
+
+			// override env variables
+			Environment.SetEnvironmentVariable(key, "123");
+			_testSettings.SetConfiguration();
+
+			var keySetFactory = new KeySetFactory(_testSettings.Configuration);
+
+			// Act & Assert
+			var exception = Assert.Throws<SecurityTokenInvalidSigningKeyException>(keySetFactory.GetSecretKey);
+			Assert.Equal("Invalid key provided. Security key should be at least 32 characters", exception.Message);
+
+			// ensure env variables are same as before
+			Environment.SetEnvironmentVariable(key, secretKey);
+			_testSettings.SetConfiguration();
+
 		}
 
 		[Fact]
@@ -145,7 +168,7 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
 		{
 			// Arrange
 			var key = "APP_SECRET_KEY";
-			var defaultSecretKey = "KEY198*£%&YEK+OP}L";
+			var defaultSecretKey = "KEY198*£%&YEK+OP}L5H0ULD>32CH8Rz";
 			var envSecretKey = Environment.GetEnvironmentVariable(key);
 
 			// override env variables
@@ -163,7 +186,7 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
 			_testSettings.SetConfiguration();
 
 			// Assert
-			Assert.NotNull(actualSecretKey);
+			Assert.Equal(defaultSecretKey, actualSecretKey);
 		}
 
 		[Fact]

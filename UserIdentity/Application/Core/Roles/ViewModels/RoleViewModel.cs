@@ -1,9 +1,9 @@
 ﻿namespace UserIdentity.Application.Core.Roles.ViewModels
 {
-	public record RoleDTO 
-	{	
-		public String Id { get; init; }
-		public String Name { get; init; }
+	public record RoleDTO
+	{
+		public string Id { get; init; }
+		public string Name { get; init; }
 	}
 	public record RoleViewModel : ItemDetailBaseViewModel
 	{

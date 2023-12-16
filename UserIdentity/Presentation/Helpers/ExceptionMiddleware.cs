@@ -1,8 +1,9 @@
-﻿using Microsoft.IdentityModel.Tokens;
-
-using System.Net;
+﻿using System.Net;
 using System.Security.Authentication;
 using System.Text.Json;
+
+using Microsoft.IdentityModel.Tokens;
+
 using UserIdentity.Application.Core.Errors.Queries.GerError;
 using UserIdentity.Application.Core.Errors.ViewModels;
 using UserIdentity.Application.Core.Interfaces;
@@ -10,7 +11,7 @@ using UserIdentity.Application.Exceptions;
 
 namespace UserIdentity.Presentation.Helpers
 {
-    public class ExceptionMiddleware
+	public class ExceptionMiddleware
 	{
 		private readonly RequestDelegate _next;
 		public ExceptionMiddleware(RequestDelegate requestDelegate)
@@ -39,7 +40,7 @@ namespace UserIdentity.Presentation.Helpers
 		{
 			context.Response.ContentType = "application/json";
 			HttpStatusCode statusCode;
-			String errorMessage;
+			string errorMessage;
 			if (typeof(NoRecordException).IsInstanceOfType(exception))
 			{
 				errorMessage = exception.Message;

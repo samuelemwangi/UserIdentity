@@ -1,13 +1,14 @@
 ﻿using Microsoft.AspNetCore.Identity;
+
 using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Roles.ViewModels;
 using UserIdentity.Application.Exceptions;
 
 namespace UserIdentity.Application.Core.Roles.Queries.GetRole
 {
-    public record GetRoleQuery : BaseQuery
+	public record GetRoleQuery : BaseQuery
 	{
-		public String RoleId { get; init; }
+		public string RoleId { get; init; }
 	}
 
 	public class GetRoleQueryHandler : IGetItemQueryHandler<GetRoleQuery, RoleViewModel>

@@ -23,6 +23,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: ${{ secrets.DOCKERHUB_USERNAME }}/useridentity
+          tags: type=semver,pattern={{version}}
 
       - name: Build and Push
         uses: docker/build-push-action@v4

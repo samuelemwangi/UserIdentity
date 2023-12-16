@@ -4,7 +4,7 @@ namespace UserIdentity.Application.Core.Extensions
 {
 	public static class DTOExtensions
 	{
-		public static bool OwnedByLoggedInUser(this BaseEntityDTO? dto, String? loggedInUserId)
+		public static bool OwnedByLoggedInUser(this BaseEntityDTO? dto, string? loggedInUserId)
 		{
 			return (dto != null) &&
 						 (loggedInUserId != null) &&
@@ -14,7 +14,7 @@ namespace UserIdentity.Application.Core.Extensions
 						 );
 		}
 
-		public static void SetDTOAuditFields(this BaseEntityDTO dto, BaseEntity entity, Func<DateTime?, String?> resolveDateTime)
+		public static void SetDTOAuditFields(this BaseEntityDTO dto, BaseEntity entity, Func<DateTime?, string?> resolveDateTime)
 		{
 			dto.CreatedBy = entity.CreatedBy;
 			dto.CreatedAt = resolveDateTime(entity.CreatedAt);

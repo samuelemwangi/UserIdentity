@@ -9,7 +9,7 @@ namespace UserIdentity.UnitTests
 	public class TestSettingsFixture : IDisposable
 	{
 		public IConfiguration Configuration { get; internal set; }
-		public Dictionary<String, String> Props { get; internal set; }
+		public Dictionary<string, string> Props { get; internal set; }
 
 		public TestSettingsFixture()
 		{
@@ -31,17 +31,17 @@ namespace UserIdentity.UnitTests
 					.Build();
 		}
 
-		public Dictionary<String, String> GetProps()
+		public Dictionary<string, string> GetProps()
 		{
-			Dictionary<String, String> props = new Dictionary<String, String>();
-			String filePath = ".env";
+			Dictionary<string, string> props = new Dictionary<string, string>();
+			string filePath = ".env";
 			if (!File.Exists(filePath))
 				return props;
 
 
-			foreach (String line in File.ReadLines(filePath))
+			foreach (string line in File.ReadLines(filePath))
 			{
-				String[] parts = line.Split('=', StringSplitOptions.RemoveEmptyEntries);
+				string[] parts = line.Split('=', StringSplitOptions.RemoveEmptyEntries);
 				props.Add(parts[0].Trim(), parts[1].Trim());
 			}
 

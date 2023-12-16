@@ -1,13 +1,14 @@
 ﻿using Microsoft.AspNetCore.Identity;
+
 using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Roles.ViewModels;
 using UserIdentity.Application.Exceptions;
 
 namespace UserIdentity.Application.Core.Roles.Queries.GetRoles
 {
-    public record GetUserRolesQuery : BaseQuery
+	public record GetUserRolesQuery : BaseQuery
 	{
-		public String UserId { get; init; }
+		public string UserId { get; init; }
 	}
 
 	public class GetUserRolesQueryHandler : IGetItemsQueryHandler<GetUserRolesQuery, UserRolesViewModel>
@@ -32,7 +33,7 @@ namespace UserIdentity.Application.Core.Roles.Queries.GetRoles
 			var userRoles = await _userManager.GetRolesAsync(user);
 
 			if (userRoles == null)
-				userRoles = new List<String>();
+				userRoles = new List<string>();
 
 			return new UserRolesViewModel
 			{

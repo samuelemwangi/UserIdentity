@@ -23,7 +23,7 @@ namespace UserIdentity.UnitTests.Persistence.Settings
 			// Arrange
 			var props = _testSettings.Props;
 			var mysqlSettings = _testSettings.Configuration.GetSection(nameof(MysqlSettings)).Get<MysqlSettings>();
-			String expectedString = $"Server={props["DB_SERVER"]};Port={props["DB_PORT"]};Database={props["DB_NAME"]};User={props["DB_USER"]};Password={props["DB_PASSWORD"]};";
+			string expectedString = $"Server={props["DB_SERVER"]};Port={props["DB_PORT"]};Database={props["DB_NAME"]};User={props["DB_USER"]};Password={props["DB_PASSWORD"]};";
 
 			// Act
 			var connectionString = mysqlSettings.ConnectionString(_testSettings.Configuration);

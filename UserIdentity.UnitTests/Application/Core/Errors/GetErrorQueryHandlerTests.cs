@@ -56,7 +56,7 @@ namespace UserIdentity.UnitTests.Application.Core.Errors
 
 			Assert.NotNull(vm.Error);
 
-			Assert.IsType<String>(vm.Error?.Message);
+			Assert.IsType<string>(vm.Error?.Message);
 			Assert.NotNull(vm.Error?.Message);
 
 			Assert.IsType<DateTime>(vm.Error?.Timestamp);
@@ -87,7 +87,7 @@ namespace UserIdentity.UnitTests.Application.Core.Errors
 
 			Assert.NotNull(vm.Error);
 
-			Assert.IsType<String>(vm.Error?.Message);
+			Assert.IsType<string>(vm.Error?.Message);
 			Assert.NotNull(vm.Error?.Message);
 
 			Assert.IsType<DateTime>(vm.Error?.Timestamp);

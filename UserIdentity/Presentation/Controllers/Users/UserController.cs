@@ -33,7 +33,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 		private readonly IUpdateItemCommandHandler<ConfirmUpdatePasswordTokenCommand, ConfirmUpdatePasswordTokenViewModel> _confirmUpdatePasswordTokenCommandHandler;
 		private readonly IUpdateItemCommandHandler<UpdatePasswordCommand, UpdatePasswordViewModel> _updatePasswordCommandHandler;
 
-		private String resourceName => EntityName ?? "user";
+		private string resourceName => EntityName ?? "user";
 
 
 		public UserController(
@@ -58,7 +58,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 
 		[HttpGet]
 		[Route("{UserId}")]
-		public async Task<ActionResult<UserViewModel>> GetUser(String UserId)
+		public async Task<ActionResult<UserViewModel>> GetUser(string UserId)
 		{
 
 			var userVM = await _getUserQueryHandler.GetItemAsync(new GetUserQuery { UserId = UserId });
@@ -68,7 +68,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 			userVM.ResolveEditDeleteRights(UserRoleClaims, resourceName, ownedByLoggedInUser);
 			userVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEM_SUCCESSFUL);
 
-			return StatusCode((Int32)HttpStatusCode.OK, userVM);
+			return StatusCode((int)HttpStatusCode.OK, userVM);
 		}
 
 		[AllowAnonymous]
@@ -81,7 +81,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 			authUserVM.ResolveEditDeleteRights(UserRoleClaims, resourceName);
 			authUserVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.CREATE_ITEM_SUCCESSFUL);
 
-			return StatusCode((Int32)HttpStatusCode.Created, authUserVM);
+			return StatusCode((int)HttpStatusCode.Created, authUserVM);
 		}
 
 		[AllowAnonymous]
@@ -94,7 +94,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 			authUserVM.ResolveEditDeleteRights(UserRoleClaims, resourceName);
 			authUserVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEM_SUCCESSFUL, "Login successful");
 
-			return StatusCode((Int32)HttpStatusCode.OK, authUserVM);
+			return StatusCode((int)HttpStatusCode.OK, authUserVM);
 		}
 
 		[AllowAnonymous]
@@ -104,7 +104,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 		{
 			var refreshTokenVM = await _exchangeRefreshTokenCommandHandler.UpdateItemAsync(command);
 			refreshTokenVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEM_SUCCESSFUL, "Refresh token generated successfully");
-			return StatusCode((Int32)HttpStatusCode.OK, refreshTokenVM);
+			return StatusCode((int)HttpStatusCode.OK, refreshTokenVM);
 		}
 
 		[AllowAnonymous]
@@ -114,7 +114,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 		{
 			var resetPassWordVM = await _resetPasswordCommandHandler.CreateItemAsync(command);
 			resetPassWordVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEM_SUCCESSFUL, "Password reset request successful");
-			return StatusCode((Int32)HttpStatusCode.OK, resetPassWordVM);
+			return StatusCode((int)HttpStatusCode.OK, resetPassWordVM);
 		}
 
 		[AllowAnonymous]
@@ -135,7 +135,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 				httpStatusCode = HttpStatusCode.NotAcceptable;
 			}
 
-			return StatusCode((Int32)httpStatusCode, confirmPassWordTokenVM);
+			return StatusCode((int)httpStatusCode, confirmPassWordTokenVM);
 		}
 
 		[AllowAnonymous]
@@ -155,7 +155,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 				updatePasswordVM.ResolveRequestStatus(RequestStatus.FAILED, ItemStatusMessage.FETCH_ITEM_FAILED, "Password update failed");
 				httpStatusCode = HttpStatusCode.NotAcceptable;
 			}
-			return StatusCode((Int32)httpStatusCode, updatePasswordVM);
+			return StatusCode((int)httpStatusCode, updatePasswordVM);
 		}
 	}
 }

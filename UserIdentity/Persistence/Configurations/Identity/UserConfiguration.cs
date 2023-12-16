@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
 using UserIdentity.Domain.Identity;
 
 namespace UserIdentity.Persistence.Configurations.Identity
@@ -16,7 +17,7 @@ namespace UserIdentity.Persistence.Configurations.Identity
 
 			builder.Property(e => e.LastName).HasMaxLength(20);
 
-			builder.Property(e=>e.ForgotPasswordToken).HasMaxLength(600);
+			builder.Property(e => e.ForgotPasswordToken).HasMaxLength(600);
 		}
 	}
 }

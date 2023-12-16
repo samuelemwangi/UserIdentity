@@ -28,16 +28,16 @@ namespace UserIdentity.UnitTests.Application.Core.Extensions
 
 			var testDTO = null as TestBaseEntityDTO;
 			var testDTO1 = new TestBaseEntityDTO();
-			var testDTO2 = new TestBaseEntityDTO {Id=id, CreatedBy = userId, UpdatedBy = userId };
-			var testDTO3 = new TestBaseEntityDTO { Id=id,CreatedBy = userId, UpdatedBy = otherUserId };
-			var testDTO4 = new TestBaseEntityDTO { Id=id,CreatedBy = otherUserId, UpdatedBy = userId };
+			var testDTO2 = new TestBaseEntityDTO { Id = id, CreatedBy = userId, UpdatedBy = userId };
+			var testDTO3 = new TestBaseEntityDTO { Id = id, CreatedBy = userId, UpdatedBy = otherUserId };
+			var testDTO4 = new TestBaseEntityDTO { Id = id, CreatedBy = otherUserId, UpdatedBy = userId };
 
 
 			// Act & Assert
 			Assert.False(testDTO.OwnedByLoggedInUser(userId));
 
 			Assert.False(testDTO1.OwnedByLoggedInUser(userId));
-        
+
 			Assert.True(testDTO2.OwnedByLoggedInUser(userId));
 			Assert.False(testDTO2.OwnedByLoggedInUser(otherUserId));
 			Assert.Equal(id, testDTO2.Id);

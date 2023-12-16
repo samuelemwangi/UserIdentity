@@ -7,7 +7,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 
 using Newtonsoft.Json.Linq;
@@ -28,7 +27,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 	public class UserControllerTests : BaseControllerTests
 	{
 
-		private readonly static String _baseUri = "/api/v1/user";
+		private readonly static string _baseUri = "/api/v1/user";
 
 		public UserControllerTests(TestingWebAppFactory testingWebAppFactory, ITestOutputHelper outputHelper)
 				: base(testingWebAppFactory, outputHelper)
@@ -80,7 +79,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			DBContexUtils.SeedDatabase(_appDbContext);
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-				
+
 			Assert.NotNull(userToken);
 			Assert.NotNull(refreshToken);
 
@@ -344,7 +343,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 		[InlineData("random@test.com", "")]
 		[InlineData(null, "712121212")]
 		[InlineData("", "712121212")]
-		public async Task Register_User_With_Only_Required_Request_Payload_Registers_User(String UserEmail, String PhoneNumber)
+		public async Task Register_User_With_Only_Required_Request_Payload_Registers_User(string UserEmail, string PhoneNumber)
 		{
 			// Arrange
 			var requestPayload = new

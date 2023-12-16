@@ -26,10 +26,10 @@ namespace UserIdentity.UnitTests.Infrastructure.Utilities
 		[InlineData("Test Log Message Critical", LogLevel.Critical)]
 		[InlineData("Test Log Message Debug", LogLevel.Debug)]
 		[InlineData("Test Log Message Trace", LogLevel.Trace)]
-		public void Log_Helper_Log_Event_Logs_Event(String logMessage, LogLevel logLevel)
+		public void Log_Helper_Log_Event_Logs_Event(string logMessage, LogLevel logLevel)
 		{
 			// Arrange
-			LogHelper<Object> logHelper = new(_loggerFactory);
+			LogHelper<object> logHelper = new(_loggerFactory);
 
 			// Act
 			logHelper.LogEvent(logMessage, logLevel);

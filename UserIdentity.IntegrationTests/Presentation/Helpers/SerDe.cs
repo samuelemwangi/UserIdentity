@@ -18,7 +18,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Helpers
 			return httpContent;
 		}
 
-		public static T? Deserialize<T>(String jsonString)
+		public static T? Deserialize<T>(string jsonString)
 		{
 			return JsonConvert.DeserializeObject<T>(jsonString);
 		}

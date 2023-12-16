@@ -1,5 +1,4 @@
 ﻿using UserIdentity.Infrastructure.Security;
-using UserIdentity.UnitTests.TestUtils;
 
 using Xunit;
 
@@ -21,7 +20,7 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
 			var alg = "HS256";
 			var keyType = "oct";
 			var keyId = "APP_KEY_ID";
-			var secretKey = "$E+ $E(RET K#Y IN 3NV1R0MEN+";
+			var secretKey = "$E+ $E(RET K#Y IN 3NV1R0MEN+5H0ULD>32CH8Rz";
 
 			// Act & Assert
 			var section = _testSettings.Configuration.GetSection(nameof(KeySetOptions));

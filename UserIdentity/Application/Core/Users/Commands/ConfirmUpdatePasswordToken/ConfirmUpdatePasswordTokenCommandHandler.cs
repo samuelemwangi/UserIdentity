@@ -2,20 +2,21 @@
 using System.Text;
 
 using Microsoft.AspNetCore.WebUtilities;
+
 using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Persistence.Repositories.Users;
 
 namespace UserIdentity.Application.Core.Users.Commands.ConfirmUpdatePasswordToken
 {
-    public record ConfirmUpdatePasswordTokenCommand : BaseCommand
+	public record ConfirmUpdatePasswordTokenCommand : BaseCommand
 	{
 		[Required]
-		public String ConfirmPasswordToken { get; init; }
+		public string ConfirmPasswordToken { get; init; }
 		[Required]
-		public String UserId { get; init; }
+		public string UserId { get; init; }
 	}
-	public class ConfirmUpdatePasswordTokenCommandHandler: IUpdateItemCommandHandler<ConfirmUpdatePasswordTokenCommand, ConfirmUpdatePasswordTokenViewModel>
+	public class ConfirmUpdatePasswordTokenCommandHandler : IUpdateItemCommandHandler<ConfirmUpdatePasswordTokenCommand, ConfirmUpdatePasswordTokenViewModel>
 	{
 		private readonly IUserRepository _userRepository;
 
@@ -29,7 +30,7 @@ namespace UserIdentity.Application.Core.Users.Commands.ConfirmUpdatePasswordToke
 		{
 			try
 			{
-				String rawToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(command.ConfirmPasswordToken));
+				string rawToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(command.ConfirmPasswordToken));
 				return new ConfirmUpdatePasswordTokenViewModel
 				{
 					TokenPasswordResult = new ConfirmUpdatePasswordDTO

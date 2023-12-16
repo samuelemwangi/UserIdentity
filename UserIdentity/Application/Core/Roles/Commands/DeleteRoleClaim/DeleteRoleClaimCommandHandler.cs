@@ -1,20 +1,21 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
 using Microsoft.AspNetCore.Identity;
+
 using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Exceptions;
 using UserIdentity.Application.Interfaces.Security;
 
 namespace UserIdentity.Application.Core.Roles.Commands.DeleteRoleClaim
 {
-    public record DeleteRoleClaimCommand : BaseCommand
+	public record DeleteRoleClaimCommand : BaseCommand
 	{
 		[Required]
-		public String RoleId { get; init; }
+		public string RoleId { get; init; }
 		[Required]
-		public String Resource { get; init; }
+		public string Resource { get; init; }
 		[Required]
-		public String Action { get; init; }
+		public string Action { get; init; }
 	}
 	public class DeleteRoleClaimCommandHandler : IDeleteItemCommandHandler<DeleteRoleClaimCommand, DeleteRecordViewModel>
 	{
@@ -43,7 +44,7 @@ namespace UserIdentity.Application.Core.Roles.Commands.DeleteRoleClaim
 
 			foreach (var roleClaim in roleClaims)
 			{
-				if (String.Equals(roleClaim.Value, scopeClaim.Value, StringComparison.OrdinalIgnoreCase))
+				if (string.Equals(roleClaim.Value, scopeClaim.Value, StringComparison.OrdinalIgnoreCase))
 				{
 					claimFound = true;
 					break;

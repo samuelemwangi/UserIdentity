@@ -44,7 +44,7 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
 			Assert.Equal(claimsPricipal, actualClaimsPrincipal);
 		}
 
-		private Boolean ResolveTVPMatch(TokenValidationParameters tvp)
+		private bool ResolveTVPMatch(TokenValidationParameters tvp)
 		{
 			return tvp.ValidIssuer == _jwtIssuerOptions.Value.Issuer &&
 				tvp.ValidAudience == _jwtIssuerOptions.Value.Audience &&

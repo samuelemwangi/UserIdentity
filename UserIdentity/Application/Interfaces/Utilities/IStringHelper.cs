@@ -2,6 +2,6 @@
 {
 	public interface IStringHelper
 	{
-		String AddSpacesToSentence(String text, bool preserveAcronyms);
+		string AddSpacesToSentence(string text, bool preserveAcronyms);
 	}
 }

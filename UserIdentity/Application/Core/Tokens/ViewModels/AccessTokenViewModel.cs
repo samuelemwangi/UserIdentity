@@ -2,14 +2,14 @@
 {
 	public record AccessTokenDTO
 	{
-		public String? Token { get; init; }
-		public Int32 ExpiresIn { get; init; }
+		public string? Token { get; init; }
+		public int ExpiresIn { get; init; }
 	}
 
 	public record AccessTokenViewModel
 	{
 		public AccessTokenDTO? AccessToken { get; init; }
-		public String? RefreshToken { get; init; }
+		public string? RefreshToken { get; init; }
 
 	}
 }

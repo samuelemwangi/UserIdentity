@@ -13,7 +13,7 @@ namespace UserIdentity.UnitTests.Infrastructure.Utilities
 		public void Add_Spaces_ToSentence_Returns_Sentence_With_Spaces()
 		{
 			// Arrange
-			String originalAString = "500 -InternalServerError",
+			string originalAString = "500 -InternalServerError",
 						 expectedAString = "500 - Internal Server Error",
 						 originalBString = "Failed badly",
 						 expectedBString = "Failed badly";
@@ -22,7 +22,7 @@ namespace UserIdentity.UnitTests.Infrastructure.Utilities
 			var stringHelper = new StringHelper();
 
 			// Act & Assert
-			Assert.Equal(String.Empty, stringHelper.AddSpacesToSentence("", true));
+			Assert.Equal(string.Empty, stringHelper.AddSpacesToSentence("", true));
 			Assert.Equal(expectedAString, stringHelper.AddSpacesToSentence(originalAString, true));
 			Assert.Equal(expectedBString, stringHelper.AddSpacesToSentence(originalBString, true));
 		}

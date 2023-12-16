@@ -21,7 +21,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 	public class RoleControllerTests : BaseControllerTests
 	{
-		private readonly static String _baseUri = "/api/v1/role";
+		private readonly static string _baseUri = "/api/v1/role";
 
 		public RoleControllerTests(TestingWebAppFactory testingWebAppFactory, ITestOutputHelper outputHelper)
 						: base(testingWebAppFactory, outputHelper)
@@ -895,7 +895,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
 			Assert.Equal("Items fetched successfully", jsonObject["statusMessage"]);
 
-			var roles = jsonObject["userRoles"]?.ToObject<List<String>>();
+			var roles = jsonObject["userRoles"]?.ToObject<List<string>>();
 
 			Assert.NotNull(roles);
 			Assert.Equal(1, roles?.Count);
@@ -1052,7 +1052,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
 			Assert.Equal("Item created successfully", jsonObject["statusMessage"]);
 
-			var roles = jsonObject["userRoles"]?.ToObject<List<String>>();
+			var roles = jsonObject["userRoles"]?.ToObject<List<string>>();
 
 			Assert.NotNull(roles);
 			Assert.Equal(2, roles?.Count);

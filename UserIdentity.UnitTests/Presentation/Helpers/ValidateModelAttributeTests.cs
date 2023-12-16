@@ -28,7 +28,7 @@ namespace UserIdentity.UnitTests.Presentation.Helpers
 
 			modelStateDictionary.AddModelError("Test", "Test");
 			var actionContext = new ActionContext(httpContext, new RouteData(), new ActionDescriptor(), modelStateDictionary);
-			var actionExecutingContext = new ActionExecutingContext(actionContext, new List<IFilterMetadata>(), new Dictionary<String, object?>(), controller: new object());
+			var actionExecutingContext = new ActionExecutingContext(actionContext, new List<IFilterMetadata>(), new Dictionary<string, object?>(), controller: new object());
 
 
 			// Act
@@ -36,7 +36,7 @@ namespace UserIdentity.UnitTests.Presentation.Helpers
 
 			// Assert
 			Assert.NotNull(actionExecutingContext.Result);
-			Assert.Equal((Int32)HttpStatusCode.BadRequest, (actionExecutingContext.Result as ValidationFailedResult)?.StatusCode);
+			Assert.Equal((int)HttpStatusCode.BadRequest, (actionExecutingContext.Result as ValidationFailedResult)?.StatusCode);
 		}
 	}
 }

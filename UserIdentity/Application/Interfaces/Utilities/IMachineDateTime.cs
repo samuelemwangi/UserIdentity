@@ -6,11 +6,11 @@
 
 		DateTime Now { get; }
 
-		String GetTimeStamp();
+		string GetTimeStamp();
 
-		String? ResolveDate(DateTime? dateTime);
+		string? ResolveDate(DateTime? dateTime);
 
-		Int64 ToUnixEpochDate(DateTime dateTime);
+		long ToUnixEpochDate(DateTime dateTime);
 
 	}
 }

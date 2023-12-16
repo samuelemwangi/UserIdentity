@@ -15,7 +15,7 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
 			var tokenFactory = new TokenFactory();
 
 			// Act & Assert
-			Assert.False(String.IsNullOrEmpty(tokenFactory.GenerateRefreshToken()));
+			Assert.False(string.IsNullOrEmpty(tokenFactory.GenerateRefreshToken()));
 		}
 
 		[Fact]

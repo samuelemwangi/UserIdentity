@@ -8,6 +8,6 @@
 
 	public record UserRolesViewModel : ItemsBaseViewModel
 	{
-		public ICollection<String> UserRoles { get; init; }
+		public ICollection<string> UserRoles { get; init; }
 	}
 }

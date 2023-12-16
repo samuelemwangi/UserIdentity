@@ -12,14 +12,14 @@ namespace UserIdentity.UnitTests.Infrastructure.Utilities
 		[Fact]
 		public void Get_CurrentYear_Returns_CurrentYear()
 		{
-			Assert.IsType<Int32>(MachineDateTime.CurrentYear);
+			Assert.IsType<int>(MachineDateTime.CurrentYear);
 			Assert.Equal(DateTime.UtcNow.Year, MachineDateTime.CurrentYear);
 		}
 
 		[Fact]
 		public void Get_CurrentMonth_Returns_CurrentMonth()
 		{
-			Assert.IsType<Int32>(MachineDateTime.CurrentMonth);
+			Assert.IsType<int>(MachineDateTime.CurrentMonth);
 			Assert.Equal(DateTime.UtcNow.Month, MachineDateTime.CurrentMonth);
 		}
 
@@ -76,7 +76,7 @@ namespace UserIdentity.UnitTests.Infrastructure.Utilities
 			var curentDate = DateTime.Now;
 
 			// Act & Assert
-			Assert.IsType<Int64>(machineDateTime.ToUnixEpochDate(curentDate));
+			Assert.IsType<long>(machineDateTime.ToUnixEpochDate(curentDate));
 		}
 
 

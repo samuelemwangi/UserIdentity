@@ -35,7 +35,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 		private readonly IGetItemsQueryHandler<GetRoleClaimsQuery, RoleClaimsViewModel> _getRoleClaimsQueryHandler;
 		private readonly IDeleteItemCommandHandler<DeleteRoleClaimCommand, DeleteRecordViewModel> _deleteRoleClaimCommandHandler;
 
-		private String resourceName => EntityName ?? "role";
+		private string resourceName => EntityName ?? "role";
 
 
 		public RoleController(
@@ -72,20 +72,20 @@ namespace UserIdentity.Presentation.Controllers.Roles
 			rolesVM.ResolveCreateDownloadRights(UserRoleClaims, resourceName);
 			rolesVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEMS_SUCCESSFUL);
 
-			return StatusCode((Int32)HttpStatusCode.OK, rolesVM);
+			return StatusCode((int)HttpStatusCode.OK, rolesVM);
 		}
 
 		[Authorize(Roles = "role:useridentity:administrator, role:useridentity:super-administrator")]
 		[HttpGet]
 		[Route("{roleId}")]
-		public async Task<ActionResult<RoleViewModel>> GetRoleAsync(String roleId)
+		public async Task<ActionResult<RoleViewModel>> GetRoleAsync(string roleId)
 		{
 			var roleVM = await _getRoleQueryHandler.GetItemAsync(new GetRoleQuery { RoleId = roleId });
 
 			roleVM.ResolveEditDeleteRights(UserRoleClaims, resourceName);
 			roleVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEM_SUCCESSFUL);
 
-			return StatusCode((Int32)HttpStatusCode.OK, roleVM);
+			return StatusCode((int)HttpStatusCode.OK, roleVM);
 		}
 
 		[Authorize(Roles = "role:useridentity:administrator, role:useridentity:super-administrator")]
@@ -97,13 +97,13 @@ namespace UserIdentity.Presentation.Controllers.Roles
 			roleVM.ResolveEditDeleteRights(UserRoleClaims, resourceName);
 			roleVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.CREATE_ITEM_SUCCESSFUL);
 
-			return StatusCode((Int32)HttpStatusCode.Created, roleVM);
+			return StatusCode((int)HttpStatusCode.Created, roleVM);
 		}
 
 		[Authorize(Roles = "role:useridentity:administrator, role:useridentity:super-administrator")]
 		[HttpPut]
 		[Route("{roleId}")]
-		public async Task<ActionResult<RoleViewModel>> UpdateRoleAsync(String roleId, [FromBody] UpdateRoleCommand command)
+		public async Task<ActionResult<RoleViewModel>> UpdateRoleAsync(string roleId, [FromBody] UpdateRoleCommand command)
 		{
 			command.RoleId = roleId;
 
@@ -112,33 +112,33 @@ namespace UserIdentity.Presentation.Controllers.Roles
 			updatedRoleVM.ResolveEditDeleteRights(UserRoleClaims, resourceName);
 			updatedRoleVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.UPDATE_ITEM_SUCCESSFUL);
 
-			return StatusCode((Int32)HttpStatusCode.OK, updatedRoleVM);
+			return StatusCode((int)HttpStatusCode.OK, updatedRoleVM);
 		}
 
 
 		[Authorize(Roles = "role:useridentity:administrator, role:useridentity:super-administrator")]
 		[HttpDelete]
 		[Route("{roleId}")]
-		public async Task<ActionResult<DeleteRecordViewModel>> DeleteRoleAsync(String roleId)
+		public async Task<ActionResult<DeleteRecordViewModel>> DeleteRoleAsync(string roleId)
 		{
 			var deleteRoleVM = await _deleteRoleCommandHandler.DeleteItemAsync(new DeleteRoleCommand { RoleId = roleId });
 
 			deleteRoleVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.DELETE_ITEM_SUCCESSFUL, "Record deleted successfully");
 
-			return StatusCode((Int32)HttpStatusCode.OK, deleteRoleVM);
+			return StatusCode((int)HttpStatusCode.OK, deleteRoleVM);
 		}
 
 		[Authorize(Roles = "role:useridentity:administrator, role:useridentity:super-administrator")]
 		[HttpGet]
 		[Route("user/{userId}")]
-		public async Task<ActionResult<UserRolesViewModel>> GetUserRolesAsync(String userId)
+		public async Task<ActionResult<UserRolesViewModel>> GetUserRolesAsync(string userId)
 		{
 			var userRolesVM = await _getUserRolesQueryHandler.GetItemsAsync(new GetUserRolesQuery { UserId = userId });
 
 			userRolesVM.ResolveCreateDownloadRights(UserRoleClaims, resourceName);
 			userRolesVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEMS_SUCCESSFUL);
 
-			return StatusCode((Int32)HttpStatusCode.OK, userRolesVM);
+			return StatusCode((int)HttpStatusCode.OK, userRolesVM);
 		}
 
 
@@ -153,7 +153,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 			userRolesVM.ResolveCreateDownloadRights(UserRoleClaims, resourceName);
 			userRolesVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.CREATE_ITEM_SUCCESSFUL);
 
-			return StatusCode((Int32)HttpStatusCode.Created, userRolesVM);
+			return StatusCode((int)HttpStatusCode.Created, userRolesVM);
 		}
 
 
@@ -173,20 +173,20 @@ namespace UserIdentity.Presentation.Controllers.Roles
 			roleClaimVM.ResolveEditDeleteRights(UserRoleClaims, resourceName);
 			roleClaimVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.CREATE_ITEM_SUCCESSFUL);
 
-			return StatusCode((Int32)HttpStatusCode.Created, roleClaimVM);
+			return StatusCode((int)HttpStatusCode.Created, roleClaimVM);
 		}
 
 		[Authorize(Roles = "role:useridentity:administrator, role:useridentity:super-administrator")]
 		[HttpGet]
 		[Route("claim/{roleId}")]
-		public async Task<ActionResult<RoleClaimsViewModel>> GetRoleClaimsAsync(String roleId)
+		public async Task<ActionResult<RoleClaimsViewModel>> GetRoleClaimsAsync(string roleId)
 		{
 			var roleClaimsVM = await _getRoleClaimsQueryHandler.GetItemsAsync(new GetRoleClaimsQuery { RoleId = roleId });
 
 			roleClaimsVM.ResolveCreateDownloadRights(UserRoleClaims, resourceName);
 			roleClaimsVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEMS_SUCCESSFUL);
 
-			return StatusCode((Int32)HttpStatusCode.OK, roleClaimsVM);
+			return StatusCode((int)HttpStatusCode.OK, roleClaimsVM);
 		}
 
 		[Authorize(Roles = "role:useridentity:administrator, role:useridentity:super-administrator")]
@@ -198,7 +198,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 
 			deleteClaimVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.DELETE_ITEM_SUCCESSFUL, "Record deleted successfully");
 
-			return StatusCode((Int32)HttpStatusCode.OK, deleteClaimVM);
+			return StatusCode((int)HttpStatusCode.OK, deleteClaimVM);
 		}
 	}
 }

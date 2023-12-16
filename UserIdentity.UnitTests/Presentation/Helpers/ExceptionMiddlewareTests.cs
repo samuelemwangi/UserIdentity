@@ -73,7 +73,7 @@ namespace UserIdentity.UnitTests.Presentation.Helpers
 
 		[InlineData(typeof(DivideByZeroException), HttpStatusCode.InternalServerError)]
 		[InlineData(typeof(Exception), HttpStatusCode.InternalServerError)]
-		public async Task Invoke_Exception_Middleware_With_Exception_Returns_Error_Response(Type exceptionType, HttpStatusCode httpStatusCode, String errorMessage = "")
+		public async Task Invoke_Exception_Middleware_With_Exception_Returns_Error_Response(Type exceptionType, HttpStatusCode httpStatusCode, string errorMessage = "")
 		{
 			// Arrange
 			var exceptionErrorMessage = "Error" + TestStringHelper.GenerateRandomString(5);
@@ -106,9 +106,9 @@ namespace UserIdentity.UnitTests.Presentation.Helpers
 			Assert.Contains(expectedExceptionErrorMessage, body);
 		}
 
-		private static void ThrowException(Type exceptionType, String exceptionErrorMessage)
+		private static void ThrowException(Type exceptionType, string exceptionErrorMessage)
 		{
-			Exception exception = (Exception)exceptionType.GetConstructor(new Type[] { typeof(String) }).Invoke(new Object[] { exceptionErrorMessage });
+			Exception exception = (Exception)exceptionType.GetConstructor(new Type[] { typeof(string) }).Invoke(new object[] { exceptionErrorMessage });
 			throw exception;
 		}
 	}

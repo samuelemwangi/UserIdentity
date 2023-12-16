@@ -2,6 +2,6 @@
 {
 	public interface ILogHelper<T>
 	{
-		void LogEvent(String message, LogLevel logLevel);
+		void LogEvent(string message, LogLevel logLevel);
 	}
 }

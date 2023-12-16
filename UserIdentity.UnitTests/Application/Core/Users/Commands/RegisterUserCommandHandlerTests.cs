@@ -6,6 +6,7 @@ using FakeItEasy;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+
 using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Users.Commands.RegisterUser;
 using UserIdentity.Application.Core.Users.ViewModels;
@@ -21,9 +22,9 @@ using Xunit;
 
 namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 {
-    public class RegisterUserCommandHandlerTests : IClassFixture<TestSettingsFixture>
+	public class RegisterUserCommandHandlerTests : IClassFixture<TestSettingsFixture>
 	{
-		private static String defaultRoleKey = "DefaultRole";
+		private static string defaultRoleKey = "DefaultRole";
 
 		private readonly TestSettingsFixture _testSettings;
 
@@ -41,7 +42,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 
 		private readonly ILogHelper<RegisterUserCommandHandler> _logHelper;
 
-		private readonly IGetItemsQueryHandler<IList<String>, HashSet<String>> _getRoleClaimsQueryHandler;
+		private readonly IGetItemsQueryHandler<IList<string>, HashSet<string>> _getRoleClaimsQueryHandler;
 
 		public RegisterUserCommandHandlerTests(TestSettingsFixture testSettings)
 		{
@@ -61,15 +62,15 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 			_machineDateTime = new MachineDateTime();
 			_logHelper = A.Fake<ILogHelper<RegisterUserCommandHandler>>();
 
-			_getRoleClaimsQueryHandler = A.Fake<IGetItemsQueryHandler<IList<String>, HashSet<String>>>();
+			_getRoleClaimsQueryHandler = A.Fake<IGetItemsQueryHandler<IList<string>, HashSet<string>>>();
 		}
 
 		[Fact]
 		public async Task Create_User_When_Creating_Default_Role_Fails_Throws_IllegalEventException()
 		{
 			// Arrange
-			var defaultRole = _testSettings.Configuration.GetValue<String>(defaultRoleKey);
-			defaultRole = _testSettings.Configuration.GetValue<String>(defaultRole) ?? defaultRole;
+			var defaultRole = _testSettings.Configuration.GetValue<string>(defaultRoleKey);
+			defaultRole = _testSettings.Configuration.GetValue<string>(defaultRole) ?? defaultRole;
 
 			var command = GetRegisterUserCommand();
 
@@ -86,7 +87,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 		public async Task Create_User_When_User_With_Same_UserName_Exists_Throws_RecordExistsException()
 		{
 			// Arrange			
-			var defaultRole = _testSettings.Configuration.GetValue<String>(defaultRoleKey);
+			var defaultRole = _testSettings.Configuration.GetValue<string>(defaultRoleKey);
 			var command = GetRegisterUserCommand();
 			var defaultRoleIdentity = GetIdentityRole();
 			var identityUser = GetIdentityUser();
@@ -104,7 +105,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 		public async Task Create_User_When_User_With_Same_Email_Exists_Throws_RecordExistsException()
 		{
 			// Arrange			
-			var defaultRole = _testSettings.Configuration.GetValue<String>(defaultRoleKey);
+			var defaultRole = _testSettings.Configuration.GetValue<string>(defaultRoleKey);
 			var command = GetRegisterUserCommand();
 			var defaultRoleIdentity = GetIdentityRole();
 			var identityUser = GetIdentityUser();
@@ -123,7 +124,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 		public async Task Create_User_When_User_Creation_Fails_Throws_RecordCreationException()
 		{
 			// Arrange			
-			var defaultRole = _testSettings.Configuration.GetValue<String>(defaultRoleKey);
+			var defaultRole = _testSettings.Configuration.GetValue<string>(defaultRoleKey);
 			var command = GetRegisterUserCommand();
 			var defaultRoleIdentity = GetIdentityRole();
 
@@ -143,7 +144,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 		public async Task Create_User_When_Assigning_User_Default_Role_Fails_Throws_RecordCreationException()
 		{
 			// Arrange			
-			var defaultRole = _testSettings.Configuration.GetValue<String>(defaultRoleKey);
+			var defaultRole = _testSettings.Configuration.GetValue<string>(defaultRoleKey);
 			var command = GetRegisterUserCommand();
 			var defaultRoleIdentity = GetIdentityRole();
 			var identityUser = GetIdentityUser();
@@ -165,7 +166,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 		public async Task Create_User_When_Creating_User_Fails_Throws_RecordCreationException()
 		{
 			// Arrange
-			var defaultRole = _testSettings.Configuration.GetValue<String>(defaultRoleKey);
+			var defaultRole = _testSettings.Configuration.GetValue<string>(defaultRoleKey);
 			var command = GetRegisterUserCommand();
 			var defaultRoleIdentity = GetIdentityRole();
 			var identityUser = GetIdentityUser();
@@ -191,12 +192,12 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 		public async Task Create_User_When_Create_Refresh_Token_Fails_Throws_RecordCreationException()
 		{
 			// Arrange
-			var defaultRole = _testSettings.Configuration.GetValue<String>(defaultRoleKey);
+			var defaultRole = _testSettings.Configuration.GetValue<string>(defaultRoleKey);
 			var command = GetRegisterUserCommand();
 			var defaultRoleIdentity = GetIdentityRole();
 			var identityUser = GetIdentityUser();
-			var userRoles = new List<String> { defaultRole };
-			var userRoleClaims = new HashSet<String> { "claim1", "claim2" };
+			var userRoles = new List<string> { defaultRole };
+			var userRoleClaims = new HashSet<string> { "claim1", "claim2" };
 
 			A.CallTo(() => _roleManager.FindByNameAsync(defaultRole)).Returns(defaultRoleIdentity);
 			A.CallTo(() => _userManager.FindByNameAsync(command.UserName)).Returns(default(IdentityUser));
@@ -211,7 +212,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 
 			A.CallTo(() => _userManager.GetRolesAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName))).Returns(userRoles);
 
-			A.CallTo(() => _getRoleClaimsQueryHandler.GetItemsAsync(A<List<String>>.That.Contains(defaultRole))).Returns(Task.FromResult(userRoleClaims));
+			A.CallTo(() => _getRoleClaimsQueryHandler.GetItemsAsync(A<List<string>>.That.Contains(defaultRole))).Returns(Task.FromResult(userRoleClaims));
 
 			A.CallTo(() => _jwtFactory.GenerateEncodedTokenAsync(identityUser.Id, identityUser.UserName + "", userRoles, userRoleClaims)).Returns(Task.FromResult(("token", 2)));
 
@@ -230,14 +231,14 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 		public async Task Create_User_With_Valid_User_Datails_Creates_Valid_User()
 		{
 			// Arrange
-			var defaultRole = _testSettings.Configuration.GetValue<String>(defaultRoleKey);
-			defaultRole = _testSettings.Configuration.GetValue<String>(defaultRole) ?? defaultRole;
+			var defaultRole = _testSettings.Configuration.GetValue<string>(defaultRoleKey);
+			defaultRole = _testSettings.Configuration.GetValue<string>(defaultRole) ?? defaultRole;
 
 			var command = GetRegisterUserCommand();
 			var defaultRoleIdentity = GetIdentityRole();
 			var identityUser = GetIdentityUser();
-			var userRoles = new List<String> { defaultRole };
-			var userRoleClaims = new HashSet<String> { "claim1", "claim2" };
+			var userRoles = new List<string> { defaultRole };
+			var userRoleClaims = new HashSet<string> { "claim1", "claim2" };
 			var resfreshToken = "resfreshToken";
 
 			A.CallTo(() => _roleManager.FindByNameAsync(defaultRole)).Returns(defaultRoleIdentity);
@@ -253,7 +254,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 
 			A.CallTo(() => _userManager.GetRolesAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName))).Returns(userRoles);
 
-			A.CallTo(() => _getRoleClaimsQueryHandler.GetItemsAsync(A<List<String>>.That.Contains(defaultRole))).Returns(Task.FromResult(userRoleClaims));
+			A.CallTo(() => _getRoleClaimsQueryHandler.GetItemsAsync(A<List<string>>.That.Contains(defaultRole))).Returns(Task.FromResult(userRoleClaims));
 
 			A.CallTo(() => _jwtFactory.GenerateEncodedTokenAsync(identityUser.Id, identityUser.UserName + "", userRoles, userRoleClaims)).Returns(Task.FromResult(("token", 2)));
 
@@ -280,23 +281,23 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 		[InlineData("random@test.com", "")]
 		[InlineData(null, "712121212")]
 		[InlineData("", "712121212")]
-		public async Task Create_User_With_All_Required_Details_Creates_Valid_User(String? UserEmail, String? PhoneNumber)
+		public async Task Create_User_With_All_Required_Details_Creates_Valid_User(string? UserEmail, string? PhoneNumber)
 		{
 			// Arrange
-			var defaultRole = _testSettings.Configuration.GetValue<String>(defaultRoleKey);
-			defaultRole = _testSettings.Configuration.GetValue<String>(defaultRole) ?? defaultRole;
+			var defaultRole = _testSettings.Configuration.GetValue<string>(defaultRoleKey);
+			defaultRole = _testSettings.Configuration.GetValue<string>(defaultRole) ?? defaultRole;
 
-			var command = GetRegisterUserCommand() with { UserEmail = UserEmail, PhoneNumber = PhoneNumber};
+			var command = GetRegisterUserCommand() with { UserEmail = UserEmail, PhoneNumber = PhoneNumber };
 
 			var defaultRoleIdentity = GetIdentityRole();
 
 			var identityUser = GetIdentityUser();
 			identityUser.Email = UserEmail;
 			identityUser.NormalizedEmail = UserEmail?.ToUpper();
-			identityUser.PhoneNumber = PhoneNumber;			
+			identityUser.PhoneNumber = PhoneNumber;
 
-			var userRoles = new List<String> { defaultRole };
-			var userRoleClaims = new HashSet<String> { "claim1", "claim2" };
+			var userRoles = new List<string> { defaultRole };
+			var userRoleClaims = new HashSet<string> { "claim1", "claim2" };
 			var resfreshToken = "resfreshToken";
 
 			A.CallTo(() => _roleManager.FindByNameAsync(defaultRole)).Returns(defaultRoleIdentity);
@@ -312,7 +313,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 
 			A.CallTo(() => _userManager.GetRolesAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName))).Returns(userRoles);
 
-			A.CallTo(() => _getRoleClaimsQueryHandler.GetItemsAsync(A<List<String>>.That.Contains(defaultRole))).Returns(Task.FromResult(userRoleClaims));
+			A.CallTo(() => _getRoleClaimsQueryHandler.GetItemsAsync(A<List<string>>.That.Contains(defaultRole))).Returns(Task.FromResult(userRoleClaims));
 
 			A.CallTo(() => _jwtFactory.GenerateEncodedTokenAsync(identityUser.Id, identityUser.UserName + "", userRoles, userRoleClaims)).Returns(Task.FromResult(("token", 2)));
 
@@ -377,7 +378,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 			};
 		}
 
-		private IdentityUser GetIdentityUser(Boolean sameAsCommand = true)
+		private IdentityUser GetIdentityUser(bool sameAsCommand = true)
 		{
 			if (sameAsCommand)
 			{

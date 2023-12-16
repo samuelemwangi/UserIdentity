@@ -1,9 +1,9 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
+
 using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Application.Exceptions;
@@ -11,11 +11,11 @@ using UserIdentity.Persistence.Repositories.Users;
 
 namespace UserIdentity.Application.Core.Users.Commands.ResetPassword
 {
-    public record ResetPasswordCommand : BaseCommand
+	public record ResetPasswordCommand : BaseCommand
 	{
 		[Required]
 		[EmailAddress]
-		public String UserEmail { get; init; }
+		public string UserEmail { get; init; }
 	}
 
 	public class ResetPasswordCommandHandler : ICreateItemCommandHandler<ResetPasswordCommand, ResetPasswordViewModel>
@@ -36,14 +36,14 @@ namespace UserIdentity.Application.Core.Users.Commands.ResetPassword
 			var existingUser = await _userManager.FindByEmailAsync(command.UserEmail);
 
 			// Check if default message is set in configs
-			String defaultResetPasswordMessage = _configuration.GetValue<String>(_configuration.GetValue<String>("DefaultResetPasswordMessage"));
-			String emailMessage = defaultResetPasswordMessage ?? "Kindly check your email for instructions to reset your password";
+			string defaultResetPasswordMessage = _configuration.GetValue<string>(_configuration.GetValue<string>("DefaultResetPasswordMessage"));
+			string emailMessage = defaultResetPasswordMessage ?? "Kindly check your email for instructions to reset your password";
 
 			if (existingUser == null)
 				throw new NoRecordException(command.UserEmail, "User");
 
 			// generate token
-			String resetPasswordToken = await _userManager.GeneratePasswordResetTokenAsync(existingUser);
+			string resetPasswordToken = await _userManager.GeneratePasswordResetTokenAsync(existingUser);
 
 			// update user details record
 			var updateResult = await _userRepository.UpdateResetPasswordTokenAsync(existingUser.Id, resetPasswordToken);
@@ -52,7 +52,7 @@ namespace UserIdentity.Application.Core.Users.Commands.ResetPassword
 				throw new RecordUpdateException(command.UserEmail, "User");
 
 			// Send Email Logic here
-			String emailToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(resetPasswordToken));
+			string emailToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(resetPasswordToken));
 
 			return new ResetPasswordViewModel
 			{

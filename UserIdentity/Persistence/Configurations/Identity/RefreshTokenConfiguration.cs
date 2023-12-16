@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
 using UserIdentity.Domain.Identity;
 
 namespace UserIdentity.Persistence.Configurations.Identity

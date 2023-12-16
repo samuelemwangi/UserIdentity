@@ -20,8 +20,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // MYSQL DB
 // Register Configuration
-var mysqlSettings =  builder.Configuration.GetSection(nameof(MysqlSettings)).Get<MysqlSettings>();
-String connectionString = mysqlSettings.ConnectionString(builder.Configuration);
+var mysqlSettings = builder.Configuration.GetSection(nameof(MysqlSettings)).Get<MysqlSettings>();
+string connectionString = mysqlSettings.ConnectionString(builder.Configuration);
 builder.Services.AddDbContext<AppDbContext>(opt => opt.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)).UseSnakeCaseNamingConvention());
 
 // JWT Identity

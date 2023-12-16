@@ -20,10 +20,10 @@ namespace UserIdentity.Application.Core.Users.Commands.LoginUser
 	public record LoginUserCommand : BaseCommand
 	{
 		[Required]
-		public String? UserName { get; init; }
+		public string? UserName { get; init; }
 
 		[Required]
-		public String? Password { get; init; }
+		public string? Password { get; init; }
 	}
 
 	public class LoginUserCommandHandler : ICreateItemCommandHandler<LoginUserCommand, AuthUserViewModel>
@@ -35,7 +35,7 @@ namespace UserIdentity.Application.Core.Users.Commands.LoginUser
 		private readonly IRefreshTokenRepository _refreshTokenRepository;
 		private readonly IMachineDateTime _machineDateTime;
 
-		private readonly IGetItemsQueryHandler<IList<String>, HashSet<String>> _getRoleClaimsQueryHandler;
+		private readonly IGetItemsQueryHandler<IList<string>, HashSet<string>> _getRoleClaimsQueryHandler;
 
 
 		public LoginUserCommandHandler(
@@ -46,7 +46,7 @@ namespace UserIdentity.Application.Core.Users.Commands.LoginUser
 			IRefreshTokenRepository refreshTokenRepository,
 			IMachineDateTime machineDateTime,
 
-			IGetItemsQueryHandler<IList<String>, HashSet<String>> getRoleClaimsQueryHandler
+			IGetItemsQueryHandler<IList<string>, HashSet<string>> getRoleClaimsQueryHandler
 			)
 		{
 			_jwtFactory = jwtFactory;
@@ -87,7 +87,7 @@ namespace UserIdentity.Application.Core.Users.Commands.LoginUser
 
 			var refreshToken = _tokenFactory.GenerateRefreshToken();
 
-			(String token, Int32 expiresIn) = await _jwtFactory.GenerateEncodedTokenAsync(user.Id, user.UserName, userRoles, userRoleClaims);
+			(string token, int expiresIn) = await _jwtFactory.GenerateEncodedTokenAsync(user.Id, user.UserName, userRoles, userRoleClaims);
 
 			var newRefreshToken = new RefreshToken
 			{
@@ -98,7 +98,7 @@ namespace UserIdentity.Application.Core.Users.Commands.LoginUser
 
 			newRefreshToken.SetAuditFields(user.Id, _machineDateTime.Now);
 
-			Int32 createTokenResult = await _refreshTokenRepository.CreateRefreshTokenAsync(newRefreshToken);
+			int createTokenResult = await _refreshTokenRepository.CreateRefreshTokenAsync(newRefreshToken);
 
 			if (createTokenResult < 1)
 				throw new RecordCreationException(refreshToken, "Refresh Token");

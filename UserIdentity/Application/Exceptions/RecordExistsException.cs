@@ -2,12 +2,12 @@
 {
 	public class RecordExistsException : Exception
 	{
-		public RecordExistsException(String message) : base(message)
+		public RecordExistsException(string message) : base(message)
 		{
 
 		}
 
-		public RecordExistsException(String id, String className) : base(className + ": A record identified with - " + id + " - exists")
+		public RecordExistsException(string id, string className) : base(className + ": A record identified with - " + id + " - exists")
 		{
 
 		}

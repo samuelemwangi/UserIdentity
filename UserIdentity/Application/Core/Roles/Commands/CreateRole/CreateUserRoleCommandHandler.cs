@@ -12,9 +12,9 @@ namespace UserIdentity.Application.Core.Roles.Commands.CreateRole
 	public record CreateUserRoleCommand : BaseCommand
 	{
 		[Required]
-		public String UserId { get; init; }
+		public string UserId { get; init; }
 		[Required]
-		public String RoleId { get; init; }
+		public string RoleId { get; init; }
 	}
 
 	public class CreateUserRoleCommandHandler : ICreateItemCommandHandler<CreateUserRoleCommand, UserRolesViewModel>

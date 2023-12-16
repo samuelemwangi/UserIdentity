@@ -2,9 +2,9 @@
 {
 	public class KeySetOptions
 	{
-		public String? Alg { get; set; }
-		public String? KeyType { get; set; }
-		public String? KeyId { get; set; }
-		public String? SecretKey { get; set; }
+		public string? Alg { get; set; }
+		public string? KeyType { get; set; }
+		public string? KeyId { get; set; }
+		public string? SecretKey { get; set; }
 	}
 }

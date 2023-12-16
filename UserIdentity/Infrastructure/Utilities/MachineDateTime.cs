@@ -2,33 +2,33 @@
 
 namespace UserIdentity.Infrastructure.Utilities
 {
-    public class MachineDateTime : IMachineDateTime
-    {
-        public static Int32 CurrentYear => DateTime.UtcNow.Year;
+	public class MachineDateTime : IMachineDateTime
+	{
+		public static int CurrentYear => DateTime.UtcNow.Year;
 
-        public static Int32 CurrentMonth => DateTime.UtcNow.Month;
+		public static int CurrentMonth => DateTime.UtcNow.Month;
 
-        public DateTime? DefaultNull => null;
+		public DateTime? DefaultNull => null;
 
-        public DateTime Now => DateTime.UtcNow;
+		public DateTime Now => DateTime.UtcNow;
 
-        public String GetTimeStamp()
-        {
-            DateTime dateTime = Now;
+		public string GetTimeStamp()
+		{
+			DateTime dateTime = Now;
 
-            return dateTime.ToString("yyyyMMddHHmmssffff");
-        }
+			return dateTime.ToString("yyyyMMddHHmmssffff");
+		}
 
-        public String? ResolveDate(DateTime? dateTime)
-        {
-            return dateTime == null ? "" : dateTime?.ToLongDateString();
-        }
+		public string? ResolveDate(DateTime? dateTime)
+		{
+			return dateTime == null ? "" : dateTime?.ToLongDateString();
+		}
 
-        public Int64 ToUnixEpochDate(DateTime dateTime)
-        {
-            return (Int64)Math.Round((dateTime.ToUniversalTime() -
-                                                             new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero))
-                                                            .TotalSeconds);
-        }
-    }
+		public long ToUnixEpochDate(DateTime dateTime)
+		{
+			return (long)Math.Round((dateTime.ToUniversalTime() -
+																											 new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero))
+																											.TotalSeconds);
+		}
+	}
 }

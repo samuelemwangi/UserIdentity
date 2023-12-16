@@ -1,16 +1,17 @@
 ﻿using System.Net;
 
 using Microsoft.AspNetCore.Mvc;
+
 using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.KeySets.Queries.GetKeySets;
 
 namespace UserIdentity.Presentation.Controllers.Security
 {
-    public class JWKSController : BaseController
+	public class JWKSController : BaseController
 	{
-		private readonly IGetItemsQueryHandler<GetKeySetsQuery, IDictionary<String, IList<Dictionary<String, String>>>> _getKeySetsQueryHandler;
+		private readonly IGetItemsQueryHandler<GetKeySetsQuery, IDictionary<string, IList<Dictionary<string, string>>>> _getKeySetsQueryHandler;
 
-		public JWKSController(IGetItemsQueryHandler<GetKeySetsQuery, IDictionary<String, IList<Dictionary<String, String>>>> getKeySetsQueryHandler)
+		public JWKSController(IGetItemsQueryHandler<GetKeySetsQuery, IDictionary<string, IList<Dictionary<string, string>>>> getKeySetsQueryHandler)
 		{
 			_getKeySetsQueryHandler = getKeySetsQueryHandler;
 		}
@@ -20,7 +21,7 @@ namespace UserIdentity.Presentation.Controllers.Security
 		public async Task<IActionResult> GetKeySetsAsync()
 		{
 			var keySets = await _getKeySetsQueryHandler.GetItemsAsync(new GetKeySetsQuery { });
-			return StatusCode((Int32)HttpStatusCode.OK, keySets);
+			return StatusCode((int)HttpStatusCode.OK, keySets);
 		}
 	}
 }

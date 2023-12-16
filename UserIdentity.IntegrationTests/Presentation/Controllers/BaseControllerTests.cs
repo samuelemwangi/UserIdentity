@@ -16,7 +16,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 	{
 		protected readonly ITestOutputHelper _outputHelper;
 
-		protected readonly Dictionary<String, String> _props;
+		protected readonly Dictionary<string, string> _props;
 		protected readonly HttpClient _httpClient;
 		protected readonly IServiceProvider _serviceProvider;
 

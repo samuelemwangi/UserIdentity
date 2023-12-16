@@ -50,8 +50,8 @@ namespace UserIdentity.UnitTests.Persistence.Repositories
 			// Act
 			var result = await refreshTokenRepo.CreateRefreshTokenAsync(refreshToken);
 
-			if(result == 1)
-			 result = await refreshTokenRepo.CreateRefreshTokenAsync(refreshToken);
+			if (result == 1)
+				result = await refreshTokenRepo.CreateRefreshTokenAsync(refreshToken);
 
 			//Assert
 			Assert.Equal(0, result);

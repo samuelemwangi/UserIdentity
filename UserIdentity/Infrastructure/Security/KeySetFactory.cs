@@ -1,8 +1,5 @@
-﻿using System.Security.Cryptography;
-using System.Text;
+﻿using System.Text;
 
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 using UserIdentity.Application.Interfaces.Security;
@@ -20,36 +17,38 @@ namespace UserIdentity.Infrastructure.Security
 			_configuration = configuration;
 		}
 
-		public String GetAlgorithm()
+		public string GetAlgorithm()
 		{
 			return _keySetConfigurationSection[nameof(KeySetOptions.Alg)] ?? SecurityAlgorithms.HmacSha256;
 		}
 
-		public String GetKeyType()
+		public string GetKeyType()
 		{
 			return _keySetConfigurationSection[nameof(KeySetOptions.KeyType)] ?? "oct";
 		}
 
-		public String GetKeyId()
+		public string GetKeyId()
 		{
-			String? envKeyId = _configuration.GetValue<String>("APP_KEY_ID");
+			string? envKeyId = _configuration.GetValue<string>("APP_KEY_ID");
 
-			String keyId = String.IsNullOrEmpty(envKeyId)
+			string keyId = string.IsNullOrEmpty(envKeyId)
 				? _keySetConfigurationSection[nameof(KeySetOptions.KeyId)] ?? "APPV1KEYID"
 				: envKeyId;
 
 			return Base64UrlEncoder.Encode(keyId);
 		}
 
-		public String GetSecretKey()
+		public string GetSecretKey()
 		{
-			String? envSecretKey = _configuration.GetValue<String?>("APP_SECRET_KEY");
+			string? envSecretKey = _configuration.GetValue<string?>("APP_SECRET_KEY");
 
-			String? secretKey = String.IsNullOrEmpty(envSecretKey)
-				? _keySetConfigurationSection[nameof(KeySetOptions.SecretKey)] ?? "KEY198*£%&YEK+OP}L"
+			string? secretKey = string.IsNullOrEmpty(envSecretKey)
+				? _keySetConfigurationSection[nameof(KeySetOptions.SecretKey)] ?? "KEY198*£%&YEK+OP}L5H0ULD>32CH8Rz"
 				: envSecretKey;
 
-			return secretKey;
+			return secretKey.Length < 32
+				? throw new SecurityTokenInvalidSigningKeyException("Invalid key provided. Security key should be at least 32 characters")
+				: secretKey;
 		}
 
 		public SymmetricSecurityKey GetSigningKey()
@@ -57,10 +56,10 @@ namespace UserIdentity.Infrastructure.Security
 			return new SymmetricSecurityKey(Encoding.ASCII.GetBytes(GetSecretKey()));
 		}
 
-		public String GetBase64URLEncodedSecretKey()
+		public string GetBase64URLEncodedSecretKey()
 		{
 
-			String secretKey = GetSecretKey();
+			string secretKey = GetSecretKey();
 
 			return Base64UrlEncoder.Encode(secretKey);
 		}
