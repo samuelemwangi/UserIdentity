@@ -69,7 +69,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 		public async Task Create_User_When_Default_Role_Does_Not_Exist_Throws_MissingConfigirationException()
 		{
 			// Arrange
-			var defaultRole= _testSettings.Configuration.GetValue<string>(defaultRoleKey);
+			var defaultRole = _testSettings.Configuration.GetValue<string>(defaultRoleKey);
 			_testSettings.Configuration[defaultRoleKey] = null;
 
 			var command = GetRegisterUserCommand();

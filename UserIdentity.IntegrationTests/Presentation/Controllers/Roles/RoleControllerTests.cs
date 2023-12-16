@@ -52,6 +52,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var responseString = await response.Content.ReadAsStringAsync();
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -88,6 +90,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var response = await _httpClient.SendAsync(httpRequest);
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
@@ -109,6 +113,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var response = await _httpClient.SendAsync(httpRequest);
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
@@ -136,6 +142,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var response = await _httpClient.SendAsync(httpRequest);
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
 		}
 
@@ -163,6 +171,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var responseString = await response.Content.ReadAsStringAsync();
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -196,6 +206,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var response = await _httpClient.SendAsync(httpRequest);
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
@@ -217,6 +229,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var response = await _httpClient.SendAsync(httpRequest);
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
@@ -244,6 +258,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var response = await _httpClient.SendAsync(httpRequest);
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
 		}
 
@@ -277,6 +293,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var responseString = await response.Content.ReadAsStringAsync();
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.Created, response.StatusCode);
 
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -323,6 +341,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var responseString = await response.Content.ReadAsStringAsync();
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
@@ -371,6 +391,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var responseString = await response.Content.ReadAsStringAsync();
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
@@ -418,6 +440,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var response = await _httpClient.SendAsync(httpRequest);
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
@@ -445,6 +469,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var response = await _httpClient.SendAsync(httpRequest);
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
@@ -478,6 +504,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var response = await _httpClient.SendAsync(httpRequest);
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
 		}
 
@@ -512,6 +540,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var responseString = await response.Content.ReadAsStringAsync();
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -559,6 +589,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var responseString = await response.Content.ReadAsStringAsync();
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
@@ -607,6 +639,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var responseString = await response.Content.ReadAsStringAsync();
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
@@ -655,6 +689,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var response = await _httpClient.SendAsync(httpRequest);
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
@@ -682,6 +718,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var response = await _httpClient.SendAsync(httpRequest);
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
@@ -715,6 +753,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var response = await _httpClient.SendAsync(httpRequest);
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
 		}
 
@@ -742,6 +782,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var responseString = await response.Content.ReadAsStringAsync();
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -774,6 +816,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var responseString = await response.Content.ReadAsStringAsync();
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -810,6 +854,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var response = await _httpClient.SendAsync(httpRequest);
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
@@ -831,6 +877,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var response = await _httpClient.SendAsync(httpRequest);
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
@@ -858,6 +906,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var response = await _httpClient.SendAsync(httpRequest);
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
 		}
 
@@ -885,6 +935,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var responseString = await response.Content.ReadAsStringAsync();
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -924,6 +976,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var responseString = await response.Content.ReadAsStringAsync();
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -960,6 +1014,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var response = await _httpClient.SendAsync(httpRequest);
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
@@ -981,6 +1037,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var response = await _httpClient.SendAsync(httpRequest);
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
@@ -1008,6 +1066,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var response = await _httpClient.SendAsync(httpRequest);
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
 		}
 
@@ -1043,6 +1103,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var responseString = await response.Content.ReadAsStringAsync();
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.Created, response.StatusCode);
 
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -1093,6 +1155,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var responseString = await response.Content.ReadAsStringAsync();
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
@@ -1141,6 +1205,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var responseString = await response.Content.ReadAsStringAsync();
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
@@ -1190,6 +1256,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var response = await _httpClient.SendAsync(httpRequest);
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
@@ -1219,6 +1287,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var response = await _httpClient.SendAsync(httpRequest);
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
@@ -1253,6 +1323,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var response = await _httpClient.SendAsync(httpRequest);
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
 		}
 
@@ -1289,6 +1361,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var responseString = await response.Content.ReadAsStringAsync();
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.Created, response.StatusCode);
 
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -1343,6 +1417,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var responseString = await response.Content.ReadAsStringAsync();
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
@@ -1391,6 +1467,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var responseString = await response.Content.ReadAsStringAsync();
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
@@ -1442,6 +1520,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var response = await _httpClient.SendAsync(httpRequest);
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
@@ -1472,6 +1552,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var response = await _httpClient.SendAsync(httpRequest);
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
@@ -1507,6 +1589,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var response = await _httpClient.SendAsync(httpRequest);
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
 		}
 
@@ -1538,6 +1622,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var responseString = await response.Content.ReadAsStringAsync();
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -1577,6 +1663,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var responseString = await response.Content.ReadAsStringAsync();
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -1613,6 +1701,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var response = await _httpClient.SendAsync(httpRequest);
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
@@ -1634,6 +1724,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var response = await _httpClient.SendAsync(httpRequest);
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
@@ -1661,6 +1753,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var response = await _httpClient.SendAsync(httpRequest);
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
 		}
 
@@ -1701,6 +1795,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var responseString = await response.Content.ReadAsStringAsync();
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
@@ -1744,6 +1840,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var responseString = await response.Content.ReadAsStringAsync();
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -1793,6 +1891,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var responseString = await response.Content.ReadAsStringAsync();
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
@@ -1844,6 +1944,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var response = await _httpClient.SendAsync(httpRequest);
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
@@ -1874,6 +1976,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var response = await _httpClient.SendAsync(httpRequest);
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
@@ -1909,6 +2013,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var response = await _httpClient.SendAsync(httpRequest);
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
 		}
 

@@ -64,7 +64,7 @@ namespace UserIdentity.UnitTests.Application.Core.Errors
 		}
 
 		[Fact]
-		public async Task Get_Error_With_Null_Status_Message_Returns_Error_ViewMode()
+		public async Task Get_Error_With_Null_Status_Message_Returns_Error_ViewModel()
 		{
 			// Arrange
 			var query = new GetErrorQuery()

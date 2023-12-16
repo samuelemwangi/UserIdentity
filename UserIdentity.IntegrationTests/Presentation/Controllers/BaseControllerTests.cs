@@ -50,5 +50,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 			_appDbContext.Dispose();
 			_userManager.Dispose();
 		}
+
 	}
 }

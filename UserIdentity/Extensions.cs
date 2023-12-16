@@ -130,7 +130,7 @@ namespace UserIdentity
 					{
 						if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
 						{
-							context.Response.Headers.Add("X-Token-Expired", "true");
+							context.Response.Headers["X-Token-Expired"] = "true";
 						}
 						return Task.CompletedTask;
 					}

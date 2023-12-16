@@ -7,6 +7,8 @@ using Newtonsoft.Json.Linq;
 
 using UserIdentity.Application.Core.Tokens.ViewModels;
 
+using Xunit;
+
 namespace UserIdentity.IntegrationTests.Presentation.Helpers
 {
 	internal static class APIHelper
@@ -45,6 +47,14 @@ namespace UserIdentity.IntegrationTests.Presentation.Helpers
 		public static void AddAuthHeader(this HttpRequestMessage httpRequest, string authToken)
 		{
 			httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+		}
+
+		public static void ValidateRequestResponse(this HttpResponseMessage httpResponse)
+		{
+			var requestIdHeader = httpResponse.Headers.GetValues("X-Request-Id");
+			Assert.NotNull(requestIdHeader);
+			Assert.NotEmpty(requestIdHeader);
+			Assert.Single(requestIdHeader);
 		}
 
 	}

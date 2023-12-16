@@ -2,7 +2,6 @@
 using System.Security.Authentication;
 using System.Text.Json;
 
-using Microsoft.IdentityModel.Protocols.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
 using UserIdentity.Application.Core.Errors.Queries.GerError;
@@ -90,12 +89,13 @@ namespace UserIdentity.Presentation.Helpers
 			else
 			{
 				statusCode = HttpStatusCode.InternalServerError;
-				errorMessage = exception.Message;
+				errorMessage = "An internal application error occured";
 			}
 
 			var errorViewModel = await _getErrorQueryHandler.GetItemAsync(new GetErrorQuery
 			{
 				Exception = exception,
+				RequestId = context.Request.Headers["X-Request-Id"],
 				ErrorMessage = errorMessage,
 				StatusMessage = (int)statusCode + " -" + statusCode.ToString()
 			});
@@ -104,7 +104,7 @@ namespace UserIdentity.Presentation.Helpers
 
 			if (errorViewModel.Error != null)
 			{
-				errorViewModel.Error.Message = errorMessage.Substring(errorMessage.IndexOf(":") + 1).Trim();
+				errorViewModel.Error.Message = errorMessage[(errorMessage.IndexOf(':') + 1)..].Trim();
 			}
 
 			var serializerOptions = new JsonSerializerOptions
