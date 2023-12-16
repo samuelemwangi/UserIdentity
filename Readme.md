@@ -4,7 +4,7 @@ Useridentity is an easy-to-use RESTful API that simplifies user management by pr
 ## Running the App
 ### Prerequisites
 - MYSQL Database 
-- Dotnet 6.0 SDK
+- Dotnet 8.0 SDK
 - Visual Studio 2022 (optional)
 - Docker (optional)
 
