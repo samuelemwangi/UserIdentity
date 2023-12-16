@@ -2,15 +2,15 @@
 
 namespace UserIdentity.Application.Enums
 {
-  public enum RequestStatus
-  {
-    [Description("Request Successful")]
-    SUCCESSFUL,
+	public enum RequestStatus
+	{
+		[Description("Request Successful")]
+		SUCCESSFUL,
 
-    [Description("Request Failed")]
-    FAILED,
+		[Description("Request Failed")]
+		FAILED,
 
-    [Description("Request Aborted")]
-    ABORTED
-  }
+		[Description("Request Aborted")]
+		ABORTED
+	}
 }

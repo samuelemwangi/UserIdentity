@@ -1,11 +1,11 @@
 ﻿namespace UserIdentity.Application.Core
 {
-  public abstract record BaseEntityDTO
-  {
-    public Guid? Id { get; init; }
-    public String? CreatedBy { get; set; }
-    public String? CreatedAt { get; set; }
-    public String? UpdatedBy { get; set; }
-    public String? UpdatedAt { get; set; }
-  }
+	public abstract record BaseEntityDTO
+	{
+		public Guid? Id { get; init; }
+		public string? CreatedBy { get; set; }
+		public string? CreatedAt { get; set; }
+		public string? UpdatedBy { get; set; }
+		public string? UpdatedAt { get; set; }
+	}
 }

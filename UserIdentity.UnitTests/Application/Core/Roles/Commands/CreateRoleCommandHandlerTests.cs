@@ -1,72 +1,76 @@
-﻿using FakeItEasy;
+﻿using System.Threading.Tasks;
+
+using FakeItEasy;
+
 using Microsoft.AspNetCore.Identity;
-using System.Threading.Tasks;
+
 using UserIdentity.Application.Core.Roles.Commands.CreateRole;
 using UserIdentity.Application.Core.Roles.ViewModels;
 using UserIdentity.Application.Exceptions;
+
 using Xunit;
 
 namespace UserIdentity.UnitTests.Application.Core.Roles.Commands
 {
-  public class CreateRoleCommandHandlerTests
-  {
+	public class CreateRoleCommandHandlerTests
+	{
 
-    private readonly RoleManager<IdentityRole> _roleManager;
-
-
-    public CreateRoleCommandHandlerTests()
-    {
-      _roleManager = A.Fake<RoleManager<IdentityRole>>();
-    }
-    [Fact]
-    public async Task Create_Role_When_Role_Exists_Throws_RecordExistsException()
-    {
-      // Arrange
-      var command = new CreateRoleCommand { RoleName = "Admin" };
-
-      A.CallTo(() => _roleManager.FindByNameAsync(command.RoleName)).Returns(new IdentityRole { Id = "1", Name = command.RoleName });
-
-      var handler = new CreateRoleCommandHandler(_roleManager);
-
-      // Act & Assert
-      await Assert.ThrowsAsync<RecordExistsException>(() => handler.CreateItemAsync(command));
-    }
-
-    [Fact]
-    public async Task Create_Role_When_Role_Creation_Fails_Throws_RecordCreationException()
-    {
-      // Arrange
-      var command = new CreateRoleCommand { RoleName = "Admin" };
+		private readonly RoleManager<IdentityRole> _roleManager;
 
 
-      A.CallTo(() => _roleManager.FindByNameAsync(command.RoleName)).Returns(default(IdentityRole));
-      A.CallTo(() => _roleManager.CreateAsync(A<IdentityRole>.That.Matches(r => r.Name == command.RoleName))).Returns(Task.FromResult(IdentityResult.Failed()));
+		public CreateRoleCommandHandlerTests()
+		{
+			_roleManager = A.Fake<RoleManager<IdentityRole>>();
+		}
+		[Fact]
+		public async Task Create_Role_When_Role_Exists_Throws_RecordExistsException()
+		{
+			// Arrange
+			var command = new CreateRoleCommand { RoleName = "Admin" };
 
-      var handler = new CreateRoleCommandHandler(_roleManager);
+			A.CallTo(() => _roleManager.FindByNameAsync(command.RoleName)).Returns(new IdentityRole { Id = "1", Name = command.RoleName });
 
-      // Act & Assert
-      await Assert.ThrowsAsync<RecordCreationException>(() => handler.CreateItemAsync(command));
-    }
+			var handler = new CreateRoleCommandHandler(_roleManager);
 
-    [Fact]
-    public async Task Create_Role_Returns_Role()
-    {
-      // Arrange
-      var command = new CreateRoleCommand { RoleName = "Admin" };
+			// Act & Assert
+			await Assert.ThrowsAsync<RecordExistsException>(() => handler.CreateItemAsync(command));
+		}
 
-      A.CallTo(() => _roleManager.FindByNameAsync(command.RoleName)).Returns(default(IdentityRole));
-      A.CallTo(() => _roleManager.CreateAsync(A<IdentityRole>.That.Matches(r => r.Name == command.RoleName))).Returns(Task.FromResult(IdentityResult.Success));
+		[Fact]
+		public async Task Create_Role_When_Role_Creation_Fails_Throws_RecordCreationException()
+		{
+			// Arrange
+			var command = new CreateRoleCommand { RoleName = "Admin" };
 
-      var handler = new CreateRoleCommandHandler(_roleManager);
 
-      // Act
-      var vm = await handler.CreateItemAsync(command);
+			A.CallTo(() => _roleManager.FindByNameAsync(command.RoleName)).Returns(default(IdentityRole));
+			A.CallTo(() => _roleManager.CreateAsync(A<IdentityRole>.That.Matches(r => r.Name == command.RoleName))).Returns(Task.FromResult(IdentityResult.Failed()));
 
-      // Assert
-      Assert.IsType<RoleViewModel>(vm);
-      Assert.NotNull(vm.Role.Id);
-      Assert.Equal(command.RoleName, vm.Role.Name);
-    }
+			var handler = new CreateRoleCommandHandler(_roleManager);
 
-  }
+			// Act & Assert
+			await Assert.ThrowsAsync<RecordCreationException>(() => handler.CreateItemAsync(command));
+		}
+
+		[Fact]
+		public async Task Create_Role_Returns_Role()
+		{
+			// Arrange
+			var command = new CreateRoleCommand { RoleName = "Admin" };
+
+			A.CallTo(() => _roleManager.FindByNameAsync(command.RoleName)).Returns(default(IdentityRole));
+			A.CallTo(() => _roleManager.CreateAsync(A<IdentityRole>.That.Matches(r => r.Name == command.RoleName))).Returns(Task.FromResult(IdentityResult.Success));
+
+			var handler = new CreateRoleCommandHandler(_roleManager);
+
+			// Act
+			var vm = await handler.CreateItemAsync(command);
+
+			// Assert
+			Assert.IsType<RoleViewModel>(vm);
+			Assert.NotNull(vm.Role.Id);
+			Assert.Equal(command.RoleName, vm.Role.Name);
+		}
+
+	}
 }

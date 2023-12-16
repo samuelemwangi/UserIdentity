@@ -2,10 +2,10 @@
 
 namespace UserIdentity.IntegrationTests.TestUtils
 {
-  internal class ScopeClaimSettings
-  {
-    public static String Resource = "user";
-    public static String Action = "edit";
-    public static String ScopeClaim = $"{Resource}:{Action}";
-  }
+	internal class ScopeClaimSettings
+	{
+		public static string Resource = "user";
+		public static string Action = "edit";
+		public static string ScopeClaim = $"{Resource}:{Action}";
+	}
 }

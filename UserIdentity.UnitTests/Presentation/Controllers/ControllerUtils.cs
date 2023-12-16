@@ -1,38 +1,40 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System;
+
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using System;
+
 using UserIdentity.Presentation.Controllers;
 
 namespace UserIdentity.UnitTests.Presentation.Controllers
 {
-  internal static class ControllerUtils
-  {
-    public static String UserId = "1234567890";
-    public static String UserRoles = "role1,role2,role3";
-    public static String UserScopes = "scope1:edit,scope2:read,scope3:delete";
+	internal static class ControllerUtils
+	{
+		public static string UserId = "1234567890";
+		public static string UserRoles = "role1,role2,role3";
+		public static string UserScopes = "scope1:edit,scope2:read,scope3:delete";
 
-    public static void UpdateContext(this BaseController controller, String? controllerName, bool addUserId = false, bool addUserRoles = false, bool addUserScopes = false)
-    {
-      // Route data
-      var routedData = new RouteData();
-      routedData.Values["controller"] = controllerName;
+		public static void UpdateContext(this BaseController controller, string? controllerName, bool addUserId = false, bool addUserRoles = false, bool addUserScopes = false)
+		{
+			// Route data
+			var routedData = new RouteData();
+			routedData.Values["controller"] = controllerName;
 
-      controller.ControllerContext.RouteData = routedData;
+			controller.ControllerContext.RouteData = routedData;
 
-      // Headers
-      var context = new DefaultHttpContext();
+			// Headers
+			var context = new DefaultHttpContext();
 
-      if (addUserId)
-        context.Request.Headers.Add("X-USER-ID", UserId);
+			if (addUserId)
+				context.Request.Headers.Add("X-USER-ID", UserId);
 
-      if (addUserRoles)
-        context.Request.Headers.Add("X-USER-ROLES", UserRoles);
+			if (addUserRoles)
+				context.Request.Headers.Add("X-USER-ROLES", UserRoles);
 
-      if (addUserScopes)
-        context.Request.Headers.Add("X-USER-SCOPES", UserScopes);
+			if (addUserScopes)
+				context.Request.Headers.Add("X-USER-SCOPES", UserScopes);
 
-      controller.ControllerContext.HttpContext = context;
+			controller.ControllerContext.HttpContext = context;
 
-    }
-  }
+		}
+	}
 }

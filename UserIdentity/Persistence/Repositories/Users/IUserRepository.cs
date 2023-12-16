@@ -2,14 +2,14 @@
 
 namespace UserIdentity.Persistence.Repositories.Users
 {
-  public interface IUserRepository
-  {
-    Task<User?> GetUserAsync(String? id);
+	public interface IUserRepository
+	{
+		Task<User?> GetUserAsync(string? id);
 
-    Task<Int32> CreateUserAsync(User user);
+		Task<int> CreateUserAsync(User user);
 
-    Task<Int32> UpdateResetPasswordTokenAsync(String userId, String resetPasswordToken);
+		Task<int> UpdateResetPasswordTokenAsync(string userId, string resetPasswordToken);
 
-    Task<Boolean> ValidateUpdatePasswordTokenAsync(String token, String userId);
-  }
+		Task<bool> ValidateUpdatePasswordTokenAsync(string token, string userId);
+	}
 }

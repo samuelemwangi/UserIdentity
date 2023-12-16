@@ -1,16 +1,16 @@
 ﻿namespace UserIdentity.Application.Interfaces.Utilities
 {
-  public interface IMachineDateTime
-  {
-    DateTime? DefaultNull { get; }
+	public interface IMachineDateTime
+	{
+		DateTime? DefaultNull { get; }
 
-    DateTime Now { get; }
+		DateTime Now { get; }
 
-    String GetTimeStamp();
+		string GetTimeStamp();
 
-    String? ResolveDate(DateTime? dateTime);
+		string? ResolveDate(DateTime? dateTime);
 
-    Int64 ToUnixEpochDate(DateTime dateTime);
+		long ToUnixEpochDate(DateTime dateTime);
 
-  }
+	}
 }

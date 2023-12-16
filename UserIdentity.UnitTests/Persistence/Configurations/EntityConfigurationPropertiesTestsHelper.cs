@@ -1,57 +1,58 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System;
+﻿using System;
+
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 
 namespace UserIdentity.UnitTests.Persistence.Configurations
 {
-  internal static class EntityConfigurationPropertiesTestsHelper
-  {
+	internal static class EntityConfigurationPropertiesTestsHelper
+	{
 
-    public static Boolean ConfirmMaxColumnLength(this EntityType entityType, String column, Int32 columnLength)
-    {
-      var properies = entityType.GetProperties();
+		public static bool ConfirmMaxColumnLength(this EntityType entityType, string column, int columnLength)
+		{
+			var properies = entityType.GetProperties();
 
-      foreach (var prop in properies)
-      {
-        if (prop.Name == column)
-        {
-          return prop.GetMaxLength() == columnLength;
-        }
-      }
+			foreach (var prop in properies)
+			{
+				if (prop.Name == column)
+				{
+					return prop.GetMaxLength() == columnLength;
+				}
+			}
 
-      return false;
-    }
+			return false;
+		}
 
-    public static Boolean ConfirmColumnHasIndex(this EntityType entityType, String column)
-    {
-      var properies = entityType.GetProperties();
+		public static bool ConfirmColumnHasIndex(this EntityType entityType, string column)
+		{
+			var properies = entityType.GetProperties();
 
-      foreach (var prop in properies)
-      {
-        if (prop.Name == column)
-        {
-          return prop.IsIndex();
-        }
-      }
+			foreach (var prop in properies)
+			{
+				if (prop.Name == column)
+				{
+					return prop.IsIndex();
+				}
+			}
 
-      return false;
-    }
+			return false;
+		}
 
-    public static Boolean ConfirmColumnHasKey(this EntityType entityType, String column)
-    {
-      var properies = entityType.GetProperties();
+		public static bool ConfirmColumnHasKey(this EntityType entityType, string column)
+		{
+			var properies = entityType.GetProperties();
 
-      foreach (var prop in properies)
-      {
-        if (prop.Name == column)
-        {
-          return prop.IsKey();
-        }
-      }
+			foreach (var prop in properies)
+			{
+				if (prop.Name == column)
+				{
+					return prop.IsKey();
+				}
+			}
 
-      return false;
-    }
+			return false;
+		}
 
 
-  }
+	}
 }

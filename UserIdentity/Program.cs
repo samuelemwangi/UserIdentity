@@ -1,5 +1,7 @@
-using Microsoft.EntityFrameworkCore;
 using System.Net.Mime;
+
+using Microsoft.EntityFrameworkCore;
+
 using UserIdentity;
 using UserIdentity.Application.Interfaces.Security;
 using UserIdentity.Application.Interfaces.Utilities;
@@ -19,7 +21,7 @@ var builder = WebApplication.CreateBuilder(args);
 // MYSQL DB
 // Register Configuration
 var mysqlSettings = builder.Configuration.GetSection(nameof(MysqlSettings)).Get<MysqlSettings>();
-String connectionString = mysqlSettings.ConnectionString(builder.Configuration);
+string connectionString = mysqlSettings.ConnectionString(builder.Configuration);
 builder.Services.AddDbContext<AppDbContext>(opt => opt.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)).UseSnakeCaseNamingConvention());
 
 // JWT Identity
@@ -32,12 +34,12 @@ builder.Services.AddAppIdentity();
 // Controllers
 builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
 {
-  options.InvalidModelStateResponseFactory = context =>
-  {
-    var result = new ValidationFailedResult(context.ModelState);
-    result.ContentTypes.Add(MediaTypeNames.Application.Json);
-    return result;
-  };
+	options.InvalidModelStateResponseFactory = context =>
+	{
+		var result = new ValidationFailedResult(context.ModelState);
+		result.ContentTypes.Add(MediaTypeNames.Application.Json);
+		return result;
+	};
 });
 
 // Swagger
@@ -70,8 +72,8 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-  app.UseSwagger();
-  app.UseSwaggerUI();
+	app.UseSwagger();
+	app.UseSwaggerUI();
 }
 
 // Handle Exceptions
