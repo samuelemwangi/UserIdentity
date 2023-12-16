@@ -75,7 +75,7 @@ namespace UserIdentity.UnitTests.Presentation.Helpers
 
 		[InlineData(typeof(MissingConfigurationException), HttpStatusCode.InternalServerError, "An application error occured")]
 
-		[InlineData(typeof(DivideByZeroException), HttpStatusCode.InternalServerError,"An internal application error occured")]
+		[InlineData(typeof(DivideByZeroException), HttpStatusCode.InternalServerError, "An internal application error occured")]
 		[InlineData(typeof(Exception), HttpStatusCode.InternalServerError, "An internal application error occured")]
 		public async Task Invoke_Exception_Middleware_With_Exception_Returns_Error_Response(Type exceptionType, HttpStatusCode httpStatusCode, string errorMessage = "")
 		{

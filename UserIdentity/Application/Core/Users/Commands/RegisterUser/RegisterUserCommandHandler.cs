@@ -117,7 +117,7 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 				PhoneNumberConfirmed = false,
 				EmailConfirmed = false
 			};
-					
+
 			var identityResult = await _userManager.CreateAsync(newUser, command.UserPassword);
 
 			if (!identityResult.Succeeded)
