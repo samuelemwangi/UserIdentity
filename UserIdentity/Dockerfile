@@ -1,7 +1,6 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-jammy-chiseled-composite AS base
 WORKDIR /app
-EXPOSE 80
-EXPOSE 443
+ENV ASPNETCORE_HTTP_PORTS=80;$ASPNETCORE_HTTP_PORTS 
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0-jammy  AS build
 WORKDIR /src
