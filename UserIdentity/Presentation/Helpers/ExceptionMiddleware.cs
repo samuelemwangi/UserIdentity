@@ -2,6 +2,7 @@
 using System.Security.Authentication;
 using System.Text.Json;
 
+using Microsoft.IdentityModel.Protocols.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
 using UserIdentity.Application.Core.Errors.Queries.GerError;
@@ -80,6 +81,11 @@ namespace UserIdentity.Presentation.Helpers
 			{
 				errorMessage = "Provided credentials are invalid";
 				statusCode = HttpStatusCode.Unauthorized;
+			}
+			else if (typeof(MissingConfigurationException).IsInstanceOfType(exception))
+			{
+				statusCode = HttpStatusCode.InternalServerError;
+				errorMessage = "An application error occured";
 			}
 			else
 			{

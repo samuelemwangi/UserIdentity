@@ -88,7 +88,7 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 		{
 
 			// Check if default role is set in configs
-			string defaultRoleKey = _configuration.GetValue<string>("DefaultRole");
+			string defaultRoleKey = _configuration.GetValue<string>("DefaultRole") ?? throw new MissingConfigurationException("DefaultRole");
 
 			// Use env role if role is set in the env
 			string defaultRole = _configuration.GetValue<string>(defaultRoleKey) ?? defaultRoleKey;
