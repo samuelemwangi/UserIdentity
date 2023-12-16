@@ -37,6 +37,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Security
 			var responseString = await response.Content.ReadAsStringAsync();
 
 			// Assert
+			response.ValidateRequestResponse();
+
 			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);

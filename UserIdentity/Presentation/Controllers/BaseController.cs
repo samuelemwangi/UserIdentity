@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 
 namespace UserIdentity.Presentation.Controllers
 {
@@ -11,5 +12,6 @@ namespace UserIdentity.Presentation.Controllers
 		protected string? UserScopeClaims => Request.Headers.Where(h => h.Key.ToUpper().Equals("X-USER-SCOPES")).Select(x => x.Value).FirstOrDefault();
 
 		protected string? EntityName => this.ControllerContext.RouteData.Values["controller"]?.ToString();
+
 	}
 }

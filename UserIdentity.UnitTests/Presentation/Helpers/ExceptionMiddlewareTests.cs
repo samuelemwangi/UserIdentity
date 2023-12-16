@@ -16,6 +16,8 @@ using UserIdentity.UnitTests.TestUtils;
 
 using Xunit;
 
+using static System.Net.Mime.MediaTypeNames;
+
 using InvalidOperationException = UserIdentity.Application.Exceptions.InvalidOperationException;
 
 namespace UserIdentity.UnitTests.Presentation.Helpers
@@ -71,8 +73,10 @@ namespace UserIdentity.UnitTests.Presentation.Helpers
 
 		[InlineData(typeof(InvalidCredentialException), HttpStatusCode.Unauthorized, "Provided credentials are invalid")]
 
-		[InlineData(typeof(DivideByZeroException), HttpStatusCode.InternalServerError)]
-		[InlineData(typeof(Exception), HttpStatusCode.InternalServerError)]
+		[InlineData(typeof(MissingConfigurationException), HttpStatusCode.InternalServerError, "An application error occured")]
+
+		[InlineData(typeof(DivideByZeroException), HttpStatusCode.InternalServerError, "An internal application error occured")]
+		[InlineData(typeof(Exception), HttpStatusCode.InternalServerError, "An internal application error occured")]
 		public async Task Invoke_Exception_Middleware_With_Exception_Returns_Error_Response(Type exceptionType, HttpStatusCode httpStatusCode, string errorMessage = "")
 		{
 			// Arrange

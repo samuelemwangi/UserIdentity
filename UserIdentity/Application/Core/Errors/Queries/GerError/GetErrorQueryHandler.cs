@@ -9,6 +9,7 @@ namespace UserIdentity.Application.Core.Errors.Queries.GerError
 	public record GetErrorQuery
 	{
 		public Exception Exception { get; internal set; }
+		public string? RequestId { get; internal set; }
 		public string? ErrorMessage { get; internal set; }
 		public string? StatusMessage { get; internal set; }
 	}
@@ -29,7 +30,10 @@ namespace UserIdentity.Application.Core.Errors.Queries.GerError
 		public async Task<ErrorViewModel> GetItemAsync(GetErrorQuery query)
 		{
 			// log the error 
-			_logHelper.LogEvent(query.Exception.Message, LogLevel.Error);
+			_logHelper.LogEvent(
+				$"{query.RequestId ?? "NO-REQUEST-ID"} | Exception Message :: {query.Exception.Message ?? "NO-EXCEPTION-MESSAGE"} | User Message :: {query.ErrorMessage ?? "NO-USER-MESSAGE"}",
+				LogLevel.Error
+				);
 
 			var errorDTO = new ErrorDTO
 			{

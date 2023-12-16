@@ -81,15 +81,21 @@ namespace UserIdentity.Presentation.Helpers
 				errorMessage = "Provided credentials are invalid";
 				statusCode = HttpStatusCode.Unauthorized;
 			}
+			else if (typeof(MissingConfigurationException).IsInstanceOfType(exception))
+			{
+				statusCode = HttpStatusCode.InternalServerError;
+				errorMessage = "An application error occured";
+			}
 			else
 			{
 				statusCode = HttpStatusCode.InternalServerError;
-				errorMessage = exception.Message;
+				errorMessage = "An internal application error occured";
 			}
 
 			var errorViewModel = await _getErrorQueryHandler.GetItemAsync(new GetErrorQuery
 			{
 				Exception = exception,
+				RequestId = context.Request.Headers["X-Request-Id"],
 				ErrorMessage = errorMessage,
 				StatusMessage = (int)statusCode + " -" + statusCode.ToString()
 			});
@@ -98,7 +104,7 @@ namespace UserIdentity.Presentation.Helpers
 
 			if (errorViewModel.Error != null)
 			{
-				errorViewModel.Error.Message = errorMessage.Substring(errorMessage.IndexOf(":") + 1).Trim();
+				errorViewModel.Error.Message = errorMessage[(errorMessage.IndexOf(':') + 1)..].Trim();
 			}
 
 			var serializerOptions = new JsonSerializerOptions

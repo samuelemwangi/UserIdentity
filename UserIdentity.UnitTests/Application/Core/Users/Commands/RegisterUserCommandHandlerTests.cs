@@ -66,6 +66,23 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 		}
 
 		[Fact]
+		public async Task Create_User_When_Default_Role_Does_Not_Exist_Throws_MissingConfigirationException()
+		{
+			// Arrange
+			var defaultRole = _testSettings.Configuration.GetValue<string>(defaultRoleKey);
+			_testSettings.Configuration[defaultRoleKey] = null;
+
+			var command = GetRegisterUserCommand();
+
+			var handler = GetRegisterUserCommandHandler();
+
+			// Act & Assert
+			await Assert.ThrowsAsync<MissingConfigurationException>(() => handler.CreateItemAsync(command));
+
+			_testSettings.SetConfiguration();
+		}
+
+		[Fact]
 		public async Task Create_User_When_Creating_Default_Role_Fails_Throws_IllegalEventException()
 		{
 			// Arrange

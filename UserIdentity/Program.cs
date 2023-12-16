@@ -76,6 +76,9 @@ if (app.Environment.IsDevelopment())
 	app.UseSwaggerUI();
 }
 
+// Extract Request Id
+app.UseMiddleware<RequestIdMiddleware>();
+
 // Handle Exceptions
 app.UseMiddleware<ExceptionMiddleware>();
 
