@@ -2,7 +2,7 @@
 {
 	public record ConfirmUpdatePasswordDTO
 	{
-		public Boolean UpdatePasswordTokenConfirmed { get; init; }
+		public bool UpdatePasswordTokenConfirmed { get; init; }
 	}
 
 	public record ConfirmUpdatePasswordTokenViewModel : BaseViewModel

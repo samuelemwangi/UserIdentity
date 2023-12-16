@@ -9,11 +9,11 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 {
 	internal static class ControllerUtils
 	{
-		public static String UserId = "1234567890";
-		public static String UserRoles = "role1,role2,role3";
-		public static String UserScopes = "scope1:edit,scope2:read,scope3:delete";
+		public static string UserId = "1234567890";
+		public static string UserRoles = "role1,role2,role3";
+		public static string UserScopes = "scope1:edit,scope2:read,scope3:delete";
 
-		public static void UpdateContext(this BaseController controller, String? controllerName, bool addUserId = false, bool addUserRoles = false, bool addUserScopes = false)
+		public static void UpdateContext(this BaseController controller, string? controllerName, bool addUserId = false, bool addUserRoles = false, bool addUserScopes = false)
 		{
 			// Route data
 			var routedData = new RouteData();

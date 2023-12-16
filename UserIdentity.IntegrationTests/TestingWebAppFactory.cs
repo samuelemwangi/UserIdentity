@@ -15,7 +15,7 @@ namespace UserIdentity.IntegrationTests
 	public class TestingWebAppFactory : WebApplicationFactory<Program>
 	{
 
-		public Dictionary<String, String> Props { get; internal set; }
+		public Dictionary<string, string> Props { get; internal set; }
 		public TestingWebAppFactory()
 		{
 			Props = GetProps();
@@ -49,17 +49,17 @@ namespace UserIdentity.IntegrationTests
 
 		}
 
-		public Dictionary<String, String> GetProps()
+		public Dictionary<string, string> GetProps()
 		{
-			Dictionary<String, String> props = new Dictionary<String, String>();
-			String filePath = ".env";
+			Dictionary<string, string> props = new Dictionary<string, string>();
+			string filePath = ".env";
 			if (!File.Exists(filePath))
 				return props;
 
 
-			foreach (String line in File.ReadLines(filePath))
+			foreach (string line in File.ReadLines(filePath))
 			{
-				String[] parts = line.Split('=', StringSplitOptions.RemoveEmptyEntries);
+				string[] parts = line.Split('=', StringSplitOptions.RemoveEmptyEntries);
 				props.Add(parts[0].Trim(), parts[1].Trim());
 			}
 

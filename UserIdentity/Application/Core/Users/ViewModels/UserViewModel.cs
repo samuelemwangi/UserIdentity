@@ -2,10 +2,10 @@
 {
 	public record UserDTO : BaseEntityDTO
 	{
-		public new String? Id { get; init; }
-		public String? FullName { get; init; }
-		public String? UserName { get; init; }
-		public String? Email { get; init; }
+		public new string? Id { get; init; }
+		public string? FullName { get; init; }
+		public string? UserName { get; init; }
+		public string? Email { get; init; }
 
 	}
 

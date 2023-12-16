@@ -16,7 +16,7 @@ namespace UserIdentity.Persistence.Repositories.Users
 		{
 			_appDbContext = appDbContext;
 		}
-		public async Task<Int32> CreateUserAsync(User user)
+		public async Task<int> CreateUserAsync(User user)
 		{
 			try
 			{
@@ -30,14 +30,14 @@ namespace UserIdentity.Persistence.Repositories.Users
 			}
 		}
 
-		public async Task<User?> GetUserAsync(String? Id)
+		public async Task<User?> GetUserAsync(string? Id)
 		{
 			return await _appDbContext.AppUser
 					.Where(u => (u.Id + "").Equals(Id) && !u.IsDeleted)
 					.FirstOrDefaultAsync();
 		}
 
-		public async Task<Int32> UpdateResetPasswordTokenAsync(String userId, String resetPasswordToken)
+		public async Task<int> UpdateResetPasswordTokenAsync(string userId, string resetPasswordToken)
 		{
 			try
 			{
@@ -58,7 +58,7 @@ namespace UserIdentity.Persistence.Repositories.Users
 			}
 		}
 
-		public async Task<Boolean> ValidateUpdatePasswordTokenAsync(String userId, String token)
+		public async Task<bool> ValidateUpdatePasswordTokenAsync(string userId, string token)
 		{
 			return await _appDbContext.AppUser
 					.AnyAsync(u => (u.Id + "").Equals(userId) && (u.ForgotPasswordToken + "").Equals(token) && !u.IsDeleted);

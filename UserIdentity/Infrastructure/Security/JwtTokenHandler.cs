@@ -22,7 +22,7 @@ namespace UserIdentity.Infrastructure.Security
 			_keySetFactory = keySetFactory;
 			_logHelper = logHelper;
 		}
-		public ClaimsPrincipal ValidateToken(String? token, TokenValidationParameters tokenValidationParameters)
+		public ClaimsPrincipal ValidateToken(string? token, TokenValidationParameters tokenValidationParameters)
 		{
 			try
 			{
@@ -39,7 +39,7 @@ namespace UserIdentity.Infrastructure.Security
 			}
 		}
 
-		public String WriteToken(JwtSecurityToken jwt)
+		public string WriteToken(JwtSecurityToken jwt)
 		{
 			return _jwtSecurityTokenHandler.WriteToken(jwt);
 		}

@@ -8,7 +8,7 @@ namespace UserIdentity.Application.Core.Roles.Queries.GetRoles
 {
 	public record GetUserRolesQuery : BaseQuery
 	{
-		public String UserId { get; init; }
+		public string UserId { get; init; }
 	}
 
 	public class GetUserRolesQueryHandler : IGetItemsQueryHandler<GetUserRolesQuery, UserRolesViewModel>
@@ -33,7 +33,7 @@ namespace UserIdentity.Application.Core.Roles.Queries.GetRoles
 			var userRoles = await _userManager.GetRolesAsync(user);
 
 			if (userRoles == null)
-				userRoles = new List<String>();
+				userRoles = new List<string>();
 
 			return new UserRolesViewModel
 			{

@@ -31,7 +31,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 		private readonly IRefreshTokenRepository _refreshTokenRepository;
 		private readonly IMachineDateTime _machineDateTime;
 
-		private readonly IGetItemsQueryHandler<IList<String>, HashSet<String>> _getRoleClaimsQueryHandler;
+		private readonly IGetItemsQueryHandler<IList<string>, HashSet<string>> _getRoleClaimsQueryHandler;
 
 
 		public LoginUserCommandHandlerTests()
@@ -42,7 +42,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 			_userRepository = A.Fake<IUserRepository>();
 			_refreshTokenRepository = A.Fake<IRefreshTokenRepository>();
 			_machineDateTime = new MachineDateTime();
-			_getRoleClaimsQueryHandler = A.Fake<IGetItemsQueryHandler<IList<String>, HashSet<String>>>();
+			_getRoleClaimsQueryHandler = A.Fake<IGetItemsQueryHandler<IList<string>, HashSet<string>>>();
 
 		}
 
@@ -131,8 +131,8 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 
 			var user = GetUser(existingIdentityUser.Id);
 
-			var userRoles = new List<String> { "Admin" };
-			var userRoleClaims = new HashSet<String> { "Admin" };
+			var userRoles = new List<string> { "Admin" };
+			var userRoleClaims = new HashSet<string> { "Admin" };
 
 			var refreshToken = "sampleRfereshToken";
 
@@ -152,7 +152,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 
 			A.CallTo(() => _tokenFactory.GenerateRefreshToken(32)).Returns(refreshToken);
 
-			A.CallTo(() => _jwtFactory.GenerateEncodedTokenAsync(existingIdentityUser.Id, A<String>.Ignored, userRoles, userRoleClaims)).Returns((accessToken, expiresIn));
+			A.CallTo(() => _jwtFactory.GenerateEncodedTokenAsync(existingIdentityUser.Id, A<string>.Ignored, userRoles, userRoleClaims)).Returns((accessToken, expiresIn));
 
 			A.CallTo(() => _refreshTokenRepository.CreateRefreshTokenAsync(A<RefreshToken>.That.Matches(x => x.Token == refreshToken))).Returns(Task.FromResult(0));
 
@@ -176,8 +176,8 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 
 			var user = GetUser(existingIdentityUser.Id);
 
-			var userRoles = new List<String> { "Admin" };
-			var userRoleClaims = new HashSet<String> { "Admin" };
+			var userRoles = new List<string> { "Admin" };
+			var userRoleClaims = new HashSet<string> { "Admin" };
 
 			var refreshToken = "sampleRfereshToken";
 
@@ -197,7 +197,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 
 			A.CallTo(() => _tokenFactory.GenerateRefreshToken(32)).Returns(refreshToken);
 
-			A.CallTo(() => _jwtFactory.GenerateEncodedTokenAsync(existingIdentityUser.Id, A<String>.Ignored, userRoles, userRoleClaims)).Returns((accessToken, expiresIn));
+			A.CallTo(() => _jwtFactory.GenerateEncodedTokenAsync(existingIdentityUser.Id, A<string>.Ignored, userRoles, userRoleClaims)).Returns((accessToken, expiresIn));
 
 			A.CallTo(() => _refreshTokenRepository.CreateRefreshTokenAsync(A<RefreshToken>.That.Matches(x => x.Token == refreshToken))).Returns(Task.FromResult(1));
 
@@ -240,7 +240,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 
 		}
 
-		private User GetUser(String? id = null)
+		private User GetUser(string? id = null)
 		{
 			return new User
 			{

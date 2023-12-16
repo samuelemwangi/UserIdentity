@@ -12,9 +12,9 @@ namespace UserIdentity.Application.Core.Users.Commands.ConfirmUpdatePasswordToke
 	public record ConfirmUpdatePasswordTokenCommand : BaseCommand
 	{
 		[Required]
-		public String ConfirmPasswordToken { get; init; }
+		public string ConfirmPasswordToken { get; init; }
 		[Required]
-		public String UserId { get; init; }
+		public string UserId { get; init; }
 	}
 	public class ConfirmUpdatePasswordTokenCommandHandler : IUpdateItemCommandHandler<ConfirmUpdatePasswordTokenCommand, ConfirmUpdatePasswordTokenViewModel>
 	{
@@ -30,7 +30,7 @@ namespace UserIdentity.Application.Core.Users.Commands.ConfirmUpdatePasswordToke
 		{
 			try
 			{
-				String rawToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(command.ConfirmPasswordToken));
+				string rawToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(command.ConfirmPasswordToken));
 				return new ConfirmUpdatePasswordTokenViewModel
 				{
 					TokenPasswordResult = new ConfirmUpdatePasswordDTO

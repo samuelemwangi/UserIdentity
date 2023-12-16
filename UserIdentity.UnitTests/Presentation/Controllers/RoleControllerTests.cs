@@ -29,7 +29,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 
 	public class RoleControllerTests
 	{
-		private static readonly String Controllername = "role";
+		private static readonly string Controllername = "role";
 
 		private readonly ICreateItemCommandHandler<CreateRoleCommand, RoleViewModel> _createRoleCommandHandler;
 		private readonly ICreateItemCommandHandler<CreateUserRoleCommand, UserRolesViewModel> _createUserRoleCommandHandler;
@@ -91,7 +91,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var vm = result?.Value as RolesViewModel;
 
 			// Assert
-			Assert.Equal((Int32)HttpStatusCode.OK, result?.StatusCode);
+			Assert.Equal((int)HttpStatusCode.OK, result?.StatusCode);
 
 			Assert.NotNull(vm);
 			Assert.Equal(rolesVM.Roles.Count, vm?.Roles.Count);
@@ -139,7 +139,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var vm = result?.Value as RoleViewModel;
 
 			// Assert
-			Assert.Equal((Int32)HttpStatusCode.OK, result?.StatusCode);
+			Assert.Equal((int)HttpStatusCode.OK, result?.StatusCode);
 
 			Assert.NotNull(vm);
 			Assert.Equal(roleVM.Role.Id, vm?.Role.Id);
@@ -182,7 +182,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var vm = result?.Value as RoleViewModel;
 
 			// Assert
-			Assert.Equal((Int32)HttpStatusCode.Created, result?.StatusCode);
+			Assert.Equal((int)HttpStatusCode.Created, result?.StatusCode);
 
 			Assert.NotNull(vm);
 			Assert.Equal(roleVM.Role.Id, vm?.Role.Id);
@@ -227,7 +227,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var vm = result?.Value as RoleViewModel;
 
 			// Assert
-			Assert.Equal((Int32)HttpStatusCode.OK, result?.StatusCode);
+			Assert.Equal((int)HttpStatusCode.OK, result?.StatusCode);
 
 			Assert.NotNull(vm);
 			Assert.Equal(roleVM.Role.Id, vm?.Role.Id);
@@ -261,7 +261,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var vm = result?.Value as DeleteRecordViewModel;
 
 			// Assert
-			Assert.Equal((Int32)HttpStatusCode.OK, result?.StatusCode);
+			Assert.Equal((int)HttpStatusCode.OK, result?.StatusCode);
 
 			Assert.NotNull(vm);
 
@@ -278,7 +278,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 
 			var userRolesVM = new UserRolesViewModel
 			{
-				UserRoles = new List<String> { "Admin", "User" },
+				UserRoles = new List<string> { "Admin", "User" },
 			};
 
 			// Act
@@ -293,7 +293,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var vm = result?.Value as UserRolesViewModel;
 
 			// Assert
-			Assert.Equal((Int32)HttpStatusCode.OK, result?.StatusCode);
+			Assert.Equal((int)HttpStatusCode.OK, result?.StatusCode);
 
 			Assert.NotNull(vm);
 			Assert.Equal(userRolesVM.UserRoles.Count, vm?.UserRoles.Count);
@@ -334,7 +334,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 
 			var userRolesVM = new UserRolesViewModel
 			{
-				UserRoles = new List<String> { "Admin", "User" },
+				UserRoles = new List<string> { "Admin", "User" },
 			};
 
 			// Act
@@ -349,7 +349,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var vm = result?.Value as UserRolesViewModel;
 
 			// Assert
-			Assert.Equal((Int32)HttpStatusCode.Created, result?.StatusCode);
+			Assert.Equal((int)HttpStatusCode.Created, result?.StatusCode);
 
 			Assert.NotNull(vm);
 			Assert.Equal(userRolesVM.UserRoles.Count, vm?.UserRoles.Count);
@@ -412,7 +412,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var vm = result?.Value as RoleClaimViewModel;
 
 			// Assert
-			Assert.Equal((Int32)HttpStatusCode.Created, result?.StatusCode);
+			Assert.Equal((int)HttpStatusCode.Created, result?.StatusCode);
 
 			Assert.NotNull(vm);
 
@@ -453,7 +453,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var vm = result?.Value as RoleClaimsViewModel;
 
 			// Assert
-			Assert.Equal((Int32)HttpStatusCode.OK, result?.StatusCode);
+			Assert.Equal((int)HttpStatusCode.OK, result?.StatusCode);
 
 			Assert.NotNull(vm);
 			Assert.Equal(roleClaimsVM.RoleClaims.Count, vm?.RoleClaims.Count);
@@ -509,7 +509,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var vm = result?.Value as DeleteRecordViewModel;
 
 			// Assert
-			Assert.Equal((Int32)HttpStatusCode.OK, result?.StatusCode);
+			Assert.Equal((int)HttpStatusCode.OK, result?.StatusCode);
 
 			Assert.NotNull(vm);
 

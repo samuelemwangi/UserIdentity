@@ -12,8 +12,8 @@ namespace UserIdentity.Application.Core.Tokens.Commands.ExchangeRefreshToken
 {
 	public record ExchangeRefreshTokenCommand : BaseCommand
 	{
-		public String AccessToken { get; init; }
-		public String RefreshToken { get; init; }
+		public string AccessToken { get; init; }
+		public string RefreshToken { get; init; }
 	}
 
 	public class ExchangeRefreshTokenCommandHandler : IUpdateItemCommandHandler<ExchangeRefreshTokenCommand, ExchangeRefreshTokenViewModel>
@@ -25,7 +25,7 @@ namespace UserIdentity.Application.Core.Tokens.Commands.ExchangeRefreshToken
 		private readonly IRefreshTokenRepository _refreshTokenRepository;
 		private readonly IMachineDateTime _machineDateTime;
 
-		private readonly IGetItemsQueryHandler<IList<String>, HashSet<String>> _getRoleClaimsQueryHandler;
+		private readonly IGetItemsQueryHandler<IList<string>, HashSet<string>> _getRoleClaimsQueryHandler;
 
 
 		public ExchangeRefreshTokenCommandHandler(
@@ -35,7 +35,7 @@ namespace UserIdentity.Application.Core.Tokens.Commands.ExchangeRefreshToken
 			UserManager<IdentityUser> userManager,
 			IRefreshTokenRepository refreshTokenRepository,
 			IMachineDateTime machineDateTime,
-			IGetItemsQueryHandler<IList<String>, HashSet<String>> getRoleClaimsQueryHandler
+			IGetItemsQueryHandler<IList<string>, HashSet<string>> getRoleClaimsQueryHandler
 			)
 		{
 			_jwtFactory = jwtFactory;
@@ -71,12 +71,12 @@ namespace UserIdentity.Application.Core.Tokens.Commands.ExchangeRefreshToken
 
 			var updateRefreshToken = _tokenFactory.GenerateRefreshToken();
 
-			(String token, Int32 expiresIn) = await _jwtFactory.GenerateEncodedTokenAsync(userId.Value, userName.Value, userRoles, userRoleClaims);
+			(string token, int expiresIn) = await _jwtFactory.GenerateEncodedTokenAsync(userId.Value, userName.Value, userRoles, userRoleClaims);
 
 			refreshToken.Token = updateRefreshToken;
 			refreshToken.Expires = _machineDateTime.Now.AddSeconds((long)expiresIn);
 
-			Int32 createTokenResult = await _refreshTokenRepository.UpdateRefreshTokenAsync(refreshToken);
+			int createTokenResult = await _refreshTokenRepository.UpdateRefreshTokenAsync(refreshToken);
 
 			if (createTokenResult < 1)
 			{

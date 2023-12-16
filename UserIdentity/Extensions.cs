@@ -75,13 +75,13 @@ namespace UserIdentity
 			// JWT wire up
 			var jwtAppSettingOptions = configuration.GetSection(nameof(JwtIssuerOptions));
 
-			var issuer = configuration.GetValue<String>(jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)]) ?? jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)] ?? "";
-			var audience = configuration.GetValue<String>(jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)]) ?? jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)] ?? "";
-			var validForString = configuration.GetValue<String>(jwtAppSettingOptions[nameof(JwtIssuerOptions.ValidFor)]) ?? jwtAppSettingOptions[nameof(JwtIssuerOptions.ValidFor)];
+			var issuer = configuration.GetValue<string>(jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)]) ?? jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)] ?? "";
+			var audience = configuration.GetValue<string>(jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)]) ?? jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)] ?? "";
+			var validForString = configuration.GetValue<string>(jwtAppSettingOptions[nameof(JwtIssuerOptions.ValidFor)]) ?? jwtAppSettingOptions[nameof(JwtIssuerOptions.ValidFor)];
 
 			var validFor = 15.0d;
 
-			if (Double.TryParse(validForString, out var validForDouble))
+			if (double.TryParse(validForString, out var validForDouble))
 				validFor = validForDouble;
 
 

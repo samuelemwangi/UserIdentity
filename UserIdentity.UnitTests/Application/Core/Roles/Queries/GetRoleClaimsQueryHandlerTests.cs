@@ -91,7 +91,7 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Queries
 		{
 
 			// Arrange
-			var roles = new List<String>
+			var roles = new List<string>
 			{
 				"Admin"
 			};
@@ -121,7 +121,7 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Queries
 			var result = await handler.GetItemsAsync(roles);
 
 			// Assert
-			Assert.IsType<HashSet<String>>(result);
+			Assert.IsType<HashSet<string>>(result);
 			Assert.Single(result);
 			Assert.Contains(scopedClaim, result);
 		}

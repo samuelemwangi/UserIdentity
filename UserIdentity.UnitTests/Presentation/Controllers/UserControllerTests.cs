@@ -25,7 +25,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 {
 	public class UserControllerTests
 	{
-		private readonly static String Controllername = "user";
+		private readonly static string Controllername = "user";
 
 		private readonly IGetItemQueryHandler<GetUserQuery, UserViewModel> _getUserQueryHandler;
 		private readonly ICreateItemCommandHandler<RegisterUserCommand, AuthUserViewModel> _registerUserCommandHandler;
@@ -69,7 +69,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var vm = result?.Value as UserViewModel;
 
 			// Assert
-			Assert.Equal((Int32)HttpStatusCode.OK, result?.StatusCode);
+			Assert.Equal((int)HttpStatusCode.OK, result?.StatusCode);
 
 			Assert.NotNull(vm);
 			Assert.Equal(userId, vm?.User?.Id);
@@ -111,7 +111,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var vm = result?.Value as AuthUserViewModel;
 
 			// Assert
-			Assert.Equal((Int32)HttpStatusCode.Created, result?.StatusCode);
+			Assert.Equal((int)HttpStatusCode.Created, result?.StatusCode);
 
 			Assert.NotNull(vm);
 			Assert.Equal(userId, vm?.UserDetails?.Id);
@@ -157,7 +157,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var vm = result?.Value as AuthUserViewModel;
 
 			// Assert
-			Assert.Equal((Int32)HttpStatusCode.OK, result?.StatusCode);
+			Assert.Equal((int)HttpStatusCode.OK, result?.StatusCode);
 
 			Assert.NotNull(vm);
 			Assert.Equal(userId, vm?.UserDetails?.Id);
@@ -199,7 +199,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var vm = result?.Value as ExchangeRefreshTokenViewModel;
 
 			// Assert
-			Assert.Equal((Int32)HttpStatusCode.OK, result?.StatusCode);
+			Assert.Equal((int)HttpStatusCode.OK, result?.StatusCode);
 
 			Assert.NotNull(vm);
 			Assert.Equal(newAccesstoken, vm?.UserToken?.AccessToken?.Token);
@@ -234,7 +234,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var vm = result?.Value as ResetPasswordViewModel;
 
 			// Assert
-			Assert.Equal((Int32)HttpStatusCode.OK, result?.StatusCode);
+			Assert.Equal((int)HttpStatusCode.OK, result?.StatusCode);
 
 			Assert.NotNull(vm);
 			Assert.Equal(emailMessage, vm?.ResetPasswordDetails?.EmailMessage);
@@ -263,7 +263,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var vm = result?.Value as ConfirmUpdatePasswordTokenViewModel;
 
 			// Assert
-			Assert.Equal((Int32)HttpStatusCode.OK, result?.StatusCode);
+			Assert.Equal((int)HttpStatusCode.OK, result?.StatusCode);
 
 			Assert.NotNull(vm);
 			Assert.True(vm?.TokenPasswordResult?.UpdatePasswordTokenConfirmed);
@@ -294,7 +294,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var vm = result?.Value as UpdatePasswordViewModel;
 
 			// Assert
-			Assert.Equal((Int32)HttpStatusCode.OK, result?.StatusCode);
+			Assert.Equal((int)HttpStatusCode.OK, result?.StatusCode);
 
 			Assert.NotNull(vm);
 			Assert.True(vm?.UpdatePasswordResult?.PassWordUpdated);

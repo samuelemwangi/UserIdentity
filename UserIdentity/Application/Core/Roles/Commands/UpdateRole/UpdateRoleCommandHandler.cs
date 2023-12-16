@@ -12,10 +12,10 @@ namespace UserIdentity.Application.Core.Roles.Commands.UpdateRole
 	public record UpdateRoleCommand : BaseCommand
 	{
 		[Required]
-		public String RoleId { get; set; }
+		public string RoleId { get; set; }
 
 		[Required]
-		public String RoleName { get; init; }
+		public string RoleName { get; init; }
 	}
 	public class UpdateRoleCommandHandler : IUpdateItemCommandHandler<UpdateRoleCommand, RoleViewModel>
 	{

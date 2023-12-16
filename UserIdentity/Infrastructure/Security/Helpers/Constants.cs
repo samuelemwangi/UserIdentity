@@ -6,12 +6,12 @@
 		{
 			public static class JwtClaimIdentifiers
 			{
-				public const String Rol = "roles", Id = "id", Scope = "scopes";
+				public const string Rol = "roles", Id = "id", Scope = "scopes";
 			}
 
 			public static class JwtClaims
 			{
-				public const String ApiAccess = "api_access";
+				public const string ApiAccess = "api_access";
 			}
 		}
 	}

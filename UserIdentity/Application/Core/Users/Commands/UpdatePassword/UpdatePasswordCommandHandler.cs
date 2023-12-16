@@ -13,13 +13,13 @@ namespace UserIdentity.Application.Core.Users.Commands.UpdatePassword
 	public record UpdatePasswordCommand : BaseCommand
 	{
 		[Required]
-		public String NewPassword { get; init; }
+		public string NewPassword { get; init; }
 
 		[Required]
-		public String UserId { get; init; }
+		public string UserId { get; init; }
 
 		[Required]
-		public String PasswordResetToken { get; init; }
+		public string PasswordResetToken { get; init; }
 	}
 
 	public class UpdatePasswordCommandHandler : IUpdateItemCommandHandler<UpdatePasswordCommand, UpdatePasswordViewModel>
@@ -41,12 +41,12 @@ namespace UserIdentity.Application.Core.Users.Commands.UpdatePassword
 				if (userDetails == null)
 					throw new NoRecordException(command.UserId + "", "User");
 
-				String rawToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(command.PasswordResetToken));
+				string rawToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(command.PasswordResetToken));
 
 				var reSetPassWordTokenresult = await _userManager.ResetPasswordAsync(userDetails, rawToken, command.NewPassword);
 
 
-				Boolean result = true;
+				bool result = true;
 
 				if (!reSetPassWordTokenresult.Succeeded)
 					result = false;

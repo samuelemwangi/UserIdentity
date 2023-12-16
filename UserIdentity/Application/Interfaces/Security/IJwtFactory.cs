@@ -4,8 +4,8 @@ namespace UserIdentity.Application.Interfaces.Security
 {
 	public interface IJwtFactory
 	{
-		Task<(String, Int32)> GenerateEncodedTokenAsync(String id, String userName, IList<String> userRoles, HashSet<String> userRoleClaims);
-		Claim GenerateScopeClaim(String resource, String action);
-		(String, String) DecodeScopeClaim(Claim scopeClaim);
+		Task<(string, int)> GenerateEncodedTokenAsync(string id, string userName, IList<string> userRoles, HashSet<string> userRoleClaims);
+		Claim GenerateScopeClaim(string resource, string action);
+		(string, string) DecodeScopeClaim(Claim scopeClaim);
 	}
 }

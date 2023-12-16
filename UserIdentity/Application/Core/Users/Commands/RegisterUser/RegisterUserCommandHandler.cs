@@ -23,21 +23,21 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 	public record RegisterUserCommand : BaseCommand
 	{
 		[Required]
-		public String? FirstName { get; init; }
+		public string? FirstName { get; init; }
 
-		public String? LastName { get; init; }
-
-		[Required]
-		public String? UserName { get; init; }
-
-		[EitherOr(nameof(RegisterUserCommand.PhoneNumber), nameof(RegisterUserCommand.UserEmail))]
-		public String? PhoneNumber { get; init; }
-
-		[EitherOr(nameof(RegisterUserCommand.PhoneNumber), nameof(RegisterUserCommand.UserEmail))]
-		public String? UserEmail { get; init; }
+		public string? LastName { get; init; }
 
 		[Required]
-		public String? UserPassword { get; init; }
+		public string? UserName { get; init; }
+
+		[EitherOr(nameof(RegisterUserCommand.PhoneNumber), nameof(RegisterUserCommand.UserEmail))]
+		public string? PhoneNumber { get; init; }
+
+		[EitherOr(nameof(RegisterUserCommand.PhoneNumber), nameof(RegisterUserCommand.UserEmail))]
+		public string? UserEmail { get; init; }
+
+		[Required]
+		public string? UserPassword { get; init; }
 	}
 
 	public class RegisterUserCommandHandler : ICreateItemCommandHandler<RegisterUserCommand, AuthUserViewModel>
@@ -57,7 +57,7 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 		private readonly ILogHelper<RegisterUserCommandHandler> _logHelper;
 
 
-		private readonly IGetItemsQueryHandler<IList<String>, HashSet<String>> _getRoleClaimsQueryHandler;
+		private readonly IGetItemsQueryHandler<IList<string>, HashSet<string>> _getRoleClaimsQueryHandler;
 
 		public RegisterUserCommandHandler(
 			UserManager<IdentityUser> userManager,
@@ -69,7 +69,7 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 			IConfiguration configuration,
 			IMachineDateTime machineDateTime,
 			ILogHelper<RegisterUserCommandHandler> logHelper,
-			IGetItemsQueryHandler<IList<String>, HashSet<String>> getRoleClaimsQueryHandler
+			IGetItemsQueryHandler<IList<string>, HashSet<string>> getRoleClaimsQueryHandler
 			)
 		{
 			_userManager = userManager;
@@ -88,12 +88,12 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 		{
 
 			// Check if default role is set in configs
-			String defaultRoleKey = _configuration.GetValue<String>("DefaultRole");
+			string defaultRoleKey = _configuration.GetValue<string>("DefaultRole");
 
 			// Use env role if role is set in the env
-			String defaultRole = _configuration.GetValue<String>(defaultRoleKey) ?? defaultRoleKey;
+			string defaultRole = _configuration.GetValue<string>(defaultRoleKey) ?? defaultRoleKey;
 
-			if (String.IsNullOrEmpty(defaultRole))
+			if (string.IsNullOrEmpty(defaultRole))
 				throw new IllegalEventException("Reading Default Role", "Role");
 
 			//  Check if default is created otherwise create 
@@ -122,7 +122,7 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 
 			if (!identityResult.Succeeded)
 			{
-				String errors = String.Join(" ", identityResult.Errors.Select(e => e.Description));
+				string errors = string.Join(" ", identityResult.Errors.Select(e => e.Description));
 
 				_logHelper.LogEvent(errors, LogLevel.Error);
 				throw new RecordCreationException(newUser.Id, "User");
@@ -151,7 +151,7 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 			userDetails.SetAuditFields(newUser.Id, _machineDateTime.Now);
 
 
-			Int32 createUserResult = await _userRepository.CreateUserAsync(userDetails);
+			int createUserResult = await _userRepository.CreateUserAsync(userDetails);
 
 			if (createUserResult < 1)
 				throw new RecordCreationException(newUser.Id, "User");
@@ -164,7 +164,7 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 
 
 			// Generate access Token
-			(String token, Int32 expiresIn) = await _jwtFactory.GenerateEncodedTokenAsync(newUser.Id, newUser.UserName + "", userRoles, userRoleClaims);
+			(string token, int expiresIn) = await _jwtFactory.GenerateEncodedTokenAsync(newUser.Id, newUser.UserName + "", userRoles, userRoleClaims);
 
 
 			//Generate and save Refresh Token details
@@ -180,7 +180,7 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 			userRefreshToken.SetAuditFields(newUser.Id, _machineDateTime.Now);
 
 
-			Int32 createTokenResult = await _refreshTokenRepository.CreateRefreshTokenAsync(userRefreshToken);
+			int createTokenResult = await _refreshTokenRepository.CreateRefreshTokenAsync(userRefreshToken);
 
 			if (createTokenResult < 1)
 				throw new RecordCreationException(refreshToken, $"Refresh Token {userRefreshToken.UserId}");

@@ -12,13 +12,13 @@ namespace UserIdentity.Application.Core.Roles.Commands.CreateRoleClaim
 	public record CreateRoleClaimCommand : BaseCommand
 	{
 		[Required]
-		public String RoleId { get; init; }
+		public string RoleId { get; init; }
 
 		[Required]
-		public String Resource { get; init; }
+		public string Resource { get; init; }
 
 		[Required]
-		public String Action { get; set; }
+		public string Action { get; set; }
 	}
 
 	public class CreateRoleClaimCommandHandler : ICreateItemCommandHandler<CreateRoleClaimCommand, RoleClaimViewModel>

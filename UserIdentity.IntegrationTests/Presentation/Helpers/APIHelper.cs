@@ -11,9 +11,9 @@ namespace UserIdentity.IntegrationTests.Presentation.Helpers
 {
 	internal static class APIHelper
 	{
-		public static String loginUrl = "/api/v1/user/login";
+		public static string loginUrl = "/api/v1/user/login";
 
-		public static async Task<(String?, String?)> LoginUserAsync(this HttpClient httpClient, String userName, String userPassword)
+		public static async Task<(string?, string?)> LoginUserAsync(this HttpClient httpClient, string userName, string userPassword)
 		{
 			// Arrange
 			var requestPayload = new
@@ -31,18 +31,18 @@ namespace UserIdentity.IntegrationTests.Presentation.Helpers
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
 			if (jsonObject == null)
-				return (null as String, null as String);
+				return (null as string, null as string);
 
 			var userToken = jsonObject["userToken"]?.ToObject<AccessTokenViewModel>();
 
 			return (userToken?.AccessToken?.Token, userToken?.RefreshToken);
 		}
 
-		public static HttpRequestMessage CreateHttpRequestMessage(HttpMethod httpMethod, String uri)
+		public static HttpRequestMessage CreateHttpRequestMessage(HttpMethod httpMethod, string uri)
 		{
 			return new HttpRequestMessage(new HttpMethod(httpMethod.Method), uri);
 		}
-		public static void AddAuthHeader(this HttpRequestMessage httpRequest, String authToken)
+		public static void AddAuthHeader(this HttpRequestMessage httpRequest, string authToken)
 		{
 			httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
 		}

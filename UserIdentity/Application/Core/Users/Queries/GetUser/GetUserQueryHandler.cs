@@ -11,7 +11,7 @@ namespace UserIdentity.Application.Core.Users.Queries.GetUser
 {
 	public record GetUserQuery : BaseQuery
 	{
-		public String UserId { get; init; }
+		public string UserId { get; init; }
 	}
 
 	public class GetUserQueryHandler : IGetItemQueryHandler<GetUserQuery, UserViewModel>

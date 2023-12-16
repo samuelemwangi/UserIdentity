@@ -32,7 +32,7 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Queries
 			// Arrange
 			var query = new GetUserRolesQuery { UserId = "1" };
 			var user = new IdentityUser { Id = "1", UserName = "test" };
-			var userRoles = new List<String> { "Admin", "User" };
+			var userRoles = new List<string> { "Admin", "User" };
 
 			A.CallTo(() => _userManager.FindByIdAsync(query.UserId)).Returns(user);
 			A.CallTo(() => _userManager.GetRolesAsync(user)).Returns(userRoles);
@@ -58,7 +58,7 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Queries
 			// Arrange
 			var query = new GetUserRolesQuery { UserId = "1" };
 			var user = new IdentityUser { Id = "1", UserName = "test" };
-			var userRoles = default(List<String>);
+			var userRoles = default(List<string>);
 
 			A.CallTo(() => _userManager.FindByIdAsync(query.UserId)).Returns(user);
 			A.CallTo(() => _userManager.GetRolesAsync(user)).Returns(userRoles);

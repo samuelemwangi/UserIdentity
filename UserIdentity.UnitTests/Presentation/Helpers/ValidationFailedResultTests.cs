@@ -23,7 +23,7 @@ namespace UserIdentity.UnitTests.Presentation.Helpers
 
 			// Assert
 			Assert.NotNull(validationFailedResult);
-			Assert.Equal((Int32)HttpStatusCode.BadRequest, validationFailedResult.StatusCode);
+			Assert.Equal((int)HttpStatusCode.BadRequest, validationFailedResult.StatusCode);
 		}
 	}
 }

@@ -7,10 +7,10 @@ namespace UserIdentity.Infrastructure.Utilities
 	public class StringHelper : IStringHelper
 	{
 
-		public String AddSpacesToSentence(String text, bool preserveAcronyms)
+		public string AddSpacesToSentence(string text, bool preserveAcronyms)
 		{
-			if (String.IsNullOrWhiteSpace(text))
-				return String.Empty;
+			if (string.IsNullOrWhiteSpace(text))
+				return string.Empty;
 
 			var newText = new StringBuilder(text.Length * 2);
 

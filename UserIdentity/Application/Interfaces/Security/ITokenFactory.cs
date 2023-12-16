@@ -2,9 +2,9 @@
 {
 	public interface ITokenFactory
 	{
-		String GenerateRefreshToken(int size = 32);
+		string GenerateRefreshToken(int size = 32);
 
-		String GenerateOTPToken();
+		string GenerateOTPToken();
 	}
 
 

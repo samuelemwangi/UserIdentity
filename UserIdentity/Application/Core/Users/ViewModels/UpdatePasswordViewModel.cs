@@ -2,7 +2,7 @@
 {
 	public record UpdatePasswordDTO
 	{
-		public Boolean PassWordUpdated { get; init; }
+		public bool PassWordUpdated { get; init; }
 
 	}
 

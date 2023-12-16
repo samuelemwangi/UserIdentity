@@ -2,8 +2,8 @@
 {
 	public record RoleDTO
 	{
-		public String Id { get; init; }
-		public String Name { get; init; }
+		public string Id { get; init; }
+		public string Name { get; init; }
 	}
 	public record RoleViewModel : ItemDetailBaseViewModel
 	{

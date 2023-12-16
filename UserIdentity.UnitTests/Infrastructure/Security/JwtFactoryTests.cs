@@ -89,8 +89,8 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
 			var userId = Guid.NewGuid().ToString();
 			var issuedAtEpoch = _machineDateTime.ToUnixEpochDate(issuedAt).ToString();
 
-			var userRoles = new List<String> { "TestRole" };
-			var userRoleClaims = new HashSet<String> { "TestRoleClaim" };
+			var userRoles = new List<string> { "TestRole" };
+			var userRoleClaims = new HashSet<string> { "TestRoleClaim" };
 
 
 			var combinedClaims = new List<Claim>
@@ -112,7 +112,7 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
 
 			// Act
 			var jwtFactory = new JwtFactory(_jwtTokenHandler, _jwtIssuerOptions, _machineDateTime);
-			(String token, int expiresIn) = await jwtFactory.GenerateEncodedTokenAsync(userId, userName, userRoles, userRoleClaims);
+			(string token, int expiresIn) = await jwtFactory.GenerateEncodedTokenAsync(userId, userName, userRoles, userRoleClaims);
 
 			// Assert
 			Assert.Equal(generatedToken, token);
@@ -145,14 +145,14 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
 
 			// Act
 			var jwtFactory = new JwtFactory(_jwtTokenHandler, _jwtIssuerOptions, _machineDateTime);
-			(String decodedResource, String decodedAction) = jwtFactory.DecodeScopeClaim(scopeClaim);
+			(string decodedResource, string decodedAction) = jwtFactory.DecodeScopeClaim(scopeClaim);
 
 			// Assert
 			Assert.Equal(resource, decodedResource);
 			Assert.Equal(action, decodedAction);
 		}
 
-		private Boolean ResolveMathcingJWT(JwtSecurityToken currJWT, String userName, String issuedAtEpoch, String userId)
+		private bool ResolveMathcingJWT(JwtSecurityToken currJWT, string userName, string issuedAtEpoch, string userId)
 		{
 			//check if subject claim matches
 			if (currJWT.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub && c.Value == userName) == null)

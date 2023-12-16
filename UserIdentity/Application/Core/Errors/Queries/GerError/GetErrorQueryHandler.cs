@@ -9,8 +9,8 @@ namespace UserIdentity.Application.Core.Errors.Queries.GerError
 	public record GetErrorQuery
 	{
 		public Exception Exception { get; internal set; }
-		public String? ErrorMessage { get; internal set; }
-		public String? StatusMessage { get; internal set; }
+		public string? ErrorMessage { get; internal set; }
+		public string? StatusMessage { get; internal set; }
 	}
 
 	public class GetErrorQueryHandler : IGetItemQueryHandler<GetErrorQuery, ErrorViewModel>

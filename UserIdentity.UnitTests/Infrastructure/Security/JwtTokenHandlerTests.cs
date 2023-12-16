@@ -55,7 +55,7 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
 				ValidateIssuer = false,
 				ValidateAudience = false,
 				ValidateLifetime = false,
-				SignatureValidator = delegate (String token, TokenValidationParameters parameters)
+				SignatureValidator = delegate (string token, TokenValidationParameters parameters)
 				{
 					return new JwtSecurityToken(token);
 				}
@@ -81,7 +81,7 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
 				ValidIssuer = "testIssuer",
 				ValidateAudience = false,
 				ValidateLifetime = false,
-				SignatureValidator = delegate (String token, TokenValidationParameters parameters)
+				SignatureValidator = delegate (string token, TokenValidationParameters parameters)
 				{
 					return new JwtSecurityToken(token);
 				}
@@ -99,7 +99,7 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
 			var tokenHandler = new JwtTokenHandler(_keySetFactory, _logHelper);
 
 			// Act & Assert
-			Assert.IsType<String>(tokenHandler.WriteToken(new JwtSecurityToken()));
+			Assert.IsType<string>(tokenHandler.WriteToken(new JwtSecurityToken()));
 		}
 	}
 }

@@ -12,7 +12,7 @@ namespace UserIdentity.Persistence.Repositories.RefreshTokens
 		{
 			_appDbContext = appDbContext;
 		}
-		public async Task<Int32> CreateRefreshTokenAsync(RefreshToken refreshToken)
+		public async Task<int> CreateRefreshTokenAsync(RefreshToken refreshToken)
 		{
 			try
 			{
@@ -26,7 +26,7 @@ namespace UserIdentity.Persistence.Repositories.RefreshTokens
 			}
 		}
 
-		public async Task<RefreshToken?> GetRefreshTokenAsync(String? userId, String? token)
+		public async Task<RefreshToken?> GetRefreshTokenAsync(string? userId, string? token)
 		{
 			var refreshToken = await _appDbContext.RefreshToken
 				.Where(e => e.UserId == userId && e.Token == token && !e.IsDeleted)
@@ -35,7 +35,7 @@ namespace UserIdentity.Persistence.Repositories.RefreshTokens
 			return refreshToken;
 		}
 
-		public async Task<Int32> UpdateRefreshTokenAsync(RefreshToken refreshToken)
+		public async Task<int> UpdateRefreshTokenAsync(RefreshToken refreshToken)
 		{
 			try
 			{

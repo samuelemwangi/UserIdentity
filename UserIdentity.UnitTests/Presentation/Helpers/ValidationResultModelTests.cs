@@ -26,7 +26,7 @@ namespace UserIdentity.UnitTests.Presentation.Helpers
 
 			// Assert
 			Assert.NotNull(validationResultModel);
-			Assert.Contains((Int32)HttpStatusCode.BadRequest + "", validationResultModel.StatusMessage);
+			Assert.Contains((int)HttpStatusCode.BadRequest + "", validationResultModel.StatusMessage);
 			Assert.NotNull(validationResultModel.Error);
 			Assert.Equal(1, validationResultModel.Error?.ErrorList?.Count);
 

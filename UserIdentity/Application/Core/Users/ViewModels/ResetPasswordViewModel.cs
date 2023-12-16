@@ -2,7 +2,7 @@
 {
 	public record ResetPasswordDTO
 	{
-		public String EmailMessage { get; init; }
+		public string EmailMessage { get; init; }
 	}
 	public record ResetPasswordViewModel : BaseViewModel
 	{

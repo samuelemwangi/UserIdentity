@@ -4,6 +4,6 @@ namespace UserIdentity.Application.Interfaces.Security
 {
 	public interface IJwtTokenValidator
 	{
-		ClaimsPrincipal GetPrincipalFromToken(String accesToken);
+		ClaimsPrincipal GetPrincipalFromToken(string accesToken);
 	}
 }

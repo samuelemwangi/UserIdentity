@@ -19,7 +19,7 @@ namespace UserIdentity.Infrastructure.Security
 			_jwtOptions = jwtOptions.Value;
 			_keySetFactory = keySetFactory;
 		}
-		public ClaimsPrincipal GetPrincipalFromToken(String accesToken)
+		public ClaimsPrincipal GetPrincipalFromToken(string accesToken)
 		{
 			return _jwtTokenHandler.ValidateToken(accesToken, new TokenValidationParameters
 			{

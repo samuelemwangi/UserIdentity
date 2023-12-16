@@ -6,7 +6,7 @@ namespace UserIdentity.Infrastructure.Security
 {
 	public class TokenFactory : ITokenFactory
 	{
-		public String GenerateRefreshToken(int size = 32)
+		public string GenerateRefreshToken(int size = 32)
 		{
 			var randomNumber = new byte[size];
 			using var rng = RandomNumberGenerator.Create();
@@ -15,7 +15,7 @@ namespace UserIdentity.Infrastructure.Security
 
 			return Convert.ToBase64String(randomNumber);
 		}
-		public String GenerateOTPToken()
+		public string GenerateOTPToken()
 		{
 			throw new NotImplementedException();
 		}

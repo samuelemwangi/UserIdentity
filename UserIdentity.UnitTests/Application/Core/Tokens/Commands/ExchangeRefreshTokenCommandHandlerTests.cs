@@ -32,7 +32,7 @@ namespace UserIdentity.UnitTests.Application.Core.Tokens.Commands
 		private readonly IRefreshTokenRepository _refreshTokenRepository;
 		private readonly IMachineDateTime _machineDateTime;
 
-		private readonly IGetItemsQueryHandler<IList<String>, HashSet<String>> _getRoleClaimsQueryHandler;
+		private readonly IGetItemsQueryHandler<IList<string>, HashSet<string>> _getRoleClaimsQueryHandler;
 
 
 		public ExchangeRefreshTokenCommandHandlerTests()
@@ -43,7 +43,7 @@ namespace UserIdentity.UnitTests.Application.Core.Tokens.Commands
 			_userManager = A.Fake<UserManager<IdentityUser>>();
 			_refreshTokenRepository = A.Fake<IRefreshTokenRepository>();
 			_machineDateTime = new MachineDateTime();
-			_getRoleClaimsQueryHandler = A.Fake<IGetItemsQueryHandler<IList<String>, HashSet<String>>>();
+			_getRoleClaimsQueryHandler = A.Fake<IGetItemsQueryHandler<IList<string>, HashSet<string>>>();
 		}
 
 		[Fact]
@@ -149,8 +149,8 @@ namespace UserIdentity.UnitTests.Application.Core.Tokens.Commands
 				Expires = _machineDateTime.Now.AddMinutes(5),
 			};
 
-			var userRoles = new List<String> { "Admin" };
-			var userRoleClaims = new HashSet<String> { "Admin" };
+			var userRoles = new List<string> { "Admin" };
+			var userRoleClaims = new HashSet<string> { "Admin" };
 			var updatedRefreshToken = dbRefreshToken + "updated";
 
 			var newAccesToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiSm9obiBEb2UiLCJpYXQiOjE1MTYyMzkwMjJ9.tL95SMCv9-I_ApoP8DKhhCHd2YcbscFNWo5feRsOwnQ";
@@ -206,8 +206,8 @@ namespace UserIdentity.UnitTests.Application.Core.Tokens.Commands
 				Expires = _machineDateTime.Now.AddMinutes(5),
 			};
 
-			var userRoles = new List<String> { "Admin" };
-			var userRoleClaims = new HashSet<String> { "Admin" };
+			var userRoles = new List<string> { "Admin" };
+			var userRoleClaims = new HashSet<string> { "Admin" };
 			var updatedRefreshToken = dbRefreshToken.Token + "updated";
 
 			var newAccesToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiSm9obiBEb2UiLCJpYXQiOjE1MTYyMzkwMjJ9.tL95SMCv9-I_ApoP8DKhhCHd2YcbscFNWo5feRsOwnQ";

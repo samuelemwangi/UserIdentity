@@ -2,10 +2,10 @@
 {
 	public record RoleClaimDTO
 	{
-		public String Resource { get; init; }
-		public String Action { get; init; }
+		public string Resource { get; init; }
+		public string Action { get; init; }
 
-		public String Scope { get; init; }
+		public string Scope { get; init; }
 	}
 	public record RoleClaimViewModel : ItemDetailBaseViewModel
 	{

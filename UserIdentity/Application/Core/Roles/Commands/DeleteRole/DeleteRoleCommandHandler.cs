@@ -8,7 +8,7 @@ namespace UserIdentity.Application.Core.Roles.Commands.DeleteRole
 
 	public record DeleteRoleCommand : BaseCommand
 	{
-		public String RoleId { get; init; }
+		public string RoleId { get; init; }
 	}
 	public class DeleteRoleCommandHandler : IDeleteItemCommandHandler<DeleteRoleCommand, DeleteRecordViewModel>
 	{

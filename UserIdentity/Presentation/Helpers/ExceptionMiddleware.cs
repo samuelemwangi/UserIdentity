@@ -40,7 +40,7 @@ namespace UserIdentity.Presentation.Helpers
 		{
 			context.Response.ContentType = "application/json";
 			HttpStatusCode statusCode;
-			String errorMessage;
+			string errorMessage;
 			if (typeof(NoRecordException).IsInstanceOfType(exception))
 			{
 				errorMessage = exception.Message;

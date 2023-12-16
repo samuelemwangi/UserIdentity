@@ -11,11 +11,11 @@ namespace UserIdentity.Infrastructure.Utilities
 			_loggerFactory = loggerFactory;
 
 		}
-		public void LogEvent(String message, LogLevel logLevel)
+		public void LogEvent(string message, LogLevel logLevel)
 		{
 			ILogger logger = _loggerFactory.CreateLogger<T>();
 
-			String resolvedMessage = message + "";
+			string resolvedMessage = message + "";
 
 			switch (logLevel)
 			{
