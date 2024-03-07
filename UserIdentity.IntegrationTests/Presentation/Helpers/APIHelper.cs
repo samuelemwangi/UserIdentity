@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 
 using UserIdentity.Application.Core.Tokens.ViewModels;
 using UserIdentity.Domain.Identity;
+using UserIdentity.IntegrationTests.TestUtils;
 
 using Xunit;
 
@@ -16,7 +17,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Helpers
 	{
 		public static string loginUrl = "/api/v1/user/login";
 
-		public static async Task<(string?, string?)> LoginUserAsync(this HttpClient httpClient, string userName, string userPassword)
+		public static async Task<(string, string)> LoginUserAsync(this HttpClient httpClient, string userName, string userPassword)
 		{
 			// Arrange
 			var requestPayload = new
@@ -56,12 +57,57 @@ namespace UserIdentity.IntegrationTests.Presentation.Helpers
 			httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
 		}
 
-		public static void ValidateRequestResponse(this HttpResponseMessage httpResponse)
+		public static async Task<HttpRequestMessage> CreateAuthorizedHttpRequestMessageAsync(this HttpClient httpClient, HttpMethod httpMethod, string uri)
+		{
+			(var userToken, _) = await httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
+
+			var httpRequest = CreateHttpRequestMessage(httpMethod, uri);
+
+			httpRequest.AddAuthHeader(userToken);
+
+			return httpRequest;
+		}
+
+		public static async Task<HttpResponseMessage> SendNoAuthRequestAsync(this HttpClient httpClient, HttpMethod httpMethod, string uri, object? httpBody = null)
+		{
+			var httpRequest = CreateHttpRequestMessage(httpMethod, uri);
+
+			if (httpBody != null)
+				httpRequest.Content = SerDe.ConvertToHttpContent(httpBody);
+
+			return await httpClient.SendAsync(httpRequest);
+		}
+
+		public static async Task<HttpResponseMessage> SendValidAuthRequestAsync(this HttpClient httpClient, HttpMethod httpMethod, string uri, object? httpBody = null)
+		{
+			var httpRequest = await CreateAuthorizedHttpRequestMessageAsync(httpClient, httpMethod, uri);
+
+			if (httpBody != null)
+				httpRequest.Content = SerDe.ConvertToHttpContent(httpBody);
+
+			return await httpClient.SendAsync(httpRequest);
+		}
+
+		public static async Task<HttpResponseMessage> SendInvalidAuthRequestAsync(this HttpClient httpClient, HttpMethod httpMethod, string uri, object? httpBody = null)
+		{
+			var httpRequest = CreateHttpRequestMessage(httpMethod, uri);
+
+			httpRequest.AddAuthHeader(UserSettings.InvalidUserToken);
+
+			if (httpBody != null)
+				httpRequest.Content = SerDe.ConvertToHttpContent(httpBody);
+
+			return await httpClient.SendAsync(httpRequest);
+		}
+
+		public static async Task<string> ValidateRequestResponseAsync(this HttpResponseMessage httpResponse)
 		{
 			var requestIdHeader = httpResponse.Headers.GetValues("X-Request-Id");
 			Assert.NotNull(requestIdHeader);
 			Assert.NotEmpty(requestIdHeader);
 			Assert.Single(requestIdHeader);
+
+			return await httpResponse.Content.ReadAsStringAsync();
 		}
 
 	}

@@ -39,20 +39,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-			
-			
-
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri);
-			httpRequest.AddAuthHeader(userToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Get, _baseUri);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -84,13 +75,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Get, _baseUri);
 
 			// Assert
-			response.ValidateRequestResponse();
+			await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
@@ -106,14 +95,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri);
-			httpRequest.AddAuthHeader(UserSettings.InvalidUserToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
+			var response = await _httpClient.SendInvalidAuthRequestAsync(HttpMethod.Get, _baseUri);
 
 			// Assert
-			response.ValidateRequestResponse();
+			await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
@@ -130,16 +116,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			DBContexUtils.SeedAppUser(_appDbContext);
 			DBContexUtils.SeedRefreshToken(_appDbContext);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri);
-			httpRequest.AddAuthHeader(userToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Get, _baseUri);
 
 			// Assert
-			response.ValidateRequestResponse();
+			await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
 		}
@@ -155,18 +136,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-			
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri + "/" + additionalRoleId);
-			httpRequest.AddAuthHeader(userToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Get, _baseUri + "/" + additionalRoleId);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -195,13 +169,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri + "/" + additionalRoleId);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Get, _baseUri + "/" + additionalRoleId);
 
 			// Assert
-			response.ValidateRequestResponse();
+			await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
@@ -217,14 +189,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri + "/" + additionalRoleId);
-			httpRequest.AddAuthHeader(UserSettings.InvalidUserToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
+			var response = await _httpClient.SendInvalidAuthRequestAsync(HttpMethod.Get, _baseUri + "/" + additionalRoleId);
 
 			// Assert
-			response.ValidateRequestResponse();
+			await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
@@ -241,16 +210,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			DBContexUtils.SeedAppUser(_appDbContext);
 			DBContexUtils.SeedRefreshToken(_appDbContext);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri + "/" + roleId);
-			httpRequest.AddAuthHeader(userToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Get, _baseUri + "/" + roleId);
 
 			// Assert
-			response.ValidateRequestResponse();
+			await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
 		}
@@ -268,22 +232,17 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
-			
+
 			var requestPayload = new
 			{
 				RoleName = "newRole",
 			};
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri);
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-			httpRequest.AddAuthHeader(userToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Post, _baseUri, requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Created, response.StatusCode);
 
@@ -312,24 +271,16 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-			
 			var requestPayload = new
 			{
 				RoleName = additionalRolename,
 			};
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri);
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-			httpRequest.AddAuthHeader(userToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Post, _baseUri, requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -361,22 +312,15 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
 			var requestPayload = new
 			{
 			};
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri);
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-			httpRequest.AddAuthHeader(userToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Post, _baseUri, requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -418,14 +362,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 				RoleName = "newRole",
 			};
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri);
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri, requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
@@ -446,15 +387,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 				RoleName = "newRole",
 			};
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri);
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-			httpRequest.AddAuthHeader(UserSettings.InvalidUserToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
+			var response = await _httpClient.SendInvalidAuthRequestAsync(HttpMethod.Post, _baseUri, requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
@@ -476,17 +413,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 				RoleName = "newRole",
 			};
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri);
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-			httpRequest.AddAuthHeader(userToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Post, _baseUri, requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
 		}
@@ -502,24 +433,17 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
 			var requestPayload = new
 			{
 				RoleId = additionalRoleId,
 				RoleName = "UpdatednewRole",
 			};
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Put, _baseUri + "/" + requestPayload.RoleId);
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-			httpRequest.AddAuthHeader(userToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Put, _baseUri + "/" + requestPayload.RoleId, requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -548,24 +472,17 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
 			var requestPayload = new
 			{
 				RoleId = Guid.NewGuid().ToString(),
 				RoleName = additionalRolename,
 			};
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Put, _baseUri + "/" + requestPayload.RoleId);
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-			httpRequest.AddAuthHeader(userToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Put, _baseUri + "/" + requestPayload.RoleId, requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -597,23 +514,15 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-			
 			var requestPayload = new
 			{
 			};
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Put, _baseUri + "/" + additionalRoleId);
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-			httpRequest.AddAuthHeader(userToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Put, _baseUri + "/" + additionalRoleId, requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -656,14 +565,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 				RoleName = "UpdatednewRole",
 			};
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Put, _baseUri + "/" + additionalRoleId);
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Put, _baseUri + "/" + additionalRoleId, requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
@@ -684,15 +590,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 				RoleName = "UpdatedRole",
 			};
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Put, _baseUri + "/" + additionalRoleId);
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-			httpRequest.AddAuthHeader(UserSettings.InvalidUserToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
+			var response = await _httpClient.SendInvalidAuthRequestAsync(HttpMethod.Put, _baseUri + "/" + additionalRoleId, requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
@@ -714,18 +616,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 				RoleName = "UpdatedRole",
 			};
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-			
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Put, _baseUri + "/" + roleId);
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-			httpRequest.AddAuthHeader(userToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Put, _baseUri + "/" + roleId, requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
 		}
@@ -741,17 +636,12 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-			
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Delete, _baseUri + "/" + additionalRoleId);
-			httpRequest.AddAuthHeader(userToken);
 
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Delete, _baseUri + "/" + additionalRoleId);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -772,17 +662,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			var nonExistentRuleId = Guid.NewGuid().ToString();
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Delete, _baseUri + "/" + nonExistentRuleId);
-			httpRequest.AddAuthHeader(userToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Delete, _baseUri + "/" + nonExistentRuleId);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 
@@ -814,13 +698,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Delete, _baseUri + "/" + additionalRoleId);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Delete, _baseUri + "/" + additionalRoleId);
 
 			// Assert
-			response.ValidateRequestResponse();
+			await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
@@ -836,14 +718,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Delete, _baseUri + "/" + additionalRoleId);
-			httpRequest.AddAuthHeader(UserSettings.InvalidUserToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
+			var response = await _httpClient.SendInvalidAuthRequestAsync(HttpMethod.Delete, _baseUri + "/" + additionalRoleId);
 
 			// Assert
-			response.ValidateRequestResponse();
+			await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
@@ -860,16 +739,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			DBContexUtils.SeedAppUser(_appDbContext);
 			DBContexUtils.SeedRefreshToken(_appDbContext);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Delete, _baseUri + "/" + roleId);
-			httpRequest.AddAuthHeader(userToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Delete, _baseUri + "/" + roleId);
 
 			// Assert
-			response.ValidateRequestResponse();
+			await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
 		}
@@ -885,22 +759,15 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri + "/user/" + UserSettings.UserId);
-			httpRequest.AddAuthHeader(userToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Get, _baseUri + "/user/" + UserSettings.UserId);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
-
 
 			Assert.NotNull(jsonObject);
 
@@ -923,18 +790,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			var nonExistentUserId = Guid.NewGuid().ToString();
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri + "/user/" + nonExistentUserId);
-			httpRequest.AddAuthHeader(userToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Get, _baseUri + "/user/" + nonExistentUserId);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 
@@ -966,13 +826,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri + "/user/" + UserSettings.UserId);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Get, _baseUri + "/user/" + UserSettings.UserId);
 
 			// Assert
-			response.ValidateRequestResponse();
+			await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
@@ -988,14 +846,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri + "/user/" + UserSettings.UserId);
-			httpRequest.AddAuthHeader(UserSettings.InvalidUserToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
+			var response = await _httpClient.SendInvalidAuthRequestAsync(HttpMethod.Get, _baseUri + "/user/" + UserSettings.UserId);
 
 			// Assert
-			response.ValidateRequestResponse();
+			await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
@@ -1012,16 +867,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			DBContexUtils.SeedAppUser(_appDbContext);
 			DBContexUtils.SeedRefreshToken(_appDbContext);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri + "/user/" + UserSettings.UserId);
-			httpRequest.AddAuthHeader(userToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Get, _baseUri + "/user/" + UserSettings.UserId);
 
 			// Assert
-			response.ValidateRequestResponse();
+			await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
 		}
@@ -1037,25 +887,17 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
 			var requestPayload = new
 			{
 				UserSettings.UserId,
 				RoleId = additionalRoleId
 			};
 
-
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/user");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-			httpRequest.AddAuthHeader(userToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Post, _baseUri + "/user", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Created, response.StatusCode);
 
@@ -1086,28 +928,17 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-			
-			
-
 			var requestPayload = new
 			{
 				UserSettings.UserId,
 				RoleSettings.RoleId
 			};
 
-
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/user");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-			httpRequest.AddAuthHeader(userToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Post, _baseUri + "/user", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -1139,25 +970,16 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-			
-			
-
 			var requestPayload = new
 			{
 			};
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/user");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-			httpRequest.AddAuthHeader(userToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Post, _baseUri + "/user", requestPayload);
+			await response.Content.ReadAsStringAsync();
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -1201,14 +1023,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 				RoleId = additionalRoleId
 			};
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/user");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/user", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
@@ -1231,15 +1050,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 				RoleId = additionalRoleId
 			};
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/user");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-			httpRequest.AddAuthHeader(UserSettings.InvalidUserToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
+			var response = await _httpClient.SendInvalidAuthRequestAsync(HttpMethod.Post, _baseUri + "/user", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
@@ -1261,21 +1076,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 				RoleId = roleId
 			};
 
-
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-			
-			
-
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/user");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-			httpRequest.AddAuthHeader(userToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Post, _baseUri + "/user", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
 		}
@@ -1291,11 +1096,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-			
-			
-
 			var requestPayload = new
 			{
 				RoleSettings.RoleId,
@@ -1303,17 +1103,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 				Action = "create",
 			};
 
-
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/claim");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-			httpRequest.AddAuthHeader(userToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Post, _baseUri + "/claim", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Created, response.StatusCode);
 
@@ -1347,11 +1141,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			Assert.True(createRoleClaimResult);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-			
-			
-
 			var requestPayload = new
 			{
 				RoleSettings.RoleId,
@@ -1359,17 +1148,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 				ScopeClaimSettings.Action,
 			};
 
-
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/claim");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-			httpRequest.AddAuthHeader(userToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Post, _baseUri + "/claim", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -1401,25 +1184,16 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-			
-			
 
 			var requestPayload = new
 			{
 			};
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/claim");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-			httpRequest.AddAuthHeader(userToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Post, _baseUri + "/claim", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -1465,14 +1239,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 				Action = "create",
 			};
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/claim");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/claim", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
@@ -1496,15 +1267,12 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 				Action = "create",
 			};
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/claim");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-			httpRequest.AddAuthHeader(UserSettings.InvalidUserToken);
 
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
+			var response = await _httpClient.SendInvalidAuthRequestAsync(HttpMethod.Post, _baseUri + "/claim", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
@@ -1527,21 +1295,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 				Action = "create",
 			};
 
-
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-			
-			
-
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/claim");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-			httpRequest.AddAuthHeader(userToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Post, _baseUri + "/claim", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
 		}
@@ -1561,20 +1319,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			Assert.True(createRoleClaimResult);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-			
-			
-
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri + "/claim/" + RoleSettings.RoleId);
-			httpRequest.AddAuthHeader(userToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Get, _baseUri + "/claim/" + RoleSettings.RoleId);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -1602,20 +1351,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			var nonExistentRoleId = Guid.NewGuid().ToString();
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-			
-			
-
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri + "/claim/" + nonExistentRoleId);
-			httpRequest.AddAuthHeader(userToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Get, _baseUri + "/claim/" + nonExistentRoleId);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 
@@ -1647,13 +1387,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri + "/claim/" + RoleSettings.RoleId);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Get, _baseUri + "/claim/" + RoleSettings.RoleId);
 
 			// Assert
-			response.ValidateRequestResponse();
+			await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
@@ -1669,14 +1407,12 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri + "/claim/" + RoleSettings.RoleId);
-			httpRequest.AddAuthHeader(UserSettings.InvalidUserToken);
 
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
+			var response = await _httpClient.SendInvalidAuthRequestAsync(HttpMethod.Get, _baseUri + "/claim/" + RoleSettings.RoleId);
 
 			// Assert
-			response.ValidateRequestResponse();
+			await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
@@ -1693,19 +1429,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			DBContexUtils.SeedAppUser(_appDbContext);
 			DBContexUtils.SeedRefreshToken(_appDbContext);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-			
-			
-
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri + "/claim/" + RoleSettings.RoleId);
-			httpRequest.AddAuthHeader(userToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Get, _baseUri + "/claim/" + RoleSettings.RoleId);
 
 			// Assert
-			response.ValidateRequestResponse();
+			await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
 		}
@@ -1725,11 +1453,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			Assert.True(createRoleClaimResult);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-			
-			
-
 			var requestPayload = new
 			{
 				RoleSettings.RoleId,
@@ -1737,17 +1460,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 				ScopeClaimSettings.Action,
 			};
 
-
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Delete, _baseUri + "/claim");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-			httpRequest.AddAuthHeader(userToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Delete, _baseUri + "/claim", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -1770,11 +1487,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-			
-			
-
 			var requestPayload = new
 			{
 				RoleSettings.RoleId,
@@ -1782,17 +1494,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 				Action = "create",
 			};
 
-
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Delete, _baseUri + "/claim");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-			httpRequest.AddAuthHeader(userToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Delete, _baseUri + "/claim", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 
@@ -1825,25 +1531,15 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-			
-			
-
 			var requestPayload = new
 			{
 			};
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Delete, _baseUri + "/claim");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-			httpRequest.AddAuthHeader(userToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Delete, _baseUri + "/claim", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -1889,14 +1585,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 				Action = "create",
 			};
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Delete, _baseUri + "/claim");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Delete, _baseUri + "/claim", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
@@ -1920,15 +1613,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 				Action = "create",
 			};
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Delete, _baseUri + "/claim");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-			httpRequest.AddAuthHeader(UserSettings.InvalidUserToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
+			var response = await _httpClient.SendInvalidAuthRequestAsync(HttpMethod.Delete, _baseUri + "/claim", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
@@ -1951,21 +1640,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 				Action = "create",
 			};
 
-
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-			
-			
-
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Delete, _baseUri + "/claim");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-			httpRequest.AddAuthHeader(userToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Delete, _baseUri + "/claim", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
 		}
