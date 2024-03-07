@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
 using UserIdentity.Application.Core.Tokens.ViewModels;
+using UserIdentity.Domain.Identity;
 
 using Xunit;
 
@@ -33,11 +34,17 @@ namespace UserIdentity.IntegrationTests.Presentation.Helpers
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
 			if (jsonObject == null)
-				return (null as string, null as string);
+				Assert.Fail($"Expected login to be successful but it failed {responseString}");
 
 			var userToken = jsonObject["userToken"]?.ToObject<AccessTokenViewModel>();
 
-			return (userToken?.AccessToken?.Token, userToken?.RefreshToken);
+			var token = userToken?.AccessToken?.Token;
+			var refreshToken = userToken?.RefreshToken;
+
+			Assert.NotNull(token);
+			Assert.NotNull(refreshToken);
+
+			return (token, refreshToken);
 		}
 
 		public static HttpRequestMessage CreateHttpRequestMessage(HttpMethod httpMethod, string uri)

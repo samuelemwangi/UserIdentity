@@ -41,8 +41,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
+			
+			
 
 			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri);
 			httpRequest.AddAuthHeader(userToken);
@@ -132,9 +132,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
-
 			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri);
 			httpRequest.AddAuthHeader(userToken);
 
@@ -160,9 +157,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
-
+			
 			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri + "/" + additionalRoleId);
 			httpRequest.AddAuthHeader(userToken);
 
@@ -248,9 +243,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
-
 			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri + "/" + roleId);
 			httpRequest.AddAuthHeader(userToken);
 
@@ -276,9 +268,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
-
+			
 			var requestPayload = new
 			{
 				RoleName = "newRole",
@@ -324,9 +314,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
-
+			
 			var requestPayload = new
 			{
 				RoleName = additionalRolename,
@@ -374,9 +362,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
 
 			var requestPayload = new
 			{
@@ -493,9 +478,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
-
 			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri);
 			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
 			httpRequest.AddAuthHeader(userToken);
@@ -521,9 +503,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
 
 			var requestPayload = new
 			{
@@ -570,9 +549,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
 
 			var requestPayload = new
 			{
@@ -623,9 +599,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
-
+			
 			var requestPayload = new
 			{
 			};
@@ -742,9 +716,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
-
+			
 			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Put, _baseUri + "/" + roleId);
 			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
 			httpRequest.AddAuthHeader(userToken);
@@ -770,10 +742,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
-
+			
 			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Delete, _baseUri + "/" + additionalRoleId);
 			httpRequest.AddAuthHeader(userToken);
 
@@ -804,9 +773,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var nonExistentRuleId = Guid.NewGuid().ToString();
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
 
 			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Delete, _baseUri + "/" + nonExistentRuleId);
 			httpRequest.AddAuthHeader(userToken);
@@ -896,9 +862,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
-
 			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Delete, _baseUri + "/" + roleId);
 			httpRequest.AddAuthHeader(userToken);
 
@@ -923,9 +886,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
 
 			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri + "/user/" + UserSettings.UserId);
 			httpRequest.AddAuthHeader(userToken);
@@ -965,8 +925,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
 
 			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri + "/user/" + nonExistentUserId);
 			httpRequest.AddAuthHeader(userToken);
@@ -1056,9 +1014,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
-
 			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri + "/user/" + UserSettings.UserId);
 			httpRequest.AddAuthHeader(userToken);
 
@@ -1083,9 +1038,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
 
 			var requestPayload = new
 			{
@@ -1136,8 +1088,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
+			
+			
 
 			var requestPayload = new
 			{
@@ -1189,8 +1141,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
+			
+			
 
 			var requestPayload = new
 			{
@@ -1312,8 +1264,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
+			
+			
 
 			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/user");
 			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
@@ -1341,8 +1293,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
+			
+			
 
 			var requestPayload = new
 			{
@@ -1397,8 +1349,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
+			
+			
 
 			var requestPayload = new
 			{
@@ -1451,8 +1403,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
+			
+			
 
 			var requestPayload = new
 			{
@@ -1578,8 +1530,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
+			
+			
 
 			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/claim");
 			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
@@ -1611,8 +1563,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
+			
+			
 
 			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri + "/claim/" + RoleSettings.RoleId);
 			httpRequest.AddAuthHeader(userToken);
@@ -1652,8 +1604,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
+			
+			
 
 			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri + "/claim/" + nonExistentRoleId);
 			httpRequest.AddAuthHeader(userToken);
@@ -1743,8 +1695,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
+			
+			
 
 			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri + "/claim/" + RoleSettings.RoleId);
 			httpRequest.AddAuthHeader(userToken);
@@ -1775,8 +1727,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
+			
+			
 
 			var requestPayload = new
 			{
@@ -1820,8 +1772,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
+			
+			
 
 			var requestPayload = new
 			{
@@ -1875,8 +1827,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
+			
+			
 
 			var requestPayload = new
 			{
@@ -2002,8 +1954,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
+			
+			
 
 			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Delete, _baseUri + "/claim");
 			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
