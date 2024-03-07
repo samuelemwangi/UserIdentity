@@ -1,8 +1,8 @@
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-jammy-chiseled-composite AS base
+FROM mcr.microsoft.com/dotnet/aspnet:8.0.2-jammy-chiseled-composite AS base
 WORKDIR /app
 ENV ASPNETCORE_HTTP_PORTS=80;$ASPNETCORE_HTTP_PORTS 
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0-jammy  AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0.201-jammy  AS build
 WORKDIR /src
 COPY ["UserIdentity/UserIdentity.csproj", "UserIdentity/"]
 RUN dotnet restore "UserIdentity/UserIdentity.csproj"

@@ -40,20 +40,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			// Arrange
 			DBContexUtils.SeedDatabase(_appDbContext);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
-
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri + "/" + UserSettings.UserId);
-			httpRequest.AddAuthHeader(userToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Get, _baseUri + "/" + UserSettings.UserId);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -80,22 +71,13 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			// Arrange
 			DBContexUtils.SeedDatabase(_appDbContext);
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
-
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
-
 			var nonExistingUserId = Guid.NewGuid().ToString();
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri + "/" + nonExistingUserId);
-			httpRequest.AddAuthHeader(userToken);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Get, _baseUri + "/" + nonExistingUserId);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 
@@ -137,10 +119,9 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 
 			// Act
 			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 
@@ -171,9 +152,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 
 			DBContexUtils.ClearAppUser(_appDbContext);
 
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
-
 			var nonExistingUserId = Guid.NewGuid().ToString();
 
 			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri + "/" + nonExistingUserId);
@@ -181,10 +159,9 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 
 			// Act
 			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 
@@ -216,16 +193,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 				UserSettings.UserEmail
 			};
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/register");
-
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/register", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
@@ -265,16 +237,12 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 				UserSettings.UserPassword
 			};
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/register");
-
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/register", requestPayload);
+
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
@@ -314,18 +282,14 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 				UserSettings.PhoneNumber,
 				UserSettings.UserEmail,
 				UserSettings.UserPassword
-
 			};
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/register");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
 
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/register", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Created, response.StatusCode);
 
@@ -357,7 +321,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 		[InlineData("random@test.com", "")]
 		[InlineData(null, "712121212")]
 		[InlineData("", "712121212")]
-		public async Task Register_User_With_Only_Required_Request_Payload_Registers_User(string UserEmail, string PhoneNumber)
+		public async Task Register_User_With_Only_Required_Request_Payload_Registers_User(string? UserEmail, string? PhoneNumber)
 		{
 			// Arrange
 			var requestPayload = new
@@ -369,16 +333,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 				PhoneNumber
 			};
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/register");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
-			_outputHelper.WriteLine(responseString);
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/register", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Created, response.StatusCode);
 
@@ -425,15 +384,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 
 			};
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/register");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/register", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -465,16 +420,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 				Password = UserSettings.UserPassword
 			};
 
-
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/login");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/login", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -509,16 +459,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 				Password = UserSettings.UserPassword
 			};
 
-
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/login");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/login", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -551,16 +496,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 				Password = UserSettings.UserPassword
 			};
 
-
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/login");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/login", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -593,16 +533,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 				Password = UserSettings.UserPassword
 			};
 
-
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/login");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/login", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -634,16 +569,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 				Password = UserSettings.UserPassword + "123"
 			};
 
-
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/login");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/login", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -671,9 +601,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
-
 			var requestPayload = new
 			{
 				AccessToken = userToken,
@@ -685,10 +612,9 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 
 			// Act
 			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -718,9 +644,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
-
 			var requestPayload = new
 			{
 				AccessToken = userToken,
@@ -732,10 +655,9 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 
 			// Act
 			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -763,9 +685,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
-
 			DBContexUtils.DeleteRefreshToken(_appDbContext);
 
 			var requestPayload = new
@@ -779,10 +698,9 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 
 			// Act
 			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -810,9 +728,6 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 
 			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
-			Assert.NotNull(userToken);
-			Assert.NotNull(refreshToken);
-
 			var requestPayload = new
 			{
 				AccessToken = UserSettings.InvalidUserToken,
@@ -824,10 +739,9 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 
 			// Act
 			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -855,15 +769,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			{
 			};
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/reset-password");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/reset-password", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -900,15 +810,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 				UserSettings.UserEmail,
 			};
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/reset-password");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/reset-password", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -937,16 +843,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 				UserEmail = "hello@test.com",
 			};
 
-
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/reset-password");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/reset-password", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -979,15 +880,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			};
 
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/reset-password");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/reset-password", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
 
@@ -1018,15 +915,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			{
 			};
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/confirm-update-password-token");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/confirm-update-password-token", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -1066,15 +959,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 				UserSettings.UserId
 			};
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/confirm-update-password-token");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/confirm-update-password-token", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -1105,15 +994,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 				UserSettings.UserId
 			};
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/confirm-update-password-token");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/confirm-update-password-token", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.NotAcceptable, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -1143,15 +1028,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 				UserSettings.UserId
 			};
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/confirm-update-password-token");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/confirm-update-password-token", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.NotAcceptable, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -1176,15 +1057,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 			{
 			};
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/update-password");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/update-password", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -1226,15 +1103,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 				PasswordResetToken = resetPasswordToken
 			};
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/update-password");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/update-password", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.NotAcceptable, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -1266,15 +1139,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 				PasswordResetToken = resetPasswordToken
 			};
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/update-password");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/update-password", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -1305,15 +1174,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 				PasswordResetToken = resetPasswordToken + "897455\\f",
 			};
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/update-password");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/update-password", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.NotAcceptable, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);
@@ -1344,15 +1209,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
 				PasswordResetToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(TestStringHelper.GenerateRandomString(56))),
 			};
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/update-password");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
-
 			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/update-password", requestPayload);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.NotAcceptable, response.StatusCode);
 			var jsonObject = SerDe.Deserialize<JObject>(responseString);

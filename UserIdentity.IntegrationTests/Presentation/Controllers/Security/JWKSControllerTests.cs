@@ -29,15 +29,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Security
 		[Fact]
 		public async Task Get_KeySets_Returns_KeySets()
 		{
-			// Arrange
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri);
-
-			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-			var responseString = await response.Content.ReadAsStringAsync();
+			// Arrange & Act
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Get, _baseUri);
 
 			// Assert
-			response.ValidateRequestResponse();
+			var responseString = await response.ValidateRequestResponseAsync();
 
 			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
