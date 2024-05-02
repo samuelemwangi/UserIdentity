@@ -8,8 +8,6 @@ namespace UserIdentity.Application.Core.Errors.Queries.GerError
 {
 	public record GetErrorQuery
 	{
-		public Exception Exception { get; internal set; }
-		public string? RequestId { get; internal set; }
 		public string? ErrorMessage { get; internal set; }
 		public string? StatusMessage { get; internal set; }
 	}
@@ -18,23 +16,16 @@ namespace UserIdentity.Application.Core.Errors.Queries.GerError
 	{
 		private readonly IMachineDateTime _machineDateTime;
 		private readonly IStringHelper _stringHelper;
-		private readonly ILogHelper<GetErrorQueryHandler> _logHelper;
 
-		public GetErrorQueryHandler(IMachineDateTime machineDateTime, IStringHelper stringHelper, ILogHelper<GetErrorQueryHandler> logHelper)
+		public GetErrorQueryHandler(IMachineDateTime machineDateTime, IStringHelper stringHelper)
 		{
 			_machineDateTime = machineDateTime;
 			_stringHelper = stringHelper;
-			_logHelper = logHelper;
 		}
 
 		public async Task<ErrorViewModel> GetItemAsync(GetErrorQuery query)
 		{
-			// log the error 
-			_logHelper.LogEvent(
-				$"{query.RequestId ?? "NO-REQUEST-ID"} | Exception Message :: {query.Exception.Message ?? "NO-EXCEPTION-MESSAGE"} | User Message :: {query.ErrorMessage ?? "NO-USER-MESSAGE"}",
-				LogLevel.Error
-				);
-
+			
 			var errorDTO = new ErrorDTO
 			{
 				Timestamp = _machineDateTime.Now,
@@ -45,7 +36,6 @@ namespace UserIdentity.Application.Core.Errors.Queries.GerError
 			{
 				Error = errorDTO,
 			};
-
 
 			var statusMessage = query.StatusMessage != null ? _stringHelper.AddSpacesToSentence(query.StatusMessage, true).ToUpper() : "";
 

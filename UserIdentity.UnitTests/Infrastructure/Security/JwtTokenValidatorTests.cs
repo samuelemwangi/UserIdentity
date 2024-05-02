@@ -9,13 +9,12 @@ using Microsoft.IdentityModel.Tokens;
 
 using UserIdentity.Application.Interfaces.Security;
 using UserIdentity.Infrastructure.Security;
-using UserIdentity.Infrastructure.Security.Interfaces;
 
 using Xunit;
 
 namespace UserIdentity.UnitTests.Infrastructure.Security
 {
-	public class JwtTokenValidatorTests
+    public class JwtTokenValidatorTests
 	{
 		private readonly IJwtTokenHandler _jwtTokenHandler;
 		private readonly IKeySetFactory _keySetFactory;

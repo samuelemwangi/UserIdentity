@@ -4,11 +4,10 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 using UserIdentity.Application.Interfaces.Security;
-using UserIdentity.Infrastructure.Security.Interfaces;
 
 namespace UserIdentity.Infrastructure.Security
 {
-	public class JwtTokenValidator : IJwtTokenValidator
+    public class JwtTokenValidator : IJwtTokenValidator
 	{
 		private readonly IJwtTokenHandler _jwtTokenHandler;
 		private readonly JwtIssuerOptions _jwtOptions;

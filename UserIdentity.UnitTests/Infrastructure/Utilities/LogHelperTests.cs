@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 using MELT;
 
@@ -26,13 +27,13 @@ namespace UserIdentity.UnitTests.Infrastructure.Utilities
 		[InlineData("Test Log Message Critical", LogLevel.Critical)]
 		[InlineData("Test Log Message Debug", LogLevel.Debug)]
 		[InlineData("Test Log Message Trace", LogLevel.Trace)]
-		public void Log_Helper_Log_Event_Logs_Event(string logMessage, LogLevel logLevel)
+		public async Task Log_Helper_Log_Event_Logs_Event(string logMessage, LogLevel logLevel)
 		{
 			// Arrange
 			LogHelper<object> logHelper = new(_loggerFactory);
 
 			// Act
-			logHelper.LogEvent(logMessage, logLevel);
+			await logHelper.LogEventAsync(logMessage, logLevel);
 
 			// Assert
 			var log = Assert.Single(_loggerFactory.Sink.LogEntries);
