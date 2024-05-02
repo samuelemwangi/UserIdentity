@@ -6,7 +6,6 @@ using UserIdentity;
 using UserIdentity.Application.Interfaces.Security;
 using UserIdentity.Application.Interfaces.Utilities;
 using UserIdentity.Infrastructure.Security;
-using UserIdentity.Infrastructure.Security.Interfaces;
 using UserIdentity.Infrastructure.Utilities;
 using UserIdentity.Persistence;
 using UserIdentity.Persistence.Migrations;

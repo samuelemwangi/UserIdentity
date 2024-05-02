@@ -16,14 +16,12 @@ namespace UserIdentity.UnitTests.Application.Core.Errors
 	{
 		private readonly IMachineDateTime _machineDateTime;
 		private readonly IStringHelper _stringHelper;
-		private readonly ILogHelper<GetErrorQueryHandler> _logHelper;
 
 
 		public GetErrorQueryHandlerTests()
 		{
 			_machineDateTime = new MachineDateTime();
 			_stringHelper = new StringHelper();
-			_logHelper = A.Fake<ILogHelper<GetErrorQueryHandler>>();
 		}
 
 		[Fact]
@@ -36,13 +34,12 @@ namespace UserIdentity.UnitTests.Application.Core.Errors
 
 			var query = new GetErrorQuery()
 			{
-				Exception = new Exception(errorMessage),
 				ErrorMessage = errorMessage,
 				StatusMessage = statusMessage
 			};
 
 
-			var getErrorQueryHandler = new GetErrorQueryHandler(_machineDateTime, _stringHelper, _logHelper);
+			var getErrorQueryHandler = new GetErrorQueryHandler(_machineDateTime, _stringHelper);
 
 			// Act
 			var vm = await getErrorQueryHandler.GetItemAsync(query);
@@ -69,12 +66,11 @@ namespace UserIdentity.UnitTests.Application.Core.Errors
 			// Arrange
 			var query = new GetErrorQuery()
 			{
-				Exception = new Exception("Testing error message"),
 				ErrorMessage = "Testing error message",
 				StatusMessage = null
 			};
 
-			var getErrorQueryHandler = new GetErrorQueryHandler(_machineDateTime, _stringHelper, _logHelper);
+			var getErrorQueryHandler = new GetErrorQueryHandler(_machineDateTime, _stringHelper);
 
 			// Act
 			var vm = await getErrorQueryHandler.GetItemAsync(query);

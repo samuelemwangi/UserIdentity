@@ -8,6 +8,9 @@ using UserIdentity.Application.Core.Errors.Queries.GerError;
 using UserIdentity.Application.Core.Errors.ViewModels;
 using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Exceptions;
+using UserIdentity.Application.Interfaces.Utilities;
+
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace UserIdentity.Presentation.Helpers
 {
@@ -17,26 +20,30 @@ namespace UserIdentity.Presentation.Helpers
 		public ExceptionMiddleware(RequestDelegate requestDelegate)
 		{
 			_next = requestDelegate;
-
 		}
 
-		public async Task InvokeAsync(HttpContext httpContext, IGetItemQueryHandler<GetErrorQuery, ErrorViewModel> getErrorQueryHandler)
+		public async Task InvokeAsync(
+			HttpContext httpContext,
+			IGetItemQueryHandler<GetErrorQuery, ErrorViewModel> getErrorQueryHandler,
+			ILogHelper<ExceptionMiddleware> logHelper
+			)
 		{
-
-			IGetItemQueryHandler<GetErrorQuery, ErrorViewModel> _getErrorQueryHandler = getErrorQueryHandler;
-
 			try
 			{
 				await _next(httpContext);
 			}
 			catch (Exception ex)
 			{
-				await HandleExceptionAsync(httpContext, ex, _getErrorQueryHandler);
+				await HandleExceptionAsync(httpContext, ex, getErrorQueryHandler, logHelper);
 			}
-
 		}
 
-		private static async Task HandleExceptionAsync(HttpContext context, Exception exception, IGetItemQueryHandler<GetErrorQuery, ErrorViewModel> _getErrorQueryHandler)
+		private static async Task HandleExceptionAsync(
+			HttpContext context,
+			Exception exception,
+			IGetItemQueryHandler<GetErrorQuery, ErrorViewModel> _getErrorQueryHandler,
+			ILogHelper<ExceptionMiddleware> _logHelper
+			)
 		{
 			context.Response.ContentType = "application/json";
 			HttpStatusCode statusCode;
@@ -94,24 +101,24 @@ namespace UserIdentity.Presentation.Helpers
 
 			var errorViewModel = await _getErrorQueryHandler.GetItemAsync(new GetErrorQuery
 			{
-				Exception = exception,
-				RequestId = context.Request.Headers["X-Request-Id"],
 				ErrorMessage = errorMessage,
 				StatusMessage = (int)statusCode + " -" + statusCode.ToString()
-			});
+			});			
 
 			context.Response.StatusCode = (int)statusCode;
-
 			if (errorViewModel.Error != null)
 			{
 				errorViewModel.Error.Message = errorMessage[(errorMessage.IndexOf(':') + 1)..].Trim();
 			}
+
+			var logMessage = $"{context.Request.Headers["X-Request-Id"]} | Exception Message :: {exception.Message ?? "NO-EXCEPTION-MESSAGE"} | User Message :: {errorMessage ?? "NO-USER-MESSAGE"}";
 
 			var serializerOptions = new JsonSerializerOptions
 			{
 				PropertyNamingPolicy = JsonNamingPolicy.CamelCase
 			};
 
+			await _logHelper.LogEventAsync(logMessage, LogLevel.Error);
 
 			await context.Response.WriteAsync(JsonSerializer.Serialize(errorViewModel, serializerOptions));
 		}

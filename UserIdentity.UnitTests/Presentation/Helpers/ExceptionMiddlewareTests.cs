@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 
 using UserIdentity.Application.Core.Errors.Queries.GerError;
 using UserIdentity.Application.Exceptions;
+using UserIdentity.Application.Interfaces.Utilities;
 using UserIdentity.Presentation.Helpers;
 using UserIdentity.UnitTests.TestUtils;
 
@@ -44,9 +45,10 @@ namespace UserIdentity.UnitTests.Presentation.Helpers
 			var middleware = new ExceptionMiddleware(next);
 
 			var getErrorQueryHandler = A.Fake<GetErrorQueryHandler>();
+			var logHelper = A.Fake<ILogHelper<ExceptionMiddleware>>();
 
 			// Act
-			await middleware.InvokeAsync(context, getErrorQueryHandler);
+			await middleware.InvokeAsync(context, getErrorQueryHandler, logHelper);
 
 
 			//Assert
@@ -96,9 +98,10 @@ namespace UserIdentity.UnitTests.Presentation.Helpers
 			var middleware = new ExceptionMiddleware(next);
 
 			var getErrorQueryHandler = A.Fake<GetErrorQueryHandler>();
+			var logHelper = A.Fake<ILogHelper<ExceptionMiddleware>>();
 
 			// Act
-			await middleware.InvokeAsync(context, getErrorQueryHandler);
+			await middleware.InvokeAsync(context, getErrorQueryHandler, logHelper);
 
 
 			// Assert

@@ -9,18 +9,17 @@ using FakeItEasy;
 
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-
+using UserIdentity.Application.Interfaces.Security;
 using UserIdentity.Application.Interfaces.Utilities;
 using UserIdentity.Infrastructure.Security;
 using UserIdentity.Infrastructure.Security.Helpers;
-using UserIdentity.Infrastructure.Security.Interfaces;
 using UserIdentity.Infrastructure.Utilities;
 
 using Xunit;
 
 namespace UserIdentity.UnitTests.Infrastructure.Security
 {
-	public class JwtFactoryTests
+    public class JwtFactoryTests
 	{
 		private readonly IJwtTokenHandler _jwtTokenHandler;
 		private readonly IMachineDateTime _machineDateTime;

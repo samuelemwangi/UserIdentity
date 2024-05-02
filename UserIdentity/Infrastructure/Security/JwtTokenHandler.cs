@@ -6,11 +6,10 @@ using Microsoft.IdentityModel.Tokens;
 using UserIdentity.Application.Exceptions;
 using UserIdentity.Application.Interfaces.Security;
 using UserIdentity.Application.Interfaces.Utilities;
-using UserIdentity.Infrastructure.Security.Interfaces;
 
 namespace UserIdentity.Infrastructure.Security
 {
-	public class JwtTokenHandler : IJwtTokenHandler
+    public class JwtTokenHandler : IJwtTokenHandler
 	{
 		private readonly JwtSecurityTokenHandler _jwtSecurityTokenHandler;
 		private readonly IKeySetFactory _keySetFactory;

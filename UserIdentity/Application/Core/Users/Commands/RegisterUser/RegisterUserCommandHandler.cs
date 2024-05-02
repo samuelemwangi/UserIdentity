@@ -124,7 +124,7 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 			{
 				string errors = string.Join(" ", identityResult.Errors.Select(e => e.Description));
 
-				_logHelper.LogEvent(errors, LogLevel.Error);
+				await _logHelper.LogEventAsync(errors, LogLevel.Error);
 				throw new RecordCreationException(errors);
 			}
 

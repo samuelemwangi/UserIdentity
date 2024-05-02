@@ -11,7 +11,7 @@ namespace UserIdentity.Infrastructure.Utilities
 			_loggerFactory = loggerFactory;
 
 		}
-		public void LogEvent(string message, LogLevel logLevel)
+		public async Task LogEventAsync(string message, LogLevel logLevel)
 		{
 			ILogger logger = _loggerFactory.CreateLogger<T>();
 
@@ -38,7 +38,6 @@ namespace UserIdentity.Infrastructure.Utilities
 					logger.LogInformation(resolvedMessage);
 					break;
 			}
-
 		}
 	}
 }

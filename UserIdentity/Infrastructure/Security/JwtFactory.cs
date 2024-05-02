@@ -7,11 +7,10 @@ using Microsoft.Extensions.Options;
 using UserIdentity.Application.Interfaces.Security;
 using UserIdentity.Application.Interfaces.Utilities;
 using UserIdentity.Infrastructure.Security.Helpers;
-using UserIdentity.Infrastructure.Security.Interfaces;
 
 namespace UserIdentity.Infrastructure.Security
 {
-	public class JwtFactory : IJwtFactory
+    public class JwtFactory : IJwtFactory
 	{
 		private readonly IJwtTokenHandler _jwtTokenHandler;
 		private readonly JwtIssuerOptions _jwtOptions;
