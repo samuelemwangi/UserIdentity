@@ -9,7 +9,7 @@ using UserIdentity.Application.Interfaces.Utilities;
 
 namespace UserIdentity.Infrastructure.Security
 {
-    public class JwtTokenHandler : IJwtTokenHandler
+	public class JwtTokenHandler : IJwtTokenHandler
 	{
 		private readonly JwtSecurityTokenHandler _jwtSecurityTokenHandler;
 		private readonly IKeySetFactory _keySetFactory;

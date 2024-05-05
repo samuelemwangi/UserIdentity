@@ -7,7 +7,7 @@ using UserIdentity.Application.Interfaces.Security;
 
 namespace UserIdentity.Infrastructure.Security
 {
-    public class JwtTokenValidator : IJwtTokenValidator
+	public class JwtTokenValidator : IJwtTokenValidator
 	{
 		private readonly IJwtTokenHandler _jwtTokenHandler;
 		private readonly JwtIssuerOptions _jwtOptions;
@@ -28,8 +28,8 @@ namespace UserIdentity.Infrastructure.Security
 				ValidateIssuer = true,
 				ValidIssuer = _jwtOptions.Issuer,
 
-				ValidateIssuerSigningKey = true,
-				IssuerSigningKey = _keySetFactory.GetSigningKey(),
+				ValidateIssuerSigningKey = false,
+				IssuerSigningKey = _keySetFactory.GetVerificationKeyAsync().Result,
 				ValidateLifetime = false
 			});
 		}

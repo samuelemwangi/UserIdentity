@@ -24,7 +24,7 @@ namespace UserIdentity.Application.Core.KeySets.Queries.GetKeySets
 				{ "alg", _keySetFactory.GetAlgorithm() },
 				{ "kty", _keySetFactory.GetKeyType() },
 				{ "kid", _keySetFactory.GetKeyId() },
-				{ "k", _keySetFactory.GetBase64URLEncodedSecretKey()}
+				{ "n", _keySetFactory.GetBase64URLEncodedPublicKeyAsync().Result}
 			};
 
 			List<Dictionary<string, string>> keySetList = new()

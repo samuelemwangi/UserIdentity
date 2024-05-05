@@ -7,8 +7,9 @@ namespace UserIdentity.Application.Interfaces.Security
 		string GetAlgorithm();
 		string GetKeyType();
 		string GetKeyId();
-		string GetSecretKey();
-		SymmetricSecurityKey GetSigningKey();
-		string GetBase64URLEncodedSecretKey();
+		Task<AsymmetricSecurityKey> GetSigningKeyAsync();
+		Task<AsymmetricSecurityKey> GetVerificationKeyAsync();
+		Task<string> GetPublicKeyAsync();
+		Task<string> GetBase64URLEncodedPublicKeyAsync();
 	}
 }

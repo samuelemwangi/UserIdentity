@@ -4,7 +4,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 
+using UserIdentity.Application.Exceptions;
+using UserIdentity.Infrastructure.Configuration;
 using UserIdentity.Infrastructure.Security;
+using UserIdentity.Infrastructure.Utilities;
 using UserIdentity.Persistence;
 
 namespace UserIdentity
@@ -65,9 +68,13 @@ namespace UserIdentity
 		public static void AddAppAuthentication(this IServiceCollection services, IConfiguration configuration)
 		{
 			// Signing Credentials
-			var keySetFactory = new KeySetFactory(configuration);
-			var signingKey = keySetFactory.GetSigningKey();
-			var signingCredentials = new SigningCredentials(signingKey, keySetFactory.GetAlgorithm());
+			var keySetFactory = new KeySetFactory(configuration, new FileSystemKeyProvider());
+			var algorithm = keySetFactory.GetAlgorithm();
+			var signingKey = keySetFactory.GetSigningKeyAsync().Result;
+			var verificationKey = keySetFactory.GetVerificationKeyAsync().Result;
+
+			var signingCredentials = new SigningCredentials(signingKey, algorithm);
+			var verificationCredentials = new SigningCredentials(verificationKey, algorithm);
 
 			// Key Id 
 			signingCredentials.Key.KeyId = keySetFactory.GetKeyId();
@@ -75,9 +82,11 @@ namespace UserIdentity
 			// JWT wire up
 			var jwtAppSettingOptions = configuration.GetSection(nameof(JwtIssuerOptions));
 
-			var issuer = configuration.GetValue<string>(jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)]) ?? jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)] ?? "";
-			var audience = configuration.GetValue<string>(jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)]) ?? jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)] ?? "";
-			var validForString = configuration.GetValue<string>(jwtAppSettingOptions[nameof(JwtIssuerOptions.ValidFor)]) ?? jwtAppSettingOptions[nameof(JwtIssuerOptions.ValidFor)];
+			var issuer = configuration.GetEnvironmentVariable(jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)] ?? "APP_ISSUER"); 
+
+			var audience = configuration.GetEnvironmentVariable(jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)] ?? "APP_AUDIENCE"); 
+
+			var validForString = configuration.GetEnvironmentVariable(jwtAppSettingOptions[nameof(JwtIssuerOptions.ValidFor)] ?? "APP_VALID_FOR"); 
 
 			var validFor = 15.0d;
 
@@ -103,8 +112,8 @@ namespace UserIdentity
 				ValidateAudience = true,
 				ValidAudience = audience,
 
-				ValidateIssuerSigningKey = true,
-				IssuerSigningKey = signingKey,
+				ValidateIssuerSigningKey = false,
+				IssuerSigningKey = verificationKey,
 
 				RequireExpirationTime = false,
 				ValidateLifetime = true,
