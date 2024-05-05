@@ -18,13 +18,15 @@ namespace UserIdentity.Application.Core.KeySets.Queries.GetKeySets
 
 		public async Task<IDictionary<string, IList<Dictionary<string, string>>>> GetItemsAsync(GetKeySetsQuery query)
 		{
+			(var modulus, var exponent) = await _keySetFactory.GetModulusAndExponentForPublicKeyAsync();
 
 			Dictionary<string, string> keySet = new()
 			{
 				{ "alg", _keySetFactory.GetAlgorithm() },
 				{ "kty", _keySetFactory.GetKeyType() },
 				{ "kid", _keySetFactory.GetKeyId() },
-				{ "n", _keySetFactory.GetBase64URLEncodedPublicKeyAsync().Result}
+				{ "n", modulus},
+				{ "e", exponent}
 			};
 
 			List<Dictionary<string, string>> keySetList = new()

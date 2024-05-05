@@ -53,53 +53,43 @@ namespace UserIdentity.Infrastructure.Security
 
 		public async Task<AsymmetricSecurityKey> GetSigningKeyAsync()
 		{
-			var (privateKey, privateKeyPassPhrase) = await GetPrivateKeyAsync();
-
-			using var privateKeyTextReader = new StringReader(privateKey);
-
-			var pemReader = new PemReader(privateKeyTextReader, new PasswordFinder(privateKeyPassPhrase));
-
-			var privateKeyParameters = (RsaPrivateCrtKeyParameters)pemReader.ReadObject();
-
-			var privateKeyRsaParameters = DotNetUtilities.ToRSAParameters(privateKeyParameters);
-
-			return new RsaSecurityKey(privateKeyRsaParameters);
+			return new RsaSecurityKey(await ReadPemFileAsync("APP_PRIVATE_KEY_PATH", "APP_PRIVATE_KEY_PASS_PHRASE"));
 		}
 
 		public async Task<AsymmetricSecurityKey> GetVerificationKeyAsync()
 		{
-			var publicKey = await GetPublicKeyAsync();
-
-			using var publicKeyTextReader = new StringReader(publicKey);
-
-			var pemReader = new PemReader(publicKeyTextReader);
-
-			var publicKeyParameters = (RsaKeyParameters)pemReader.ReadObject();
-
-			var rsaPublicKeyParameters = DotNetUtilities.ToRSAParameters(publicKeyParameters);
-
-			return new RsaSecurityKey(rsaPublicKeyParameters);
+			return new RsaSecurityKey(await ReadPemFileAsync("APP_PUBLIC_KEY_PATH"));
 		}
 
-		public async Task<string> GetPublicKeyAsync()
+		public async Task<(string, string)> GetModulusAndExponentForPublicKeyAsync()
 		{
-			var publicKeyPath = _configuration.GetEnvironmentVariable("APP_PUBLIC_KEY_PATH");
-			return await _keyProvider.GetKeyAsync(publicKeyPath);
+			var publicKeyRsaParameters = await ReadPemFileAsync("APP_PUBLIC_KEY_PATH");
+
+			var modulus = Base64UrlEncoder.Encode(publicKeyRsaParameters.Modulus);
+			var exponent = Base64UrlEncoder.Encode(publicKeyRsaParameters.Exponent);
+
+			return (modulus, exponent);
 		}
 
-		public async Task<string> GetBase64URLEncodedPublicKeyAsync()
+
+		private async Task<RSAParameters> ReadPemFileAsync(string key, string? passPhraseKey = null)
 		{
-			return Base64UrlEncoder.Encode(await GetPublicKeyAsync());
-		}
+			var keyPath = _configuration.GetEnvironmentVariable(key);
+			var keyContent = await _keyProvider.GetKeyAsync(keyPath);
 
-		private async Task<(string, string)> GetPrivateKeyAsync()
-		{
-			var privateKeyPath = _configuration.GetEnvironmentVariable("APP_PRIVATE_KEY_PATH");
-			var privateKeyPassPhrase = _configuration.GetEnvironmentVariable("APP_PRIVATE_KEY_PASS_PHRASE");
+			using var keyTextReader = new StringReader(keyContent);
 
-			var privateKeyContent = await _keyProvider.GetKeyAsync(privateKeyPath);
-
-			return (privateKeyContent, privateKeyPassPhrase);
+			if (passPhraseKey == null)
+			{
+				var publicKeyParameters = (RsaKeyParameters)new PemReader(keyTextReader).ReadObject();
+				return DotNetUtilities.ToRSAParameters(publicKeyParameters);
+			}
+			else
+			{
+				var passPhrase = _configuration.GetEnvironmentVariable(passPhraseKey);
+				var privateKeyParameters = (RsaPrivateCrtKeyParameters)new PemReader(keyTextReader, new PasswordFinder(passPhrase)).ReadObject();
+				return DotNetUtilities.ToRSAParameters(privateKeyParameters);
+			}
 		}
 	}
 }
