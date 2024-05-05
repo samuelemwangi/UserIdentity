@@ -112,7 +112,7 @@ namespace UserIdentity
 				ValidateAudience = true,
 				ValidAudience = audience,
 
-				ValidateIssuerSigningKey = false,
+				ValidateIssuerSigningKey = true,
 				IssuerSigningKey = verificationKey,
 
 				RequireExpirationTime = false,

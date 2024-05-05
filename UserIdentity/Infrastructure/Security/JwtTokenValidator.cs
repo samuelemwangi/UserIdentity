@@ -28,7 +28,7 @@ namespace UserIdentity.Infrastructure.Security
 				ValidateIssuer = true,
 				ValidIssuer = _jwtOptions.Issuer,
 
-				ValidateIssuerSigningKey = false,
+				ValidateIssuerSigningKey = true,
 				IssuerSigningKey = _keySetFactory.GetVerificationKeyAsync().Result,
 				ValidateLifetime = false
 			});
