@@ -4,14 +4,19 @@ namespace UserIdentity.Infrastructure.Configuration
 {
 	public static class Extensions
 	{
-		public static string GetEnvironmentVariable(this IConfiguration configuration, string key)
+		public static string GetEnvironmentVariable(this IConfiguration configuration, string key, string? defaultValue = null)
 		{
 			var value = configuration[key];
-			if (string.IsNullOrEmpty(value))
+			var envValueExists = !string.IsNullOrEmpty(value);
+
+			if (!envValueExists && defaultValue == null)
 			{
 				throw new MissingConfigurationException(key);
 			}
-			return value;
+
+#pragma warning disable CS8603 // Possible null reference return.
+			return envValueExists ? value : defaultValue;
+#pragma warning restore CS8603 // Possible null reference return.
 		}
 	}
 }
