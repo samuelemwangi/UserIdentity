@@ -29,7 +29,6 @@ builder.Services.AddAppAuthorization();
 builder.Services.AddAppIdentity();
 
 
-
 // Controllers
 builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
 {
@@ -55,6 +54,7 @@ builder.Services.AddRepositories();
 // Utilities e.g for Time, String 
 builder.Services.AddScoped<IMachineDateTime, MachineDateTime>();
 builder.Services.AddScoped<IStringHelper, StringHelper>();
+builder.Services.AddScoped<IKeyProvider, FileSystemKeyProvider>();
 builder.Services.AddScoped(typeof(ILogHelper<>), typeof(LogHelper<>));
 
 // JWT Helpers

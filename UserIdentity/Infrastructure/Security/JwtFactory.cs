@@ -10,7 +10,7 @@ using UserIdentity.Infrastructure.Security.Helpers;
 
 namespace UserIdentity.Infrastructure.Security
 {
-    public class JwtFactory : IJwtFactory
+	public class JwtFactory : IJwtFactory
 	{
 		private readonly IJwtTokenHandler _jwtTokenHandler;
 		private readonly JwtIssuerOptions _jwtOptions;

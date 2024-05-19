@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using UserIdentity.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Application.Exceptions;
+using UserIdentity.Infrastructure.Configuration;
 using UserIdentity.Persistence.Repositories.Users;
 
 namespace UserIdentity.Application.Core.Users.Commands.ResetPassword
@@ -33,14 +34,24 @@ namespace UserIdentity.Application.Core.Users.Commands.ResetPassword
 
 		public async Task<ResetPasswordViewModel> CreateItemAsync(ResetPasswordCommand command)
 		{
+			// Check if default message is set in configs
+			string resetPasswordMessageKey = _configuration.GetEnvironmentVariable("DefaultResetPasswordMessage", "Kindly check your email for instructions to reset your password");
+			string resetPasswordMessage = _configuration.GetEnvironmentVariable(resetPasswordMessageKey, resetPasswordMessageKey);
+
+			var vm = new ResetPasswordViewModel
+			{
+				ResetPasswordDetails = new ResetPasswordDTO
+				{
+					EmailMessage = resetPasswordMessage
+				}
+			};
+
 			var existingUser = await _userManager.FindByEmailAsync(command.UserEmail);
 
-			// Check if default message is set in configs
-			string defaultResetPasswordMessage = _configuration.GetValue<string>(_configuration.GetValue<string>("DefaultResetPasswordMessage"));
-			string emailMessage = defaultResetPasswordMessage ?? "Kindly check your email for instructions to reset your password";
-
 			if (existingUser == null)
-				throw new NoRecordException(command.UserEmail, "User");
+			{
+				return vm;
+			}
 
 			// generate token
 			string resetPasswordToken = await _userManager.GeneratePasswordResetTokenAsync(existingUser);
@@ -50,17 +61,11 @@ namespace UserIdentity.Application.Core.Users.Commands.ResetPassword
 
 			if (updateResult < 1)
 				throw new RecordUpdateException(command.UserEmail, "User");
-
-			// Send Email Logic here
+			
 			string emailToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(resetPasswordToken));
+			// Send Email Logic here
 
-			return new ResetPasswordViewModel
-			{
-				ResetPasswordDetails = new ResetPasswordDTO
-				{
-					EmailMessage = emailMessage
-				}
-			};
+			return vm;
 
 		}
 	}

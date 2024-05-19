@@ -275,3 +275,5 @@ mounts/
 
 TestResults
 coveragereport
+
+certs/*.pem

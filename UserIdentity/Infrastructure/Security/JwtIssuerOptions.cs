@@ -21,14 +21,11 @@ namespace UserIdentity.Infrastructure.Security
 
 		//Timespan the JWT is valid for
 		public TimeSpan ValidFor { get; set; }
-		//= TimeSpan.FromMinutes(1);
 
 		//exp -> The Time after which JWT must not be accepted for processing
 		public DateTime Expiration => IssuedAt.Add(ValidFor);
 
-
 		// "jti" (JWT ID) Claim (default ID is a GUID)
-		// add getter and setter for JtiGenerator
 		public Func<Task<string>> JtiGenerator =>
 			() => Task.FromResult(Guid.NewGuid().ToString());
 

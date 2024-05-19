@@ -1,67 +1,95 @@
-﻿using System.Text;
+﻿using System.Security.Cryptography;
+using System.Text;
 
 using Microsoft.IdentityModel.Tokens;
 
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.OpenSsl;
+using Org.BouncyCastle.Security;
+
 using UserIdentity.Application.Interfaces.Security;
+using UserIdentity.Application.Interfaces.Utilities;
+using UserIdentity.Infrastructure.Configuration;
 
 namespace UserIdentity.Infrastructure.Security
 {
+
 	public class KeySetFactory : IKeySetFactory
 	{
 		private readonly IConfigurationSection _keySetConfigurationSection;
 		private readonly IConfiguration _configuration;
+		private readonly IKeyProvider _keyProvider;
 
-		public KeySetFactory(IConfiguration configuration)
+		private class PasswordFinder(string password) : IPasswordFinder
+		{
+			private readonly string password = password;
+
+			public char[] GetPassword() => password.ToCharArray();
+		}
+
+		public KeySetFactory(IConfiguration configuration, IKeyProvider keyProvider)
 		{
 			_keySetConfigurationSection = configuration.GetSection(nameof(KeySetOptions));
 			_configuration = configuration;
+			_keyProvider = keyProvider;
 		}
 
 		public string GetAlgorithm()
 		{
-			return _keySetConfigurationSection[nameof(KeySetOptions.Alg)] ?? SecurityAlgorithms.HmacSha256;
+			return _keySetConfigurationSection[nameof(KeySetOptions.Alg)] ?? SecurityAlgorithms.RsaSha256;
 		}
 
 		public string GetKeyType()
 		{
-			return _keySetConfigurationSection[nameof(KeySetOptions.KeyType)] ?? "oct";
+			return _keySetConfigurationSection[nameof(KeySetOptions.KeyType)] ?? "RSA";
 		}
 
 		public string GetKeyId()
 		{
-			string? envKeyId = _configuration.GetValue<string>("APP_KEY_ID");
-
-			string keyId = string.IsNullOrEmpty(envKeyId)
-				? _keySetConfigurationSection[nameof(KeySetOptions.KeyId)] ?? "APPV1KEYID"
-				: envKeyId;
-
-			return Base64UrlEncoder.Encode(keyId);
+			var envKeyId = _configuration.GetEnvironmentVariable("APP_KEY_ID");
+			return Base64UrlEncoder.Encode(envKeyId);
 		}
 
-		public string GetSecretKey()
+		public async Task<AsymmetricSecurityKey> GetSigningKeyAsync()
 		{
-			string? envSecretKey = _configuration.GetValue<string?>("APP_SECRET_KEY");
-
-			string? secretKey = string.IsNullOrEmpty(envSecretKey)
-				? _keySetConfigurationSection[nameof(KeySetOptions.SecretKey)] ?? "KEY198*£%&YEK+OP}L5H0ULD>32CH8Rz"
-				: envSecretKey;
-
-			return secretKey.Length < 32
-				? throw new SecurityTokenInvalidSigningKeyException("Invalid key provided. Security key should be at least 32 characters")
-				: secretKey;
+			return new RsaSecurityKey(await ReadPemFileAsync("APP_PRIVATE_KEY_PATH", "APP_PRIVATE_KEY_PASS_PHRASE"));
 		}
 
-		public SymmetricSecurityKey GetSigningKey()
+		public async Task<AsymmetricSecurityKey> GetVerificationKeyAsync()
 		{
-			return new SymmetricSecurityKey(Encoding.ASCII.GetBytes(GetSecretKey()));
+			return new RsaSecurityKey(await ReadPemFileAsync("APP_PUBLIC_KEY_PATH"));
 		}
 
-		public string GetBase64URLEncodedSecretKey()
+		public async Task<(string, string)> GetModulusAndExponentForPublicKeyAsync()
 		{
+			var publicKeyRsaParameters = await ReadPemFileAsync("APP_PUBLIC_KEY_PATH");
 
-			string secretKey = GetSecretKey();
+			var modulus = Base64UrlEncoder.Encode(publicKeyRsaParameters.Modulus);
+			var exponent = Base64UrlEncoder.Encode(publicKeyRsaParameters.Exponent);
 
-			return Base64UrlEncoder.Encode(secretKey);
+			return (modulus, exponent);
+		}
+
+
+		private async Task<RSAParameters> ReadPemFileAsync(string key, string? passPhraseKey = null)
+		{
+			var keyPath = _configuration.GetEnvironmentVariable(key);
+			var keyContent = await _keyProvider.GetKeyAsync(keyPath);
+
+			using var keyTextReader = new StringReader(keyContent);
+
+			if (passPhraseKey == null)
+			{
+				var publicKeyParameters = (RsaKeyParameters)new PemReader(keyTextReader).ReadObject();
+				return DotNetUtilities.ToRSAParameters(publicKeyParameters);
+			}
+			else
+			{
+				var passPhrase = _configuration.GetEnvironmentVariable(passPhraseKey);
+				var privateKeyParameters = (RsaPrivateCrtKeyParameters)new PemReader(keyTextReader, new PasswordFinder(passPhrase)).ReadObject();
+				return DotNetUtilities.ToRSAParameters(privateKeyParameters);
+			}
 		}
 	}
 }
