@@ -2,6 +2,8 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
+using FakeItEasy;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.IdentityModel.Tokens;
@@ -21,11 +23,13 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
 		private readonly TestSettingsFixture _testSettings;
 		private readonly KeySetFactory _keySetFactory;
 		private readonly ILogHelper<JwtTokenHandler> _logHelper;
+		private readonly IKeyProvider _keyProvider;
 
 		public JwtTokenHandlerTests(TestSettingsFixture testSettings)
-		{
+		{			
 			_testSettings = testSettings;
-			_keySetFactory = new KeySetFactory(_testSettings.Configuration);
+			_keyProvider = A.Fake<IKeyProvider>();
+			_keySetFactory = new KeySetFactory(_testSettings.Configuration, _keyProvider);
 
 			ILoggerFactory loggerFactory = new NullLoggerFactory();
 			_logHelper = new LogHelper<JwtTokenHandler>(loggerFactory);

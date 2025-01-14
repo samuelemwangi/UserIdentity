@@ -1,8 +1,12 @@
 using System;
 using System.Text;
+using System.Threading.Tasks;
+
+using FakeItEasy;
 
 using Microsoft.IdentityModel.Tokens;
 
+using UserIdentity.Application.Interfaces.Utilities;
 using UserIdentity.Infrastructure.Security;
 
 using Xunit;
@@ -12,17 +16,19 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
 	public class KeySetFactoryTests : IClassFixture<TestSettingsFixture>
 	{
 		private readonly TestSettingsFixture _testSettings;
+		private readonly IKeyProvider _keyProvider;
 
 		public KeySetFactoryTests(TestSettingsFixture testSettings)
 		{
 			_testSettings = testSettings;
+			_keyProvider = A.Fake<IKeyProvider>();
 		}
 
 		[Fact]
 		public void Get_Algorithm_Returns_Algorithm()
 		{
 			// Arrange
-			var keySetFactory = new KeySetFactory(_testSettings.Configuration);
+			var keySetFactory = new KeySetFactory(_testSettings.Configuration, _keyProvider);
 
 			// Act & Assert
 			Assert.Equal("HS256", keySetFactory.GetAlgorithm());
@@ -32,7 +38,7 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
 		public void Get_KeyType_Returns_KeyType()
 		{
 			// Arrange
-			var keySetFactory = new KeySetFactory(_testSettings.Configuration);
+			var keySetFactory = new KeySetFactory(_testSettings.Configuration, _keyProvider);
 
 			// Act & Assert
 			Assert.Equal("oct", keySetFactory.GetKeyType());
@@ -42,7 +48,7 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
 		public void Get_Env_KeyId_Returns_Encoded_KeyId()
 		{
 			// Arrange
-			var keySetFactory = new KeySetFactory(_testSettings.Configuration);
+			var keySetFactory = new KeySetFactory(_testSettings.Configuration, _keyProvider);
 
 			// Act 
 			var encodedKeyId = Base64UrlEncoder.Encode(_testSettings.Props["APP_KEY_ID"]);
@@ -62,7 +68,7 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
 			Environment.SetEnvironmentVariable(key, null);
 			_testSettings.SetConfiguration();
 
-			var keySetFactory = new KeySetFactory(_testSettings.Configuration);
+			var keySetFactory = new KeySetFactory(_testSettings.Configuration, _keyProvider);
 			var expectedKeyId = Base64UrlEncoder.Encode(key);
 
 			// Act
@@ -89,7 +95,7 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
 			_testSettings.SetConfiguration();
 			_testSettings.Configuration.GetSection("KeySetOptions")["KeyId"] = null;
 
-			var keySetFactory = new KeySetFactory(_testSettings.Configuration);
+			var keySetFactory = new KeySetFactory(_testSettings.Configuration, _keyProvider);
 
 			var expectedKeyId = Base64UrlEncoder.Encode(defaultKeyId);
 
@@ -105,11 +111,10 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
 		}
 
 		[Fact]
-		public void Get_Env_SecretKey_Returns_SecretKey()
+		public async Task Get_GetSigningKeyAsync_Returns_SigningKey()
 		{
 			// Arrange
-			var keySetFactory = new KeySetFactory(_testSettings.Configuration);
-			var expectedSecretKey = _testSettings.Props["APP_SECRET_KEY"];
+			var keySetFactory = new KeySetFactory(_testSettings.Configuration, _keyProvider);
 
 			// Act & Assert
 			Assert.Equal(expectedSecretKey, keySetFactory.GetSecretKey());
@@ -126,7 +131,7 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
 			Environment.SetEnvironmentVariable(key, null);
 			_testSettings.SetConfiguration();
 
-			var keySetFactory = new KeySetFactory(_testSettings.Configuration);
+			var keySetFactory = new KeySetFactory(_testSettings.Configuration, _keyProvider);
 			var expectedScretKey = _testSettings.Configuration.GetSection("KeySetOptions")["SecretKey"];
 
 			// Act
@@ -151,7 +156,7 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
 			Environment.SetEnvironmentVariable(key, "123");
 			_testSettings.SetConfiguration();
 
-			var keySetFactory = new KeySetFactory(_testSettings.Configuration);
+			var keySetFactory = new KeySetFactory(_testSettings.Configuration, _keyProvider);
 
 			// Act & Assert
 			var exception = Assert.Throws<SecurityTokenInvalidSigningKeyException>(keySetFactory.GetSecretKey);
@@ -176,7 +181,7 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
 			_testSettings.SetConfiguration();
 			_testSettings.Configuration.GetSection("KeySetOptions")["SecretKey"] = null;
 
-			var keySetFactory = new KeySetFactory(_testSettings.Configuration);
+			var keySetFactory = new KeySetFactory(_testSettings.Configuration, _keyProvider);
 
 			// Act
 			var actualSecretKey = keySetFactory.GetSecretKey();
@@ -196,7 +201,7 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
 			var secretKey = _testSettings.Props["APP_SECRET_KEY"];
 			var expectedKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey));
 
-			var keySetFactory = new KeySetFactory(_testSettings.Configuration);
+			var keySetFactory = new KeySetFactory(_testSettings.Configuration, _keyProvider);
 
 			// Act & Assert
 			Assert.Equal(expectedKey.ToString(), keySetFactory.GetSigningKey().ToString());
@@ -207,7 +212,7 @@ namespace UserIdentity.UnitTests.Infrastructure.Security
 		{
 			// Arrange
 			var expectedSecretKey = Base64UrlEncoder.Encode(_testSettings.Props["APP_SECRET_KEY"]);
-			var keySetFactory = new KeySetFactory(_testSettings.Configuration);
+			var keySetFactory = new KeySetFactory(_testSettings.Configuration, _keyProvider);
 
 			// Act & Assert
 			Assert.Equal(expectedSecretKey, keySetFactory.GetBase64URLEncodedSecretKey());

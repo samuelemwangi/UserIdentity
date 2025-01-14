@@ -9,6 +9,7 @@ namespace UserIdentity.Application.Interfaces.Security
 		string GetKeyId();
 		Task<AsymmetricSecurityKey> GetSigningKeyAsync();
 		Task<AsymmetricSecurityKey> GetVerificationKeyAsync();
-		Task<(string, string)> GetModulusAndExponentForPublicKeyAsync();
+		string GetCrvValue();
+		Task<string> GetXValueAysnc();
 	}
 }
