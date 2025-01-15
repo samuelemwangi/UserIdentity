@@ -13,15 +13,16 @@ namespace UserIdentity.Infrastructure.Security.Providers
 		{
 			_privateKey = privateKey;
 			_publicKey = privateKey.GeneratePublicKey();
+			CryptoProviderFactory.CustomCryptoProvider = new EdDsaCryptoProvider();
 		}
-
-		public Ed25519PrivateKeyParameters PrivateKey => _privateKey;
-		public Ed25519PublicKeyParameters PublicKey => _publicKey;
 
 		public EdDsaSecurityKey(Ed25519PublicKeyParameters publicKey)
 		{
 			_publicKey = publicKey;
+			CryptoProviderFactory.CustomCryptoProvider = new EdDsaCryptoProvider();
 		}
+		public Ed25519PrivateKeyParameters PrivateKey => _privateKey;
+		public Ed25519PublicKeyParameters PublicKey => _publicKey;
 
 		[Obsolete]
 		public override bool HasPrivateKey => _privateKey != null;

@@ -1,6 +1,7 @@
 using System.Net.Mime;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Logging;
 
 using UserIdentity;
 using UserIdentity.Application.Interfaces.Security;
@@ -73,6 +74,8 @@ if (app.Environment.IsDevelopment())
 {
 	app.UseSwagger();
 	app.UseSwaggerUI();
+	IdentityModelEventSource.ShowPII = true;
+	IdentityModelEventSource.LogCompleteSecurityArtifact = true;
 }
 
 // Extract Request Id

@@ -31,50 +31,38 @@ namespace UserIdentity.Infrastructure.Security
 			_keyProvider = keyProvider;
 		}
 
-		public string GetAlgorithm()
-		{
-			return _keySetConfigurationSection[nameof(KeySetOptions.Alg)] ?? EdDsaSecurityAlgorithmConstants.EdDsa;
-		}
+		public string GetAlgorithm() => _keySetConfigurationSection[nameof(KeySetOptions.Alg)] ?? EdDsaSecurityAlgorithmConstants.EdDsa;
 
-		public string GetKeyType()
-		{
-			return _keySetConfigurationSection[nameof(KeySetOptions.KeyType)] ?? EdDsaSecurityAlgorithmConstants.EdDsa;
-		}
+		public string GetKeyType() => _keySetConfigurationSection[nameof(KeySetOptions.KeyType)] ?? EdDsaSecurityAlgorithmConstants.OKP;
 
-		public string GetKeyId()
-		{
-			var envKeyId = _configuration.GetEnvironmentVariable("APP_KEY_ID");
-			return Base64UrlEncoder.Encode(envKeyId);
-		}
+		public string GetKeyId() => Base64UrlEncoder.Encode(_configuration.GetEnvironmentVariable("APP_KEY_ID"));
 
 		public async Task<AsymmetricSecurityKey> GetSigningKeyAsync()
 		{
 			var privateKeyParamters = await ReadPemFileAsync("APP_PRIVATE_KEY_PATH", "APP_PRIVATE_KEY_PASS_PHRASE");
 			return new EdDsaSecurityKey(privateKeyParamters)
 			{
-				CryptoProviderFactory = new EdDsaCryptoProviderFactory()
+				KeyId = GetKeyId()
 			};
 		}
 
 		public async Task<AsymmetricSecurityKey> GetVerificationKeyAsync()
 		{
 			var publicKeyParameters = await ReadPemFileAsync("APP_PUBLIC_KEY_PATH");
+
 			return new EdDsaSecurityKey(publicKeyParameters)
 			{
-				CryptoProviderFactory = new EdDsaCryptoProviderFactory()
+				KeyId = GetKeyId()
 			};
 		}
 
-		public string GetCrvValue()
-		{
-			return "Ed25519";
-		}
+		public string GetCrvValue() => EdDsaSecurityAlgorithmConstants.Ed25519;
 
 		public async Task<string> GetXValueAysnc()
 		{
-			var publicKeyParameters = await ReadPemFileAsync("APP_PUBLIC_KEY_PATH");
+			var publicKey = (EdDsaSecurityKey)(await GetVerificationKeyAsync());
 
-			return Base64UrlEncoder.Encode(publicKeyParameters.GetEncoded());
+			return Base64UrlEncoder.Encode(publicKey.PublicKey.GetEncoded());
 		}
 
 		private async Task<Ed25519PublicKeyParameters> ReadPemFileAsync(string key)
@@ -83,9 +71,7 @@ namespace UserIdentity.Infrastructure.Security
 
 			using var keyTextReader = new StringReader(keyContent);
 
-			var publicKeyParameters = (Ed25519PublicKeyParameters)new PemReader(keyTextReader).ReadObject();
-
-			return publicKeyParameters;
+			return (Ed25519PublicKeyParameters)new PemReader(keyTextReader).ReadObject();
 		}
 		private async Task<Ed25519PrivateKeyParameters> ReadPemFileAsync(string key, string passPhraseKey)
 		{
@@ -95,15 +81,9 @@ namespace UserIdentity.Infrastructure.Security
 
 			var passPhrase = _configuration.GetEnvironmentVariable(passPhraseKey);
 
-			var privateKeyParameters = (Ed25519PrivateKeyParameters)new PemReader(keyTextReader, new PasswordFinder(passPhrase)).ReadObject();
-
-			return privateKeyParameters;
+			return (Ed25519PrivateKeyParameters)new PemReader(keyTextReader, new PasswordFinder(passPhrase)).ReadObject();
 		}
 
-		private async Task<string> GetKeyContentAsync(string key)
-		{
-			var keyPath = _configuration.GetEnvironmentVariable(key);
-			return await _keyProvider.GetKeyAsync(keyPath);
-		}
+		private async Task<string> GetKeyContentAsync(string key) => await _keyProvider.GetKeyAsync(_configuration.GetEnvironmentVariable(key));
 	}
 }

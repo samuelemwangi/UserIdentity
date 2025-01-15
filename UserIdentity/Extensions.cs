@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 
-using UserIdentity.Application.Exceptions;
 using UserIdentity.Infrastructure.Configuration;
 using UserIdentity.Infrastructure.Security;
 using UserIdentity.Infrastructure.Utilities;
@@ -74,10 +73,6 @@ namespace UserIdentity
 			var verificationKey = keySetFactory.GetVerificationKeyAsync().Result;
 
 			var signingCredentials = new SigningCredentials(signingKey, algorithm);
-			var verificationCredentials = new SigningCredentials(verificationKey, algorithm);
-
-			// Key Id 
-			signingCredentials.Key.KeyId = keySetFactory.GetKeyId();
 
 			// JWT wire up
 			var jwtAppSettingOptions = configuration.GetSection(nameof(JwtIssuerOptions));
@@ -102,7 +97,6 @@ namespace UserIdentity
 				options.ValidFor = TimeSpan.FromSeconds(validFor);
 				options.SigningCredentials = signingCredentials;
 			});
-
 
 			var tokenValidationParameters = new TokenValidationParameters
 			{

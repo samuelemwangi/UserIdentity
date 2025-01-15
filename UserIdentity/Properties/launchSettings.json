@@ -1,13 +1,4 @@
 {
-  "$schema": "https://json.schemastore.org/launchsettings.json",
-  "iisSettings": {
-    "windowsAuthentication": false,
-    "anonymousAuthentication": true,
-    "iisExpress": {
-      "applicationUrl": "http://localhost:53161",
-      "sslPort": 44380
-    }
-  },
   "profiles": {
     "IIS Express": {
       "commandName": "IISExpress",
@@ -20,17 +11,40 @@
     "Docker": {
       "commandName": "Docker",
       "launchBrowser": true,
-      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
-      "environmentVariables": {}
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger"
     },
     "UserIdentity": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "swagger",
-      "applicationUrl": "https://localhost:7242;http://localhost:5242",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "DB_SERVER": "localhost",
+        "DB_PORT": "3306",
+        "DB_NAME": "test_db",
+        "DB_USER": "test_user",
+        "DB_PASSWORD": "tesT*_p@ss12",
+        "APP_ISSUER": "appv1",
+        "APP_VALID_FOR": "10",
+        "APP_AUDIENCE": "https://test.app.com",
+        "APP_KEY_ID": "V1APP_KEY_IDV1",
+        "APP_KEY_PROVIDER": "FileSystem",
+        "APP_DEFAULT_ROLE": "Default",
+        "APP_DEFAULT_RESET_PASSWORD_MESSAGE": "If we have an account matching your email address, you will receive an email with a link to reset your password.",
+        "APP_PRIVATE_KEY_PATH": "../certs/ed25519-private.pem",
+        "APP_PUBLIC_KEY_PATH": "../certs/ed25519-public.pem",
+        "APP_PRIVATE_KEY_PASS_PHRASE": "S3T@G00dPa22Phr@S3"
+      },
+      "applicationUrl": "https://localhost:7242;http://localhost:5000"
+    }
+  },
+  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:53161",
+      "sslPort": 44380
     }
   }
 }
