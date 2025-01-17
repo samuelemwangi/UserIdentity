@@ -5,22 +5,29 @@ using Microsoft.IdentityModel.Logging;
 
 using PolyzenKit.Application.Interfaces;
 using PolyzenKit.Infrastructure.Security.KeyProviders;
+using PolyzenKit.Infrastructure.Security.KeySets;
 using PolyzenKit.Infrastructure.Utilities;
 using PolyzenKit.Persistence.Settings;
 using PolyzenKit.Presentation;
 using PolyzenKit.Presentation.Helpers;
 using PolyzenKit.Presentation.ValidationHelpers;
 
+using Serilog;
+
 using UserIdentity;
 using UserIdentity.Persistence;
 using UserIdentity.Persistence.Migrations;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Add Serilog
+builder.AddSerilog();
+
+
 // Add services to the container.
 
 // MYSQL DB
 // Register Configuration
-
 var mysqlSetting = builder.Configuration.GetSection(nameof(MysqlSettings)).Get<MysqlSettings>()!;
 string connectionString = mysqlSetting.ConnectionString(builder.Configuration);
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -29,10 +36,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 });
 
 // Authentication, Authorization and Identity
-builder.Services.AddAppAuthentication(builder.Configuration, (configuration) => new FileSystemKeyProvider());
+builder.Services.AddAppAuthentication(
+	builder.Configuration,
+	(config) => new FileSystemKeyProvider(),
+	(options, keyProvider) => new EdDSAKeySetFactory(options, keyProvider)
+);
 builder.Services.AddAppAuthorization();
 builder.Services.AddAppIdentity();
-
 
 // Controllers
 builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
@@ -60,7 +70,6 @@ builder.Services.AddRepositories();
 builder.Services.AddScoped<IMachineDateTime, MachineDateTime>();
 builder.Services.AddScoped<IStringHelper, StringHelper>();
 builder.Services.AddScoped(typeof(ILogHelper<>), typeof(LogHelper<>));
-
 
 var app = builder.Build();
 

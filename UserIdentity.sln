@@ -9,8 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserIdentity.IntegrationTes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserIdentity.UnitTests", "UserIdentity.UnitTests\UserIdentity.UnitTests.csproj", "{18CD9263-FE40-40EB-B558-06346237A62D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UseIdentity.KeyUtils", "UseIdentity.KeyUtils\UseIdentity.KeyUtils.csproj", "{2B49E0BA-95A6-471D-BEA8-A65135ABBF68}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,10 +27,6 @@ Global
 		{18CD9263-FE40-40EB-B558-06346237A62D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{18CD9263-FE40-40EB-B558-06346237A62D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{18CD9263-FE40-40EB-B558-06346237A62D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2B49E0BA-95A6-471D-BEA8-A65135ABBF68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2B49E0BA-95A6-471D-BEA8-A65135ABBF68}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2B49E0BA-95A6-471D-BEA8-A65135ABBF68}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2B49E0BA-95A6-471D-BEA8-A65135ABBF68}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
