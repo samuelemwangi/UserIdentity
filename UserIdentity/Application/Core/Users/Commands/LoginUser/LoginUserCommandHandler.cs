@@ -87,7 +87,7 @@ namespace UserIdentity.Application.Core.Users.Commands.LoginUser
 
 			var refreshToken = _tokenFactory.GenerateRefreshToken();
 
-			(string token, int expiresIn) = await _jwtFactory.GenerateEncodedTokenAsync(user.Id, user.UserName, userRoles, userRoleClaims);
+			(string token, int expiresIn) = _jwtFactory.GenerateEncodedToken(user.Id, user.UserName, userRoles, userRoleClaims);
 
 			var newRefreshToken = new RefreshToken
 			{

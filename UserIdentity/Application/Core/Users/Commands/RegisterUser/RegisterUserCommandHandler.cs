@@ -164,7 +164,7 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 
 
 			// Generate access Token
-			(string token, int expiresIn) = await _jwtFactory.GenerateEncodedTokenAsync(newUser.Id, newUser.UserName + "", userRoles, userRoleClaims);
+			(string token, int expiresIn) = _jwtFactory.GenerateEncodedToken(newUser.Id, newUser.UserName + "", userRoles, userRoleClaims);
 
 
 			//Generate and save Refresh Token details

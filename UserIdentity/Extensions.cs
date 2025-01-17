@@ -77,11 +77,11 @@ namespace UserIdentity
 			// JWT wire up
 			var jwtAppSettingOptions = configuration.GetSection(nameof(JwtIssuerOptions));
 
-			var issuer = configuration.GetEnvironmentVariable(jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)] ?? "APP_ISSUER"); 
+			var issuer = configuration.GetEnvironmentVariable(jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)] ?? "APP_ISSUER");
 
-			var audience = configuration.GetEnvironmentVariable(jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)] ?? "APP_AUDIENCE"); 
+			var audience = configuration.GetEnvironmentVariable(jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)] ?? "APP_AUDIENCE");
 
-			var validForString = configuration.GetEnvironmentVariable(jwtAppSettingOptions[nameof(JwtIssuerOptions.ValidFor)] ?? "APP_VALID_FOR"); 
+			var validForString = configuration.GetEnvironmentVariable(jwtAppSettingOptions[nameof(JwtIssuerOptions.ValidFor)] ?? "APP_VALID_FOR");
 
 			var validFor = 15.0d;
 
@@ -92,10 +92,13 @@ namespace UserIdentity
 			// Configure JwtIssuerOptions
 			services.Configure<JwtIssuerOptions>(options =>
 			{
-				options.Issuer = issuer;
-				options.Audience = audience;
-				options.ValidFor = TimeSpan.FromSeconds(validFor);
-				options.SigningCredentials = signingCredentials;
+				options = new JwtIssuerOptions
+				{
+					Issuer = issuer,
+					Audience = audience,
+					ValidFor = TimeSpan.FromSeconds(validFor),
+					SigningCredentials = signingCredentials
+				};
 			});
 
 			var tokenValidationParameters = new TokenValidationParameters

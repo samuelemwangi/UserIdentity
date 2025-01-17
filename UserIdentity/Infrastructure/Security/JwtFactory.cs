@@ -8,24 +8,21 @@ using UserIdentity.Application.Interfaces.Utilities;
 
 namespace UserIdentity.Infrastructure.Security
 {
-	public class JwtFactory : IJwtFactory
+	public class JwtFactory(
+		IOptions<JwtIssuerOptions> jwtOptions,
+		IMachineDateTime machineDateTime
+		) : IJwtFactory
 	{
-		private readonly JwtIssuerOptions _jwtOptions;
-		private readonly IMachineDateTime _machineDateTime;
+		private readonly JwtIssuerOptions _jwtOptions = jwtOptions.Value;
+		private readonly IMachineDateTime _machineDateTime = machineDateTime;
 
 		private static readonly char _scopeClaimSeparator = ':';
 
-		public JwtFactory(IOptions<JwtIssuerOptions> jwtOptions, IMachineDateTime machineDateTime)
-		{
-			_jwtOptions = jwtOptions.Value;
-			_machineDateTime = machineDateTime;
-			ThrowIfInvalidOptions(_jwtOptions);
-		}
-		public async Task<(string, int)> GenerateEncodedTokenAsync(string id, string userName, IList<string> userRoles, HashSet<string> userRoleClaims)
+		public (string, int) GenerateEncodedToken(string id, string userName, IList<string> userRoles, HashSet<string> userRoleClaims)
 		{
 			var claims = new List<Claim>{
 				new(JwtRegisteredClaimNames.Sub, userName),
-				new(JwtRegisteredClaimNames.Jti, await _jwtOptions.JtiGenerator()),
+				new(JwtRegisteredClaimNames.Jti,  _jwtOptions.JtiGenerator()),
 				new(JwtRegisteredClaimNames.Iat, _machineDateTime.ToUnixEpochDate(_jwtOptions.IssuedAt).ToString(), ClaimValueTypes.Integer64),
 				new(JwtCustomClaimNames.Id, id)
 			};
@@ -64,17 +61,6 @@ namespace UserIdentity.Infrastructure.Security
 			var scopeValues = scopeClaim.Value.Split(_scopeClaimSeparator);
 
 			return (scopeValues[0], scopeValues[1]);
-		}
-
-		private static void ThrowIfInvalidOptions(JwtIssuerOptions options)
-		{
-			ArgumentNullException.ThrowIfNull(options, nameof(options));
-
-			ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(options.ValidFor, TimeSpan.Zero, nameof(options.ValidFor));
-
-			ArgumentNullException.ThrowIfNull(options.SigningCredentials, nameof(options.SigningCredentials));
-
-			ArgumentNullException.ThrowIfNull(options.JtiGenerator, nameof(options.JtiGenerator));
 		}
 	}
 }

@@ -71,7 +71,7 @@ namespace UserIdentity.Application.Core.Tokens.Commands.ExchangeRefreshToken
 
 			var updateRefreshToken = _tokenFactory.GenerateRefreshToken();
 
-			(string token, int expiresIn) = await _jwtFactory.GenerateEncodedTokenAsync(userId.Value, userName.Value, userRoles, userRoleClaims);
+			(string token, int expiresIn) = _jwtFactory.GenerateEncodedToken(userId.Value, userName.Value, userRoles, userRoleClaims);
 
 			refreshToken.Token = updateRefreshToken;
 			refreshToken.Expires = _machineDateTime.Now.AddSeconds((long)expiresIn);
