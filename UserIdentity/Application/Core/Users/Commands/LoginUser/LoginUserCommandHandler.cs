@@ -3,14 +3,19 @@ using System.Security.Authentication;
 
 using Microsoft.AspNetCore.Identity;
 
-using UserIdentity.Application.Core.Extensions;
-using UserIdentity.Application.Core.Interfaces;
+using PolyzenKit.Application.Core;
+using PolyzenKit.Application.Core.Interfaces;
+using PolyzenKit.Application.Interfaces;
+using PolyzenKit.Common.Exceptions;
+using PolyzenKit.Domain.DTO;
+using PolyzenKit.Domain.Entity;
+using PolyzenKit.Infrastructure.Security.Jwt;
+using PolyzenKit.Infrastructure.Security.Tokens;
+
+using UserIdentity.Application.Core.Roles.Queries.GetRoleClaims;
+using UserIdentity.Application.Core.Roles.ViewModels;
 using UserIdentity.Application.Core.Tokens.ViewModels;
 using UserIdentity.Application.Core.Users.ViewModels;
-using UserIdentity.Application.Exceptions;
-using UserIdentity.Application.Interfaces.Security;
-using UserIdentity.Application.Interfaces.Utilities;
-using UserIdentity.Domain;
 using UserIdentity.Domain.Identity;
 using UserIdentity.Persistence.Repositories.RefreshTokens;
 using UserIdentity.Persistence.Repositories.Users;
@@ -20,61 +25,39 @@ namespace UserIdentity.Application.Core.Users.Commands.LoginUser
 	public record LoginUserCommand : BaseCommand
 	{
 		[Required]
-		public string? UserName { get; init; }
+		public required string UserName { get; init; }
 
 		[Required]
-		public string? Password { get; init; }
+		public required string Password { get; init; }
 	}
 
-	public class LoginUserCommandHandler : ICreateItemCommandHandler<LoginUserCommand, AuthUserViewModel>
+	public class LoginUserCommandHandler(
+		IJwtTokenHandler jwtTokenHandler,
+		ITokenFactory tokenFactory,
+		UserManager<IdentityUser> userManager,
+		IUserRepository userRepository,
+		IRefreshTokenRepository refreshTokenRepository,
+		IMachineDateTime machineDateTime,
+		IGetItemsQueryHandler<GetRoleClaimsForRolesQuery, RoleClaimsForRolesViewModels> getRoleClaimsQueryHandler
+		) : ICreateItemCommandHandler<LoginUserCommand, AuthUserViewModel>
 	{
-		private readonly IJwtFactory _jwtFactory;
-		private readonly ITokenFactory _tokenFactory;
-		private readonly UserManager<IdentityUser> _userManager;
-		private readonly IUserRepository _userRepository;
-		private readonly IRefreshTokenRepository _refreshTokenRepository;
-		private readonly IMachineDateTime _machineDateTime;
+		private readonly IJwtTokenHandler _jwtTokenHandler = jwtTokenHandler;
+		private readonly ITokenFactory _tokenFactory = tokenFactory;
+		private readonly UserManager<IdentityUser> _userManager = userManager;
+		private readonly IUserRepository _userRepository = userRepository;
+		private readonly IRefreshTokenRepository _refreshTokenRepository = refreshTokenRepository;
+		private readonly IMachineDateTime _machineDateTime = machineDateTime;
 
-		private readonly IGetItemsQueryHandler<IList<string>, HashSet<string>> _getRoleClaimsQueryHandler;
+		private readonly IGetItemsQueryHandler<GetRoleClaimsForRolesQuery, RoleClaimsForRolesViewModels> _getRoleClaimsQueryHandler = getRoleClaimsQueryHandler;
 
-
-		public LoginUserCommandHandler(
-			IJwtFactory jwtFactory,
-			ITokenFactory tokenFactory,
-			UserManager<IdentityUser> userManager,
-			IUserRepository userRepository,
-			IRefreshTokenRepository refreshTokenRepository,
-			IMachineDateTime machineDateTime,
-
-			IGetItemsQueryHandler<IList<string>, HashSet<string>> getRoleClaimsQueryHandler
-			)
+		public async Task<AuthUserViewModel> CreateItemAsync(LoginUserCommand command, string userId)
 		{
-			_jwtFactory = jwtFactory;
-			_tokenFactory = tokenFactory;
-			_userManager = userManager;
-			_userRepository = userRepository;
-			_refreshTokenRepository = refreshTokenRepository;
-			_machineDateTime = machineDateTime;
+			var user = (
+					await _userManager.FindByNameAsync(command.UserName)
+					?? await _userManager.FindByEmailAsync(command.UserName)
+					) ?? throw new InvalidCredentialException("No Identity User for User Name - " + command.UserName);
 
-			_getRoleClaimsQueryHandler = getRoleClaimsQueryHandler;
-		}
-
-		public async Task<AuthUserViewModel> CreateItemAsync(LoginUserCommand command)
-		{
-			var user = await _userManager.FindByNameAsync(command.UserName);
-
-			if (user == null)
-				user = await _userManager.FindByEmailAsync(command.UserName);
-
-			if (user == null)
-				throw new InvalidCredentialException("No Identity User for User Name - " + command.UserName);
-
-
-			var appUserDetails = await _userRepository.GetUserAsync(user.Id);
-
-			if (appUserDetails == null)
-				throw new InvalidCredentialException("No User details for User Name - " + command.UserName);
-
+			var appUserDetails = await _userRepository.GetUserAsync(user.Id) ?? throw new InvalidCredentialException("No User details for User Name - " + command.UserName);
 
 			var userExists = await _userManager.CheckPasswordAsync(user, command.Password);
 
@@ -83,20 +66,21 @@ namespace UserIdentity.Application.Core.Users.Commands.LoginUser
 
 			var userRoles = await _userManager.GetRolesAsync(user);
 
-			var userRoleClaims = await _getRoleClaimsQueryHandler.GetItemsAsync(userRoles);
+			var userRoleClaims = await _getRoleClaimsQueryHandler.GetItemsAsync(new GetRoleClaimsForRolesQuery { Roles = userRoles });
 
-			var refreshToken = _tokenFactory.GenerateRefreshToken();
+			var refreshToken = _tokenFactory.GenerateToken();
 
-			(string token, int expiresIn) = _jwtFactory.GenerateEncodedToken(user.Id, user.UserName, userRoles, userRoleClaims);
+			(string token, int expiresIn) = _jwtTokenHandler.CreateToken(user.Id, user.UserName!, new HashSet<string>(userRoles), userRoleClaims.RoleClaims);
 
 			var newRefreshToken = new RefreshToken
 			{
+				Id = Guid.NewGuid(),
 				Expires = _machineDateTime.Now.AddSeconds((long)expiresIn),
 				UserId = user.Id,
 				Token = refreshToken,
 			};
 
-			newRefreshToken.SetAuditFields(user.Id, _machineDateTime.Now);
+			newRefreshToken.SetEntityAuditFields(userId, _machineDateTime.Now);
 
 			int createTokenResult = await _refreshTokenRepository.CreateRefreshTokenAsync(newRefreshToken);
 
@@ -121,7 +105,6 @@ namespace UserIdentity.Application.Core.Users.Commands.LoginUser
 					AccessToken = new AccessTokenDTO { Token = token, ExpiresIn = expiresIn },
 					RefreshToken = refreshToken,
 				}
-
 			};
 		}
 	}

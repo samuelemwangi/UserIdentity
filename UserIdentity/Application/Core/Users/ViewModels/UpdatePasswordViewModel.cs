@@ -1,4 +1,6 @@
-﻿namespace UserIdentity.Application.Core.Users.ViewModels
+﻿using PolyzenKit.Application.Core;
+
+namespace UserIdentity.Application.Core.Users.ViewModels
 {
 	public record UpdatePasswordDTO
 	{
@@ -8,7 +10,7 @@
 
 	public record UpdatePasswordViewModel : BaseViewModel
 	{
-		public UpdatePasswordDTO UpdatePasswordResult { get; init; }
+		public UpdatePasswordDTO UpdatePasswordResult { get; init; } = null!;
 	}
 }
 

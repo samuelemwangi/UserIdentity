@@ -3,9 +3,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using UserIdentity.Application.Core;
-using UserIdentity.Application.Core.Extensions;
-using UserIdentity.Application.Core.Interfaces;
+using PolyzenKit.Application.Core;
+using PolyzenKit.Application.Core.Extensions;
+using PolyzenKit.Application.Core.Interfaces;
+using PolyzenKit.Application.Enums;
+using PolyzenKit.Presentation.Controllers;
+using PolyzenKit.Presentation.ValidationHelpers;
+
 using UserIdentity.Application.Core.Roles.Commands.CreateRole;
 using UserIdentity.Application.Core.Roles.Commands.CreateRoleClaim;
 using UserIdentity.Application.Core.Roles.Commands.DeleteRole;
@@ -15,53 +19,37 @@ using UserIdentity.Application.Core.Roles.Queries.GetRole;
 using UserIdentity.Application.Core.Roles.Queries.GetRoleClaims;
 using UserIdentity.Application.Core.Roles.Queries.GetRoles;
 using UserIdentity.Application.Core.Roles.ViewModels;
-using UserIdentity.Application.Enums;
-using UserIdentity.Presentation.Helpers.ValidationExceptions;
 
 namespace UserIdentity.Presentation.Controllers.Roles
 {
 	[Authorize]
 	[ValidateModel]
-	public class RoleController : BaseController
+	public class RoleController(
+		ICreateItemCommandHandler<CreateRoleCommand, RoleViewModel> createRoleCommandHandler,
+		ICreateItemCommandHandler<CreateUserRoleCommand, UserRolesViewModel> createUserRoleCommandHandler,
+		IGetItemQueryHandler<GetRoleQuery, RoleViewModel> getRoleQueryHandler,
+		IGetItemsQueryHandler<GetRolesQuery, RolesViewModel> getRolesQueryHandler,
+		IGetItemsQueryHandler<GetUserRolesQuery, UserRolesViewModel> getUserRolesQueryHandler,
+		IUpdateItemCommandHandler<UpdateRoleCommand, RoleViewModel> updateRoleCommandHandler,
+		IDeleteItemCommandHandler<DeleteRoleCommand, DeleteRecordViewModel> deleteRoleCommandHandler,
+		ICreateItemCommandHandler<CreateRoleClaimCommand, RoleClaimViewModel> createRoleClaimCommandHandler,
+		IGetItemsQueryHandler<GetRoleClaimsQuery, RoleClaimsViewModel> getRoleClaimsQueryHandler,
+		IDeleteItemCommandHandler<DeleteRoleClaimCommand, DeleteRecordViewModel> deleteRoleClaimCommandHandler
+		) : BaseController
 	{
-		private readonly ICreateItemCommandHandler<CreateRoleCommand, RoleViewModel> _createRoleCommandHandler;
-		private readonly ICreateItemCommandHandler<CreateUserRoleCommand, UserRolesViewModel> _createUserRoleCommandHandler;
-		private readonly IGetItemQueryHandler<GetRoleQuery, RoleViewModel> _getRoleQueryHandler;
-		private readonly IGetItemsQueryHandler<GetRolesQuery, RolesViewModel> _getRolesQueryHandler;
-		private readonly IGetItemsQueryHandler<GetUserRolesQuery, UserRolesViewModel> _getUserRolesQueryHandler;
-		private readonly IUpdateItemCommandHandler<UpdateRoleCommand, RoleViewModel> _updateRoleCommandHandler;
-		private readonly IDeleteItemCommandHandler<DeleteRoleCommand, DeleteRecordViewModel> _deleteRoleCommandHandler;
-		private readonly ICreateItemCommandHandler<CreateRoleClaimCommand, RoleClaimViewModel> _createRoleClaimCommandHandler;
-		private readonly IGetItemsQueryHandler<GetRoleClaimsQuery, RoleClaimsViewModel> _getRoleClaimsQueryHandler;
-		private readonly IDeleteItemCommandHandler<DeleteRoleClaimCommand, DeleteRecordViewModel> _deleteRoleClaimCommandHandler;
+		private readonly ICreateItemCommandHandler<CreateRoleCommand, RoleViewModel> _createRoleCommandHandler = createRoleCommandHandler;
+		private readonly ICreateItemCommandHandler<CreateUserRoleCommand, UserRolesViewModel> _createUserRoleCommandHandler = createUserRoleCommandHandler;
+		private readonly IGetItemQueryHandler<GetRoleQuery, RoleViewModel> _getRoleQueryHandler = getRoleQueryHandler;
+		private readonly IGetItemsQueryHandler<GetRolesQuery, RolesViewModel> _getRolesQueryHandler = getRolesQueryHandler;
+		private readonly IGetItemsQueryHandler<GetUserRolesQuery, UserRolesViewModel> _getUserRolesQueryHandler = getUserRolesQueryHandler;
+		private readonly IUpdateItemCommandHandler<UpdateRoleCommand, RoleViewModel> _updateRoleCommandHandler = updateRoleCommandHandler;
+		private readonly IDeleteItemCommandHandler<DeleteRoleCommand, DeleteRecordViewModel> _deleteRoleCommandHandler = deleteRoleCommandHandler;
+		private readonly ICreateItemCommandHandler<CreateRoleClaimCommand, RoleClaimViewModel> _createRoleClaimCommandHandler = createRoleClaimCommandHandler;
+		private readonly IGetItemsQueryHandler<GetRoleClaimsQuery, RoleClaimsViewModel> _getRoleClaimsQueryHandler = getRoleClaimsQueryHandler;
+		private readonly IDeleteItemCommandHandler<DeleteRoleClaimCommand, DeleteRecordViewModel> _deleteRoleClaimCommandHandler = deleteRoleClaimCommandHandler;
 
-		private string resourceName => EntityName ?? "role";
-
-
-		public RoleController(
-				ICreateItemCommandHandler<CreateRoleCommand, RoleViewModel> createRoleCommandHandler,
-				ICreateItemCommandHandler<CreateUserRoleCommand, UserRolesViewModel> createUserRoleCommandHandler,
-				IGetItemQueryHandler<GetRoleQuery, RoleViewModel> getRoleQueryHandler,
-				IGetItemsQueryHandler<GetRolesQuery, RolesViewModel> getRolesQueryHandler,
-				IGetItemsQueryHandler<GetUserRolesQuery, UserRolesViewModel> getUserRolesQueryHandler,
-				IUpdateItemCommandHandler<UpdateRoleCommand, RoleViewModel> updateRoleCommandHandler,
-				IDeleteItemCommandHandler<DeleteRoleCommand, DeleteRecordViewModel> deleteRoleCommandHandler,
-				ICreateItemCommandHandler<CreateRoleClaimCommand, RoleClaimViewModel> createRoleClaimCommandHandler,
-				IGetItemsQueryHandler<GetRoleClaimsQuery, RoleClaimsViewModel> getRoleClaimsQueryHandler,
-				IDeleteItemCommandHandler<DeleteRoleClaimCommand, DeleteRecordViewModel> deleteRoleClaimCommandHandler
-				)
-		{
-			_createRoleCommandHandler = createRoleCommandHandler;
-			_createUserRoleCommandHandler = createUserRoleCommandHandler;
-			_getRoleQueryHandler = getRoleQueryHandler;
-			_getRolesQueryHandler = getRolesQueryHandler;
-			_getUserRolesQueryHandler = getUserRolesQueryHandler;
-			_updateRoleCommandHandler = updateRoleCommandHandler;
-			_deleteRoleCommandHandler = deleteRoleCommandHandler;
-			_createRoleClaimCommandHandler = createRoleClaimCommandHandler;
-			_getRoleClaimsQueryHandler = getRoleClaimsQueryHandler;
-			_deleteRoleClaimCommandHandler = deleteRoleClaimCommandHandler;
-		}
+		private static readonly string resourceName = "role";
+		private string UserId => LoggedInUserId ?? "No-User-Id";
 
 		[Authorize(Roles = "role:useridentity:administrator, role:useridentity:super-administrator")]
 		[HttpGet]
@@ -92,7 +80,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 		[HttpPost]
 		public async Task<ActionResult<RoleViewModel>> CreateRoleAsync(CreateRoleCommand command)
 		{
-			var roleVM = await _createRoleCommandHandler.CreateItemAsync(command);
+			var roleVM = await _createRoleCommandHandler.CreateItemAsync(command, UserId);
 
 			roleVM.ResolveEditDeleteRights(UserRoleClaims, resourceName);
 			roleVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.CREATE_ITEM_SUCCESSFUL);
@@ -107,7 +95,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 		{
 			command.RoleId = roleId;
 
-			var updatedRoleVM = await _updateRoleCommandHandler.UpdateItemAsync(command);
+			var updatedRoleVM = await _updateRoleCommandHandler.UpdateItemAsync(command, UserId);
 
 			updatedRoleVM.ResolveEditDeleteRights(UserRoleClaims, resourceName);
 			updatedRoleVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.UPDATE_ITEM_SUCCESSFUL);
@@ -121,7 +109,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 		[Route("{roleId}")]
 		public async Task<ActionResult<DeleteRecordViewModel>> DeleteRoleAsync(string roleId)
 		{
-			var deleteRoleVM = await _deleteRoleCommandHandler.DeleteItemAsync(new DeleteRoleCommand { RoleId = roleId });
+			var deleteRoleVM = await _deleteRoleCommandHandler.DeleteItemAsync(new DeleteRoleCommand { RoleId = roleId }, UserId);
 
 			deleteRoleVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.DELETE_ITEM_SUCCESSFUL, "Record deleted successfully");
 
@@ -148,7 +136,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 		[Route("user")]
 		public async Task<ActionResult<UserRolesViewModel>> CreateUserRoleAsync(CreateUserRoleCommand command)
 		{
-			var userRolesVM = await _createUserRoleCommandHandler.CreateItemAsync(command);
+			var userRolesVM = await _createUserRoleCommandHandler.CreateItemAsync(command, UserId);
 
 			userRolesVM.ResolveCreateDownloadRights(UserRoleClaims, resourceName);
 			userRolesVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.CREATE_ITEM_SUCCESSFUL);
@@ -168,7 +156,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 		[Route("claim")]
 		public async Task<ActionResult<RoleClaimViewModel>> CreateRoleClaimAsync(CreateRoleClaimCommand command)
 		{
-			var roleClaimVM = await _createRoleClaimCommandHandler.CreateItemAsync(command);
+			var roleClaimVM = await _createRoleClaimCommandHandler.CreateItemAsync(command, UserId);
 
 			roleClaimVM.ResolveEditDeleteRights(UserRoleClaims, resourceName);
 			roleClaimVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.CREATE_ITEM_SUCCESSFUL);
@@ -194,7 +182,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 		[Route("claim")]
 		public async Task<ActionResult<DeleteRecordViewModel>> DelteRoleClaimAsync(DeleteRoleClaimCommand command)
 		{
-			var deleteClaimVM = await _deleteRoleClaimCommandHandler.DeleteItemAsync(command);
+			var deleteClaimVM = await _deleteRoleClaimCommandHandler.DeleteItemAsync(command, UserId);
 
 			deleteClaimVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.DELETE_ITEM_SUCCESSFUL, "Record deleted successfully");
 

@@ -3,29 +3,33 @@ using System.Net.Mime;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Logging;
 
+using PolyzenKit.Application.Interfaces;
+using PolyzenKit.Infrastructure.Security.KeyProviders;
+using PolyzenKit.Infrastructure.Utilities;
+using PolyzenKit.Persistence.Settings;
+using PolyzenKit.Presentation;
+using PolyzenKit.Presentation.Helpers;
+using PolyzenKit.Presentation.ValidationHelpers;
+
 using UserIdentity;
-using UserIdentity.Application.Interfaces.Security;
-using UserIdentity.Application.Interfaces.Utilities;
-using UserIdentity.Infrastructure.Security;
-using UserIdentity.Infrastructure.Utilities;
 using UserIdentity.Persistence;
 using UserIdentity.Persistence.Migrations;
-using UserIdentity.Persistence.Settings.Mysql;
-using UserIdentity.Presentation.Helpers;
-using UserIdentity.Presentation.Helpers.ValidationExceptions;
 
 var builder = WebApplication.CreateBuilder(args);
-
 // Add services to the container.
 
 // MYSQL DB
 // Register Configuration
-var mysqlSettings = builder.Configuration.GetSection(nameof(MysqlSettings)).Get<MysqlSettings>();
-string connectionString = mysqlSettings.ConnectionString(builder.Configuration);
-builder.Services.AddDbContext<AppDbContext>(opt => opt.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)).UseSnakeCaseNamingConvention());
 
-// JWT Identity
-builder.Services.AddAppAuthentication(builder.Configuration);
+var mysqlSetting = builder.Configuration.GetSection(nameof(MysqlSettings)).Get<MysqlSettings>()!;
+string connectionString = mysqlSetting.ConnectionString(builder.Configuration);
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+	options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)).UseSnakeCaseNamingConvention();
+});
+
+// Authentication, Authorization and Identity
+builder.Services.AddAppAuthentication(builder.Configuration, (configuration) => new FileSystemKeyProvider());
 builder.Services.AddAppAuthorization();
 builder.Services.AddAppIdentity();
 
@@ -55,21 +59,12 @@ builder.Services.AddRepositories();
 // Utilities e.g for Time, String 
 builder.Services.AddScoped<IMachineDateTime, MachineDateTime>();
 builder.Services.AddScoped<IStringHelper, StringHelper>();
-builder.Services.AddScoped<IKeyProvider, FileSystemKeyProvider>();
 builder.Services.AddScoped(typeof(ILogHelper<>), typeof(LogHelper<>));
 
-// JWT Helpers
-builder.Services.AddScoped<IJwtFactory, JwtFactory>();
-builder.Services.AddScoped<IJwtTokenHandler, JwtTokenHandler>();
-builder.Services.AddScoped<IJwtTokenValidator, JwtTokenValidator>();
-builder.Services.AddScoped<ITokenFactory, TokenFactory>();
-
-builder.Services.AddScoped<IKeySetFactory, KeySetFactory>();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-
 if (app.Environment.IsDevelopment())
 {
 	app.UseSwagger();

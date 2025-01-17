@@ -6,7 +6,7 @@ namespace UserIdentity.Persistence.Repositories.RefreshTokens
 	{
 		Task<int> CreateRefreshTokenAsync(RefreshToken refreshToken);
 
-		Task<RefreshToken?> GetRefreshTokenAsync(string? userId, string? token);
+		Task<RefreshToken?> GetRefreshTokenAsync(string userId, string token);
 
 		Task<int> UpdateRefreshTokenAsync(RefreshToken refreshToken);
 	}

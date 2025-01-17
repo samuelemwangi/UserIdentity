@@ -1,4 +1,6 @@
-﻿namespace UserIdentity.Application.Core.Users.ViewModels
+﻿using PolyzenKit.Application.Core;
+
+namespace UserIdentity.Application.Core.Users.ViewModels
 {
 	public record ConfirmUpdatePasswordDTO
 	{
@@ -7,8 +9,7 @@
 
 	public record ConfirmUpdatePasswordTokenViewModel : BaseViewModel
 	{
-		public ConfirmUpdatePasswordDTO TokenPasswordResult { get; init; }
+		public ConfirmUpdatePasswordDTO TokenPasswordResult { get; init; } = null!;
 
 	}
 }
-

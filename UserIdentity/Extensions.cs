@@ -1,12 +1,11 @@
 ﻿using System.Reflection;
 
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
 
-using UserIdentity.Infrastructure.Configuration;
-using UserIdentity.Infrastructure.Security;
-using UserIdentity.Infrastructure.Utilities;
+using PolyzenKit.Application.Core.Errors.Queries.GerError;
+using PolyzenKit.Infrastructure.Security.KeyProviders;
+using PolyzenKit.Presentation;
+
 using UserIdentity.Persistence;
 
 namespace UserIdentity
@@ -15,135 +14,19 @@ namespace UserIdentity
 	{
 		public static void AddCommandAndQueryHandlers(this IServiceCollection services)
 		{
-			// Add Query Handlers
-			foreach (var executingType in Assembly.GetExecutingAssembly().GetTypes())
-			{
-				if (executingType.IsClass && !executingType.IsAbstract && executingType.Name.Contains("QueryHandler"))
-				{
+			services.AddCommandAndQueryHandlers(Assembly.GetExecutingAssembly());
 
-					var executingTypeInterfaces = executingType.GetInterfaces().Where(x => x.Name.Contains("QueryHandler"));
-					if (executingTypeInterfaces.Any())
-					{
-						foreach (var executingInterface in executingTypeInterfaces)
-							services.AddScoped(executingInterface, executingType);
-					}
+			var polyzenKitAssembly = Assembly.GetAssembly(typeof(GetErrorQueryHandler))!;
 
-				}
-			}
-
-			// Add Command Handlers
-			foreach (var executingType in Assembly.GetExecutingAssembly().GetTypes())
-			{
-				if (executingType.IsClass && !executingType.IsAbstract && executingType.Name.Contains("CommandHandler"))
-				{
-
-					var executingTypeInterfaces = executingType.GetInterfaces().Where(x => x.Name.Contains("CommandHandler"));
-					if (executingTypeInterfaces.Any())
-					{
-						foreach (var executingInterface in executingTypeInterfaces)
-							services.AddScoped(executingInterface, executingType);
-					}
-
-				}
-			}
-
+			services.AddCommandAndQueryHandlers(polyzenKitAssembly);
 		}
 
 		public static void AddRepositories(this IServiceCollection services)
 		{
-			foreach (var executingType in Assembly.GetExecutingAssembly().GetTypes())
-			{
-				if (executingType.IsClass && !executingType.IsAbstract && executingType.Name.Contains("Repository"))
-				{
-
-					var executingTypeInterfaces = executingType.GetInterfaces().Where(x => x.Name.Contains("Repository"));
-					if (executingTypeInterfaces.Any())
-						services.AddScoped(executingTypeInterfaces.First(), executingType);
-
-				}
-			}
+			services.AddRepositories(Assembly.GetExecutingAssembly());
 		}
 
-		public static void AddAppAuthentication(this IServiceCollection services, IConfiguration configuration)
-		{
-			// Signing Credentials
-			var keySetFactory = new KeySetFactory(configuration, new FileSystemKeyProvider());
-			var algorithm = keySetFactory.GetAlgorithm();
-			var signingKey = keySetFactory.GetSigningKeyAsync().Result;
-			var verificationKey = keySetFactory.GetVerificationKeyAsync().Result;
-
-			var signingCredentials = new SigningCredentials(signingKey, algorithm);
-
-			// JWT wire up
-			var jwtAppSettingOptions = configuration.GetSection(nameof(JwtIssuerOptions));
-
-			var issuer = configuration.GetEnvironmentVariable(jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)] ?? "APP_ISSUER");
-
-			var audience = configuration.GetEnvironmentVariable(jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)] ?? "APP_AUDIENCE");
-
-			var validForString = configuration.GetEnvironmentVariable(jwtAppSettingOptions[nameof(JwtIssuerOptions.ValidFor)] ?? "APP_VALID_FOR");
-
-			var validFor = 15.0d;
-
-			if (double.TryParse(validForString, out var validForDouble))
-				validFor = validForDouble;
-
-
-			// Configure JwtIssuerOptions
-			services.Configure<JwtIssuerOptions>(options =>
-			{
-				options = new JwtIssuerOptions
-				{
-					Issuer = issuer,
-					Audience = audience,
-					ValidFor = TimeSpan.FromSeconds(validFor),
-					SigningCredentials = signingCredentials
-				};
-			});
-
-			var tokenValidationParameters = new TokenValidationParameters
-			{
-				ValidateIssuer = true,
-				ValidIssuer = issuer,
-
-				ValidateAudience = true,
-				ValidAudience = audience,
-
-				ValidateIssuerSigningKey = true,
-				IssuerSigningKey = verificationKey,
-
-				RequireExpirationTime = false,
-				ValidateLifetime = true,
-				ClockSkew = TimeSpan.Zero
-			};
-
-
-			services.AddAuthentication(options =>
-			{
-				options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-				options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-
-			}).AddJwtBearer(configureOptions =>
-			{
-				configureOptions.ClaimsIssuer = issuer;
-				configureOptions.TokenValidationParameters = tokenValidationParameters;
-				configureOptions.SaveToken = true;
-
-
-				configureOptions.Events = new JwtBearerEvents
-				{
-					OnAuthenticationFailed = context =>
-					{
-						if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
-						{
-							context.Response.Headers["X-Token-Expired"] = "true";
-						}
-						return Task.CompletedTask;
-					}
-				};
-			});
-
-		}
+		public static IKeyProvider ResolveKeyProvider(IConfiguration configuration) => new FileSystemKeyProvider();
 
 		public static void AddAppAuthorization(this IServiceCollection services)
 		{

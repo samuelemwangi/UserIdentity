@@ -1,35 +1,35 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-using UserIdentity.Application.Core.Interfaces;
+using PolyzenKit.Application.Core;
+using PolyzenKit.Application.Core.Interfaces;
+using PolyzenKit.Common.Exceptions;
+using PolyzenKit.Infrastructure.Security.Jwt;
+
 using UserIdentity.Application.Core.Roles.ViewModels;
-using UserIdentity.Application.Exceptions;
-using UserIdentity.Application.Interfaces.Security;
 
 namespace UserIdentity.Application.Core.Roles.Queries.GetRoleClaims
 {
 	public record GetRoleClaimsQuery : BaseQuery
 	{
-		public string RoleId { get; init; }
+		public required string RoleId { get; init; }
 	}
-	public class GetRoleClaimsQueryHandler : IGetItemsQueryHandler<GetRoleClaimsQuery, RoleClaimsViewModel>,
-		IGetItemsQueryHandler<IList<string>, HashSet<string>>
+
+	public record GetRoleClaimsForRolesQuery : BaseQuery
 	{
-		private readonly RoleManager<IdentityRole> _roleManager;
-		private readonly IJwtFactory _jwtFactory;
-
-		public GetRoleClaimsQueryHandler(RoleManager<IdentityRole> roleManager, IJwtFactory jwtFactory)
-		{
-			_roleManager = roleManager;
-			_jwtFactory = jwtFactory;
-		}
-
+		public required IList<string> Roles { get; init; }
+	}
+	public class GetRoleClaimsQueryHandler(
+		RoleManager<IdentityRole> roleManager,
+		IJwtTokenHandler jwtTokenHandler
+		) : IGetItemsQueryHandler<GetRoleClaimsQuery, RoleClaimsViewModel>,
+		IGetItemsQueryHandler<GetRoleClaimsForRolesQuery, RoleClaimsForRolesViewModels>
+	{
+		private readonly RoleManager<IdentityRole> _roleManager = roleManager;
+		private readonly IJwtTokenHandler _jwtTokenHandler = jwtTokenHandler;
 
 		public async Task<RoleClaimsViewModel> GetItemsAsync(GetRoleClaimsQuery query)
 		{
-			var role = await _roleManager.FindByIdAsync(query.RoleId);
-
-			if (role == null)
-				throw new NoRecordException(query.RoleId, "Role");
+			var role = await _roleManager.FindByIdAsync(query.RoleId) ?? throw new NoRecordException(query.RoleId, "Role");
 
 			var roleClaims = await _roleManager.GetClaimsAsync(role);
 
@@ -37,7 +37,8 @@ namespace UserIdentity.Application.Core.Roles.Queries.GetRoleClaims
 
 			foreach (var roleClaim in roleClaims)
 			{
-				(string resource, string action) = _jwtFactory.DecodeScopeClaim(roleClaim);
+				(string resource, string action) = _jwtTokenHandler.DecodeScopeClaim(roleClaim);
+
 				RoleClaimDTO claimDTO = new()
 				{
 					Resource = resource,
@@ -55,26 +56,30 @@ namespace UserIdentity.Application.Core.Roles.Queries.GetRoleClaims
 
 		}
 
-		public async Task<HashSet<string>> GetItemsAsync(IList<string> roles)
+		public async Task<RoleClaimsForRolesViewModels> GetItemsAsync(GetRoleClaimsForRolesQuery getRoleClaimsForRolesQuery)
 		{
-			HashSet<string> roleClaims = new();
+			HashSet<string> roleClaims = [];
 
-			foreach (var role in roles)
+			foreach (var role in getRoleClaimsForRolesQuery.Roles)
 			{
 
 				var currentRole = await _roleManager.FindByNameAsync(role);
-				var currentRoleClaims = await _roleManager.GetClaimsAsync(currentRole);
 
-
-				foreach (var claim in currentRoleClaims)
+				if (currentRole != null)
 				{
-					roleClaims.Add(claim.Value);
-				}
+					var currentRoleClaims = await _roleManager.GetClaimsAsync(currentRole);
 
+					foreach (var claim in currentRoleClaims)
+					{
+						roleClaims.Add(claim.Value);
+					}
+				}
 			}
 
-			return roleClaims;
-
+			return new RoleClaimsForRolesViewModels
+			{
+				RoleClaims = roleClaims
+			};
 		}
 	}
 }

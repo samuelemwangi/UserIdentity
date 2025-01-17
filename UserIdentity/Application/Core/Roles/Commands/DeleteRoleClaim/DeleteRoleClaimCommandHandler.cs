@@ -2,42 +2,39 @@
 
 using Microsoft.AspNetCore.Identity;
 
-using UserIdentity.Application.Core.Interfaces;
-using UserIdentity.Application.Exceptions;
-using UserIdentity.Application.Interfaces.Security;
+using PolyzenKit.Application.Core;
+using PolyzenKit.Application.Core.Interfaces;
+using PolyzenKit.Common.Exceptions;
+using PolyzenKit.Infrastructure.Security.Jwt;
 
 namespace UserIdentity.Application.Core.Roles.Commands.DeleteRoleClaim
 {
 	public record DeleteRoleClaimCommand : BaseCommand
 	{
 		[Required]
-		public string RoleId { get; init; }
+		public required string RoleId { get; init; }
+
 		[Required]
-		public string Resource { get; init; }
+		public required string Resource { get; init; }
+
 		[Required]
-		public string Action { get; init; }
+		public required string Action { get; init; }
 	}
-	public class DeleteRoleClaimCommandHandler : IDeleteItemCommandHandler<DeleteRoleClaimCommand, DeleteRecordViewModel>
+	public class DeleteRoleClaimCommandHandler(
+		RoleManager<IdentityRole> roleManager,
+		IJwtTokenHandler jwtTokenHandler
+		) : IDeleteItemCommandHandler<DeleteRoleClaimCommand, DeleteRecordViewModel>
 	{
-		private readonly RoleManager<IdentityRole> _roleManager;
-		private readonly IJwtFactory _jwtFactory;
+		private readonly RoleManager<IdentityRole> _roleManager = roleManager;
+		private readonly IJwtTokenHandler _jwtTokenHandler = jwtTokenHandler;
 
-		public DeleteRoleClaimCommandHandler(RoleManager<IdentityRole> roleManager, IJwtFactory jwtFactory)
-		{
-			_roleManager = roleManager;
-			_jwtFactory = jwtFactory;
-		}
-
-		public async Task<DeleteRecordViewModel> DeleteItemAsync(DeleteRoleClaimCommand command)
+		public async Task<DeleteRecordViewModel> DeleteItemAsync(DeleteRoleClaimCommand command, string userId)
 		{
 			// Confirm role exists
-			var role = await _roleManager.FindByIdAsync(command.RoleId);
-
-			if (role == null)
-				throw new NoRecordException(command.RoleId, "Role");
+			var role = await _roleManager.FindByIdAsync(command.RoleId) ?? throw new NoRecordException(command.RoleId, "Role");
 
 			// Confirm claim does not exist 
-			var scopeClaim = _jwtFactory.GenerateScopeClaim(command.Resource, command.Action);
+			var scopeClaim = _jwtTokenHandler.GenerateScopeClaim(command.Resource, command.Action);
 			var roleClaims = await _roleManager.GetClaimsAsync(role);
 
 			bool claimFound = false;

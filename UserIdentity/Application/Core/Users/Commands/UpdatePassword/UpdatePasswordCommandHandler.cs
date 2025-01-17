@@ -4,47 +4,42 @@ using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 
-using UserIdentity.Application.Core.Interfaces;
+using PolyzenKit.Application.Core;
+using PolyzenKit.Application.Core.Interfaces;
+using PolyzenKit.Common.Exceptions;
+
 using UserIdentity.Application.Core.Users.ViewModels;
-using UserIdentity.Application.Exceptions;
 
 namespace UserIdentity.Application.Core.Users.Commands.UpdatePassword
 {
 	public record UpdatePasswordCommand : BaseCommand
 	{
 		[Required]
-		public string NewPassword { get; init; }
+		public required string NewPassword { get; init; }
 
 		[Required]
-		public string UserId { get; init; }
+		public required string UserId { get; init; }
 
 		[Required]
-		public string PasswordResetToken { get; init; }
+		public required string PasswordResetToken { get; init; }
 	}
 
-	public class UpdatePasswordCommandHandler : IUpdateItemCommandHandler<UpdatePasswordCommand, UpdatePasswordViewModel>
+	public class UpdatePasswordCommandHandler(
+		UserManager<IdentityUser> userManager
+		) : IUpdateItemCommandHandler<UpdatePasswordCommand, UpdatePasswordViewModel>
 	{
-		private readonly UserManager<IdentityUser> _userManager;
+		private readonly UserManager<IdentityUser> _userManager = userManager;
 
-		public UpdatePasswordCommandHandler(UserManager<IdentityUser> userManager)
-		{
-			_userManager = userManager;
-		}
-
-		public async Task<UpdatePasswordViewModel> UpdateItemAsync(UpdatePasswordCommand command)
+		public async Task<UpdatePasswordViewModel> UpdateItemAsync(UpdatePasswordCommand command, string userId)
 		{
 			try
 			{
 
-				var userDetails = await _userManager.FindByIdAsync(command.UserId);
-
-				if (userDetails == null)
-					throw new NoRecordException(command.UserId + "", "User");
+				var userDetails = await _userManager.FindByIdAsync(command.UserId) ?? throw new NoRecordException(command.UserId + "", "User");
 
 				string rawToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(command.PasswordResetToken));
 
 				var reSetPassWordTokenresult = await _userManager.ResetPasswordAsync(userDetails, rawToken, command.NewPassword);
-
 
 				bool result = true;
 
@@ -72,8 +67,6 @@ namespace UserIdentity.Application.Core.Users.Commands.UpdatePassword
 				};
 
 			}
-
-
 		}
 
 	}
