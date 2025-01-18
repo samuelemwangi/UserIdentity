@@ -16,11 +16,5 @@ namespace UserIdentity.Application.Core.Tokens.ViewModels
 		public AccessTokenDTO? AccessToken { get; init; }
 
 		public string? RefreshToken { get; init; }
-
-		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-		public new string? RequestStatus { get; init; }
-
-		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-		public new string? StatusMessage { get; init; }
 	}
 }

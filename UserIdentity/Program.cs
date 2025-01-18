@@ -1,4 +1,5 @@
 using System.Net.Mime;
+using System.Text.Json.Serialization;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Logging;
@@ -7,7 +8,6 @@ using PolyzenKit.Application.Interfaces;
 using PolyzenKit.Infrastructure.Security.KeyProviders;
 using PolyzenKit.Infrastructure.Security.KeySets;
 using PolyzenKit.Infrastructure.Utilities;
-using PolyzenKit.Persistence.Settings;
 using PolyzenKit.Presentation;
 using PolyzenKit.Presentation.Helpers;
 using PolyzenKit.Presentation.ValidationHelpers;
@@ -23,13 +23,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add Serilog
 builder.AddSerilog();
 
-
-// Add services to the container.
-
-// MYSQL DB
-// Register Configuration
-var mysqlSetting = builder.Configuration.GetSection(nameof(MysqlSettings)).Get<MysqlSettings>()!;
-string connectionString = mysqlSetting.ConnectionString(builder.Configuration);
+// Add MYSQL DB
+string connectionString = builder.Configuration.GetMysqlConnectionString();
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
 	options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)).UseSnakeCaseNamingConvention();
@@ -38,6 +33,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Authentication, Authorization and Identity
 builder.Services.AddAppAuthentication(
 	builder.Configuration,
+	true,
 	(config) => new FileSystemKeyProvider(),
 	(options, keyProvider) => new EdDSAKeySetFactory(options, keyProvider)
 );
@@ -53,6 +49,9 @@ builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
 		result.ContentTypes.Add(MediaTypeNames.Application.Json);
 		return result;
 	};
+}).AddJsonOptions(options =>
+{
+	options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
 });
 
 // Swagger
