@@ -53,7 +53,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 
 			var ownedByLoggedInUser = userVM.User.OwnedByLoggedInUser(LoggedInUserId);
 
-			userVM.ResolveEditDeleteRights(UserScopeClaims, EnityName, ownedByLoggedInUser);
+			userVM.ResolveEditDeleteRights(UserScopeClaims, EntityName, ownedByLoggedInUser);
 			userVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEM_SUCCESSFUL);
 
 			return StatusCode((int)HttpStatusCode.OK, userVM);
@@ -66,7 +66,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 		{
 			var authUserVM = await _registerUserCommandHandler.CreateItemAsync(command, LoggedInUserId);
 
-			authUserVM.ResolveEditDeleteRights(UserScopeClaims, EnityName);
+			authUserVM.ResolveEditDeleteRights(UserScopeClaims, EntityName);
 			authUserVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.CREATE_ITEM_SUCCESSFUL);
 
 			return StatusCode((int)HttpStatusCode.Created, authUserVM);
@@ -79,7 +79,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 		{
 			var authUserVM = await _loginUserCommandHandler.CreateItemAsync(command, LoggedInUserId);
 
-			authUserVM.ResolveEditDeleteRights(UserScopeClaims, EnityName);
+			authUserVM.ResolveEditDeleteRights(UserScopeClaims, EntityName);
 			authUserVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEM_SUCCESSFUL, "Login successful");
 
 			return StatusCode((int)HttpStatusCode.OK, authUserVM);

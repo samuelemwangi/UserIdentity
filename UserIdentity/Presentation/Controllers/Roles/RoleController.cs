@@ -61,7 +61,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 
 			var rolesVM = await _getRolesQueryHandler.GetItemsAsync(new GetRolesQuery { });
 
-			rolesVM.ResolveCreateDownloadRights(UserScopeClaims, EnityName);
+			rolesVM.ResolveCreateDownloadRights(UserScopeClaims, EntityName);
 			rolesVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEMS_SUCCESSFUL);
 
 			return StatusCode((int)HttpStatusCode.OK, rolesVM);
@@ -74,7 +74,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 		{
 			var roleVM = await _getRoleQueryHandler.GetItemAsync(new GetRoleQuery { RoleId = roleId });
 
-			roleVM.ResolveEditDeleteRights(UserScopeClaims, EnityName);
+			roleVM.ResolveEditDeleteRights(UserScopeClaims, EntityName);
 			roleVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEM_SUCCESSFUL);
 
 			return StatusCode((int)HttpStatusCode.OK, roleVM);
@@ -86,7 +86,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 		{
 			var roleVM = await _createRoleCommandHandler.CreateItemAsync(command, LoggedInUserId);
 
-			roleVM.ResolveEditDeleteRights(UserScopeClaims, EnityName);
+			roleVM.ResolveEditDeleteRights(UserScopeClaims, EntityName);
 			roleVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.CREATE_ITEM_SUCCESSFUL);
 
 			return StatusCode((int)HttpStatusCode.Created, roleVM);
@@ -101,7 +101,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 
 			var updatedRoleVM = await _updateRoleCommandHandler.UpdateItemAsync(command, LoggedInUserId);
 
-			updatedRoleVM.ResolveEditDeleteRights(UserScopeClaims, EnityName);
+			updatedRoleVM.ResolveEditDeleteRights(UserScopeClaims, EntityName);
 			updatedRoleVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.UPDATE_ITEM_SUCCESSFUL);
 
 			return StatusCode((int)HttpStatusCode.OK, updatedRoleVM);
@@ -127,7 +127,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 		{
 			var userRolesVM = await _getUserRolesQueryHandler.GetItemsAsync(new GetUserRolesQuery { UserId = userId });
 
-			userRolesVM.ResolveCreateDownloadRights(UserScopeClaims, EnityName);
+			userRolesVM.ResolveCreateDownloadRights(UserScopeClaims, EntityName);
 			userRolesVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEMS_SUCCESSFUL);
 
 			return StatusCode((int)HttpStatusCode.OK, userRolesVM);
@@ -141,7 +141,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 		{
 			var userRolesVM = await _createUserRoleCommandHandler.CreateItemAsync(command, LoggedInUserId);
 
-			userRolesVM.ResolveCreateDownloadRights(UserScopeClaims, EnityName);
+			userRolesVM.ResolveCreateDownloadRights(UserScopeClaims, EntityName);
 			userRolesVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.CREATE_ITEM_SUCCESSFUL);
 
 			return StatusCode((int)HttpStatusCode.Created, userRolesVM);
@@ -159,9 +159,9 @@ namespace UserIdentity.Presentation.Controllers.Roles
 		[Route("claim")]
 		public async Task<ActionResult<RoleClaimViewModel>> CreateRoleClaimAsync(CreateRoleClaimCommand command)
 		{
-			var roleClaimVM = await _createRoleClaimCommandHandler.CreateItemAsync(command, EnityName);
+			var roleClaimVM = await _createRoleClaimCommandHandler.CreateItemAsync(command, EntityName);
 
-			roleClaimVM.ResolveEditDeleteRights(UserScopeClaims, EnityName);
+			roleClaimVM.ResolveEditDeleteRights(UserScopeClaims, EntityName);
 			roleClaimVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.CREATE_ITEM_SUCCESSFUL);
 
 			return StatusCode((int)HttpStatusCode.Created, roleClaimVM);
@@ -174,7 +174,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 		{
 			var roleClaimsVM = await _getRoleClaimsQueryHandler.GetItemsAsync(new GetRoleClaimsQuery { RoleId = roleId });
 
-			roleClaimsVM.ResolveCreateDownloadRights(UserScopeClaims, EnityName);
+			roleClaimsVM.ResolveCreateDownloadRights(UserScopeClaims, EntityName);
 			roleClaimsVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEMS_SUCCESSFUL);
 
 			return StatusCode((int)HttpStatusCode.OK, roleClaimsVM);
