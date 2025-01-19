@@ -4,6 +4,7 @@ using System.Text;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Options;
 
 using PolyzenKit.Application.Core;
 using PolyzenKit.Application.Core.Attributes;
@@ -15,6 +16,7 @@ using PolyzenKit.Domain.Entity;
 using PolyzenKit.Infrastructure.Configurations;
 using PolyzenKit.Infrastructure.Security.Jwt;
 using PolyzenKit.Infrastructure.Security.Tokens;
+using PolyzenKit.Presentation.Settings;
 
 using UserIdentity.Application.Core.Roles.Queries.GetRoleClaims;
 using UserIdentity.Application.Core.Roles.ViewModels;
@@ -47,6 +49,7 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 	}
 
 	public class RegisterUserCommandHandler(
+		IOptions<RoleSettings> roleSettings,
 		UserManager<IdentityUser> userManager,
 		RoleManager<IdentityRole> roleManager,
 		IUserRepository userRepository,
@@ -58,6 +61,7 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 		IGetItemsQueryHandler<GetRoleClaimsForRolesQuery, RoleClaimsForRolesViewModels> getRoleClaimsQueryHandler
 		) : ICreateItemCommandHandler<RegisterUserCommand, AuthUserViewModel>
 	{
+		private readonly RoleSettings _roleSettings = roleSettings.Value;
 		private readonly UserManager<IdentityUser> _userManager = userManager;
 		private readonly RoleManager<IdentityRole> _roleManager = roleManager;
 
@@ -74,17 +78,10 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 
 		public async Task<AuthUserViewModel> CreateItemAsync(RegisterUserCommand command, string userId)
 		{
-
-			// Check if default role is set in configs
-			string defaultRoleKey = _configuration.GetEnvironmentVariable("DefaultRole", null);
-
-			// Use env role if role is set in the env
-			string defaultRole = _configuration.GetEnvironmentVariable(defaultRoleKey, defaultRoleKey);
-
-			//  Check if default is created otherwise create 
-			if (await _roleManager.FindByNameAsync(defaultRole) == null)
-				if (!(await _roleManager.CreateAsync(new IdentityRole { Name = defaultRole })).Succeeded)
-					throw new RecordCreationException(defaultRole, "Role");
+			//  Check if default role is created otherwise create 
+			if (await _roleManager.FindByNameAsync(_roleSettings.DefaultRole) == null)
+				if (!(await _roleManager.CreateAsync(new IdentityRole { Name = _roleSettings.DefaultRole })).Succeeded)
+					throw new RecordCreationException(_roleSettings.DefaultRole, "Role");
 
 			// Check if user exists by user name, throw RecordExistsException 
 			if (await _userManager.FindByNameAsync(command.UserName) != null)
@@ -112,10 +109,10 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 			}
 
 			// User vs Default Role
-			var resultUserRole = await _userManager.AddToRoleAsync(newUser, defaultRole);
+			var resultUserRole = await _userManager.AddToRoleAsync(newUser, _roleSettings.DefaultRole);
 
 			if (!resultUserRole.Succeeded)
-				throw new RecordCreationException(defaultRole, "UserRole");
+				throw new RecordCreationException(_roleSettings.DefaultRole, "UserRole");
 
 
 			// Create user details

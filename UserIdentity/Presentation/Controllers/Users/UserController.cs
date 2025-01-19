@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using PolyzenKit.Application.Core.Extensions;
 using PolyzenKit.Application.Core.Interfaces;
 using PolyzenKit.Application.Enums;
+using PolyzenKit.Common.Utilities;
 using PolyzenKit.Domain.DTO;
 using PolyzenKit.Presentation.Controllers;
 using PolyzenKit.Presentation.ValidationHelpers;
@@ -42,10 +43,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 		private readonly IUpdateItemCommandHandler<ConfirmUpdatePasswordTokenCommand, ConfirmUpdatePasswordTokenViewModel> _confirmUpdatePasswordTokenCommandHandler = confirmUpdatePasswordTokenCommandHandler;
 		private readonly IUpdateItemCommandHandler<UpdatePasswordCommand, UpdatePasswordViewModel> _updatePasswordCommandHandler = updatePasswordCommandHandler;
 
-		private static readonly string resourceName = "user";
-
-		private string UserId => LoggedInUserId ?? "No-User-Id";
-
+		[Authorize(Policy = ZenConstants.ADMIN_OR_SAME_USER_POLICY)]
 		[HttpGet]
 		[Route("{userId}")]
 		public async Task<ActionResult<UserViewModel>> GetUser(string userId)
@@ -53,9 +51,9 @@ namespace UserIdentity.Presentation.Controllers.Users
 
 			var userVM = await _getUserQueryHandler.GetItemAsync(new GetUserQuery { UserId = userId });
 
-			var ownedByLoggedInUser = userVM.User.OwnedByLoggedInUser(UserId);
+			var ownedByLoggedInUser = userVM.User.OwnedByLoggedInUser(LoggedInUserId);
 
-			userVM.ResolveEditDeleteRights(UserRoleClaims, resourceName, ownedByLoggedInUser);
+			userVM.ResolveEditDeleteRights(UserScopeClaims, EnityName, ownedByLoggedInUser);
 			userVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEM_SUCCESSFUL);
 
 			return StatusCode((int)HttpStatusCode.OK, userVM);
@@ -66,9 +64,9 @@ namespace UserIdentity.Presentation.Controllers.Users
 		[Route("register")]
 		public async Task<ActionResult<AuthUserViewModel>> CreateUser(RegisterUserCommand command)
 		{
-			var authUserVM = await _registerUserCommandHandler.CreateItemAsync(command, UserId);
+			var authUserVM = await _registerUserCommandHandler.CreateItemAsync(command, LoggedInUserId);
 
-			authUserVM.ResolveEditDeleteRights(UserRoleClaims, resourceName);
+			authUserVM.ResolveEditDeleteRights(UserScopeClaims, EnityName);
 			authUserVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.CREATE_ITEM_SUCCESSFUL);
 
 			return StatusCode((int)HttpStatusCode.Created, authUserVM);
@@ -79,9 +77,9 @@ namespace UserIdentity.Presentation.Controllers.Users
 		[Route("login")]
 		public async Task<ActionResult<AuthUserViewModel>> LoginUser(LoginUserCommand command)
 		{
-			var authUserVM = await _loginUserCommandHandler.CreateItemAsync(command, UserId);
+			var authUserVM = await _loginUserCommandHandler.CreateItemAsync(command, LoggedInUserId);
 
-			authUserVM.ResolveEditDeleteRights(UserRoleClaims, resourceName);
+			authUserVM.ResolveEditDeleteRights(UserScopeClaims, EnityName);
 			authUserVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEM_SUCCESSFUL, "Login successful");
 
 			return StatusCode((int)HttpStatusCode.OK, authUserVM);
@@ -92,7 +90,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 		[Route("refresh-token")]
 		public async Task<ActionResult<AccessTokenViewModel>> RefreshToken(ExchangeRefreshTokenCommand command)
 		{
-			var refreshTokenVM = await _exchangeRefreshTokenCommandHandler.UpdateItemAsync(command, UserId);
+			var refreshTokenVM = await _exchangeRefreshTokenCommandHandler.UpdateItemAsync(command, LoggedInUserId);
 			refreshTokenVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEM_SUCCESSFUL, "Refresh token generated successfully");
 			return StatusCode((int)HttpStatusCode.OK, refreshTokenVM);
 		}
@@ -102,7 +100,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 		[Route("reset-password")]
 		public async Task<ActionResult<AccessTokenViewModel>> ResetPassword(ResetPasswordCommand command)
 		{
-			var resetPassWordVM = await _resetPasswordCommandHandler.CreateItemAsync(command, UserId);
+			var resetPassWordVM = await _resetPasswordCommandHandler.CreateItemAsync(command, LoggedInUserId);
 			resetPassWordVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEM_SUCCESSFUL, "Password reset request successful");
 			return StatusCode((int)HttpStatusCode.OK, resetPassWordVM);
 		}
@@ -112,7 +110,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 		[Route("confirm-update-password-token")]
 		public async Task<ActionResult<AccessTokenViewModel>> ConfirmPasswordToken(ConfirmUpdatePasswordTokenCommand command)
 		{
-			var confirmPassWordTokenVM = await _confirmUpdatePasswordTokenCommandHandler.UpdateItemAsync(command, UserId);
+			var confirmPassWordTokenVM = await _confirmUpdatePasswordTokenCommandHandler.UpdateItemAsync(command, LoggedInUserId);
 
 			var httpStatusCode = HttpStatusCode.OK;
 			if (confirmPassWordTokenVM.TokenPasswordResult.UpdatePasswordTokenConfirmed)
@@ -133,7 +131,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 		[Route("update-password")]
 		public async Task<ActionResult<AccessTokenViewModel>> UpdatePassword(UpdatePasswordCommand command)
 		{
-			var updatePasswordVM = await _updatePasswordCommandHandler.UpdateItemAsync(command, UserId);
+			var updatePasswordVM = await _updatePasswordCommandHandler.UpdateItemAsync(command, LoggedInUserId);
 
 			var httpStatusCode = HttpStatusCode.OK;
 			if (updatePasswordVM.UpdatePasswordResult.PassWordUpdated)

@@ -1,19 +1,16 @@
-using System.Net;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net.Mime;
 using System.Text.Json.Serialization;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
 
-using PolyzenKit.Application.Interfaces;
 using PolyzenKit.Infrastructure.Security.KeyProviders;
 using PolyzenKit.Infrastructure.Security.KeySets;
-using PolyzenKit.Infrastructure.Utilities;
 using PolyzenKit.Presentation;
-using PolyzenKit.Presentation.Helpers;
+using PolyzenKit.Presentation.Middlewares;
 using PolyzenKit.Presentation.ValidationHelpers;
-
-using Serilog;
 
 using UserIdentity;
 using UserIdentity.Persistence;
@@ -26,7 +23,7 @@ builder.AddAppSerilog();
 
 // Add MYSQL DB
 string connectionString = builder.Configuration.GetAppMysqlConnectionString();
-builder.Services.AddDbContext<AppDbContext>(options =>
+builder.Services.AddDbContext<DbContext, AppDbContext>(options =>
 {
 	options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)).UseSnakeCaseNamingConvention();
 });
@@ -65,8 +62,9 @@ builder.Services.AddAppAuthentication(
 	(config) => new FileSystemKeyProvider(),
 	(options, keyProvider) => new EdDSAKeySetFactory(options, keyProvider)
 );
+
 // Authorization
-builder.Services.AddAppAuthorization();
+builder.Services.AddAppAuthorization(builder.Configuration);
 
 // Identity
 builder.Services.AddAppIdentity();
@@ -113,8 +111,9 @@ app.UseAuthorization();
 // Use Endpoints
 app.MapControllers();
 
-// Migrate DB
-MigrationData.MigrateDb(app);
+// Migrate And Seed DB
+DbInitializer.InitializeDb(app);
+app.AppSeedEntityNamesData();
 
 // Run the app
 app.Run();
