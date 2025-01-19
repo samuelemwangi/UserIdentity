@@ -12,21 +12,19 @@ namespace UserIdentity
 {
 	public static class Extensions
 	{
-		public static void AddCommandAndQueryHandlers(this IServiceCollection services)
+		public static void AddAppCommandAndQueryHandlers(this IServiceCollection services)
 		{
-			services.AddCommandAndQueryHandlers(Assembly.GetExecutingAssembly());
+			services.AddAppCommandAndQueryHandlers(Assembly.GetExecutingAssembly());
 
 			var polyzenKitAssembly = Assembly.GetAssembly(typeof(GetErrorQueryHandler))!;
 
-			services.AddCommandAndQueryHandlers(polyzenKitAssembly);
+			services.AddAppCommandAndQueryHandlers(polyzenKitAssembly);
 		}
 
-		public static void AddRepositories(this IServiceCollection services)
+		public static void AddAppRepositories(this IServiceCollection services)
 		{
-			services.AddRepositories(Assembly.GetExecutingAssembly());
+			services.AddAppRepositories(Assembly.GetExecutingAssembly());
 		}
-
-		public static IKeyProvider ResolveKeyProvider(IConfiguration configuration) => new FileSystemKeyProvider();
 
 		public static void AddAppAuthorization(this IServiceCollection services)
 		{

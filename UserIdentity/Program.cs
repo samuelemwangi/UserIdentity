@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Mime;
 using System.Text.Json.Serialization;
 
@@ -21,24 +22,20 @@ using UserIdentity.Persistence.Migrations;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add Serilog
-builder.AddSerilog();
+builder.AddAppSerilog();
 
 // Add MYSQL DB
-string connectionString = builder.Configuration.GetMysqlConnectionString();
+string connectionString = builder.Configuration.GetAppMysqlConnectionString();
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
 	options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)).UseSnakeCaseNamingConvention();
 });
 
-// Authentication, Authorization and Identity
-builder.Services.AddAppAuthentication(
-	builder.Configuration,
-	true,
-	(config) => new FileSystemKeyProvider(),
-	(options, keyProvider) => new EdDSAKeySetFactory(options, keyProvider)
-);
-builder.Services.AddAppAuthorization();
-builder.Services.AddAppIdentity();
+// Repositories
+builder.Services.AddAppRepositories();
+
+// Command and Query Handlers
+builder.Services.AddAppCommandAndQueryHandlers();
 
 // Controllers
 builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
@@ -55,22 +52,36 @@ builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
 });
 
 // Swagger
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Command and Query Handlers
-builder.Services.AddCommandAndQueryHandlers();
+// Utilities e.g for Time, String, Logging 
+builder.Services.AddAppDateTimeStringLogHelpers();
 
-// Repositories
-builder.Services.AddRepositories();
+// Authentication Identity
+builder.Services.AddAppAuthentication(
+	builder.Configuration,
+	true,
+	(config) => new FileSystemKeyProvider(),
+	(options, keyProvider) => new EdDSAKeySetFactory(options, keyProvider)
+);
+// Authorization
+builder.Services.AddAppAuthorization();
 
-// Utilities e.g for Time, String 
-builder.Services.AddScoped<IMachineDateTime, MachineDateTime>();
-builder.Services.AddScoped<IStringHelper, StringHelper>();
-builder.Services.AddScoped(typeof(ILogHelper<>), typeof(LogHelper<>));
+// Identity
+builder.Services.AddAppIdentity();
 
+// Api Key Settings
+builder.Services.AddAppApiKeySettings(builder.Configuration);
+
+// Cors Policy
+var corsPolicyName = builder.Services.AddAppCorsPolicy(builder.Configuration);
+
+// build the app
 var app = builder.Build();
+
+// Use Cors
+app.UseCors(corsPolicyName);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -81,21 +92,31 @@ if (app.Environment.IsDevelopment())
 	IdentityModelEventSource.LogCompleteSecurityArtifact = true;
 }
 
-// Extract Request Id
+// Use Api Key Middleware
+app.UseMiddleware<ApiKeyMiddleware>();
+
+// Use Request Id Middleware
 app.UseMiddleware<RequestIdMiddleware>();
 
-// Handle Exceptions
+// Use Exception Middleware
 app.UseMiddleware<ExceptionMiddleware>();
 
+// Use HTTPS
 app.UseHttpsRedirection();
 
+// Use AuthN
 app.UseAuthentication();
+
+// Use AuthZ
 app.UseAuthorization();
 
+// Use Endpoints
 app.MapControllers();
 
 // Migrate DB
 MigrationData.MigrateDb(app);
+
+// Run the app
 app.Run();
 
 // use this for testing 
