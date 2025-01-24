@@ -18,24 +18,12 @@
       "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "Serilog__MinimumLevel": "Information",
         "MysqlSettings__Host": "localhost",
         "MysqlSettings__Port": "3306",
         "MysqlSettings__Database": "test_db",
         "MysqlSettings__UserName": "test_user",
         "MysqlSettings__Password": "tesT*_p@ss12",
-        "JwtIssuerOptions__Issuer": "appv1",
-        "JwtIssuerOptions__ValidForSeconds": "100000",
-        "JwtIssuerOptions__Audience": "https://test.app.com",
-        "KeySetOptions__KeyId": "SetTheDefaultKeyId",
-        "KeySetOptions__PrivateKeyPath": "../certs/ed25519-private.pem",
-        "KeySetOptions__PrivateKeyPassPhrase": "S3T@G00dPa22Phr@S3",
-        "KeySetOptions__PublicKeyPath": "../certs/ed25519-public.pem",
-        "ApiKeySettings__ApiKey": "kzqGLgkdDGP34/Kxaw4urndoEumbIDxwHSMj/8zvbsw=",
-        "CorsSettings__AllowedOrigins": "http://localhost:5000;https://localhost:7242",
-        "RoleSettings__AdminRoles": "administrator, super-administrator",
-        "RoleSettings__DefaultRole": "app-user",
-        "DefaultResetPasswordMessage": "If we have an account matching your email address, you will receive an email with a link to reset your password."
+        "Serilog__MinimumLevel": "Information"
       },
       "applicationUrl": "https://localhost:7242;http://localhost:5000",
       "nativeDebugging": false

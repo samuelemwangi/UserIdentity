@@ -18,9 +18,9 @@ if ($args -contains "-useLocal") {
 }
 elseif ($args -contains "-build") {
 
-    docker compose -f docker-compose.build.yml up --build -d 
+    docker compose -f docker-compose.yml up --build -d 
 }
 else {
     
-    docker compose -f docker-compose.build.yml up -d 
+    docker compose -f docker-compose.yml up -d 
 }

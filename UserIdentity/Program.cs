@@ -68,6 +68,9 @@ builder.Services.AddAppApiKeySettings(builder.Configuration);
 // Cors Policy
 var corsPolicyName = builder.Services.AddAppCorsPolicy(builder.Configuration);
 
+// Health Checks
+builder.Services.AddHealthChecks();
+
 // build the app
 var app = builder.Build();
 
@@ -103,6 +106,9 @@ app.UseAuthorization();
 
 // Use Endpoints
 app.MapControllers();
+
+// Map Health Check Endpoint
+app.MapHealthChecks("/health");
 
 // Migrate And Seed DB
 DbInitializer.InitializeDb(app);

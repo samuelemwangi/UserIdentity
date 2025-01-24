@@ -13,6 +13,12 @@
 		<WarningLevel>4</WarningLevel>
 	</PropertyGroup>
 	<ItemGroup>
+	  <Compile Remove="Logs\**" />
+	  <Content Remove="Logs\**" />
+	  <EmbeddedResource Remove="Logs\**" />
+	  <None Remove="Logs\**" />
+	</ItemGroup>
+	<ItemGroup>
 		<PackageReference Include="PolyzenKit" Version="1.1.4" />
 		<PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
 		<PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
@@ -22,7 +28,6 @@
 		<Folder Include="Application\Core\Users\Commands\ResetPassword\" />
 		<Folder Include="Application\Core\Users\Commands\ConfirmUpdatePasswordToken\" />
 		<Folder Include="Application\Core\Users\Commands\UpdatePassword\" />
-		<Folder Include="Logs\" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Remove="Application\Core\Users\Commands\ResetPassword\" />
