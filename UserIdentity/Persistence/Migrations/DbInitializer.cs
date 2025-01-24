@@ -1,11 +1,8 @@
-﻿using System.Reflection;
-
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 using PolyzenKit.Common.Utilities;
-using PolyzenKit.Domain.AppEntities;
 using PolyzenKit.Presentation.Settings;
 
 namespace UserIdentity.Persistence.Migrations

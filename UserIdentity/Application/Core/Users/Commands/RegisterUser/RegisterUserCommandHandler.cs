@@ -13,7 +13,6 @@ using PolyzenKit.Application.Interfaces;
 using PolyzenKit.Common.Exceptions;
 using PolyzenKit.Domain.DTO;
 using PolyzenKit.Domain.Entity;
-using PolyzenKit.Infrastructure.Configurations;
 using PolyzenKit.Infrastructure.Security.Jwt;
 using PolyzenKit.Infrastructure.Security.Tokens;
 using PolyzenKit.Presentation.Settings;
@@ -105,7 +104,7 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 			if (!identityResult.Succeeded)
 			{
 				string errors = string.Join(" ", identityResult.Errors.Select(e => e.Description));
-				throw new RecordCreationException(errors);
+				throw new InvalidDataException(errors);
 			}
 
 			// User vs Default Role

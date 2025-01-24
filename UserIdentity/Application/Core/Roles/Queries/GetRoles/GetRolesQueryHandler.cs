@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.Linq;
+
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 using PolyzenKit.Application.Core;
@@ -23,7 +25,6 @@ namespace UserIdentity.Application.Core.Roles.Queries.GetRoles
 			var roles = await _roleManager
 			.Roles
 			.Select(r => new RoleDTO { Id = r.Id, Name = r.Name! })
-			.ToAsyncEnumerable()
 			.ToListAsync();
 
 			return new RolesViewModel

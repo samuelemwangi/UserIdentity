@@ -22,21 +22,23 @@ services:
       - 5000:80
       - 5001:8080
     environment:
-      DB_SERVER: db
-      DB_PORT: 3306
-      DB_NAME: test_db
-      DB_USER: test_user
-      DB_PASSWORD: tesT*_p@ss12
-      APP_ISSUER: appv1
-      APP_VALID_FOR: 10
-      APP_AUDIENCE: https://test.app.com
-      APP_KEY_ID: V1APP_KEY_IDV1
-      APP_SECRET_KEY: c8pgjBdXIJtjbaEAvzEt5H0ULD>32CH8Rz
-      APP_DEFAULT_ROLE: Default
-      APP_DEFAULT_RESET_PASSWORD_MESSAGE: If we have an account matching your email address, you will receive an email with a link to reset your password.
-      APP_PRIVATE_KEY_PATH: ${APP_PRIVATE_KEY_PATH}
-      APP_PUBLIC_KEY_PATH: ${APP_PUBLIC_KEY_PATH}
-      APP_PRIVATE_KEY_PASS_PHRASE: ${APP_PRIVATE_KEY_PASS_PHRASE}
+      MysqlSettings__Host: db
+      MysqlSettings__Port: 3306
+      DB_MysqlSettings__Database: test_db
+      MysqlSettings__UserName: test_user
+      MysqlSettings__Password: tesT*_p@ss12
+      JwtIssuerOptions__Issuer: appv1
+      JwtIssuerOptions__ValidForSeconds: 10
+      JwtIssuerOptions__Audience: https://test.app.com
+      KeySetOptions__KeyId: V1APP_KEY_IDV1
+      KeySetOptions__PrivateKeyPath: ${APP_PRIVATE_KEY_PATH}
+      KeySetOptions__PublicKeyPath: ${APP_PUBLIC_KEY_PATH}
+      KeySetOptions__PrivateKeyPassPhrase: ${APP_PRIVATE_KEY_PASS_PHRASE}
+      RoleSettings__DefaultRole: app-user,
+      RoleSettings__AdminRoles: "administrator, super-administrator"
+      ApiKeySettings__ApiKey: ${API_KEY}
+      CorsSettings__AllowedOrigins: "*"
+      DefaultResetPasswordMessage: If we have an account matching your email address, you will receive an email with a link to reset your password.     
     volumes:
       - ./certs:/certs
     depends_on:

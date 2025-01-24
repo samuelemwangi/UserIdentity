@@ -1,12 +1,8 @@
 ﻿using System.Reflection;
 
-using Microsoft.AspNetCore.Identity;
-
 using PolyzenKit.Application.Core.Errors.Queries.GerError;
 using PolyzenKit.Persistence.Repositories.AppEntities;
 using PolyzenKit.Presentation;
-
-using UserIdentity.Persistence;
 
 namespace UserIdentity
 {
@@ -30,27 +26,7 @@ namespace UserIdentity
 			var polyzenKitAssembly = Assembly.GetAssembly(typeof(AppEntityRepository))!;
 			services.AddAppRepositories(polyzenKitAssembly);
 		}
-
-		// Add Identity 
-		public static void AddAppIdentity(this IServiceCollection services)
-		{
-
-			// add identity
-			var identityBuilder = services.AddIdentityCore<IdentityUser>(o =>
-			{
-				// configure identity options
-				o.Password.RequireDigit = true;
-				o.Password.RequireLowercase = false;
-				o.Password.RequireUppercase = false;
-				o.Password.RequireNonAlphanumeric = false;
-				o.Password.RequiredLength = 4;
-			});
-
-			identityBuilder.AddRoles<IdentityRole>();
-
-			identityBuilder = new IdentityBuilder(identityBuilder.UserType, typeof(IdentityRole), identityBuilder.Services);
-			identityBuilder.AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
-		}
+		
 
 		// Seed Entity Names
 		public static void AppSeedEntityNamesData(this IApplicationBuilder applicationBuilder)

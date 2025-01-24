@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-using PolyzenKit.Application.Core;
+﻿using PolyzenKit.Application.Core;
 
 namespace UserIdentity.Application.Core.Tokens.ViewModels
 {

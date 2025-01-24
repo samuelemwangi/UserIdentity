@@ -1,9 +1,6 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Net.Mime;
 using System.Text.Json.Serialization;
 
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
 
 using PolyzenKit.Infrastructure.Security.KeyProviders;
@@ -18,15 +15,14 @@ using UserIdentity.Persistence.Migrations;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add Serilog
+// Serilog
 builder.AddAppSerilog();
 
-// Add MYSQL DB
-string connectionString = builder.Configuration.GetAppMysqlConnectionString();
-builder.Services.AddDbContext<DbContext, AppDbContext>(options =>
-{
-	options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)).UseSnakeCaseNamingConvention();
-});
+// DB 
+builder.Services.AddAppMysql<AppDbContext>(builder.Configuration);
+
+// Identity
+builder.Services.AddAppIdentity<AppDbContext>(builder.Configuration);
 
 // Repositories
 builder.Services.AddAppRepositories();
@@ -65,9 +61,6 @@ builder.Services.AddAppAuthentication(
 
 // Authorization
 builder.Services.AddAppAuthorization(builder.Configuration);
-
-// Identity
-builder.Services.AddAppIdentity();
 
 // Api Key Settings
 builder.Services.AddAppApiKeySettings(builder.Configuration);
