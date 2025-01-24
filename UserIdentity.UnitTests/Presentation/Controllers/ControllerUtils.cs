@@ -1,37 +1,50 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Security.Claims;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-using UserIdentity.Presentation.Controllers;
+using PolyzenKit.Infrastructure.Security.Jwt;
+using PolyzenKit.Presentation.Controllers;
 
 namespace UserIdentity.UnitTests.Presentation.Controllers
 {
 	internal static class ControllerUtils
 	{
-		public static string UserId = "1234567890";
-		public static string UserRoles = "role1,role2,role3";
-		public static string UserScopes = "scope1:edit,scope2:read,scope3:delete";
 
-		public static void UpdateContext(this BaseController controller, string? controllerName, bool addUserId = false, bool addUserRoles = false, bool addUserScopes = false)
+		public static void UpdateContext(
+			this BaseController controller,
+			string? controllerName,
+			bool addUserId = false,
+			string? userId = null,
+			bool addUserRoles = false,
+			string? userRoles = null,
+			bool addUserScopes = false,
+			string? userScopes = null
+		 )
 		{
-			// Route data
 			var routedData = new RouteData();
 			routedData.Values["controller"] = controllerName;
 
 			controller.ControllerContext.RouteData = routedData;
 
-			// Headers
 			var context = new DefaultHttpContext();
 
+			var claims = new List<Claim>();
+
 			if (addUserId)
-				context.Request.Headers.Add("X-USER-ID", UserId);
+				claims.Add(new Claim(JwtCustomClaimNames.Id, userId!));
 
 			if (addUserRoles)
-				context.Request.Headers.Add("X-USER-ROLES", UserRoles);
+				foreach (var role in userRoles!.Split(","))
+					claims.Add(new Claim(JwtCustomClaimNames.Rol, role));
 
 			if (addUserScopes)
-				context.Request.Headers.Add("X-USER-SCOPES", UserScopes);
+				foreach (var scope in userScopes!.Split(","))
+					claims.Add(new Claim(JwtCustomClaimNames.Scope, scope));
+
+			context.User = new ClaimsPrincipal(new ClaimsIdentity(claims, "Bearer"));
 
 			controller.ControllerContext.HttpContext = context;
 

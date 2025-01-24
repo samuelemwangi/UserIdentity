@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using FakeItEasy;
 
 using Microsoft.AspNetCore.Identity;
 
+using PolyzenKit.Common.Exceptions;
+
 using UserIdentity.Application.Core.Roles.Queries.GetRoles;
 using UserIdentity.Application.Core.Roles.ViewModels;
-using UserIdentity.Application.Exceptions;
 
 using Xunit;
 
@@ -70,7 +70,7 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Queries
 
 			// Assert
 			Assert.IsType<UserRolesViewModel>(vm);
-			Assert.Equal(0, vm.UserRoles.Count);
+			Assert.Empty(vm.UserRoles);
 			foreach (var item in vm.UserRoles)
 				Assert.Contains(item, userRoles);
 		}

@@ -6,11 +6,13 @@ using FakeItEasy;
 
 using Microsoft.AspNetCore.Identity;
 
-using UserIdentity.Application.Core.Interfaces;
+using PolyzenKit.Application.Core.Interfaces;
+using PolyzenKit.Common.Exceptions;
+
 using UserIdentity.Application.Core.Roles.Commands.CreateRole;
 using UserIdentity.Application.Core.Roles.Queries.GetRoles;
 using UserIdentity.Application.Core.Roles.ViewModels;
-using UserIdentity.Application.Exceptions;
+using UserIdentity.UnitTests.TestUtils;
 
 using Xunit;
 
@@ -40,7 +42,7 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Commands
 			var handler = new CreateUserRoleCommandHandler(_roleManager, _userManager, _getUserRolesQueryHandler);
 
 			// Act & Assert
-			await Assert.ThrowsAsync<NoRecordException>(() => handler.CreateItemAsync(command));
+			await Assert.ThrowsAsync<NoRecordException>(() => handler.CreateItemAsync(command, TestStringHelper.UserId));
 		}
 
 		[Fact]
@@ -54,7 +56,7 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Commands
 			var handler = new CreateUserRoleCommandHandler(_roleManager, _userManager, _getUserRolesQueryHandler);
 
 			// Act & Assert
-			await Assert.ThrowsAsync<NoRecordException>(() => handler.CreateItemAsync(command));
+			await Assert.ThrowsAsync<NoRecordException>(() => handler.CreateItemAsync(command, TestStringHelper.UserId));
 		}
 
 		[Fact]
@@ -71,7 +73,7 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Commands
 			var handler = new CreateUserRoleCommandHandler(_roleManager, _userManager, _getUserRolesQueryHandler);
 
 			// Act & Assert
-			await Assert.ThrowsAsync<RecordExistsException>(() => handler.CreateItemAsync(command));
+			await Assert.ThrowsAsync<RecordExistsException>(() => handler.CreateItemAsync(command, TestStringHelper.UserId));
 		}
 
 		[Fact]
@@ -88,7 +90,7 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Commands
 			var handler = new CreateUserRoleCommandHandler(_roleManager, _userManager, _getUserRolesQueryHandler);
 
 			// Act & Assert
-			await Assert.ThrowsAsync<RecordCreationException>(() => handler.CreateItemAsync(command));
+			await Assert.ThrowsAsync<RecordCreationException>(() => handler.CreateItemAsync(command, TestStringHelper.UserId));
 		}
 
 		[Fact]
@@ -107,11 +109,11 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Commands
 			var handler = new CreateUserRoleCommandHandler(_roleManager, _userManager, _getUserRolesQueryHandler);
 
 			// Act
-			var result = await handler.CreateItemAsync(command);
+			var result = await handler.CreateItemAsync(command, TestStringHelper.UserId);
 
 			// Assert
 			Assert.NotNull(result);
-			Assert.Equal(1, result.UserRoles.Count);
+			Assert.Single(result.UserRoles);
 		}
 	}
 }

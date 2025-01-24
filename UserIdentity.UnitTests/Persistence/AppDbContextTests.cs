@@ -4,6 +4,8 @@ using System.Linq;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
+using PolyzenKit.Domain.AppEntities;
+
 using UserIdentity.Domain.Identity;
 
 using Xunit;
@@ -25,6 +27,7 @@ namespace UserIdentity.UnitTests.Persistence
 			var entityTypes = context.Model.GetEntityTypes();
 
 			// Assert	
+			Assert.Equal(entityPrefix + "app_entities", entityTypes.Where(e => e.DisplayName() == nameof(AppEntity)).FirstOrDefault()?.GetTableName());
 			Assert.Equal(entityPrefix + "user_details", entityTypes.Where(e => e.DisplayName() == nameof(User)).FirstOrDefault()?.GetTableName());
 			Assert.Equal(entityPrefix + "refresh_tokens", entityTypes.Where(e => e.DisplayName() == nameof(RefreshToken)).FirstOrDefault()?.GetTableName());
 

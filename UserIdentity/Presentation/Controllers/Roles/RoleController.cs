@@ -159,7 +159,7 @@ namespace UserIdentity.Presentation.Controllers.Roles
 		[Route("claim")]
 		public async Task<ActionResult<RoleClaimViewModel>> CreateRoleClaimAsync(CreateRoleClaimCommand command)
 		{
-			var roleClaimVM = await _createRoleClaimCommandHandler.CreateItemAsync(command, EntityName);
+			var roleClaimVM = await _createRoleClaimCommandHandler.CreateItemAsync(command, LoggedInUserId);
 
 			roleClaimVM.ResolveEditDeleteRights(UserScopeClaims, EntityName);
 			roleClaimVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.CREATE_ITEM_SUCCESSFUL);

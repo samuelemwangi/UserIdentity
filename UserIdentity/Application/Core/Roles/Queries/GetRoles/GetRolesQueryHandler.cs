@@ -22,10 +22,10 @@ namespace UserIdentity.Application.Core.Roles.Queries.GetRoles
 
 		public async Task<RolesViewModel> GetItemsAsync(GetRolesQuery query)
 		{
-			var roles = await _roleManager
+			var roles = _roleManager
 			.Roles
 			.Select(r => new RoleDTO { Id = r.Id, Name = r.Name! })
-			.ToListAsync();
+			.ToList();
 
 			return new RolesViewModel
 			{

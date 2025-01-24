@@ -6,10 +6,12 @@ using FakeItEasy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 
+using PolyzenKit.Common.Exceptions;
+
 using UserIdentity.Application.Core.Users.Commands.ResetPassword;
 using UserIdentity.Application.Core.Users.ViewModels;
-using UserIdentity.Application.Exceptions;
 using UserIdentity.Persistence.Repositories.Users;
+using UserIdentity.UnitTests.TestUtils;
 
 using Xunit;
 
@@ -33,7 +35,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 		}
 
 		[Fact]
-		public async Task ResetPassword_When_No_Existing_Registered_Email_Throws_NoRecordException()
+		public async Task ResetPassword_When_No_Existing_Registered_Returns_Success()
 		{
 			// Arrange
 			var command = new ResetPasswordCommand
@@ -45,8 +47,12 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 
 			var handler = new ResetPasswordCommandHandler(_userManager, _userRepository, _configuration);
 
-			// Act & Assert
-			await Assert.ThrowsAsync<NoRecordException>(() => handler.CreateItemAsync(command));
+			// Act 
+			var vm = await handler.CreateItemAsync(command, TestStringHelper.UserId);
+
+			// Assert
+			Assert.IsType<ResetPasswordViewModel>(vm);
+			Assert.NotNull(vm.ResetPasswordDetails);
 		}
 
 		[Fact]
@@ -74,7 +80,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 			var handler = new ResetPasswordCommandHandler(_userManager, _userRepository, _configuration);
 
 			// Act & Assert
-			await Assert.ThrowsAsync<RecordUpdateException>(() => handler.CreateItemAsync(command));
+			await Assert.ThrowsAsync<RecordUpdateException>(() => handler.CreateItemAsync(command, TestStringHelper.UserId));
 		}
 
 		[Fact]
@@ -102,13 +108,11 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 			var handler = new ResetPasswordCommandHandler(_userManager, _userRepository, _configuration);
 
 			// Act 
-			var vm = await handler.CreateItemAsync(command);
+			var vm = await handler.CreateItemAsync(command, TestStringHelper.UserId);
 
 			// Assert
 			Assert.IsType<ResetPasswordViewModel>(vm);
 			Assert.NotNull(vm.ResetPasswordDetails);
 		}
-
-
 	}
 }

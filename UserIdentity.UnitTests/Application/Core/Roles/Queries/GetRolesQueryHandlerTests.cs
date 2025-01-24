@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using FakeItEasy;
 
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 using UserIdentity.Application.Core.Roles.Queries.GetRoles;
 using UserIdentity.Application.Core.Roles.ViewModels;
@@ -30,8 +31,8 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Queries
 		{
 			// Arrange
 			var roles = new List<IdentityRole> {
-														new IdentityRole { Id = "1", Name = "Admin" },
-														new IdentityRole { Id = "2", Name = "User" }
+														new () { Id = "1", Name = "Admin" },
+														new () { Id = "2", Name = "User" }
 									};
 
 
@@ -63,7 +64,7 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Queries
 
 			// Assert
 			Assert.IsType<RolesViewModel>(vm);
-			Assert.Equal(0, vm.Roles.Count);
+			Assert.Empty(vm.Roles);
 		}
 	}
 }
