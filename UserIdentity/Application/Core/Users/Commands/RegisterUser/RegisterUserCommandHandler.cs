@@ -30,12 +30,12 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 	public record RegisterUserCommand : BaseCommand
 	{
 		[Required]
-		public required string FirstName { get; init; }
+		public string FirstName { get; init; } = null!;
 
 		public string? LastName { get; init; }
 
 		[Required]
-		public required string UserName { get; init; }
+		public string UserName { get; init; } = null!;
 
 		[EitherOr(nameof(RegisterUserCommand.PhoneNumber), nameof(RegisterUserCommand.UserEmail))]
 		public string? PhoneNumber { get; init; }
@@ -44,7 +44,7 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 		public string? UserEmail { get; init; }
 
 		[Required]
-		public required string UserPassword { get; init; }
+		public string UserPassword { get; init; } = null!;
 	}
 
 	public class RegisterUserCommandHandler(

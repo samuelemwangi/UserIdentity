@@ -18,7 +18,7 @@ namespace UserIdentity.Application.Core.Users.Commands.ResetPassword
 	{
 		[Required]
 		[EmailAddress]
-		public required string UserEmail { get; init; }
+		public string UserEmail { get; init; } = null!;
 	}
 
 	public class ResetPasswordCommandHandler(

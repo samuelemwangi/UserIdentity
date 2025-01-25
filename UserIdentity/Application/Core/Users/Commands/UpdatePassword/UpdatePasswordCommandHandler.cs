@@ -15,13 +15,13 @@ namespace UserIdentity.Application.Core.Users.Commands.UpdatePassword
 	public record UpdatePasswordCommand : BaseCommand
 	{
 		[Required]
-		public required string NewPassword { get; init; }
+		public string NewPassword { get; init; } = null!;
 
 		[Required]
-		public required string UserId { get; init; }
+		public string UserId { get; init; } = null!;
 
 		[Required]
-		public required string PasswordResetToken { get; init; }
+		public string PasswordResetToken { get; init; } = null!;
 	}
 
 	public class UpdatePasswordCommandHandler(
