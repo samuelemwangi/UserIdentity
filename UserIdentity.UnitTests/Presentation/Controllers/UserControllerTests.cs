@@ -124,8 +124,8 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 
 			Assert.Equal(refreshToken, vm?.UserToken?.RefreshToken);
 
-			Assert.False(vm?.EditEnabled);
-			Assert.False(vm?.DeleteEnabled);
+			Assert.True(vm?.EditEnabled);
+			Assert.True(vm?.DeleteEnabled);
 
 			Assert.Contains(RequestStatus.SUCCESSFUL.Description(), vm?.RequestStatus);
 			Assert.Contains(ItemStatusMessage.CREATE_ITEM_SUCCESSFUL.Description(), vm?.StatusMessage);
@@ -168,8 +168,8 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			Assert.Equal(userEmail, vm?.UserDetails?.Email);
 			Assert.Equal(refreshToken, vm?.UserToken?.RefreshToken);
 
-			Assert.False(vm?.EditEnabled);
-			Assert.False(vm?.DeleteEnabled);
+			Assert.True(vm?.EditEnabled);
+			Assert.True(vm?.DeleteEnabled);
 
 			Assert.Contains(RequestStatus.SUCCESSFUL.Description(), vm?.RequestStatus);
 			Assert.Contains(loginMessage, vm?.StatusMessage);
@@ -207,7 +207,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			Assert.Equal(newAccesstoken, vm?.UserToken?.AccessToken?.Token);
 			Assert.Equal(newRefreshToken, vm?.UserToken?.RefreshToken);
 
-			Assert.False(vm?.EditEnabled);
+			Assert.True(vm?.EditEnabled);
 			Assert.False(vm?.DeleteEnabled);
 
 			Assert.Contains(RequestStatus.SUCCESSFUL.Description(), vm?.RequestStatus);
