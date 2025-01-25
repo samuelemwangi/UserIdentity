@@ -12,13 +12,13 @@ namespace UserIdentity.Application.Core.Roles.Commands.DeleteRoleClaim
 	public record DeleteRoleClaimCommand : BaseCommand
 	{
 		[Required]
-		public required string RoleId { get; init; }
+		public string RoleId { get; init; } = null!;
 
 		[Required]
-		public required string Resource { get; init; }
+		public string Resource { get; init; } = null!;
 
 		[Required]
-		public required string Action { get; init; }
+		public string Action { get; init; } = null!;
 	}
 	public class DeleteRoleClaimCommandHandler(
 		RoleManager<IdentityRole> roleManager,

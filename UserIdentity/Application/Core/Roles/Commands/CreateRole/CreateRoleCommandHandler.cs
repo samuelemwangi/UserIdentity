@@ -13,7 +13,7 @@ namespace UserIdentity.Application.Core.Roles.Commands.CreateRole
 	public record CreateRoleCommand : BaseCommand
 	{
 		[Required]
-		public required string RoleName { get; init; }
+		public string RoleName { get; init; } = null!;
 	}
 
 

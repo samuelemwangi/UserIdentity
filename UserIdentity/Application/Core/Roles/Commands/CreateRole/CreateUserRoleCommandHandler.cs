@@ -14,10 +14,10 @@ namespace UserIdentity.Application.Core.Roles.Commands.CreateRole
 	public record CreateUserRoleCommand : BaseCommand
 	{
 		[Required]
-		public required string UserId { get; init; }
+		public string UserId { get; init; } = null!;
 
 		[Required]
-		public required string RoleId { get; init; }
+		public string RoleId { get; init; } = null!;
 	}
 
 	public class CreateUserRoleCommandHandler(

@@ -21,10 +21,10 @@ namespace UserIdentity.Application.Core.Tokens.Commands.ExchangeRefreshToken
 	public record ExchangeRefreshTokenCommand : BaseCommand
 	{
 		[Required]
-		public required string AccessToken { get; init; }
+		public string AccessToken { get; init; } = null!;
 
 		[Required]
-		public required string RefreshToken { get; init; }
+		public string RefreshToken { get; init; } = null!;
 	}
 
 	public class ExchangeRefreshTokenCommandHandler(
