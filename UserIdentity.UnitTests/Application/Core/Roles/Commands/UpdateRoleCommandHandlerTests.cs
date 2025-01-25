@@ -4,9 +4,11 @@ using FakeItEasy;
 
 using Microsoft.AspNetCore.Identity;
 
+using PolyzenKit.Common.Exceptions;
+
 using UserIdentity.Application.Core.Roles.Commands.UpdateRole;
 using UserIdentity.Application.Core.Roles.ViewModels;
-using UserIdentity.Application.Exceptions;
+using UserIdentity.UnitTests.TestUtils;
 
 using Xunit;
 
@@ -36,7 +38,7 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Commands
 			var handler = new UpdateRoleCommandHandler(_roleManager);
 
 			// Act& Assert
-			await Assert.ThrowsAsync<NoRecordException>(() => handler.UpdateItemAsync(command));
+			await Assert.ThrowsAsync<NoRecordException>(() => handler.UpdateItemAsync(command, TestStringHelper.UserId));
 		}
 
 		[Fact]
@@ -62,7 +64,7 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Commands
 			var handler = new UpdateRoleCommandHandler(_roleManager);
 
 			// Act& Assert
-			await Assert.ThrowsAsync<RecordUpdateException>(() => handler.UpdateItemAsync(command));
+			await Assert.ThrowsAsync<RecordUpdateException>(() => handler.UpdateItemAsync(command, TestStringHelper.UserId));
 		}
 
 		[Fact]
@@ -88,7 +90,7 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Commands
 			var handler = new UpdateRoleCommandHandler(_roleManager);
 
 			// Act
-			var vm = await handler.UpdateItemAsync(command);
+			var vm = await handler.UpdateItemAsync(command, TestStringHelper.UserId);
 
 			// Assert
 			Assert.IsType<RoleViewModel>(vm);

@@ -6,10 +6,12 @@ using FakeItEasy;
 
 using Microsoft.AspNetCore.Identity;
 
+using PolyzenKit.Common.Exceptions;
+using PolyzenKit.Infrastructure.Security.Jwt;
+
 using UserIdentity.Application.Core.Roles.Commands.CreateRoleClaim;
 using UserIdentity.Application.Core.Roles.ViewModels;
-using UserIdentity.Application.Exceptions;
-using UserIdentity.Application.Interfaces.Security;
+using UserIdentity.UnitTests.TestUtils;
 
 using Xunit;
 
@@ -17,15 +19,14 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Commands
 {
 	public class CreateRoleClaimCommandHandlerTests
 	{
-		// unit tests for CreateRoleClaimCommandHandler on namespace UserIdentity.Application.Core.Roles.Commands
 
 		private readonly RoleManager<IdentityRole> _roleManager;
-		private readonly IJwtFactory _jwtFactory;
+		private readonly IJwtTokenHandler _jwtTokenHandler;
 
 		public CreateRoleClaimCommandHandlerTests()
 		{
 			_roleManager = A.Fake<RoleManager<IdentityRole>>();
-			_jwtFactory = A.Fake<IJwtFactory>();
+			_jwtTokenHandler = A.Fake<IJwtTokenHandler>();
 		}
 
 		[Fact]
@@ -42,10 +43,10 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Commands
 			A.CallTo(() => _roleManager.FindByIdAsync(command.RoleId)).Returns(default(IdentityRole));
 
 
-			var handler = new CreateRoleClaimCommandHandler(_roleManager, _jwtFactory);
+			var handler = new CreateRoleClaimCommandHandler(_roleManager, _jwtTokenHandler);
 
 			// Act & Assert
-			await Assert.ThrowsAsync<NoRecordException>(() => handler.CreateItemAsync(command));
+			await Assert.ThrowsAsync<NoRecordException>(() => handler.CreateItemAsync(command, TestStringHelper.UserId));
 		}
 
 		[Fact]
@@ -66,19 +67,17 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Commands
 			A.CallTo(() => _roleManager.FindByIdAsync(command.RoleId)).Returns(role);
 
 			var scopeClaim = new Claim("scope", scope);
-			A.CallTo(() => _jwtFactory.GenerateScopeClaim(command.Resource, command.Action)).Returns(scopeClaim);
+			A.CallTo(() => _jwtTokenHandler.GenerateScopeClaim(command.Resource, command.Action)).Returns(scopeClaim);
 
-			var roleClaims = new List<Claim>(){
-																new Claim("scope", scope)
-												};
+			var roleClaims = new List<Claim>() { new("scope", scope) };
 
 			A.CallTo(() => _roleManager.GetClaimsAsync(role)).Returns(roleClaims);
 
 
-			var handler = new CreateRoleClaimCommandHandler(_roleManager, _jwtFactory);
+			var handler = new CreateRoleClaimCommandHandler(_roleManager, _jwtTokenHandler);
 
 			// Act & Assert
-			await Assert.ThrowsAsync<RecordExistsException>(() => handler.CreateItemAsync(command));
+			await Assert.ThrowsAsync<RecordExistsException>(() => handler.CreateItemAsync(command, TestStringHelper.UserId));
 		}
 
 		[Fact]
@@ -99,7 +98,7 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Commands
 			A.CallTo(() => _roleManager.FindByIdAsync(command.RoleId)).Returns(role);
 
 			var scopeClaim = new Claim("scope", scope);
-			A.CallTo(() => _jwtFactory.GenerateScopeClaim(command.Resource, command.Action)).Returns(scopeClaim);
+			A.CallTo(() => _jwtTokenHandler.GenerateScopeClaim(command.Resource, command.Action)).Returns(scopeClaim);
 
 			var roleClaims = new List<Claim>();
 
@@ -107,10 +106,10 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Commands
 
 			A.CallTo(() => _roleManager.AddClaimAsync(role, scopeClaim)).Returns(Task.FromResult(IdentityResult.Failed()));
 
-			var handler = new CreateRoleClaimCommandHandler(_roleManager, _jwtFactory);
+			var handler = new CreateRoleClaimCommandHandler(_roleManager, _jwtTokenHandler);
 
 			// Act & Assert
-			await Assert.ThrowsAsync<RecordCreationException>(() => handler.CreateItemAsync(command));
+			await Assert.ThrowsAsync<RecordCreationException>(() => handler.CreateItemAsync(command, TestStringHelper.UserId));
 		}
 
 		[Fact]
@@ -131,7 +130,7 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Commands
 			A.CallTo(() => _roleManager.FindByIdAsync(command.RoleId)).Returns(role);
 
 			var scopeClaim = new Claim("scope", scope);
-			A.CallTo(() => _jwtFactory.GenerateScopeClaim(command.Resource, command.Action)).Returns(scopeClaim);
+			A.CallTo(() => _jwtTokenHandler.GenerateScopeClaim(command.Resource, command.Action)).Returns(scopeClaim);
 
 			var roleClaims = new List<Claim>();
 
@@ -139,10 +138,10 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Commands
 
 			A.CallTo(() => _roleManager.AddClaimAsync(role, scopeClaim)).Returns(Task.FromResult(IdentityResult.Success));
 
-			var handler = new CreateRoleClaimCommandHandler(_roleManager, _jwtFactory);
+			var handler = new CreateRoleClaimCommandHandler(_roleManager, _jwtTokenHandler);
 
 			// Act
-			var vm = await handler.CreateItemAsync(command);
+			var vm = await handler.CreateItemAsync(command, TestStringHelper.UserId);
 
 			// Assert
 			Assert.IsType<RoleClaimViewModel>(vm);

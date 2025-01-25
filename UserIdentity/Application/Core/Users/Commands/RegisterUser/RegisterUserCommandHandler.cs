@@ -4,16 +4,23 @@ using System.Text;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Options;
 
-using UserIdentity.Application.Attributes;
-using UserIdentity.Application.Core.Extensions;
-using UserIdentity.Application.Core.Interfaces;
+using PolyzenKit.Application.Core;
+using PolyzenKit.Application.Core.Attributes;
+using PolyzenKit.Application.Core.Interfaces;
+using PolyzenKit.Application.Interfaces;
+using PolyzenKit.Common.Exceptions;
+using PolyzenKit.Domain.DTO;
+using PolyzenKit.Domain.Entity;
+using PolyzenKit.Infrastructure.Security.Jwt;
+using PolyzenKit.Infrastructure.Security.Tokens;
+using PolyzenKit.Presentation.Settings;
+
+using UserIdentity.Application.Core.Roles.Queries.GetRoleClaims;
+using UserIdentity.Application.Core.Roles.ViewModels;
 using UserIdentity.Application.Core.Tokens.ViewModels;
 using UserIdentity.Application.Core.Users.ViewModels;
-using UserIdentity.Application.Exceptions;
-using UserIdentity.Application.Interfaces.Security;
-using UserIdentity.Application.Interfaces.Utilities;
-using UserIdentity.Domain;
 using UserIdentity.Domain.Identity;
 using UserIdentity.Persistence.Repositories.RefreshTokens;
 using UserIdentity.Persistence.Repositories.Users;
@@ -23,12 +30,12 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 	public record RegisterUserCommand : BaseCommand
 	{
 		[Required]
-		public string? FirstName { get; init; }
+		public string FirstName { get; init; } = null!;
 
 		public string? LastName { get; init; }
 
 		[Required]
-		public string? UserName { get; init; }
+		public string UserName { get; init; } = null!;
 
 		[EitherOr(nameof(RegisterUserCommand.PhoneNumber), nameof(RegisterUserCommand.UserEmail))]
 		public string? PhoneNumber { get; init; }
@@ -37,69 +44,43 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 		public string? UserEmail { get; init; }
 
 		[Required]
-		public string? UserPassword { get; init; }
+		public string UserPassword { get; init; } = null!;
 	}
 
-	public class RegisterUserCommandHandler : ICreateItemCommandHandler<RegisterUserCommand, AuthUserViewModel>
+	public class RegisterUserCommandHandler(
+		IOptions<RoleSettings> roleSettings,
+		UserManager<IdentityUser> userManager,
+		RoleManager<IdentityRole> roleManager,
+		IUserRepository userRepository,
+		IRefreshTokenRepository refreshTokenRepository,
+		IJwtTokenHandler jwtTokenHandler,
+		ITokenFactory tokenFactory,
+		IConfiguration configuration,
+		IMachineDateTime machineDateTime,
+		IGetItemsQueryHandler<GetRoleClaimsForRolesQuery, RoleClaimsForRolesViewModels> getRoleClaimsQueryHandler
+		) : ICreateItemCommandHandler<RegisterUserCommand, AuthUserViewModel>
 	{
-		private readonly UserManager<IdentityUser> _userManager;
-		private readonly RoleManager<IdentityRole> _roleManager;
+		private readonly RoleSettings _roleSettings = roleSettings.Value;
+		private readonly UserManager<IdentityUser> _userManager = userManager;
+		private readonly RoleManager<IdentityRole> _roleManager = roleManager;
 
-		private readonly IUserRepository _userRepository;
-		private readonly IRefreshTokenRepository _refreshTokenRepository;
-		private readonly IJwtFactory _jwtFactory;
-		private readonly ITokenFactory _tokenFactory;
+		private readonly IUserRepository _userRepository = userRepository;
+		private readonly IRefreshTokenRepository _refreshTokenRepository = refreshTokenRepository;
+		private readonly IJwtTokenHandler _jwtTokenHandler = jwtTokenHandler;
+		private readonly ITokenFactory _tokenFactory = tokenFactory;
 
-		private readonly IConfiguration _configuration;
+		private readonly IConfiguration _configuration = configuration;
 
-		private readonly IMachineDateTime _machineDateTime;
+		private readonly IMachineDateTime _machineDateTime = machineDateTime;
 
-		private readonly ILogHelper<RegisterUserCommandHandler> _logHelper;
+		private readonly IGetItemsQueryHandler<GetRoleClaimsForRolesQuery, RoleClaimsForRolesViewModels> _getRoleClaimsQueryHandler = getRoleClaimsQueryHandler;
 
-
-		private readonly IGetItemsQueryHandler<IList<string>, HashSet<string>> _getRoleClaimsQueryHandler;
-
-		public RegisterUserCommandHandler(
-			UserManager<IdentityUser> userManager,
-			RoleManager<IdentityRole> roleManager,
-			IUserRepository userRepository,
-			IRefreshTokenRepository refreshTokenRepository,
-			IJwtFactory jwtFactory,
-			ITokenFactory tokenFactory,
-			IConfiguration configuration,
-			IMachineDateTime machineDateTime,
-			ILogHelper<RegisterUserCommandHandler> logHelper,
-			IGetItemsQueryHandler<IList<string>, HashSet<string>> getRoleClaimsQueryHandler
-			)
+		public async Task<AuthUserViewModel> CreateItemAsync(RegisterUserCommand command, string userId)
 		{
-			_userManager = userManager;
-			_roleManager = roleManager;
-			_userRepository = userRepository;
-			_refreshTokenRepository = refreshTokenRepository;
-			_jwtFactory = jwtFactory;
-			_tokenFactory = tokenFactory;
-			_configuration = configuration;
-			_machineDateTime = machineDateTime;
-			_logHelper = logHelper;
-			_getRoleClaimsQueryHandler = getRoleClaimsQueryHandler;
-		}
-
-		public async Task<AuthUserViewModel> CreateItemAsync(RegisterUserCommand command)
-		{
-
-			// Check if default role is set in configs
-			string defaultRoleKey = _configuration.GetValue<string>("DefaultRole") ?? throw new MissingConfigurationException("DefaultRole");
-
-			// Use env role if role is set in the env
-			string defaultRole = _configuration.GetValue<string>(defaultRoleKey) ?? defaultRoleKey;
-
-			if (string.IsNullOrEmpty(defaultRole))
-				throw new IllegalEventException("Reading Default Role", "Role");
-
-			//  Check if default is created otherwise create 
-			if (await _roleManager.FindByNameAsync(defaultRole) == null)
-				if (!(await _roleManager.CreateAsync(new IdentityRole { Name = defaultRole })).Succeeded)
-					throw new RecordCreationException(defaultRole, "Role");
+			//  Check if default role is created otherwise create 
+			if (await _roleManager.FindByNameAsync(_roleSettings.DefaultRole) == null)
+				if (!(await _roleManager.CreateAsync(new IdentityRole { Name = _roleSettings.DefaultRole })).Succeeded)
+					throw new RecordCreationException(_roleSettings.DefaultRole, "Role");
 
 			// Check if user exists by user name, throw RecordExistsException 
 			if (await _userManager.FindByNameAsync(command.UserName) != null)
@@ -123,16 +104,14 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 			if (!identityResult.Succeeded)
 			{
 				string errors = string.Join(" ", identityResult.Errors.Select(e => e.Description));
-
-				await _logHelper.LogEventAsync(errors, LogLevel.Error);
-				throw new RecordCreationException(errors);
+				throw new InvalidDataException(errors);
 			}
 
 			// User vs Default Role
-			var resultUserRole = await _userManager.AddToRoleAsync(newUser, defaultRole);
+			var resultUserRole = await _userManager.AddToRoleAsync(newUser, _roleSettings.DefaultRole);
 
 			if (!resultUserRole.Succeeded)
-				throw new RecordCreationException(defaultRole, "UserRole");
+				throw new RecordCreationException(_roleSettings.DefaultRole, "UserRole");
 
 
 			// Create user details
@@ -148,8 +127,7 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 				IsDeleted = false
 			};
 
-			userDetails.SetAuditFields(newUser.Id, _machineDateTime.Now);
-
+			userDetails.SetEntityAuditFields(newUser.Id, _machineDateTime.Now);
 
 			int createUserResult = await _userRepository.CreateUserAsync(userDetails);
 
@@ -160,25 +138,24 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 			// Get User Roles 
 			var userRoles = await _userManager.GetRolesAsync(newUser);
 
-			var userRoleClaims = await _getRoleClaimsQueryHandler.GetItemsAsync(userRoles);
-
+			var userRoleClaims = await _getRoleClaimsQueryHandler.GetItemsAsync(new GetRoleClaimsForRolesQuery { Roles = userRoles });
 
 			// Generate access Token
-			(string token, int expiresIn) = await _jwtFactory.GenerateEncodedTokenAsync(newUser.Id, newUser.UserName + "", userRoles, userRoleClaims);
+			(string token, int expiresIn) = _jwtTokenHandler.CreateToken(newUser.Id, newUser.UserName + "", new HashSet<string>(userRoles), userRoleClaims.RoleClaims);
 
 
 			//Generate and save Refresh Token details
-			var refreshToken = _tokenFactory.GenerateRefreshToken();
+			var refreshToken = _tokenFactory.GenerateToken();
 
 			var userRefreshToken = new RefreshToken
 			{
+				Id = Guid.NewGuid(),
 				UserId = newUser.Id,
 				Expires = _machineDateTime.Now.AddSeconds(expiresIn),
 				Token = refreshToken
 			};
 
-			userRefreshToken.SetAuditFields(newUser.Id, _machineDateTime.Now);
-
+			userRefreshToken.SetEntityAuditFields(newUser.Id, _machineDateTime.Now);
 
 			int createTokenResult = await _refreshTokenRepository.CreateRefreshTokenAsync(userRefreshToken);
 
@@ -209,6 +186,5 @@ namespace UserIdentity.Application.Core.Users.Commands.RegisterUser
 			};
 
 		}
-
 	}
 }

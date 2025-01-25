@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using UserIdentity.Application.Core.Users.Commands.ConfirmUpdatePasswordToken;
 using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Persistence.Repositories.Users;
+using UserIdentity.UnitTests.TestUtils;
 
 using Xunit;
 
@@ -35,7 +36,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 			var handler = new ConfirmUpdatePasswordTokenCommandHandler(_userRepository);
 
 			// Act
-			var vm = await handler.UpdateItemAsync(command);
+			var vm = await handler.UpdateItemAsync(command, TestStringHelper.UserId);
 
 			// Assert
 			Assert.IsType<ConfirmUpdatePasswordTokenViewModel>(vm);
@@ -61,7 +62,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 			var handler = new ConfirmUpdatePasswordTokenCommandHandler(_userRepository);
 
 			// Act
-			var vm = await handler.UpdateItemAsync(command);
+			var vm = await handler.UpdateItemAsync(command, TestStringHelper.UserId);
 
 			// Assert
 			Assert.IsType<ConfirmUpdatePasswordTokenViewModel>(vm);
@@ -86,7 +87,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 			var handler = new ConfirmUpdatePasswordTokenCommandHandler(_userRepository);
 
 			// Act
-			var vm = await handler.UpdateItemAsync(command);
+			var vm = await handler.UpdateItemAsync(command, TestStringHelper.UserId);
 
 			// Assert
 			Assert.IsType<ConfirmUpdatePasswordTokenViewModel>(vm);
@@ -111,7 +112,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 			var handler = new ConfirmUpdatePasswordTokenCommandHandler(_userRepository);
 
 			// Act
-			var vm = await handler.UpdateItemAsync(command);
+			var vm = await handler.UpdateItemAsync(command, TestStringHelper.UserId);
 
 			// Assert
 			Assert.IsType<ConfirmUpdatePasswordTokenViewModel>(vm);

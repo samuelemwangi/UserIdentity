@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 
 using UserIdentity.Application.Core.Users.Commands.UpdatePassword;
 using UserIdentity.Application.Core.Users.ViewModels;
+using UserIdentity.UnitTests.TestUtils;
 
 using Xunit;
 
@@ -40,7 +41,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 			var handler = new UpdatePasswordCommandHandler(_userManager);
 
 			// Act 
-			var vm = await handler.UpdateItemAsync(command);
+			var vm = await handler.UpdateItemAsync(command, TestStringHelper.UserId);
 
 			// Assert
 			Assert.IsType<UpdatePasswordViewModel>(vm);
@@ -71,7 +72,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 			var handler = new UpdatePasswordCommandHandler(_userManager);
 
 			// Act 
-			var vm = await handler.UpdateItemAsync(command);
+			var vm = await handler.UpdateItemAsync(command, TestStringHelper.UserId);
 
 			// Assert
 			Assert.IsType<UpdatePasswordViewModel>(vm);
@@ -104,7 +105,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 			var handler = new UpdatePasswordCommandHandler(_userManager);
 
 			// Act 
-			var vm = await handler.UpdateItemAsync(command);
+			var vm = await handler.UpdateItemAsync(command, TestStringHelper.UserId);
 
 			// Assert
 			Assert.IsType<UpdatePasswordViewModel>(vm);

@@ -7,24 +7,22 @@
 		<UserSecretsId>a57d50c3-7787-4619-8e3a-200167dd4978</UserSecretsId>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 		<AssemblyName>UserIdentity</AssemblyName>
+		<InvariantGlobalization>true</InvariantGlobalization>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
 		<WarningLevel>4</WarningLevel>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="EFCore.NamingConventions" Version="8.0.3" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.2" />
-		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.2" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.2">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.6" />
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.1" />
-		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.4.0" />
-		<PackageReference Include="System.Linq.Async" Version="6.0.1" />
+	  <Compile Remove="Logs\**" />
+	  <Content Remove="Logs\**" />
+	  <EmbeddedResource Remove="Logs\**" />
+	  <None Remove="Logs\**" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="PolyzenKit" Version="1.1.4" />
+		<PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+		<PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.0" />
 	</ItemGroup>
 	<ItemGroup>
 		<Folder Include="Application\Core\Users\Commands\ResetPassword\" />

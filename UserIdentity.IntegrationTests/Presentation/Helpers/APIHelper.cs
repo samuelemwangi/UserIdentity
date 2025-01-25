@@ -50,11 +50,24 @@ namespace UserIdentity.IntegrationTests.Presentation.Helpers
 
 		public static HttpRequestMessage CreateHttpRequestMessage(HttpMethod httpMethod, string uri)
 		{
-			return new HttpRequestMessage(new HttpMethod(httpMethod.Method), uri);
+			var httpReuest = new HttpRequestMessage(new HttpMethod(httpMethod.Method), uri);
+			httpReuest.AddXApiKey();
+
+			return httpReuest;
 		}
 		public static void AddAuthHeader(this HttpRequestMessage httpRequest, string authToken)
 		{
 			httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+		}
+
+		public static void AddXApiKey(this HttpRequestMessage httpRequest, string xApiKey)
+		{
+			httpRequest.Headers.Add("X-Api-Key", xApiKey);
+		}
+
+		public static void AddXApiKey(this HttpRequestMessage httpRequest)
+		{
+			httpRequest.AddXApiKey(TestConstants.ApiKey);
 		}
 
 		public static async Task<HttpRequestMessage> CreateAuthorizedHttpRequestMessageAsync(this HttpClient httpClient, HttpMethod httpMethod, string uri)

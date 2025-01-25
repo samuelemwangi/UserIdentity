@@ -4,12 +4,13 @@ using FakeItEasy;
 
 using Microsoft.AspNetCore.Identity;
 
+using PolyzenKit.Application.Interfaces;
+using PolyzenKit.Common.Exceptions;
+using PolyzenKit.Infrastructure.Utilities;
+
 using UserIdentity.Application.Core.Users.Queries.GetUser;
 using UserIdentity.Application.Core.Users.ViewModels;
-using UserIdentity.Application.Exceptions;
-using UserIdentity.Application.Interfaces.Utilities;
 using UserIdentity.Domain.Identity;
-using UserIdentity.Infrastructure.Utilities;
 using UserIdentity.Persistence.Repositories.Users;
 
 using Xunit;

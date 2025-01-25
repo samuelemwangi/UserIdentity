@@ -12,15 +12,15 @@ if ($args -contains "-useLocal") {
     }
         
     # wait for the database to be ready
-    Start-Sleep -s 30    
+    Start-Sleep -s 20    
 
     dotnet run --urls=http://localhost:5000 --project .\UserIdentity\UserIdentity.csproj
 }
 elseif ($args -contains "-build") {
 
-    docker compose -f docker-compose.build.yml up --build -d 
+    docker compose -f docker-compose.yml up --build -d 
 }
 else {
     
-    docker compose up -d
+    docker compose -f docker-compose.yml up -d 
 }

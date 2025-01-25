@@ -6,7 +6,9 @@ using FakeItEasy;
 
 using Microsoft.AspNetCore.Mvc;
 
-using UserIdentity.Application.Core.Interfaces;
+using PolyzenKit.Application.Core.Interfaces;
+using PolyzenKit.Application.Enums;
+
 using UserIdentity.Application.Core.Tokens.Commands.ExchangeRefreshToken;
 using UserIdentity.Application.Core.Tokens.ViewModels;
 using UserIdentity.Application.Core.Users.Commands.ConfirmUpdatePasswordToken;
@@ -16,8 +18,8 @@ using UserIdentity.Application.Core.Users.Commands.ResetPassword;
 using UserIdentity.Application.Core.Users.Commands.UpdatePassword;
 using UserIdentity.Application.Core.Users.Queries.GetUser;
 using UserIdentity.Application.Core.Users.ViewModels;
-using UserIdentity.Application.Enums;
 using UserIdentity.Presentation.Controllers.Users;
+using UserIdentity.UnitTests.TestUtils;
 
 using Xunit;
 
@@ -80,8 +82,8 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			Assert.False(vm?.EditEnabled);
 			Assert.False(vm?.DeleteEnabled);
 
-			Assert.Contains(RequestStatus.SUCCESSFUL.GetDisplayName(), vm?.RequestStatus);
-			Assert.Contains(ItemStatusMessage.FETCH_ITEM_SUCCESSFUL.GetDisplayName(), vm?.StatusMessage);
+			Assert.Contains(RequestStatus.SUCCESSFUL.Description(), vm?.RequestStatus);
+			Assert.Contains(ItemStatusMessage.FETCH_ITEM_SUCCESSFUL.Description(), vm?.StatusMessage);
 		}
 
 		[Fact]
@@ -102,10 +104,10 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var authVM = new AuthUserViewModel { UserDetails = new UserDTO { Id = userId, FullName = userFName + userLName, UserName = userName, Email = userEmail }, UserToken = new AccessTokenViewModel { RefreshToken = refreshToken } };
 
 			// Act
-			A.CallTo(() => _registerUserCommandHandler.CreateItemAsync(command)).Returns(authVM);
+			A.CallTo(() => _registerUserCommandHandler.CreateItemAsync(command, TestStringHelper.UserId)).Returns(authVM);
 
 			var controller = GetUserController();
-			controller.UpdateContext(null);
+			controller.UpdateContext(Controllername, addUserId: true, userId: TestStringHelper.UserId);
 			var actionResult = await controller.CreateUser(command);
 			var result = actionResult?.Result as ObjectResult;
 			var vm = result?.Value as AuthUserViewModel;
@@ -125,8 +127,8 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			Assert.False(vm?.EditEnabled);
 			Assert.False(vm?.DeleteEnabled);
 
-			Assert.Contains(RequestStatus.SUCCESSFUL.GetDisplayName(), vm?.RequestStatus);
-			Assert.Contains(ItemStatusMessage.CREATE_ITEM_SUCCESSFUL.GetDisplayName(), vm?.StatusMessage);
+			Assert.Contains(RequestStatus.SUCCESSFUL.Description(), vm?.RequestStatus);
+			Assert.Contains(ItemStatusMessage.CREATE_ITEM_SUCCESSFUL.Description(), vm?.StatusMessage);
 		}
 
 		[Fact]
@@ -148,10 +150,10 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var authVM = new AuthUserViewModel { UserDetails = new UserDTO { Id = userId, FullName = userFName + userLName, UserName = userName, Email = userEmail }, UserToken = new AccessTokenViewModel { RefreshToken = refreshToken } };
 
 			// Act
-			A.CallTo(() => _loginUserCommandHandler.CreateItemAsync(command)).Returns(authVM);
+			A.CallTo(() => _loginUserCommandHandler.CreateItemAsync(command, TestStringHelper.UserId)).Returns(authVM);
 
 			var controller = GetUserController();
-			controller.UpdateContext(Controllername);
+			controller.UpdateContext(Controllername, addUserId: true, userId: TestStringHelper.UserId);
 			var actionResult = await controller.LoginUser(command);
 			var result = actionResult?.Result as ObjectResult;
 			var vm = result?.Value as AuthUserViewModel;
@@ -169,7 +171,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			Assert.False(vm?.EditEnabled);
 			Assert.False(vm?.DeleteEnabled);
 
-			Assert.Contains(RequestStatus.SUCCESSFUL.GetDisplayName(), vm?.RequestStatus);
+			Assert.Contains(RequestStatus.SUCCESSFUL.Description(), vm?.RequestStatus);
 			Assert.Contains(loginMessage, vm?.StatusMessage);
 		}
 
@@ -190,10 +192,10 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var command = new ExchangeRefreshTokenCommand { AccessToken = accessToken, RefreshToken = refreshToken };
 
 			// Act
-			A.CallTo(() => _exchangeRefreshTokenCommandHandler.UpdateItemAsync(command)).Returns(exchangeRefreshTokenVM);
+			A.CallTo(() => _exchangeRefreshTokenCommandHandler.UpdateItemAsync(command, TestStringHelper.UserId)).Returns(exchangeRefreshTokenVM);
 
 			var controller = GetUserController();
-			controller.UpdateContext(null);
+			controller.UpdateContext(Controllername, addUserId: true, userId: TestStringHelper.UserId);
 			var actionResult = await controller.RefreshToken(command);
 			var result = actionResult?.Result as ObjectResult;
 			var vm = result?.Value as ExchangeRefreshTokenViewModel;
@@ -208,7 +210,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			Assert.False(vm?.EditEnabled);
 			Assert.False(vm?.DeleteEnabled);
 
-			Assert.Contains(RequestStatus.SUCCESSFUL.GetDisplayName(), vm?.RequestStatus);
+			Assert.Contains(RequestStatus.SUCCESSFUL.Description(), vm?.RequestStatus);
 			Assert.Contains(sucessStatusMessage, vm?.StatusMessage);
 		}
 
@@ -225,10 +227,10 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var resetPasswordVM = new ResetPasswordViewModel { ResetPasswordDetails = new ResetPasswordDTO { EmailMessage = emailMessage } };
 
 			// Act
-			A.CallTo(() => _resetPasswordCommandHandler.CreateItemAsync(command)).Returns(resetPasswordVM);
+			A.CallTo(() => _resetPasswordCommandHandler.CreateItemAsync(command, TestStringHelper.UserId)).Returns(resetPasswordVM);
 
 			var controller = GetUserController();
-			controller.UpdateContext(Controllername, true, true);
+			controller.UpdateContext(Controllername, addUserId: true, userId: TestStringHelper.UserId);
 			var actionResult = await controller.ResetPassword(command);
 			var result = actionResult?.Result as ObjectResult;
 			var vm = result?.Value as ResetPasswordViewModel;
@@ -239,7 +241,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			Assert.NotNull(vm);
 			Assert.Equal(emailMessage, vm?.ResetPasswordDetails?.EmailMessage);
 
-			Assert.Contains(RequestStatus.SUCCESSFUL.GetDisplayName(), vm?.RequestStatus);
+			Assert.Contains(RequestStatus.SUCCESSFUL.Description(), vm?.RequestStatus);
 			Assert.Contains(resetMessage, vm?.StatusMessage);
 		}
 
@@ -254,10 +256,10 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var confirmUpdatePasswordTokenVM = new ConfirmUpdatePasswordTokenViewModel { TokenPasswordResult = new ConfirmUpdatePasswordDTO { UpdatePasswordTokenConfirmed = true } };
 
 			// Act
-			A.CallTo(() => _confirmUpdatePasswordTokenCommandHandler.UpdateItemAsync(command)).Returns(confirmUpdatePasswordTokenVM);
+			A.CallTo(() => _confirmUpdatePasswordTokenCommandHandler.UpdateItemAsync(command, TestStringHelper.UserId)).Returns(confirmUpdatePasswordTokenVM);
 
 			var controller = GetUserController();
-			controller.UpdateContext(Controllername, true);
+			controller.UpdateContext(Controllername, addUserId: true, userId: TestStringHelper.UserId);
 			var actionResult = await controller.ConfirmPasswordToken(command);
 			var result = actionResult?.Result as ObjectResult;
 			var vm = result?.Value as ConfirmUpdatePasswordTokenViewModel;
@@ -268,7 +270,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			Assert.NotNull(vm);
 			Assert.True(vm?.TokenPasswordResult?.UpdatePasswordTokenConfirmed);
 
-			Assert.Contains(RequestStatus.SUCCESSFUL.GetDisplayName(), vm?.RequestStatus);
+			Assert.Contains(RequestStatus.SUCCESSFUL.Description(), vm?.RequestStatus);
 			Assert.Contains("Token confirmation successful", vm?.StatusMessage);
 		}
 
@@ -285,10 +287,10 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var updatePasswordViewModel = new UpdatePasswordViewModel { UpdatePasswordResult = new UpdatePasswordDTO { PassWordUpdated = true } };
 
 			// Act
-			A.CallTo(() => _updatePasswordCommandHandler.UpdateItemAsync(command)).Returns(updatePasswordViewModel);
+			A.CallTo(() => _updatePasswordCommandHandler.UpdateItemAsync(command, TestStringHelper.UserId)).Returns(updatePasswordViewModel);
 
 			var controller = GetUserController();
-			controller.UpdateContext(Controllername, true, true, true);
+			controller.UpdateContext(Controllername, addUserId: true, userId: TestStringHelper.UserId);
 			var actionResult = await controller.UpdatePassword(command);
 			var result = actionResult?.Result as ObjectResult;
 			var vm = result?.Value as UpdatePasswordViewModel;
@@ -299,7 +301,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			Assert.NotNull(vm);
 			Assert.True(vm?.UpdatePasswordResult?.PassWordUpdated);
 
-			Assert.Contains(RequestStatus.SUCCESSFUL.GetDisplayName(), vm?.RequestStatus);
+			Assert.Contains(RequestStatus.SUCCESSFUL.Description(), vm?.RequestStatus);
 			Assert.Contains("Password updated successfully", vm?.StatusMessage);
 		}
 

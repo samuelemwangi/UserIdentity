@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-
-using Microsoft.IdentityModel.Tokens;
 
 using Newtonsoft.Json.Linq;
 
@@ -16,15 +13,13 @@ using Xunit.Abstractions;
 namespace UserIdentity.IntegrationTests.Presentation.Controllers.Security
 {
 
-	public class JWKSControllerTests : BaseControllerTests
+	public class JWKSControllerTests(
+		TestingWebAppFactory testingWebAppFactory,
+		ITestOutputHelper outputHelper
+		) : BaseControllerTests(testingWebAppFactory, outputHelper)
 	{
 
 		private readonly static string _baseUri = "/api/v1/JWKS/keys";
-
-		public JWKSControllerTests(TestingWebAppFactory testingWebAppFactory, ITestOutputHelper outputHelper)
-				: base(testingWebAppFactory, outputHelper)
-		{
-		}
 
 		[Fact]
 		public async Task Get_KeySets_Returns_KeySets()
@@ -51,12 +46,13 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Security
 			Assert.NotNull(keysetList);
 			Assert.Equal(1, keysetList?.Count);
 
-			Assert.Equal(4, keysetList?[0].Count);
+			Assert.Equal(5, keysetList?[0].Count);
 
-			Assert.Equal("HS256", keysetList?[0]["alg"]);
-			Assert.Equal("oct", keysetList?[0]["kty"]);
-			Assert.Equal(Base64UrlEncoder.Encode(_props["APP_KEY_ID"]), keysetList?[0]["kid"]);
-			Assert.Equal(Base64UrlEncoder.Encode(_props["APP_SECRET_KEY"]), keysetList?[0]["k"]);
+			Assert.Equal("EdDSA", keysetList?[0]["alg"]);
+			Assert.Equal("OKP", keysetList?[0]["kty"]);
+			Assert.Equal("Ed25519", keysetList?[0]["crv"]);
+			Assert.NotNull(keysetList?[0]["x"]);
+			Assert.NotNull(keysetList?[0]["kid"]);
 		}
 
 	}

@@ -4,7 +4,7 @@ namespace UserIdentity.Persistence.Repositories.Users
 {
 	public interface IUserRepository
 	{
-		Task<User?> GetUserAsync(string? id);
+		Task<User?> GetUserAsync(string id);
 
 		Task<int> CreateUserAsync(User user);
 

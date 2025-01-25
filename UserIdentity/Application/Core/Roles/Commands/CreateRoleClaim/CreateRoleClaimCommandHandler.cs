@@ -2,47 +2,42 @@
 
 using Microsoft.AspNetCore.Identity;
 
-using UserIdentity.Application.Core.Interfaces;
+using PolyzenKit.Application.Core;
+using PolyzenKit.Application.Core.Interfaces;
+using PolyzenKit.Common.Exceptions;
+using PolyzenKit.Infrastructure.Security.Jwt;
+
 using UserIdentity.Application.Core.Roles.ViewModels;
-using UserIdentity.Application.Exceptions;
-using UserIdentity.Application.Interfaces.Security;
 
 namespace UserIdentity.Application.Core.Roles.Commands.CreateRoleClaim
 {
 	public record CreateRoleClaimCommand : BaseCommand
 	{
 		[Required]
-		public string RoleId { get; init; }
+		public string RoleId { get; init; } = null!;
 
 		[Required]
-		public string Resource { get; init; }
+		public string Resource { get; init; } = null!;
 
 		[Required]
-		public string Action { get; set; }
+		public string Action { get; set; } = null!;
 	}
 
-	public class CreateRoleClaimCommandHandler : ICreateItemCommandHandler<CreateRoleClaimCommand, RoleClaimViewModel>
+	public class CreateRoleClaimCommandHandler(
+		RoleManager<IdentityRole> roleManager,
+		IJwtTokenHandler jwtTokenHandler
+		) : ICreateItemCommandHandler<CreateRoleClaimCommand, RoleClaimViewModel>
 	{
-		private readonly RoleManager<IdentityRole> _roleManager;
-		private readonly IJwtFactory _jwtFactory;
+		private readonly RoleManager<IdentityRole> _roleManager = roleManager;
+		private readonly IJwtTokenHandler _jwtTokenHandler = jwtTokenHandler;
 
-		public CreateRoleClaimCommandHandler(RoleManager<IdentityRole> roleManager, IJwtFactory jwtFactory)
-		{
-			_roleManager = roleManager;
-			_jwtFactory = jwtFactory;
-		}
-
-
-		public async Task<RoleClaimViewModel> CreateItemAsync(CreateRoleClaimCommand command)
+		public async Task<RoleClaimViewModel> CreateItemAsync(CreateRoleClaimCommand command, string userId)
 		{
 			// Confirm role exists
-			var role = await _roleManager.FindByIdAsync(command.RoleId);
-
-			if (role == null)
-				throw new NoRecordException(command.RoleId, "Role");
+			var role = await _roleManager.FindByIdAsync(command.RoleId) ?? throw new NoRecordException(command.RoleId, "Role");
 
 			// Confirm claim does not exist 
-			var scopeClaim = _jwtFactory.GenerateScopeClaim(command.Resource, command.Action);
+			var scopeClaim = _jwtTokenHandler.GenerateScopeClaim(command.Resource, command.Action);
 
 			var roleClaims = await _roleManager.GetClaimsAsync(role);
 
@@ -65,7 +60,6 @@ namespace UserIdentity.Application.Core.Roles.Commands.CreateRoleClaim
 				}
 
 			};
-
 		}
 
 	}

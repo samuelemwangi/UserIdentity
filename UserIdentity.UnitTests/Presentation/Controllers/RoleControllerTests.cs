@@ -8,8 +8,10 @@ using FakeItEasy;
 
 using Microsoft.AspNetCore.Mvc;
 
-using UserIdentity.Application.Core;
-using UserIdentity.Application.Core.Interfaces;
+using PolyzenKit.Application.Core;
+using PolyzenKit.Application.Core.Interfaces;
+using PolyzenKit.Application.Enums;
+
 using UserIdentity.Application.Core.Roles.Commands.CreateRole;
 using UserIdentity.Application.Core.Roles.Commands.CreateRoleClaim;
 using UserIdentity.Application.Core.Roles.Commands.DeleteRole;
@@ -19,8 +21,8 @@ using UserIdentity.Application.Core.Roles.Queries.GetRole;
 using UserIdentity.Application.Core.Roles.Queries.GetRoleClaims;
 using UserIdentity.Application.Core.Roles.Queries.GetRoles;
 using UserIdentity.Application.Core.Roles.ViewModels;
-using UserIdentity.Application.Enums;
 using UserIdentity.Presentation.Controllers.Roles;
+using UserIdentity.UnitTests.TestUtils;
 
 using Xunit;
 
@@ -64,8 +66,8 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 
 			var rolesVM = new RolesViewModel
 			{
-				Roles = new List<RoleDTO>
-								{
+				Roles =
+								[
 										new RoleDTO
 										{
 												Id = Guid.NewGuid().ToString(),
@@ -76,7 +78,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 												Id = Guid.NewGuid().ToString(),
 												Name = "User"
 										}
-								}
+								]
 
 			};
 
@@ -108,8 +110,8 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			Assert.False(vm?.DownloadEnabled);
 			Assert.False(vm?.CreateEnabled);
 
-			Assert.Contains(RequestStatus.SUCCESSFUL.GetDisplayName(), vm?.RequestStatus);
-			Assert.Contains(ItemStatusMessage.FETCH_ITEMS_SUCCESSFUL.GetDisplayName(), vm?.StatusMessage);
+			Assert.Contains(RequestStatus.SUCCESSFUL.Description(), vm?.RequestStatus);
+			Assert.Contains(ItemStatusMessage.FETCH_ITEMS_SUCCESSFUL.Description(), vm?.StatusMessage);
 		}
 
 		[Fact]
@@ -148,8 +150,8 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			Assert.False(vm?.EditEnabled);
 			Assert.False(vm?.DeleteEnabled);
 
-			Assert.Contains(RequestStatus.SUCCESSFUL.GetDisplayName(), vm?.RequestStatus);
-			Assert.Contains(ItemStatusMessage.FETCH_ITEM_SUCCESSFUL.GetDisplayName(), vm?.StatusMessage);
+			Assert.Contains(RequestStatus.SUCCESSFUL.Description(), vm?.RequestStatus);
+			Assert.Contains(ItemStatusMessage.FETCH_ITEM_SUCCESSFUL.Description(), vm?.StatusMessage);
 		}
 
 		[Fact]
@@ -172,10 +174,10 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			};
 
 			// Act
-			A.CallTo(() => _createRoleCommandHandler.CreateItemAsync(command)).Returns(roleVM);
+			A.CallTo(() => _createRoleCommandHandler.CreateItemAsync(command, TestStringHelper.UserId)).Returns(roleVM);
 
 			var controller = GetRoleController();
-			controller.UpdateContext(Controllername);
+			controller.UpdateContext(Controllername, addUserId: true, userId: TestStringHelper.UserId);
 
 			var actionResult = await controller.CreateRoleAsync(command);
 			var result = actionResult?.Result as ObjectResult;
@@ -191,8 +193,8 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			Assert.False(vm?.EditEnabled);
 			Assert.False(vm?.DeleteEnabled);
 
-			Assert.Contains(RequestStatus.SUCCESSFUL.GetDisplayName(), vm?.RequestStatus);
-			Assert.Contains(ItemStatusMessage.CREATE_ITEM_SUCCESSFUL.GetDisplayName(), vm?.StatusMessage);
+			Assert.Contains(RequestStatus.SUCCESSFUL.Description(), vm?.RequestStatus);
+			Assert.Contains(ItemStatusMessage.CREATE_ITEM_SUCCESSFUL.Description(), vm?.StatusMessage);
 		}
 
 		[Fact]
@@ -204,6 +206,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 
 			var command = new UpdateRoleCommand
 			{
+				RoleId = roleId,
 				RoleName = "Admin"
 			};
 
@@ -217,10 +220,10 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			};
 
 			// Act
-			A.CallTo(() => _updateRoleCommandHandler.UpdateItemAsync(command)).Returns(roleVM);
+			A.CallTo(() => _updateRoleCommandHandler.UpdateItemAsync(command, TestStringHelper.UserId)).Returns(roleVM);
 
 			var controller = GetRoleController();
-			controller.UpdateContext(null);
+			controller.UpdateContext(Controllername, addUserId: true, userId: TestStringHelper.UserId);
 
 			var actionResult = await controller.UpdateRoleAsync(roleId, command);
 			var result = actionResult?.Result as ObjectResult;
@@ -236,8 +239,8 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			Assert.False(vm?.EditEnabled);
 			Assert.False(vm?.DeleteEnabled);
 
-			Assert.Contains(RequestStatus.SUCCESSFUL.GetDisplayName(), vm?.RequestStatus);
-			Assert.Contains(ItemStatusMessage.UPDATE_ITEM_SUCCESSFUL.GetDisplayName(), vm?.StatusMessage);
+			Assert.Contains(RequestStatus.SUCCESSFUL.Description(), vm?.RequestStatus);
+			Assert.Contains(ItemStatusMessage.UPDATE_ITEM_SUCCESSFUL.Description(), vm?.StatusMessage);
 		}
 
 		[Fact]
@@ -251,7 +254,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var deleteRoleVM = new DeleteRecordViewModel { };
 
 			// Act
-			A.CallTo(() => _deleteRoleCommandHandler.DeleteItemAsync(command)).Returns(deleteRoleVM);
+			A.CallTo(() => _deleteRoleCommandHandler.DeleteItemAsync(command, TestStringHelper.UserId)).Returns(deleteRoleVM);
 
 			var controller = GetRoleController();
 			controller.UpdateContext(Controllername);
@@ -265,7 +268,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 
 			Assert.NotNull(vm);
 
-			Assert.Contains(RequestStatus.SUCCESSFUL.GetDisplayName(), vm?.RequestStatus);
+			Assert.Contains(RequestStatus.SUCCESSFUL.Description(), vm?.RequestStatus);
 			Assert.Contains(deleteSuccesMessage, vm?.StatusMessage);
 		}
 
@@ -315,8 +318,8 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 
 			Assert.True(allRolesExist);
 
-			Assert.Contains(RequestStatus.SUCCESSFUL.GetDisplayName(), vm?.RequestStatus);
-			Assert.Contains(ItemStatusMessage.FETCH_ITEMS_SUCCESSFUL.GetDisplayName(), vm?.StatusMessage);
+			Assert.Contains(RequestStatus.SUCCESSFUL.Description(), vm?.RequestStatus);
+			Assert.Contains(ItemStatusMessage.FETCH_ITEMS_SUCCESSFUL.Description(), vm?.StatusMessage);
 		}
 
 		[Fact]
@@ -338,10 +341,10 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			};
 
 			// Act
-			A.CallTo(() => _createUserRoleCommandHandler.CreateItemAsync(command)).Returns(userRolesVM);
+			A.CallTo(() => _createUserRoleCommandHandler.CreateItemAsync(command, TestStringHelper.UserId)).Returns(userRolesVM);
 
 			var controller = GetRoleController();
-			controller.UpdateContext(null);
+			controller.UpdateContext(Controllername, addUserId: true, userId: TestStringHelper.UserId);
 
 			var actionResult = await controller.CreateUserRoleAsync(command);
 			var result = actionResult?.Result as ObjectResult;
@@ -371,8 +374,8 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 
 			Assert.True(allRolesExist);
 
-			Assert.Contains(RequestStatus.SUCCESSFUL.GetDisplayName(), vm?.RequestStatus);
-			Assert.Contains(ItemStatusMessage.CREATE_ITEM_SUCCESSFUL.GetDisplayName(), vm?.StatusMessage);
+			Assert.Contains(RequestStatus.SUCCESSFUL.Description(), vm?.RequestStatus);
+			Assert.Contains(ItemStatusMessage.CREATE_ITEM_SUCCESSFUL.Description(), vm?.StatusMessage);
 		}
 
 		[Fact]
@@ -401,10 +404,10 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			};
 
 			// Act
-			A.CallTo(() => _createRoleClaimCommandHandler.CreateItemAsync(command)).Returns(roleClaimVM);
+			A.CallTo(() => _createRoleClaimCommandHandler.CreateItemAsync(command, TestStringHelper.UserId)).Returns(roleClaimVM);
 
 			var controller = GetRoleController();
-			controller.UpdateContext(Controllername, true, true);
+			controller.UpdateContext(Controllername, addUserId: true, userId: TestStringHelper.UserId);
 
 			var actionResult = await controller.CreateRoleClaimAsync(command);
 			var result = actionResult?.Result as ObjectResult;
@@ -430,22 +433,22 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 
 			var roleClaimsVM = new RoleClaimsViewModel
 			{
-				RoleClaims = new List<RoleClaimDTO>
-				{
+				RoleClaims =
+				[
 					new RoleClaimDTO
 					{
 						Resource = "Resource",
 						Action = "Action",
 						Scope = "Resource:Action"
 					}
-				}
+				]
 			};
 
 			// Act
 			A.CallTo(() => _getRoleClaimsQueryHandler.GetItemsAsync(query)).Returns(roleClaimsVM);
 
 			var controller = GetRoleController();
-			controller.UpdateContext(Controllername, true);
+			controller.UpdateContext(Controllername, addUserId: true, userId: TestStringHelper.UserId);
 
 			var actionResult = await controller.GetRoleClaimsAsync(roleId);
 			var result = actionResult?.Result as ObjectResult;
@@ -475,8 +478,8 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 
 			Assert.True(allClaimsExist);
 
-			Assert.Contains(RequestStatus.SUCCESSFUL.GetDisplayName(), vm?.RequestStatus);
-			Assert.Contains(ItemStatusMessage.FETCH_ITEMS_SUCCESSFUL.GetDisplayName(), vm?.StatusMessage);
+			Assert.Contains(RequestStatus.SUCCESSFUL.Description(), vm?.RequestStatus);
+			Assert.Contains(ItemStatusMessage.FETCH_ITEMS_SUCCESSFUL.Description(), vm?.StatusMessage);
 		}
 
 		[Fact]
@@ -498,12 +501,12 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			var deleteRoleClaimVM = new DeleteRecordViewModel { };
 
 			// Act
-			A.CallTo(() => _deleteRoleClaimCommandHandler.DeleteItemAsync(command)).Returns(deleteRoleClaimVM);
+			A.CallTo(() => _deleteRoleClaimCommandHandler.DeleteItemAsync(command, TestStringHelper.UserId)).Returns(deleteRoleClaimVM);
 
 			var controller = GetRoleController();
-			controller.UpdateContext(Controllername, true, true, true);
+			controller.UpdateContext(Controllername, addUserId: true, userId: TestStringHelper.UserId);
 
-			var actionResult = await controller.DelteRoleClaimAsync(command);
+			var actionResult = await controller.DeleteRoleClaimAsync(command);
 			var result = actionResult?.Result as ObjectResult;
 
 			var vm = result?.Value as DeleteRecordViewModel;
@@ -513,7 +516,7 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 
 			Assert.NotNull(vm);
 
-			Assert.Contains(RequestStatus.SUCCESSFUL.GetDisplayName(), vm?.RequestStatus);
+			Assert.Contains(RequestStatus.SUCCESSFUL.Description(), vm?.RequestStatus);
 			Assert.Contains(deleteMessage, vm?.StatusMessage);
 
 		}

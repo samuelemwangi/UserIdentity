@@ -8,6 +8,30 @@
 	},
 	"item": [
 		{
+			"name": "Healthcheck",
+			"item": [
+				{
+					"name": "Check Healthcheck",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/health",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"health"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "JWKS",
 			"item": [
 				{
@@ -26,7 +50,8 @@
 									"        pm.expect(item.alg).to.not.be.null;\r",
 									"        pm.expect(item.kty).to.not.be.null;\r",
 									"        pm.expect(item.kid).to.not.be.null;\r",
-									"        pm.expect(item.k).to.not.be.null;\r",
+									"        pm.expect(item.n).to.not.be.null;\r",
+									"        pm.expect(item.e).to.not.be.null;\r",
 									"    });\r",
 									"})"
 								],
@@ -37,8 +62,11 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"packages": {},
-								"type": "text/javascript"
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -64,11 +92,53 @@
 			]
 		},
 		{
+			"name": "App Enities",
+			"item": [
+				{
+					"name": "Get App Entities",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{user_access_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{user_identity_base_url}}/appentity",
+							"host": [
+								"{{user_identity_base_url}}"
+							],
+							"path": [
+								"appentity"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Register",
 			"item": [
 				{
 					"name": "Valid Registration",
 					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"first_name\",pm.variables.replaceIn(\"{{$randomFirstName}}\"));\r",
+									"pm.environment.set(\"last_name\", pm.variables.replaceIn(\"{{$randomLastName}}\"));\r",
+									"pm.environment.set(\"phone_number\", parseInt(\"+254711\" + `${_.random(100000, 999999)}`));\r",
+									"pm.environment.set(\"user_email\", pm.variables.replaceIn(\"{{$randomExampleEmail}}\"));\r",
+									"pm.environment.set(\"user_password\",\"P@ssW1rd\")"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
 						{
 							"listen": "test",
 							"script": {
@@ -109,22 +179,11 @@
 								"type": "text/javascript",
 								"packages": {}
 							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.environment.set(\"first_name\",pm.variables.replaceIn(\"{{$randomFirstName}}\"));\r",
-									"pm.environment.set(\"last_name\", pm.variables.replaceIn(\"{{$randomLastName}}\"));\r",
-									"pm.environment.set(\"phone_number\", parseInt(\"+254711\" + `${_.random(100000, 999999)}`));\r",
-									"pm.environment.set(\"user_email\", pm.variables.replaceIn(\"{{$randomExampleEmail}}\"));\r",
-									"pm.environment.set(\"user_password\",\"P@22W0rd\")"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
 						}
 					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {}
+					},
 					"request": {
 						"auth": {
 							"type": "noauth"
@@ -264,7 +323,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"userName\": \"{{phone_number}}\",\r\n    \"password\": \"{{user_password}}\"\r\n}",
+							"raw": "{\r\n    \"username\": \"{{phone_number}}\",\r\n    \"password\": \"{{user_password}}\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -475,10 +534,12 @@
 									"    pm.expect(user.fullName).to.be.eql(`${pm.environment.get(\"first_name\")} ${pm.environment.get(\"last_name\")}`);    \r",
 									"    pm.expect(user.userName).to.be.eql(`${pm.environment.get(\"phone_number\")}`);\r",
 									"    pm.expect(user.email).to.be.eql(`${pm.environment.get(\"user_email\")}`);\r",
-									"    pm.expect(user.createdBy).to.be.eql(`${pm.environment.get(\"user_id\")}`);\r",
-									"    pm.expect(user.createdAt).to.not.be.null;\r",
-									"    pm.expect(user.updatedBy).to.be.eql(`${pm.environment.get(\"user_id\")}`);\r",
-									"    pm.expect(user.updatedAt).to.not.be.null;\r",
+									"\r",
+									"    const audit = user.audit;\r",
+									"    pm.expect(audit.createdBy).to.be.eql(`${pm.environment.get(\"user_id\")}`);\r",
+									"    pm.expect(audit.createdAt).to.not.be.null;\r",
+									"    pm.expect(audit.updatedBy).to.be.eql(`${pm.environment.get(\"user_id\")}`);\r",
+									"    pm.expect(audit.updatedAt).to.not.be.null;\r",
 									"\r",
 									"    pm.expect(response.editEnabled).to.not.be.null;\r",
 									"    pm.expect(response.deleteEnabled).to.not.be.null;\r",
@@ -499,8 +560,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{user_access_token}}",
-								"uuid": "f7cfef53-808f-4dff-b9f0-7aba5ca3ac26"
+								"value": "Bearer {{user_access_token}}"
 							}
 						],
 						"url": {
@@ -548,8 +608,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{user_access_token}}",
-								"uuid": "77c09105-5d4f-4249-a6bb-2d7c1e3f25ec"
+								"value": "Bearer {{user_access_token}}"
 							}
 						],
 						"url": {
@@ -577,8 +636,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{user_access_token}}",
-								"uuid": "922a62b6-3cf6-4061-b3ef-28cf7883d0bd"
+								"value": "Bearer {{user_access_token}}"
 							}
 						],
 						"url": {
@@ -613,8 +671,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{user_access_token}}",
-								"uuid": "49416fcc-6b8c-435e-bc42-9939881596b4"
+								"value": "Bearer {{user_access_token}}"
 							}
 						],
 						"url": {
@@ -636,8 +693,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{user_access_token}}",
-								"uuid": "58cfc713-174e-48e7-88c1-02d1806ac3cb"
+								"value": "Bearer {{user_access_token}}"
 							}
 						],
 						"url": {
@@ -660,8 +716,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{user_access_token}}",
-								"uuid": "15b6626a-a767-46dc-80ec-22a89ab9436e"
+								"value": "Bearer {{user_access_token}}"
 							}
 						],
 						"body": {
@@ -692,8 +747,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{user_access_token}}",
-								"uuid": "f3b7b2fb-5500-482c-bde0-788cec106907"
+								"value": "Bearer {{user_access_token}}"
 							}
 						],
 						"url": {
@@ -716,8 +770,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{user_access_token}}",
-								"uuid": "0034e8c7-5900-45d2-ab41-602d69a7d201"
+								"value": "Bearer {{user_access_token}}"
 							}
 						],
 						"body": {
@@ -751,7 +804,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -760,13 +814,12 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{user_access_token}}",
-								"uuid": "ebe9e83b-331a-4f84-956d-7662a847afb1"
+								"value": "Bearer {{user_access_token}}"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"roleName\": \"Test\"\r\n}",
+							"raw": "{\r\n    \"roleName\": \"test\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -794,7 +847,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -803,13 +857,12 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{user_access_token}}",
-								"uuid": "598fef2c-a598-4d91-a796-993896527d55"
+								"value": "Bearer {{user_access_token}}"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"roleId\": \"{{user_role_id}}\",\r\n    \"resource\": \"itemtype\",\r\n    \"action\": \"download\"\r\n}",
+							"raw": "{\r\n    \"roleId\": \"{{user_role_id}}\",\r\n    \"resource\": \"role\",\r\n    \"action\": \"edit\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -847,8 +900,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{user_access_token}}",
-								"uuid": "44c99587-2ef1-484e-b5f6-f975984b1409"
+								"value": "Bearer {{user_access_token}}"
 							}
 						],
 						"body": {
@@ -891,8 +943,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{user_access_token}}",
-								"uuid": "797fca0f-2ca2-47ef-bf04-fc22b5b13fc1"
+								"value": "Bearer {{user_access_token}}"
 							}
 						],
 						"url": {
@@ -910,6 +961,28 @@
 					"response": []
 				}
 			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					"pm.request.headers.add({key: \"X-Api-Key\",value: \"kzqGLgkdDGP34/Kxaw4urndoEumbIDxwHSMj/8zvbsw=\"});"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
 		}
 	]
 }

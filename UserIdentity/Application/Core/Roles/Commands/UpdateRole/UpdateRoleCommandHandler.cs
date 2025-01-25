@@ -2,9 +2,11 @@
 
 using Microsoft.AspNetCore.Identity;
 
-using UserIdentity.Application.Core.Interfaces;
+using PolyzenKit.Application.Core;
+using PolyzenKit.Application.Core.Interfaces;
+using PolyzenKit.Common.Exceptions;
+
 using UserIdentity.Application.Core.Roles.ViewModels;
-using UserIdentity.Application.Exceptions;
 
 namespace UserIdentity.Application.Core.Roles.Commands.UpdateRole
 {
@@ -12,31 +14,24 @@ namespace UserIdentity.Application.Core.Roles.Commands.UpdateRole
 	public record UpdateRoleCommand : BaseCommand
 	{
 		[Required]
-		public string RoleId { get; set; }
+		public string RoleId { get; set; } = null!;
 
 		[Required]
-		public string RoleName { get; init; }
+		public string RoleName { get; init; } = null!;
 	}
-	public class UpdateRoleCommandHandler : IUpdateItemCommandHandler<UpdateRoleCommand, RoleViewModel>
+	public class UpdateRoleCommandHandler(
+		RoleManager<IdentityRole> roleManager
+		) : IUpdateItemCommandHandler<UpdateRoleCommand, RoleViewModel>
 	{
-		private readonly RoleManager<IdentityRole> _roleManager;
-		public UpdateRoleCommandHandler(RoleManager<IdentityRole> roleManager)
+		private readonly RoleManager<IdentityRole> _roleManager = roleManager;
+
+		public async Task<RoleViewModel> UpdateItemAsync(UpdateRoleCommand command, string userId)
 		{
-			_roleManager = roleManager;
-		}
-
-
-		public async Task<RoleViewModel> UpdateItemAsync(UpdateRoleCommand command)
-		{
-			var role = await _roleManager.FindByIdAsync(command.RoleId);
-
-			if (role == null)
-				throw new NoRecordException(command.RoleId, "Role");
+			var role = await _roleManager.FindByIdAsync(command.RoleId) ?? throw new NoRecordException(command.RoleId, "Role");
 
 			role.Name = command.RoleName;
 
 			var updateRoleResult = await _roleManager.UpdateAsync(role);
-
 
 			if (!updateRoleResult.Succeeded)
 				throw new RecordUpdateException(command.RoleId, "Role");
@@ -51,6 +46,5 @@ namespace UserIdentity.Application.Core.Roles.Commands.UpdateRole
 			};
 
 		}
-
 	}
 }

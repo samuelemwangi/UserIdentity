@@ -1,45 +1,37 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-using UserIdentity.Application.Core.Interfaces;
+using PolyzenKit.Application.Core;
+using PolyzenKit.Application.Core.Interfaces;
+using PolyzenKit.Common.Exceptions;
+
 using UserIdentity.Application.Core.Roles.ViewModels;
-using UserIdentity.Application.Exceptions;
 
 namespace UserIdentity.Application.Core.Roles.Queries.GetRoles
 {
 	public record GetUserRolesQuery : BaseQuery
 	{
-		public string UserId { get; init; }
+		public required string UserId { get; init; }
 	}
 
-	public class GetUserRolesQueryHandler : IGetItemsQueryHandler<GetUserRolesQuery, UserRolesViewModel>
+	public class GetUserRolesQueryHandler(
+		RoleManager<IdentityRole> roleManager,
+		UserManager<IdentityUser> userManager
+		) : IGetItemsQueryHandler<GetUserRolesQuery, UserRolesViewModel>
 	{
-		private readonly RoleManager<IdentityRole> _roleManager;
-		private readonly UserManager<IdentityUser> _userManager;
-
-		public GetUserRolesQueryHandler(RoleManager<IdentityRole> roleManager, UserManager<IdentityUser> userManager)
-		{
-			_roleManager = roleManager;
-			_userManager = userManager;
-		}
+		private readonly RoleManager<IdentityRole> _roleManager = roleManager;
+		private readonly UserManager<IdentityUser> _userManager = userManager;
 
 		public async Task<UserRolesViewModel> GetItemsAsync(GetUserRolesQuery query)
 		{
 
-			var user = await _userManager.FindByIdAsync(query.UserId);
+			var user = await _userManager.FindByIdAsync(query.UserId) ?? throw new NoRecordException(query.UserId, "User");
 
-			if (user == null)
-				throw new NoRecordException(query.UserId, "User");
-
-			var userRoles = await _userManager.GetRolesAsync(user);
-
-			if (userRoles == null)
-				userRoles = new List<string>();
+			var userRoles = await _userManager.GetRolesAsync(user) ?? [];
 
 			return new UserRolesViewModel
 			{
 				UserRoles = userRoles
 			};
-
 		}
 	}
 }

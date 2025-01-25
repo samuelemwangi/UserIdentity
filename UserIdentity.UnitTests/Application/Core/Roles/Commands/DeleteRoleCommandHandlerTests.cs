@@ -4,9 +4,11 @@ using FakeItEasy;
 
 using Microsoft.AspNetCore.Identity;
 
-using UserIdentity.Application.Core;
+using PolyzenKit.Application.Core;
+using PolyzenKit.Common.Exceptions;
+
 using UserIdentity.Application.Core.Roles.Commands.DeleteRole;
-using UserIdentity.Application.Exceptions;
+using UserIdentity.UnitTests.TestUtils;
 
 using Xunit;
 
@@ -34,7 +36,7 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Commands
 			var handler = new DeleteRoleCommandHandler(_roleManager);
 
 			// Act & Assert
-			await Assert.ThrowsAsync<NoRecordException>(() => handler.DeleteItemAsync(command));
+			await Assert.ThrowsAsync<NoRecordException>(() => handler.DeleteItemAsync(command, TestStringHelper.UserId));
 		}
 
 		[Fact]
@@ -58,7 +60,7 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Commands
 			var handler = new DeleteRoleCommandHandler(_roleManager);
 
 			// Act & Assert
-			await Assert.ThrowsAsync<RecordDeletionException>(() => handler.DeleteItemAsync(command));
+			await Assert.ThrowsAsync<RecordDeletionException>(() => handler.DeleteItemAsync(command, TestStringHelper.UserId));
 		}
 
 		[Fact]
@@ -82,7 +84,7 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Commands
 			var handler = new DeleteRoleCommandHandler(_roleManager);
 
 			// Act
-			var vm = await handler.DeleteItemAsync(command);
+			var vm = await handler.DeleteItemAsync(command, TestStringHelper.UserId);
 
 			// Assert
 			Assert.IsType<DeleteRecordViewModel>(vm);

@@ -4,9 +4,10 @@ using FakeItEasy;
 
 using Microsoft.AspNetCore.Identity;
 
+using PolyzenKit.Common.Exceptions;
+
 using UserIdentity.Application.Core.Roles.Queries.GetRole;
 using UserIdentity.Application.Core.Roles.ViewModels;
-using UserIdentity.Application.Exceptions;
 
 using Xunit;
 

@@ -1,39 +1,51 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+
+using FakeItEasy;
 
 using Microsoft.AspNetCore.Mvc;
 
-using UserIdentity.Application.Core.Interfaces;
-using UserIdentity.Application.Core.KeySets.Queries.GetKeySets;
-using UserIdentity.Application.Interfaces.Security;
-using UserIdentity.Infrastructure.Security;
+using PolyzenKit.Application.Core.Interfaces;
+using PolyzenKit.Application.Core.KeySets.Queries;
+using PolyzenKit.Application.Core.KeySets.ViewModels;
+
 using UserIdentity.Presentation.Controllers.Security;
 
 using Xunit;
 
 namespace UserIdentity.UnitTests.Presentation.Controllers
 {
-	public class JWKSControllerTests : IClassFixture<TestSettingsFixture>
+	public class JWKSControllerTests
 	{
-		private readonly TestSettingsFixture _testSettings;
-		private readonly IKeySetFactory _keySetFactory;
-		private readonly IGetItemsQueryHandler<GetKeySetsQuery, IDictionary<string, IList<Dictionary<string, string>>>> _queryHandler;
-
-		public JWKSControllerTests(TestSettingsFixture testSettings)
+		private readonly IGetItemsQueryHandler<GetKeySetsQuery, KeySetsViewModel> _getKeySetsQueryHandler;
+		public JWKSControllerTests()
 		{
-			_testSettings = testSettings;
-			_keySetFactory = new KeySetFactory(_testSettings.Configuration);
-
-			_queryHandler = new GetKeySetsQueryHandler(_keySetFactory);
-
+			_getKeySetsQueryHandler = A.Fake<IGetItemsQueryHandler<GetKeySetsQuery, KeySetsViewModel>>();
 		}
 
 		[Fact]
 		public async Task Get_KeySets_Returns_KeySets()
 		{
 			// Arrange
-			var JWKSController = new JWKSController(_queryHandler);
+			var keySetsViewModel = new KeySetsViewModel
+			{
+				KeySetList = new Dictionary<string, IList<Dictionary<string, string>>>
+				{
+					["keys"] =
+					[
+						new Dictionary<string, string>
+						{
+							["alg"] = "EdDSA",
+							["kty"] = "OKP"
+						}
+					]
+				}
+			};
+
+			var JWKSController = new JWKSController(_getKeySetsQueryHandler);
+
+			A.CallTo(() => _getKeySetsQueryHandler.GetItemsAsync(new GetKeySetsQuery { })).Returns(Task.FromResult(keySetsViewModel));
+
 			var actionResult = await JWKSController.GetKeySetsAsync();
 
 			// Act
@@ -46,8 +58,8 @@ namespace UserIdentity.UnitTests.Presentation.Controllers
 			Assert.IsType<Dictionary<string, IList<Dictionary<string, string>>>>(result?.Value);
 			Assert.NotNull(kvp?["keys"]);
 
-			Assert.Equal(kvp?["keys"]?[0]["alg"], _testSettings.Configuration.GetSection("KeySetOptions")["Alg"]);
-			Assert.Equal(kvp?["keys"]?[0]["kty"], _testSettings.Configuration.GetSection("KeySetOptions")["KeyType"]);
+			Assert.Equal(kvp?["keys"]?[0]["alg"], keySetsViewModel.KeySetList["keys"]?[0]["alg"]);
+			Assert.Equal(kvp?["keys"]?[0]["kty"], keySetsViewModel.KeySetList["keys"]?[0]["kty"]);
 		}
 	}
 }

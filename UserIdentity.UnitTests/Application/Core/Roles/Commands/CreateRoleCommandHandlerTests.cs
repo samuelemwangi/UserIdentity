@@ -4,9 +4,11 @@ using FakeItEasy;
 
 using Microsoft.AspNetCore.Identity;
 
+using PolyzenKit.Common.Exceptions;
+
 using UserIdentity.Application.Core.Roles.Commands.CreateRole;
 using UserIdentity.Application.Core.Roles.ViewModels;
-using UserIdentity.Application.Exceptions;
+using UserIdentity.UnitTests.TestUtils;
 
 using Xunit;
 
@@ -33,7 +35,7 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Commands
 			var handler = new CreateRoleCommandHandler(_roleManager);
 
 			// Act & Assert
-			await Assert.ThrowsAsync<RecordExistsException>(() => handler.CreateItemAsync(command));
+			await Assert.ThrowsAsync<RecordExistsException>(() => handler.CreateItemAsync(command, TestStringHelper.UserId));
 		}
 
 		[Fact]
@@ -49,7 +51,7 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Commands
 			var handler = new CreateRoleCommandHandler(_roleManager);
 
 			// Act & Assert
-			await Assert.ThrowsAsync<RecordCreationException>(() => handler.CreateItemAsync(command));
+			await Assert.ThrowsAsync<RecordCreationException>(() => handler.CreateItemAsync(command, TestStringHelper.UserId));
 		}
 
 		[Fact]
@@ -64,7 +66,7 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Commands
 			var handler = new CreateRoleCommandHandler(_roleManager);
 
 			// Act
-			var vm = await handler.CreateItemAsync(command);
+			var vm = await handler.CreateItemAsync(command, TestStringHelper.UserId);
 
 			// Assert
 			Assert.IsType<RoleViewModel>(vm);

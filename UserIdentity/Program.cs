@@ -1,34 +1,34 @@
 using System.Net.Mime;
+using System.Text.Json.Serialization;
 
-using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Logging;
+
+using PolyzenKit.Infrastructure.Security.KeyProviders;
+using PolyzenKit.Infrastructure.Security.KeySets;
+using PolyzenKit.Presentation;
+using PolyzenKit.Presentation.Middlewares;
+using PolyzenKit.Presentation.ValidationHelpers;
 
 using UserIdentity;
-using UserIdentity.Application.Interfaces.Security;
-using UserIdentity.Application.Interfaces.Utilities;
-using UserIdentity.Infrastructure.Security;
-using UserIdentity.Infrastructure.Utilities;
 using UserIdentity.Persistence;
 using UserIdentity.Persistence.Migrations;
-using UserIdentity.Persistence.Settings.Mysql;
-using UserIdentity.Presentation.Helpers;
-using UserIdentity.Presentation.Helpers.ValidationExceptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Serilog
+builder.AddAppSerilog();
 
-// MYSQL DB
-// Register Configuration
-var mysqlSettings = builder.Configuration.GetSection(nameof(MysqlSettings)).Get<MysqlSettings>();
-string connectionString = mysqlSettings.ConnectionString(builder.Configuration);
-builder.Services.AddDbContext<AppDbContext>(opt => opt.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)).UseSnakeCaseNamingConvention());
+// DB 
+builder.Services.AddAppMysql<AppDbContext>(builder.Configuration);
 
-// JWT Identity
-builder.Services.AddAppAuthentication(builder.Configuration);
-builder.Services.AddAppAuthorization();
-builder.Services.AddAppIdentity();
+// Identity
+builder.Services.AddAppIdentity<AppDbContext>(builder.Configuration);
 
+// Repositories
+builder.Services.AddAppRepositories();
 
+// Command and Query Handlers
+builder.Services.AddAppCommandAndQueryHandlers();
 
 // Controllers
 builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
@@ -39,57 +39,82 @@ builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
 		result.ContentTypes.Add(MediaTypeNames.Application.Json);
 		return result;
 	};
+}).AddJsonOptions(options =>
+{
+	options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
 });
 
 // Swagger
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Command and Query Handlers
-builder.Services.AddCommandAndQueryHandlers();
+// Utilities e.g for Time, String, Logging 
+builder.Services.AddAppDateTimeStringLogHelpers();
 
-// Repositories
-builder.Services.AddRepositories();
+// Authentication Identity
+builder.Services.AddAppAuthentication(
+	builder.Configuration,
+	true,
+	(config) => new FileSystemKeyProvider(),
+	(options, keyProvider) => new EdDSAKeySetFactory(options, keyProvider)
+);
 
-// Utilities e.g for Time, String 
-builder.Services.AddScoped<IMachineDateTime, MachineDateTime>();
-builder.Services.AddScoped<IStringHelper, StringHelper>();
-builder.Services.AddScoped(typeof(ILogHelper<>), typeof(LogHelper<>));
+// Authorization
+builder.Services.AddAppAuthorization(builder.Configuration);
 
-// JWT Helpers
-builder.Services.AddScoped<IJwtFactory, JwtFactory>();
-builder.Services.AddScoped<IJwtTokenHandler, JwtTokenHandler>();
-builder.Services.AddScoped<IJwtTokenValidator, JwtTokenValidator>();
-builder.Services.AddScoped<ITokenFactory, TokenFactory>();
+// Api Key Settings
+builder.Services.AddAppApiKeySettings(builder.Configuration);
 
-builder.Services.AddScoped<IKeySetFactory, KeySetFactory>();
+// Cors Policy
+var corsPolicyName = builder.Services.AddAppCorsPolicy(builder.Configuration);
 
+// Health Checks
+builder.Services.AddHealthChecks();
+
+// build the app
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Use Cors
+app.UseCors(corsPolicyName);
 
+// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
 	app.UseSwagger();
 	app.UseSwaggerUI();
+	IdentityModelEventSource.ShowPII = true;
+	IdentityModelEventSource.LogCompleteSecurityArtifact = true;
 }
 
-// Extract Request Id
+// Use Api Key Middleware
+app.UseMiddleware<ApiKeyMiddleware>();
+
+// Use Request Id Middleware
 app.UseMiddleware<RequestIdMiddleware>();
 
-// Handle Exceptions
+// Use Exception Middleware
 app.UseMiddleware<ExceptionMiddleware>();
 
+// Use HTTPS
 app.UseHttpsRedirection();
 
+// Use AuthN
 app.UseAuthentication();
+
+// Use AuthZ
 app.UseAuthorization();
 
+// Use Endpoints
 app.MapControllers();
 
-// Migrate DB
-MigrationData.MigrateDb(app);
+// Map Health Check Endpoint
+app.MapHealthChecks("/health");
+
+// Migrate And Seed DB
+DbInitializer.InitializeDb(app);
+app.AppSeedEntityNamesData();
+
+// Run the app
 app.Run();
 
 // use this for testing 

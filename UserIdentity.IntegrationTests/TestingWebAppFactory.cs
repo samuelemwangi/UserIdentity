@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -8,23 +7,57 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.Generators;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.OpenSsl;
+using Org.BouncyCastle.Security;
+
+using PolyzenKit.Infrastructure.Security.KeySets;
+using PolyzenKit.Presentation.Settings;
+
+using UserIdentity.IntegrationTests.TestUtils;
 using UserIdentity.Persistence;
 
 namespace UserIdentity.IntegrationTests
 {
 	public class TestingWebAppFactory : WebApplicationFactory<Program>
 	{
-
-		public Dictionary<string, string> Props { get; internal set; }
 		public TestingWebAppFactory()
 		{
-			Props = GetProps();
+			var privateKeyFilename = "privateKey.pem";
+			var publicKeyFilename = "publicKey.pem";
 
-			foreach (var prop in Props)
-				Environment.SetEnvironmentVariable(prop.Key, prop.Value + "");
+			var privateKeyPath = Path.Combine(AppContext.BaseDirectory, privateKeyFilename);
+			var publicKeyPath = Path.Combine(AppContext.BaseDirectory, publicKeyFilename);			
+
+			var keyPairGenerator = new Ed25519KeyPairGenerator();
+			keyPairGenerator.Init(new Ed25519KeyGenerationParameters(new SecureRandom()));
+			var keyPair = keyPairGenerator.GenerateKeyPair();
+
+			var privateKey = keyPair.Private;
+			var publicKey = keyPair.Public;
+
+			var passphrase = "aG00dPassPhr4a2e";
+			var privateKeyPem = ConvertToPem(privateKey, passphrase);
+			var publicKeyPem = ConvertToPem(publicKey);
+
+			File.WriteAllText(privateKeyPath, privateKeyPem);
+			File.WriteAllText(publicKeyPath, publicKeyPem);
+
+			Environment.SetEnvironmentVariable($"{nameof(KeySetOptions)}__{nameof(KeySetOptions.PrivateKeyPath)}", privateKeyFilename);
+			Environment.SetEnvironmentVariable($"{nameof(KeySetOptions)}__{nameof(KeySetOptions.PrivateKeyPassPhrase)}", passphrase);
+			Environment.SetEnvironmentVariable($"{nameof(KeySetOptions)}__{nameof(KeySetOptions.PublicKeyPath)}", publicKeyFilename);
+
+			Environment.SetEnvironmentVariable($"{nameof(ApiKeySettings)}__{nameof(ApiKeySettings.ApiKey)}", TestConstants.ApiKey);
+
+			Environment.SetEnvironmentVariable($"{nameof(RoleSettings)}__{nameof(RoleSettings.DefaultRole)}", ApiRoleSettings.DefaultRole);
+			Environment.SetEnvironmentVariable($"{nameof(RoleSettings)}__{nameof(RoleSettings.AdminRoles)}", ApiRoleSettings.AdminRoles);
 		}
+
 		protected override void ConfigureWebHost(IWebHostBuilder webHostBuilder)
 		{
+
 			webHostBuilder.ConfigureServices(services =>
 			{
 				var descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<AppDbContext>));
@@ -44,26 +77,28 @@ namespace UserIdentity.IntegrationTests
 				using var appContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
 				appContext.Database.EnsureCreated();
-
 			});
 
 		}
 
-		public Dictionary<string, string> GetProps()
+		private string ConvertToPem(AsymmetricKeyParameter key, string? passphrase = null)
 		{
-			Dictionary<string, string> props = new Dictionary<string, string>();
-			string filePath = ".env";
-			if (!File.Exists(filePath))
-				return props;
-
-
-			foreach (string line in File.ReadLines(filePath))
+			using var stringWriter = new StringWriter();
+			var pemWriter = new PemWriter(stringWriter);
+			if (passphrase != null)
 			{
-				string[] parts = line.Split('=', StringSplitOptions.RemoveEmptyEntries);
-				props.Add(parts[0].Trim(), parts[1].Trim());
+				var encryptor = new Pkcs8Generator(key, Pkcs8Generator.PbeSha1_3DES)
+				{
+					Password = passphrase.ToCharArray()
+				};
+				pemWriter.WriteObject(encryptor);
 			}
-
-			return props;
+			else
+			{
+				pemWriter.WriteObject(key);
+			}
+			pemWriter.Writer.Flush();
+			return stringWriter.ToString();
 		}
 	}
 }

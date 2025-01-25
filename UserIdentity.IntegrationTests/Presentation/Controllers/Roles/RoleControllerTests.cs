@@ -7,11 +7,12 @@ using System.Threading.Tasks;
 
 using Newtonsoft.Json.Linq;
 
+using PolyzenKit.Presentation.ValidationHelpers;
+
 using UserIdentity.Application.Core.Roles.ViewModels;
 using UserIdentity.IntegrationTests.Persistence;
 using UserIdentity.IntegrationTests.Presentation.Helpers;
 using UserIdentity.IntegrationTests.TestUtils;
-using UserIdentity.Presentation.Helpers.ValidationExceptions;
 
 using Xunit;
 using Xunit.Abstractions;
@@ -19,20 +20,19 @@ using Xunit.Abstractions;
 namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 {
 
-	public class RoleControllerTests : BaseControllerTests
+	public class RoleControllerTests(
+		TestingWebAppFactory testingWebAppFactory,
+		ITestOutputHelper outputHelper
+		) : BaseControllerTests(testingWebAppFactory, outputHelper)
 	{
 		private readonly static string _baseUri = "/api/v1/role";
-
-		public RoleControllerTests(TestingWebAppFactory testingWebAppFactory, ITestOutputHelper outputHelper)
-						: base(testingWebAppFactory, outputHelper)
-		{
-		}
 
 		[Fact]
 		public async Task Get_Roles_Returns_Roles()
 		{
 			// Arrange
 			DBContexUtils.SeedDatabase(_appDbContext);
+			DBContexUtils.SeedIdentityUserRole(_appDbContext, string.Empty, ApiRoleSettings.AdminRoles);
 
 			var additionalRoleId = Guid.NewGuid().ToString();
 			var additionalRolename = "additionalRole";
@@ -52,15 +52,15 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			Assert.NotNull(jsonObject);
 
 
-			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
-			Assert.Equal("Items fetched successfully", jsonObject["statusMessage"]);
+			Assert.Equal("Request Successful", $"{jsonObject["requestStatus"]}");
+			Assert.Equal("Items fetched successfully", $"{jsonObject["statusMessage"]}");
 
 			var roles = jsonObject["roles"]?.ToObject<List<RoleDTO>>();
 
 			Assert.NotNull(roles);
-			Assert.Equal(2, roles.Count);
+			Assert.Equal(3, roles.Count);
 
-			Assert.Contains(roles, r => r.Id == RoleSettings.RoleId && r.Name == RoleSettings.RoleName);
+			Assert.Contains(roles, r => r.Id == ApiRoleSettings.RoleId && r.Name == ApiRoleSettings.RoleName);
 			Assert.Contains(roles, r => r.Id == additionalRoleId && r.Name == additionalRolename);
 		}
 
@@ -130,6 +130,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 		{
 			// Arrange
 			DBContexUtils.SeedDatabase(_appDbContext);
+			DBContexUtils.SeedIdentityUserRole(_appDbContext, string.Empty, ApiRoleSettings.AdminRoles);
 
 			var additionalRoleId = Guid.NewGuid().ToString();
 			var additionalRolename = "additionalRole";
@@ -148,8 +149,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			Assert.NotNull(jsonObject);
 
-			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
-			Assert.Equal("Item fetched successfully", jsonObject["statusMessage"]);
+			Assert.Equal("Request Successful", $"{jsonObject["requestStatus"]}");
+			Assert.Equal("Item fetched successfully", $"{jsonObject["statusMessage"]}");
 
 			var role = jsonObject["role"]?.ToObject<RoleDTO>();
 
@@ -224,6 +225,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 		{
 			// Arrange
 			DBContexUtils.SeedDatabase(_appDbContext);
+			DBContexUtils.SeedIdentityUserRole(_appDbContext, string.Empty, ApiRoleSettings.AdminRoles);
 
 			var additionalRoleId = Guid.NewGuid().ToString();
 			var additionalRolename = "additionalRole";
@@ -250,8 +252,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			Assert.NotNull(jsonObject);
 
-			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
-			Assert.Equal("Item created successfully", jsonObject["statusMessage"]);
+			Assert.Equal("Request Successful", $"{jsonObject["requestStatus"]}");
+			Assert.Equal("Item created successfully", $"{jsonObject["statusMessage"]}");
 
 			var role = jsonObject["role"]?.ToObject<RoleDTO>();
 
@@ -265,6 +267,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 		{
 			// Arrange
 			DBContexUtils.SeedDatabase(_appDbContext);
+			DBContexUtils.SeedIdentityUserRole(_appDbContext, string.Empty, ApiRoleSettings.AdminRoles);
 
 			var additionalRoleId = Guid.NewGuid().ToString();
 			var additionalRolename = "additionalRole";
@@ -287,8 +290,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			Assert.NotNull(jsonObject);
 
-			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
-			Assert.Equal("400 - BAD REQUEST", jsonObject["statusMessage"]);
+			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+			Assert.Equal("400 - BAD REQUEST", $"{jsonObject["statusMessage"]}");
 
 			Assert.Equal($"A record identified with - {requestPayload.RoleName} - exists", jsonObject["error"]?["message"]);
 
@@ -306,6 +309,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 		{
 			// Arrange
 			DBContexUtils.SeedDatabase(_appDbContext);
+			DBContexUtils.SeedIdentityUserRole(_appDbContext, string.Empty, ApiRoleSettings.AdminRoles);
 
 			var additionalRoleId = Guid.NewGuid().ToString();
 			var additionalRolename = "additionalRole";
@@ -327,8 +331,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			Assert.NotNull(jsonObject);
 
-			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
-			Assert.Equal("400 - BAD REQUEST", jsonObject["statusMessage"]);
+			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+			Assert.Equal("400 - BAD REQUEST", $"{jsonObject["statusMessage"]}");
 
 			Assert.Equal("Validation Failed", jsonObject["error"]?["message"]);
 
@@ -427,6 +431,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 		{
 			// Arrange
 			DBContexUtils.SeedDatabase(_appDbContext);
+			DBContexUtils.SeedIdentityUserRole(_appDbContext, string.Empty, ApiRoleSettings.AdminRoles);
 
 			var additionalRoleId = Guid.NewGuid().ToString();
 			var additionalRolename = "additionalRole";
@@ -451,8 +456,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			Assert.NotNull(jsonObject);
 
-			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
-			Assert.Equal("Item updated successfully", jsonObject["statusMessage"]);
+			Assert.Equal("Request Successful", $"{jsonObject["requestStatus"]}");
+			Assert.Equal("Item updated successfully", $"{jsonObject["statusMessage"]}");
 
 			var role = jsonObject["role"]?.ToObject<RoleDTO>();
 
@@ -466,6 +471,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 		{
 			// Arrange
 			DBContexUtils.SeedDatabase(_appDbContext);
+			DBContexUtils.SeedIdentityUserRole(_appDbContext, string.Empty, ApiRoleSettings.AdminRoles);
 
 			var additionalRoleId = Guid.NewGuid().ToString();
 			var additionalRolename = "additionalRole";
@@ -489,8 +495,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			Assert.NotNull(jsonObject);
 
-			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
-			Assert.Equal("404 - NOT FOUND", jsonObject["statusMessage"]);
+			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+			Assert.Equal("404 - NOT FOUND", $"{jsonObject["statusMessage"]}");
 
 			Assert.Equal($"No record exists for the provided identifier - {requestPayload.RoleId}", jsonObject["error"]?["message"]);
 
@@ -508,6 +514,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 		{
 			// Arrange
 			DBContexUtils.SeedDatabase(_appDbContext);
+			DBContexUtils.SeedIdentityUserRole(_appDbContext, string.Empty, ApiRoleSettings.AdminRoles);
 
 			var additionalRoleId = Guid.NewGuid().ToString();
 			var additionalRolename = "additionalRole";
@@ -529,8 +536,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			Assert.NotNull(jsonObject);
 
-			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
-			Assert.Equal("400 - BAD REQUEST", jsonObject["statusMessage"]);
+			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+			Assert.Equal("400 - BAD REQUEST", $"{jsonObject["statusMessage"]}");
 
 			Assert.Equal("Validation Failed", jsonObject["error"]?["message"]);
 
@@ -630,6 +637,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 		{
 			// Arrange
 			DBContexUtils.SeedDatabase(_appDbContext);
+			DBContexUtils.SeedIdentityUserRole(_appDbContext, string.Empty, ApiRoleSettings.AdminRoles);
 
 			var additionalRoleId = Guid.NewGuid().ToString();
 			var additionalRolename = "additionalRole";
@@ -649,8 +657,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			Assert.NotNull(jsonObject);
 
-			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
-			Assert.Equal("Record deleted successfully", jsonObject["statusMessage"]);
+			Assert.Equal("Request Successful", $"{jsonObject["requestStatus"]}");
+			Assert.Equal("Record deleted successfully", $"{jsonObject["statusMessage"]}");
 
 		}
 
@@ -659,6 +667,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 		{
 			// Arrange
 			DBContexUtils.SeedDatabase(_appDbContext);
+			DBContexUtils.SeedIdentityUserRole(_appDbContext, string.Empty, ApiRoleSettings.AdminRoles);
 
 			var nonExistentRuleId = Guid.NewGuid().ToString();
 
@@ -674,8 +683,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			Assert.NotNull(jsonObject);
 
-			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
-			Assert.Equal("404 - NOT FOUND", jsonObject["statusMessage"]);
+			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+			Assert.Equal("404 - NOT FOUND", $"{jsonObject["statusMessage"]}");
 
 			Assert.Equal($"No record exists for the provided identifier - {nonExistentRuleId}", jsonObject["error"]?["message"]);
 
@@ -771,15 +780,15 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			Assert.NotNull(jsonObject);
 
-			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
-			Assert.Equal("Items fetched successfully", jsonObject["statusMessage"]);
+			Assert.Equal("Request Successful", $"{jsonObject["requestStatus"]}");
+			Assert.Equal("Items fetched successfully", $"{jsonObject["statusMessage"]}");
 
 			var roles = jsonObject["userRoles"]?.ToObject<List<string>>();
 
 			Assert.NotNull(roles);
 			Assert.Equal(1, roles?.Count);
 
-			Assert.Contains(RoleSettings.RoleName, roles?[0]);
+			Assert.Contains(ApiRoleSettings.RoleName, roles?[0]);
 		}
 
 		[Fact]
@@ -787,6 +796,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 		{
 			// Arrange
 			DBContexUtils.SeedDatabase(_appDbContext);
+			DBContexUtils.SeedIdentityUserRole(_appDbContext, string.Empty, ApiRoleSettings.AdminRoles);
 
 			var nonExistentUserId = Guid.NewGuid().ToString();
 
@@ -802,8 +812,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			Assert.NotNull(jsonObject);
 
-			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
-			Assert.Equal("404 - NOT FOUND", jsonObject["statusMessage"]);
+			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+			Assert.Equal("404 - NOT FOUND", $"{jsonObject["statusMessage"]}");
 
 			Assert.Equal($"No record exists for the provided identifier - {nonExistentUserId}", jsonObject["error"]?["message"]);
 
@@ -856,10 +866,11 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 		}
 
 		[Fact]
-		public async Task Get_User_Roles_With_Invalid_Permissions_Returns_Auth_Error()
+		public async Task Get_User_Roles_For_User_Returns_User_Roles()
 		{
 			// Arrange
 			DBContexUtils.SeedIdentityUser(_appDbContext);
+
 			var roleId = Guid.NewGuid().ToString();
 			var roleName = "additionalRole";
 			DBContexUtils.SeedIdentityRole(_appDbContext, roleId, roleName);
@@ -871,9 +882,23 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Get, _baseUri + "/user/" + UserSettings.UserId);
 
 			// Assert
-			await response.ValidateRequestResponseAsync();
+			var responseString = await response.ValidateRequestResponseAsync();
 
-			Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+
+			Assert.NotNull(jsonObject);
+
+			Assert.Equal("Request Successful", $"{jsonObject["requestStatus"]}");
+			Assert.Equal("Items fetched successfully", $"{jsonObject["statusMessage"]}");
+
+			var roles = jsonObject["userRoles"]?.ToObject<List<string>>();
+
+			Assert.NotNull(roles);
+			Assert.Equal(1, roles?.Count);
+
+			Assert.Contains(roleName, roles?[0]);
 		}
 
 		[Fact]
@@ -881,6 +906,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 		{
 			// Arrange
 			DBContexUtils.SeedDatabase(_appDbContext);
+			DBContexUtils.SeedIdentityUserRole(_appDbContext, string.Empty, ApiRoleSettings.AdminRoles);
 
 			var additionalRoleId = Guid.NewGuid().ToString();
 			var additionalRolename = "additionalRole";
@@ -905,16 +931,16 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			Assert.NotNull(jsonObject);
 
-			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
-			Assert.Equal("Item created successfully", jsonObject["statusMessage"]);
+			Assert.Equal("Request Successful", $"{jsonObject["requestStatus"]}");
+			Assert.Equal("Item created successfully", $"{jsonObject["statusMessage"]}");
 
 			var roles = jsonObject["userRoles"]?.ToObject<List<string>>();
 
 			Assert.NotNull(roles);
-			Assert.Equal(2, roles?.Count);
+			Assert.Equal(3, roles?.Count);
 
 			Assert.True(roles?.Where(r => r == additionalRolename).Any());
-			Assert.True(roles?.Where(r => r == RoleSettings.RoleName).Any());
+			Assert.True(roles?.Where(r => r == ApiRoleSettings.RoleName).Any());
 		}
 
 		[Fact]
@@ -922,6 +948,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 		{
 			// Arrange
 			DBContexUtils.SeedDatabase(_appDbContext);
+			DBContexUtils.SeedIdentityUserRole(_appDbContext, string.Empty, ApiRoleSettings.AdminRoles);
 
 			var additionalRoleId = Guid.NewGuid().ToString();
 			var additionalRolename = "additionalRole";
@@ -931,7 +958,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var requestPayload = new
 			{
 				UserSettings.UserId,
-				RoleSettings.RoleId
+				ApiRoleSettings.RoleId
 			};
 
 			// Act
@@ -945,8 +972,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			Assert.NotNull(jsonObject);
 
-			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
-			Assert.Equal("400 - BAD REQUEST", jsonObject["statusMessage"]);
+			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+			Assert.Equal("400 - BAD REQUEST", $"{jsonObject["statusMessage"]}");
 
 			Assert.Equal($"A record identified with - {requestPayload.RoleId} - exists", jsonObject["error"]?["message"]);
 
@@ -964,6 +991,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 		{
 			// Arrange
 			DBContexUtils.SeedDatabase(_appDbContext);
+			DBContexUtils.SeedIdentityUserRole(_appDbContext, string.Empty, ApiRoleSettings.AdminRoles);
 
 			var additionalRoleId = Guid.NewGuid().ToString();
 			var additionalRolename = "additionalRole";
@@ -986,8 +1014,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			Assert.NotNull(jsonObject);
 
-			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
-			Assert.Equal("400 - BAD REQUEST", jsonObject["statusMessage"]);
+			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+			Assert.Equal("400 - BAD REQUEST", $"{jsonObject["statusMessage"]}");
 
 			Assert.Equal("Validation Failed", jsonObject["error"]?["message"]);
 
@@ -1090,6 +1118,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 		{
 			// Arrange
 			DBContexUtils.SeedDatabase(_appDbContext);
+			DBContexUtils.SeedIdentityUserRole(_appDbContext, string.Empty, ApiRoleSettings.AdminRoles);
 
 			var additionalRoleId = Guid.NewGuid().ToString();
 			var additionalRolename = "additionalRole";
@@ -1098,7 +1127,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			var requestPayload = new
 			{
-				RoleSettings.RoleId,
+				ApiRoleSettings.RoleId,
 				Resource = "user",
 				Action = "create",
 			};
@@ -1115,8 +1144,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			Assert.NotNull(jsonObject);
 
-			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
-			Assert.Equal("Item created successfully", jsonObject["statusMessage"]);
+			Assert.Equal("Request Successful", $"{jsonObject["requestStatus"]}");
+			Assert.Equal("Item created successfully", $"{jsonObject["statusMessage"]}");
 
 			var roleClaim = jsonObject["roleClaim"]?.ToObject<RoleClaimDTO>();
 
@@ -1131,6 +1160,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 		{
 			// Arrange
 			DBContexUtils.SeedDatabase(_appDbContext);
+			DBContexUtils.SeedIdentityUserRole(_appDbContext, string.Empty, ApiRoleSettings.AdminRoles);
 
 			var additionalRoleId = Guid.NewGuid().ToString();
 			var additionalRolename = "additionalRole";
@@ -1143,9 +1173,9 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			var requestPayload = new
 			{
-				RoleSettings.RoleId,
-				ScopeClaimSettings.Resource,
-				ScopeClaimSettings.Action,
+				ApiRoleSettings.RoleId,
+				ApiScopeClaimSettings.Resource,
+				ApiScopeClaimSettings.Action,
 			};
 
 			// Act
@@ -1159,10 +1189,10 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			Assert.NotNull(jsonObject);
 
-			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
-			Assert.Equal("400 - BAD REQUEST", jsonObject["statusMessage"]);
+			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+			Assert.Equal("400 - BAD REQUEST", $"{jsonObject["statusMessage"]}");
 
-			Assert.Equal($"A record identified with - {ScopeClaimSettings.ScopeClaim} - exists", jsonObject["error"]?["message"]);
+			Assert.Equal($"A record identified with - {ApiScopeClaimSettings.ScopeClaim} - exists", jsonObject["error"]?["message"]);
 
 			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
 
@@ -1178,6 +1208,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 		{
 			// Arrange
 			DBContexUtils.SeedDatabase(_appDbContext);
+			DBContexUtils.SeedIdentityUserRole(_appDbContext, string.Empty, ApiRoleSettings.AdminRoles);
 
 			var additionalRoleId = Guid.NewGuid().ToString();
 			var additionalRolename = "additionalRole";
@@ -1200,8 +1231,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			Assert.NotNull(jsonObject);
 
-			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
-			Assert.Equal("400 - BAD REQUEST", jsonObject["statusMessage"]);
+			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+			Assert.Equal("400 - BAD REQUEST", $"{jsonObject["statusMessage"]}");
 
 			Assert.Equal("Validation Failed", jsonObject["error"]?["message"]);
 
@@ -1234,7 +1265,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			var requestPayload = new
 			{
-				RoleSettings.RoleId,
+				ApiRoleSettings.RoleId,
 				Resource = "user",
 				Action = "create",
 			};
@@ -1262,7 +1293,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			var requestPayload = new
 			{
-				RoleSettings.RoleId,
+				ApiRoleSettings.RoleId,
 				Resource = "user",
 				Action = "create",
 			};
@@ -1290,7 +1321,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			var requestPayload = new
 			{
-				RoleSettings.RoleId,
+				ApiRoleSettings.RoleId,
 				Resource = "user",
 				Action = "create",
 			};
@@ -1310,6 +1341,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 		{
 			// Arrange
 			DBContexUtils.SeedDatabase(_appDbContext);
+			DBContexUtils.SeedIdentityUserRole(_appDbContext, string.Empty, ApiRoleSettings.AdminRoles);
 
 			var additionalRoleId = Guid.NewGuid().ToString();
 			var additionalRolename = "additionalRole";
@@ -1320,7 +1352,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			Assert.True(createRoleClaimResult);
 
 			// Act
-			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Get, _baseUri + "/claim/" + RoleSettings.RoleId);
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Get, _baseUri + "/claim/" + ApiRoleSettings.RoleId);
 
 			// Assert
 			var responseString = await response.ValidateRequestResponseAsync();
@@ -1331,16 +1363,16 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			Assert.NotNull(jsonObject);
 
-			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
-			Assert.Equal("Items fetched successfully", jsonObject["statusMessage"]);
+			Assert.Equal("Request Successful", $"{jsonObject["requestStatus"]}");
+			Assert.Equal("Items fetched successfully", $"{jsonObject["statusMessage"]}");
 
 			var roleClaims = jsonObject["roleClaims"]?.ToObject<List<RoleClaimDTO>>();
 
 			Assert.NotNull(roleClaims);
 			Assert.Equal(1, roleClaims?.Count);
-			Assert.Equal(ScopeClaimSettings.Resource, roleClaims?[0].Resource);
-			Assert.Equal(ScopeClaimSettings.Action, roleClaims?[0].Action);
-			Assert.Equal(ScopeClaimSettings.ScopeClaim, roleClaims?[0].Scope);
+			Assert.Equal(ApiScopeClaimSettings.Resource, roleClaims?[0].Resource);
+			Assert.Equal(ApiScopeClaimSettings.Action, roleClaims?[0].Action);
+			Assert.Equal(ApiScopeClaimSettings.ScopeClaim, roleClaims?[0].Scope);
 		}
 
 		[Fact]
@@ -1348,6 +1380,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 		{
 			// Arrange
 			DBContexUtils.SeedDatabase(_appDbContext);
+			DBContexUtils.SeedIdentityUserRole(_appDbContext, string.Empty, ApiRoleSettings.AdminRoles);
 
 			var nonExistentRoleId = Guid.NewGuid().ToString();
 
@@ -1363,8 +1396,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			Assert.NotNull(jsonObject);
 
-			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
-			Assert.Equal("404 - NOT FOUND", jsonObject["statusMessage"]);
+			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+			Assert.Equal("404 - NOT FOUND", $"{jsonObject["statusMessage"]}");
 
 			Assert.Equal($"No record exists for the provided identifier - {nonExistentRoleId}", jsonObject["error"]?["message"]);
 
@@ -1388,7 +1421,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
 			// Act
-			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Get, _baseUri + "/claim/" + RoleSettings.RoleId);
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Get, _baseUri + "/claim/" + ApiRoleSettings.RoleId);
 
 			// Assert
 			await response.ValidateRequestResponseAsync();
@@ -1409,7 +1442,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 
 			// Act
-			var response = await _httpClient.SendInvalidAuthRequestAsync(HttpMethod.Get, _baseUri + "/claim/" + RoleSettings.RoleId);
+			var response = await _httpClient.SendInvalidAuthRequestAsync(HttpMethod.Get, _baseUri + "/claim/" + ApiRoleSettings.RoleId);
 
 			// Assert
 			await response.ValidateRequestResponseAsync();
@@ -1430,7 +1463,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			DBContexUtils.SeedRefreshToken(_appDbContext);
 
 			// Act
-			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Get, _baseUri + "/claim/" + RoleSettings.RoleId);
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Get, _baseUri + "/claim/" + ApiRoleSettings.RoleId);
 
 			// Assert
 			await response.ValidateRequestResponseAsync();
@@ -1443,6 +1476,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 		{
 			// Arrange
 			DBContexUtils.SeedDatabase(_appDbContext);
+			DBContexUtils.SeedIdentityUserRole(_appDbContext, string.Empty, ApiRoleSettings.AdminRoles);
 
 			var additionalRoleId = Guid.NewGuid().ToString();
 			var additionalRolename = "additionalRole";
@@ -1455,9 +1489,9 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			var requestPayload = new
 			{
-				RoleSettings.RoleId,
-				ScopeClaimSettings.Resource,
-				ScopeClaimSettings.Action,
+				ApiRoleSettings.RoleId,
+				ApiScopeClaimSettings.Resource,
+				ApiScopeClaimSettings.Action,
 			};
 
 			// Act
@@ -1471,8 +1505,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			Assert.NotNull(jsonObject);
 
-			Assert.Equal("Request Successful", jsonObject["requestStatus"]);
-			Assert.Equal("Record deleted successfully", jsonObject["statusMessage"]);
+			Assert.Equal("Request Successful", $"{jsonObject["requestStatus"]}");
+			Assert.Equal("Record deleted successfully", $"{jsonObject["statusMessage"]}");
 		}
 
 
@@ -1481,6 +1515,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 		{
 			// Arrange
 			DBContexUtils.SeedDatabase(_appDbContext);
+			DBContexUtils.SeedIdentityUserRole(_appDbContext, string.Empty, ApiRoleSettings.AdminRoles);
 
 			var additionalRoleId = Guid.NewGuid().ToString();
 			var additionalRolename = "additionalRole";
@@ -1489,7 +1524,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			var requestPayload = new
 			{
-				RoleSettings.RoleId,
+				ApiRoleSettings.RoleId,
 				Resource = "user",
 				Action = "create",
 			};
@@ -1506,8 +1541,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			Assert.NotNull(jsonObject);
 
-			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
-			Assert.Equal("404 - NOT FOUND", jsonObject["statusMessage"]);
+			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+			Assert.Equal("404 - NOT FOUND", $"{jsonObject["statusMessage"]}");
 
 			Assert.Equal($"No record exists for the provided identifier - {requestPayload.Resource}:{requestPayload.Action}", jsonObject["error"]?["message"]);
 
@@ -1525,6 +1560,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 		{
 			// Arrange
 			DBContexUtils.SeedDatabase(_appDbContext);
+			DBContexUtils.SeedIdentityUserRole(_appDbContext, string.Empty, ApiRoleSettings.AdminRoles);
 
 			var additionalRoleId = Guid.NewGuid().ToString();
 			var additionalRolename = "additionalRole";
@@ -1546,8 +1582,8 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			Assert.NotNull(jsonObject);
 
-			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
-			Assert.Equal("400 - BAD REQUEST", jsonObject["statusMessage"]);
+			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+			Assert.Equal("400 - BAD REQUEST", $"{jsonObject["statusMessage"]}");
 
 			Assert.Equal("Validation Failed", jsonObject["error"]?["message"]);
 
@@ -1580,7 +1616,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			var requestPayload = new
 			{
-				RoleSettings.RoleId,
+				ApiRoleSettings.RoleId,
 				Resource = "user",
 				Action = "create",
 			};
@@ -1608,7 +1644,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			var requestPayload = new
 			{
-				RoleSettings.RoleId,
+				ApiRoleSettings.RoleId,
 				Resource = "user",
 				Action = "create",
 			};
@@ -1635,7 +1671,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			var requestPayload = new
 			{
-				RoleSettings.RoleId,
+				ApiRoleSettings.RoleId,
 				Resource = "user",
 				Action = "create",
 			};

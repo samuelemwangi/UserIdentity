@@ -1,33 +1,27 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-using UserIdentity.Application.Core.Interfaces;
-using UserIdentity.Application.Exceptions;
+using PolyzenKit.Application.Core;
+using PolyzenKit.Application.Core.Interfaces;
+using PolyzenKit.Common.Exceptions;
 
 namespace UserIdentity.Application.Core.Roles.Commands.DeleteRole
 {
 
 	public record DeleteRoleCommand : BaseCommand
 	{
-		public string RoleId { get; init; }
+		public required string RoleId { get; init; }
 	}
-	public class DeleteRoleCommandHandler : IDeleteItemCommandHandler<DeleteRoleCommand, DeleteRecordViewModel>
+	public class DeleteRoleCommandHandler(
+		RoleManager<IdentityRole> roleManager
+		) : IDeleteItemCommandHandler<DeleteRoleCommand, DeleteRecordViewModel>
 	{
-		private readonly RoleManager<IdentityRole> _roleManager;
-		public DeleteRoleCommandHandler(RoleManager<IdentityRole> roleManager)
+		private readonly RoleManager<IdentityRole> _roleManager = roleManager;
+
+		public async Task<DeleteRecordViewModel> DeleteItemAsync(DeleteRoleCommand command, string userId)
 		{
-			_roleManager = roleManager;
-		}
-
-
-		public async Task<DeleteRecordViewModel> DeleteItemAsync(DeleteRoleCommand command)
-		{
-			var role = await _roleManager.FindByIdAsync(command.RoleId);
-
-			if (role == null)
-				throw new NoRecordException(command.RoleId, "Role");
+			var role = await _roleManager.FindByIdAsync(command.RoleId) ?? throw new NoRecordException(command.RoleId, "Role");
 
 			var deleteRoleResult = await _roleManager.DeleteAsync(role);
-
 
 			if (!deleteRoleResult.Succeeded)
 				throw new RecordDeletionException(command.RoleId, "Role");
@@ -36,8 +30,6 @@ namespace UserIdentity.Application.Core.Roles.Commands.DeleteRole
 			{
 
 			};
-
 		}
-
 	}
 }

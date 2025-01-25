@@ -16,7 +16,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 	{
 		protected readonly ITestOutputHelper _outputHelper;
 
-		protected readonly Dictionary<string, string> _props;
+		//protected readonly Dictionary<string, string> _props;
 		protected readonly HttpClient _httpClient;
 		protected readonly IServiceProvider _serviceProvider;
 
@@ -28,7 +28,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers
 		{
 			_outputHelper = outputHelper;
 
-			_props = testingWebAppFactory.Props;
+			//_props = testingWebAppFactory.Props;
 			_httpClient = testingWebAppFactory.CreateClient();
 			_serviceProvider = testingWebAppFactory.Services;
 

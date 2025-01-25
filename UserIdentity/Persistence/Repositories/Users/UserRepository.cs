@@ -2,20 +2,15 @@
 
 using UserIdentity.Domain.Identity;
 
-/// <summary>
-/// 
-/// </summary>
 
 namespace UserIdentity.Persistence.Repositories.Users
 {
-	public class UserRepository : IUserRepository
+	public class UserRepository(
+		AppDbContext appDbContext
+		) : IUserRepository
 	{
-		private readonly AppDbContext _appDbContext;
+		private readonly AppDbContext _appDbContext = appDbContext;
 
-		public UserRepository(AppDbContext appDbContext)
-		{
-			_appDbContext = appDbContext;
-		}
 		public async Task<int> CreateUserAsync(User user)
 		{
 			try
@@ -30,7 +25,7 @@ namespace UserIdentity.Persistence.Repositories.Users
 			}
 		}
 
-		public async Task<User?> GetUserAsync(string? Id)
+		public async Task<User?> GetUserAsync(string Id)
 		{
 			return await _appDbContext.AppUser
 					.Where(u => (u.Id + "").Equals(Id) && !u.IsDeleted)
@@ -63,6 +58,5 @@ namespace UserIdentity.Persistence.Repositories.Users
 			return await _appDbContext.AppUser
 					.AnyAsync(u => (u.Id + "").Equals(userId) && (u.ForgotPasswordToken + "").Equals(token) && !u.IsDeleted);
 		}
-
 	}
 }

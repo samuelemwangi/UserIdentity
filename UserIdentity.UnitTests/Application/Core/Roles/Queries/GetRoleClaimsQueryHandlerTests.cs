@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -7,10 +6,11 @@ using FakeItEasy;
 
 using Microsoft.AspNetCore.Identity;
 
+using PolyzenKit.Common.Exceptions;
+using PolyzenKit.Infrastructure.Security.Jwt;
+
 using UserIdentity.Application.Core.Roles.Queries.GetRoleClaims;
 using UserIdentity.Application.Core.Roles.ViewModels;
-using UserIdentity.Application.Exceptions;
-using UserIdentity.Application.Interfaces.Security;
 
 using Xunit;
 
@@ -19,11 +19,11 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Queries
 	public class GetRoleClaimsQueryHandlerTests
 	{
 		private readonly RoleManager<IdentityRole> _roleManager;
-		private readonly IJwtFactory _jwtFactory;
+		private readonly IJwtTokenHandler _jwtTokenHandler;
 		public GetRoleClaimsQueryHandlerTests()
 		{
 			_roleManager = A.Fake<RoleManager<IdentityRole>>();
-			_jwtFactory = A.Fake<IJwtFactory>();
+			_jwtTokenHandler = A.Fake<IJwtTokenHandler>();
 		}
 
 		[Fact]
@@ -37,7 +37,7 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Queries
 
 			A.CallTo(() => _roleManager.FindByIdAsync(query.RoleId)).Returns((default(IdentityRole)));
 
-			var handler = new GetRoleClaimsQueryHandler(_roleManager, _jwtFactory);
+			var handler = new GetRoleClaimsQueryHandler(_roleManager, _jwtTokenHandler);
 
 
 			// Act & Assert
@@ -64,7 +64,7 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Queries
 
 			var roleClaims = new List<Claim>
 			{
-				new Claim("scope", $"{resource}:{action}")
+				new("scope", $"{resource}:{action}")
 			};
 
 
@@ -73,16 +73,16 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Queries
 
 			A.CallTo(() => _roleManager.GetClaimsAsync(role)).Returns(roleClaims);
 
-			A.CallTo(() => _jwtFactory.DecodeScopeClaim(roleClaims[0])).Returns((resource, action));
+			A.CallTo(() => _jwtTokenHandler.DecodeScopeClaim(roleClaims[0])).Returns((resource, action));
 
-			var handler = new GetRoleClaimsQueryHandler(_roleManager, _jwtFactory);
+			var handler = new GetRoleClaimsQueryHandler(_roleManager, _jwtTokenHandler);
 
 			// Act
 			var vm = await handler.GetItemsAsync(query);
 
 			// Assert
 			Assert.IsType<RoleClaimsViewModel>(vm);
-			Assert.IsAssignableFrom<ICollection<RoleClaimDTO>>(vm.RoleClaims);
+			Assert.IsType<ICollection<RoleClaimDTO>>(vm.RoleClaims, exactMatch: false);
 			Assert.Equal(roleClaims.Count, vm.RoleClaims.Count);
 		}
 
@@ -108,22 +108,22 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Queries
 
 			var roleClaims = new List<Claim>
 			{
-				new Claim("scope",scopedClaim)
+				new("scope",scopedClaim)
 			};
 
-			A.CallTo(() => _roleManager.FindByNameAsync(roles[0])).Returns(identityRole);
+			A.CallTo(() => _roleManager.FindByNameAsync(roles[0])).Returns(identityRole); 
 			A.CallTo(() => _roleManager.GetClaimsAsync(identityRole)).Returns(roleClaims);
 
 
-			var handler = new GetRoleClaimsQueryHandler(_roleManager, _jwtFactory);
+			var handler = new GetRoleClaimsQueryHandler(_roleManager, _jwtTokenHandler);
 
 			// Act
-			var result = await handler.GetItemsAsync(roles);
+			var result = await handler.GetItemsAsync(new GetRoleClaimsForRolesQuery { Roles = roles});
 
 			// Assert
-			Assert.IsType<HashSet<string>>(result);
-			Assert.Single(result);
-			Assert.Contains(scopedClaim, result);
+			Assert.IsType<RoleClaimsForRolesViewModels>(result);
+			Assert.Single(result.RoleClaims);
+			Assert.Contains(scopedClaim, result.RoleClaims);
 		}
 
 	}

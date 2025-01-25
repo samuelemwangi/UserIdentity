@@ -4,9 +4,12 @@ using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 
-using UserIdentity.Application.Core.Interfaces;
+using PolyzenKit.Application.Core;
+using PolyzenKit.Application.Core.Interfaces;
+using PolyzenKit.Common.Exceptions;
+using PolyzenKit.Infrastructure.Configurations;
+
 using UserIdentity.Application.Core.Users.ViewModels;
-using UserIdentity.Application.Exceptions;
 using UserIdentity.Persistence.Repositories.Users;
 
 namespace UserIdentity.Application.Core.Users.Commands.ResetPassword
@@ -15,32 +18,39 @@ namespace UserIdentity.Application.Core.Users.Commands.ResetPassword
 	{
 		[Required]
 		[EmailAddress]
-		public string UserEmail { get; init; }
+		public string UserEmail { get; init; } = null!;
 	}
 
-	public class ResetPasswordCommandHandler : ICreateItemCommandHandler<ResetPasswordCommand, ResetPasswordViewModel>
+	public class ResetPasswordCommandHandler(
+		UserManager<IdentityUser> userManager,
+		IUserRepository userRepository,
+		IConfiguration configuration
+		) : ICreateItemCommandHandler<ResetPasswordCommand, ResetPasswordViewModel>
 	{
-		private readonly UserManager<IdentityUser> _userManager;
-		private readonly IUserRepository _userRepository;
-		private readonly IConfiguration _configuration;
+		private readonly UserManager<IdentityUser> _userManager = userManager;
+		private readonly IUserRepository _userRepository = userRepository;
+		private readonly IConfiguration _configuration = configuration;
 
-		public ResetPasswordCommandHandler(UserManager<IdentityUser> userManager, IUserRepository userRepository, IConfiguration configuration)
+		public async Task<ResetPasswordViewModel> CreateItemAsync(ResetPasswordCommand command, string userId)
 		{
-			_userManager = userManager;
-			_userRepository = userRepository;
-			_configuration = configuration;
-		}
+			// Check if default message is set in configs
+			string resetPasswordMessageKey = _configuration.GetEnvironmentVariable("DefaultResetPasswordMessage", "Kindly check your email for instructions to reset your password");
+			string resetPasswordMessage = _configuration.GetEnvironmentVariable(resetPasswordMessageKey, resetPasswordMessageKey);
 
-		public async Task<ResetPasswordViewModel> CreateItemAsync(ResetPasswordCommand command)
-		{
+			var vm = new ResetPasswordViewModel
+			{
+				ResetPasswordDetails = new ResetPasswordDTO
+				{
+					EmailMessage = resetPasswordMessage
+				}
+			};
+
 			var existingUser = await _userManager.FindByEmailAsync(command.UserEmail);
 
-			// Check if default message is set in configs
-			string defaultResetPasswordMessage = _configuration.GetValue<string>(_configuration.GetValue<string>("DefaultResetPasswordMessage"));
-			string emailMessage = defaultResetPasswordMessage ?? "Kindly check your email for instructions to reset your password";
-
 			if (existingUser == null)
-				throw new NoRecordException(command.UserEmail, "User");
+			{
+				return vm;
+			}
 
 			// generate token
 			string resetPasswordToken = await _userManager.GeneratePasswordResetTokenAsync(existingUser);
@@ -51,16 +61,10 @@ namespace UserIdentity.Application.Core.Users.Commands.ResetPassword
 			if (updateResult < 1)
 				throw new RecordUpdateException(command.UserEmail, "User");
 
-			// Send Email Logic here
 			string emailToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(resetPasswordToken));
+			// Send Email Logic here
 
-			return new ResetPasswordViewModel
-			{
-				ResetPasswordDetails = new ResetPasswordDTO
-				{
-					EmailMessage = emailMessage
-				}
-			};
+			return vm;
 
 		}
 	}

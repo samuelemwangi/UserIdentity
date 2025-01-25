@@ -1,32 +1,28 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-using UserIdentity.Application.Core.Interfaces;
+using PolyzenKit.Application.Core;
+using PolyzenKit.Application.Core.Interfaces;
+using PolyzenKit.Common.Exceptions;
+
 using UserIdentity.Application.Core.Roles.ViewModels;
-using UserIdentity.Application.Exceptions;
 
 namespace UserIdentity.Application.Core.Roles.Queries.GetRole
 {
 	public record GetRoleQuery : BaseQuery
 	{
-		public string RoleId { get; init; }
+		public required string RoleId { get; init; }
 	}
 
-	public class GetRoleQueryHandler : IGetItemQueryHandler<GetRoleQuery, RoleViewModel>
+	public class GetRoleQueryHandler(
+		RoleManager<IdentityRole> roleManager
+		) : IGetItemQueryHandler<GetRoleQuery, RoleViewModel>
 	{
-		private readonly RoleManager<IdentityRole> _roleManager;
-
-		public GetRoleQueryHandler(RoleManager<IdentityRole> roleManager)
-		{
-			_roleManager = roleManager;
-		}
+		private readonly RoleManager<IdentityRole> _roleManager = roleManager;
 
 		public async Task<RoleViewModel> GetItemAsync(GetRoleQuery query)
 		{
 
-			var role = await _roleManager.FindByIdAsync(query.RoleId);
-
-			if (role == null)
-				throw new NoRecordException(query.RoleId, "Role");
+			var role = await _roleManager.FindByIdAsync(query.RoleId) ?? throw new NoRecordException(query.RoleId, "Role");
 
 			return new RoleViewModel
 			{
@@ -34,11 +30,9 @@ namespace UserIdentity.Application.Core.Roles.Queries.GetRole
 				Role = new RoleDTO
 				{
 					Id = query.RoleId,
-					Name = role.Name
+					Name = role.Name!
 				}
-
 			};
-
 		}
 	}
 }

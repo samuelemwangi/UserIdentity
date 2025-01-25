@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Security.Authentication;
 using System.Threading.Tasks;
 
@@ -7,16 +7,21 @@ using FakeItEasy;
 
 using Microsoft.AspNetCore.Identity;
 
-using UserIdentity.Application.Core.Interfaces;
+using PolyzenKit.Application.Core.Interfaces;
+using PolyzenKit.Application.Interfaces;
+using PolyzenKit.Common.Exceptions;
+using PolyzenKit.Infrastructure.Security.Jwt;
+using PolyzenKit.Infrastructure.Security.Tokens;
+using PolyzenKit.Infrastructure.Utilities;
+
+using UserIdentity.Application.Core.Roles.Queries.GetRoleClaims;
+using UserIdentity.Application.Core.Roles.ViewModels;
 using UserIdentity.Application.Core.Users.Commands.LoginUser;
 using UserIdentity.Application.Core.Users.ViewModels;
-using UserIdentity.Application.Exceptions;
-using UserIdentity.Application.Interfaces.Security;
-using UserIdentity.Application.Interfaces.Utilities;
 using UserIdentity.Domain.Identity;
-using UserIdentity.Infrastructure.Utilities;
 using UserIdentity.Persistence.Repositories.RefreshTokens;
 using UserIdentity.Persistence.Repositories.Users;
+using UserIdentity.UnitTests.TestUtils;
 
 using Xunit;
 
@@ -24,25 +29,25 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 {
 	public class LoginUserCommandHandlerTests
 	{
-		private readonly IJwtFactory _jwtFactory;
+		private readonly IJwtTokenHandler _jwtTokenHandler;
 		private readonly ITokenFactory _tokenFactory;
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly IUserRepository _userRepository;
 		private readonly IRefreshTokenRepository _refreshTokenRepository;
 		private readonly IMachineDateTime _machineDateTime;
 
-		private readonly IGetItemsQueryHandler<IList<string>, HashSet<string>> _getRoleClaimsQueryHandler;
+		private readonly IGetItemsQueryHandler<GetRoleClaimsForRolesQuery, RoleClaimsForRolesViewModels> _getRoleClaimsQueryHandler;
 
 
 		public LoginUserCommandHandlerTests()
 		{
-			_jwtFactory = A.Fake<IJwtFactory>();
+			_jwtTokenHandler = A.Fake<IJwtTokenHandler>();
 			_tokenFactory = A.Fake<ITokenFactory>();
 			_userManager = A.Fake<UserManager<IdentityUser>>();
 			_userRepository = A.Fake<IUserRepository>();
 			_refreshTokenRepository = A.Fake<IRefreshTokenRepository>();
 			_machineDateTime = new MachineDateTime();
-			_getRoleClaimsQueryHandler = A.Fake<IGetItemsQueryHandler<IList<string>, HashSet<string>>>();
+			_getRoleClaimsQueryHandler = A.Fake<IGetItemsQueryHandler<GetRoleClaimsForRolesQuery, RoleClaimsForRolesViewModels>>();
 
 		}
 
@@ -63,7 +68,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 			var handler = GetLoginUserCommandHandler();
 
 			// Act & Assert
-			await Assert.ThrowsAsync<InvalidCredentialException>(() => handler.CreateItemAsync(command));
+			await Assert.ThrowsAsync<InvalidCredentialException>(() => handler.CreateItemAsync(command, TestStringHelper.UserId));
 		}
 
 
@@ -87,7 +92,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 			var handler = GetLoginUserCommandHandler();
 
 			// Act & Assert
-			await Assert.ThrowsAsync<InvalidCredentialException>(() => handler.CreateItemAsync(command));
+			await Assert.ThrowsAsync<InvalidCredentialException>(() => handler.CreateItemAsync(command, TestStringHelper.UserId));
 		}
 
 		[Fact]
@@ -114,7 +119,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 			var handler = GetLoginUserCommandHandler();
 
 			// Act & Assert
-			await Assert.ThrowsAsync<InvalidCredentialException>(() => handler.CreateItemAsync(command));
+			await Assert.ThrowsAsync<InvalidCredentialException>(() => handler.CreateItemAsync(command, TestStringHelper.UserId));
 		}
 
 		[Fact]
@@ -131,8 +136,8 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 
 			var user = GetUser(existingIdentityUser.Id);
 
-			var userRoles = new List<string> { "Admin" };
-			var userRoleClaims = new HashSet<string> { "Admin" };
+			var userRoles = new GetRoleClaimsForRolesQuery { Roles = ["Admin"] };
+			var userRoleClaims = new RoleClaimsForRolesViewModels { RoleClaims = ["Admin"] };
 
 			var refreshToken = "sampleRfereshToken";
 
@@ -146,20 +151,20 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 
 			A.CallTo(() => _userManager.CheckPasswordAsync(existingIdentityUser, command.Password)).Returns(true);
 
-			A.CallTo(() => _userManager.GetRolesAsync(existingIdentityUser)).Returns(userRoles);
+			A.CallTo(() => _userManager.GetRolesAsync(existingIdentityUser)).Returns(userRoles.Roles);
 
 			A.CallTo(() => _getRoleClaimsQueryHandler.GetItemsAsync(userRoles)).Returns(userRoleClaims);
 
-			A.CallTo(() => _tokenFactory.GenerateRefreshToken(32)).Returns(refreshToken);
+			A.CallTo(() => _tokenFactory.GenerateToken(32)).Returns(refreshToken);
 
-			A.CallTo(() => _jwtFactory.GenerateEncodedTokenAsync(existingIdentityUser.Id, A<string>.Ignored, userRoles, userRoleClaims)).Returns((accessToken, expiresIn));
+			A.CallTo(() => _jwtTokenHandler.CreateToken(existingIdentityUser.Id, A<string>.Ignored, userRoles.Roles.ToHashSet(), userRoleClaims.RoleClaims)).Returns((accessToken, expiresIn));
 
 			A.CallTo(() => _refreshTokenRepository.CreateRefreshTokenAsync(A<RefreshToken>.That.Matches(x => x.Token == refreshToken))).Returns(Task.FromResult(0));
 
 			var handler = GetLoginUserCommandHandler();
 
 			// Act & Assert
-			await Assert.ThrowsAsync<RecordCreationException>(() => handler.CreateItemAsync(command));
+			await Assert.ThrowsAsync<RecordCreationException>(() => handler.CreateItemAsync(command, TestStringHelper.UserId));
 		}
 
 		[Fact]
@@ -176,8 +181,8 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 
 			var user = GetUser(existingIdentityUser.Id);
 
-			var userRoles = new List<string> { "Admin" };
-			var userRoleClaims = new HashSet<string> { "Admin" };
+			var userRoles = new GetRoleClaimsForRolesQuery { Roles = ["Admin"] };
+			var userRoleClaims = new RoleClaimsForRolesViewModels { RoleClaims = ["Admin"] };
 
 			var refreshToken = "sampleRfereshToken";
 
@@ -191,20 +196,20 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 
 			A.CallTo(() => _userManager.CheckPasswordAsync(existingIdentityUser, command.Password)).Returns(true);
 
-			A.CallTo(() => _userManager.GetRolesAsync(existingIdentityUser)).Returns(userRoles);
+			A.CallTo(() => _userManager.GetRolesAsync(existingIdentityUser)).Returns(userRoles.Roles);
 
 			A.CallTo(() => _getRoleClaimsQueryHandler.GetItemsAsync(userRoles)).Returns(userRoleClaims);
 
-			A.CallTo(() => _tokenFactory.GenerateRefreshToken(32)).Returns(refreshToken);
+			A.CallTo(() => _tokenFactory.GenerateToken(32)).Returns(refreshToken);
 
-			A.CallTo(() => _jwtFactory.GenerateEncodedTokenAsync(existingIdentityUser.Id, A<string>.Ignored, userRoles, userRoleClaims)).Returns((accessToken, expiresIn));
+			A.CallTo(() => _jwtTokenHandler.CreateToken(existingIdentityUser.Id, A<string>.Ignored, userRoles.Roles.ToHashSet(), userRoleClaims.RoleClaims)).Returns((accessToken, expiresIn));
 
 			A.CallTo(() => _refreshTokenRepository.CreateRefreshTokenAsync(A<RefreshToken>.That.Matches(x => x.Token == refreshToken))).Returns(Task.FromResult(1));
 
 			var handler = GetLoginUserCommandHandler();
 
 			// Act 
-			var vm = await handler.CreateItemAsync(command);
+			var vm = await handler.CreateItemAsync(command, TestStringHelper.UserId);
 
 			// Assert
 			Assert.IsType<AuthUserViewModel>(vm);
@@ -219,7 +224,7 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands
 		private LoginUserCommandHandler GetLoginUserCommandHandler()
 		{
 			return new LoginUserCommandHandler(
-													_jwtFactory,
+													_jwtTokenHandler,
 													_tokenFactory,
 													_userManager,
 													_userRepository,

@@ -1,6 +1,8 @@
-﻿namespace UserIdentity.Domain.Identity
+﻿using PolyzenKit.Domain.Entity;
+
+namespace UserIdentity.Domain.Identity
 {
-	public class RefreshToken : BaseEntity
+	public record RefreshToken : BaseEntity<Guid>
 	{
 		public string? Token { get; internal set; }
 
