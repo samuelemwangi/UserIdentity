@@ -20,6 +20,7 @@ using UserIdentity.Application.Core.Users.Commands.ResetPassword;
 using UserIdentity.Application.Core.Users.Commands.UpdatePassword;
 using UserIdentity.Application.Core.Users.Queries.GetUser;
 using UserIdentity.Application.Core.Users.ViewModels;
+using UserIdentity.Domain.Identity;
 
 namespace UserIdentity.Presentation.Controllers.Users
 {
@@ -51,9 +52,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 
 			var userVM = await _getUserQueryHandler.GetItemAsync(new GetUserQuery { UserId = userId });
 
-			var ownedByLoggedInUser = userVM.User.OwnedByLoggedInUser(LoggedInUserId);
-
-			userVM.ResolveEditDeleteRights(UserScopeClaims, EntityName, ownedByLoggedInUser);
+			userVM.ResolveEditDeleteRights(UserScopeClaims, EntityName, userVM.User.OwnedByLoggedInUser(LoggedInUserId));
 			userVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEM_SUCCESSFUL);
 
 			return StatusCode((int)HttpStatusCode.OK, userVM);
@@ -66,7 +65,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 		{
 			var authUserVM = await _registerUserCommandHandler.CreateItemAsync(command, LoggedInUserId);
 
-			authUserVM.ResolveEditDeleteRights(UserScopeClaims, EntityName);
+			authUserVM.ResolveEditDeleteRights(UserScopeClaims, EntityName, true);
 			authUserVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.CREATE_ITEM_SUCCESSFUL);
 
 			return StatusCode((int)HttpStatusCode.Created, authUserVM);
@@ -79,7 +78,7 @@ namespace UserIdentity.Presentation.Controllers.Users
 		{
 			var authUserVM = await _loginUserCommandHandler.CreateItemAsync(command, LoggedInUserId);
 
-			authUserVM.ResolveEditDeleteRights(UserScopeClaims, EntityName);
+			authUserVM.ResolveEditDeleteRights(UserScopeClaims, EntityName, true);
 			authUserVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEM_SUCCESSFUL, "Login successful");
 
 			return StatusCode((int)HttpStatusCode.OK, authUserVM);
@@ -91,7 +90,10 @@ namespace UserIdentity.Presentation.Controllers.Users
 		public async Task<ActionResult<AccessTokenViewModel>> RefreshToken(ExchangeRefreshTokenCommand command)
 		{
 			var refreshTokenVM = await _exchangeRefreshTokenCommandHandler.UpdateItemAsync(command, LoggedInUserId);
+
+			refreshTokenVM.EditEnabled = true;
 			refreshTokenVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEM_SUCCESSFUL, "Refresh token generated successfully");
+
 			return StatusCode((int)HttpStatusCode.OK, refreshTokenVM);
 		}
 
