@@ -25,10 +25,11 @@ namespace UserIdentity.IntegrationTests
 	{
 		public TestingWebAppFactory()
 		{
-			var currentDirectory = AppContext.BaseDirectory;
-			var privateKeyPath = Path.Combine(currentDirectory, "privateKey.pem");
-			var publicKeyPath = Path.Combine(currentDirectory, "publicKey.pem");
+			var privateKeyFilename = "privateKey.pem";
+			var publicKeyFilename = "publicKey.pem";
 
+			var privateKeyPath = Path.Combine(AppContext.BaseDirectory, privateKeyFilename);
+			var publicKeyPath = Path.Combine(AppContext.BaseDirectory, publicKeyFilename);			
 
 			var keyPairGenerator = new Ed25519KeyPairGenerator();
 			keyPairGenerator.Init(new Ed25519KeyGenerationParameters(new SecureRandom()));
@@ -44,9 +45,9 @@ namespace UserIdentity.IntegrationTests
 			File.WriteAllText(privateKeyPath, privateKeyPem);
 			File.WriteAllText(publicKeyPath, publicKeyPem);
 
-			Environment.SetEnvironmentVariable($"{nameof(KeySetOptions)}__{nameof(KeySetOptions.PrivateKeyPath)}", privateKeyPath);
+			Environment.SetEnvironmentVariable($"{nameof(KeySetOptions)}__{nameof(KeySetOptions.PrivateKeyPath)}", privateKeyFilename);
 			Environment.SetEnvironmentVariable($"{nameof(KeySetOptions)}__{nameof(KeySetOptions.PrivateKeyPassPhrase)}", passphrase);
-			Environment.SetEnvironmentVariable($"{nameof(KeySetOptions)}__{nameof(KeySetOptions.PublicKeyPath)}", publicKeyPath);
+			Environment.SetEnvironmentVariable($"{nameof(KeySetOptions)}__{nameof(KeySetOptions.PublicKeyPath)}", publicKeyFilename);
 
 			Environment.SetEnvironmentVariable($"{nameof(ApiKeySettings)}__{nameof(ApiKeySettings.ApiKey)}", TestConstants.ApiKey);
 
