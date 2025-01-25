@@ -5,9 +5,11 @@ using System.Text;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
+
+using PolyzenKit.Infrastructure.Security.Jwt;
 
 using UserIdentity.Domain.Identity;
-using UserIdentity.Infrastructure.Security.Helpers;
 using UserIdentity.IntegrationTests.TestUtils;
 using UserIdentity.Persistence;
 
@@ -15,7 +17,6 @@ namespace UserIdentity.IntegrationTests.Persistence
 {
 	internal class DBContexUtils
 	{
-
 
 		public static void SeedIdentityUser(AppDbContext appDbContext)
 		{
@@ -41,9 +42,9 @@ namespace UserIdentity.IntegrationTests.Persistence
 		{
 			var role = new IdentityRole
 			{
-				Id = RoleSettings.RoleId,
-				Name = RoleSettings.RoleName,
-				NormalizedName = RoleSettings.RoleName.ToUpper(),
+				Id = ApiRoleSettings.RoleId,
+				Name = ApiRoleSettings.RoleName,
+				NormalizedName = ApiRoleSettings.RoleName.ToUpper(),
 				ConcurrencyStamp = DateTime.Now.Ticks.ToString()
 			};
 
@@ -60,20 +61,47 @@ namespace UserIdentity.IntegrationTests.Persistence
 			appDbContext.SaveChanges();
 		}
 
-		public static void SeedIdentityUserRole(AppDbContext appDbContext, string roleId = "")
+		public static void SeedIdentityUserRole(AppDbContext appDbContext, string roleId = "", string adminRoles = "")
 		{
-			var userRole = new IdentityUserRole<string>
-			{
-				RoleId = RoleSettings.RoleId,
-				UserId = UserSettings.UserId.ToString()
-			};
+			string userId = UserSettings.UserId.ToString();
+			string actualRoleId = Guid.NewGuid().ToString();
 
 			if (!string.IsNullOrEmpty(roleId))
-				userRole.RoleId = roleId;
+			{
+				actualRoleId = roleId;
+			}
+			else if (!string.IsNullOrEmpty(adminRoles))
+			{
+				var adminRole = adminRoles.Split(",")[0].Trim();
 
-			appDbContext.UserRoles.Add(userRole);
-			appDbContext.SaveChanges();
+				var existingRole = appDbContext.Roles.FirstOrDefault(e => e.Name == adminRole);
+
+				if (existingRole != null)
+					actualRoleId = existingRole.Id;
+				else
+					SeedIdentityRole(appDbContext, roleId: actualRoleId, roleName: adminRole);				
+			}
+			else
+			{
+				actualRoleId = ApiRoleSettings.RoleId;
+			}
+
+			var existingUserRole = appDbContext.UserRoles
+					.AsNoTracking()
+					.FirstOrDefault(ur => ur.UserId == userId && ur.RoleId == actualRoleId);
+
+			if (existingUserRole == null)
+			{
+				appDbContext.UserRoles.Add(new IdentityUserRole<string>
+				{
+					RoleId = actualRoleId,
+					UserId = userId
+				});
+
+				appDbContext.SaveChanges();
+			}
 		}
+
 
 		public static void SeedAppUser(AppDbContext appDbContext)
 		{
@@ -96,6 +124,7 @@ namespace UserIdentity.IntegrationTests.Persistence
 		{
 			var refreshToken = new RefreshToken
 			{
+				Id = Guid.NewGuid(),
 				UserId = UserSettings.UserId.ToString(),
 				CreatedBy = UserSettings.UserId.ToString(),
 				CreatedAt = DateTime.UtcNow,
@@ -134,9 +163,9 @@ namespace UserIdentity.IntegrationTests.Persistence
 
 		public static bool? UpdateRoleClaim(AppDbContext appDbContext, RoleManager<IdentityRole> roleManager)
 		{
-			var role = roleManager.FindByIdAsync(RoleSettings.RoleId).Result;
+			var role = roleManager.FindByIdAsync(ApiRoleSettings.RoleId).Result;
 
-			var roleClaim = new Claim(Constants.Strings.JwtClaimIdentifiers.Scope, ScopeClaimSettings.ScopeClaim);
+			var roleClaim = new Claim(JwtCustomClaimNames.Scope, ApiScopeClaimSettings.ScopeClaim);
 
 			var result = roleManager.AddClaimAsync(role, roleClaim);
 

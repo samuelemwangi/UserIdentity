@@ -14,10 +14,10 @@ namespace UserIdentity.Application.Core.Users.Commands.ConfirmUpdatePasswordToke
 	public record ConfirmUpdatePasswordTokenCommand : BaseCommand
 	{
 		[Required]
-		public required string ConfirmPasswordToken { get; init; }
+		public string ConfirmPasswordToken { get; init; } = null!;
 
 		[Required]
-		public required string UserId { get; init; }
+		public string UserId { get; init; } = null!;
 	}
 	public class ConfirmUpdatePasswordTokenCommandHandler(
 		IUserRepository userRepository

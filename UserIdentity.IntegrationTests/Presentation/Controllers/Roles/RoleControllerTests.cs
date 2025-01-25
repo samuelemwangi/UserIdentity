@@ -7,11 +7,12 @@ using System.Threading.Tasks;
 
 using Newtonsoft.Json.Linq;
 
+using PolyzenKit.Presentation.ValidationHelpers;
+
 using UserIdentity.Application.Core.Roles.ViewModels;
 using UserIdentity.IntegrationTests.Persistence;
 using UserIdentity.IntegrationTests.Presentation.Helpers;
 using UserIdentity.IntegrationTests.TestUtils;
-using UserIdentity.Presentation.Helpers.ValidationExceptions;
 
 using Xunit;
 using Xunit.Abstractions;
@@ -19,14 +20,12 @@ using Xunit.Abstractions;
 namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 {
 
-	public class RoleControllerTests : BaseControllerTests
+	public class RoleControllerTests(
+		TestingWebAppFactory testingWebAppFactory,
+		ITestOutputHelper outputHelper
+		) : BaseControllerTests(testingWebAppFactory, outputHelper)
 	{
 		private readonly static string _baseUri = "/api/v1/role";
-
-		public RoleControllerTests(TestingWebAppFactory testingWebAppFactory, ITestOutputHelper outputHelper)
-						: base(testingWebAppFactory, outputHelper)
-		{
-		}
 
 		[Fact]
 		public async Task Get_Roles_Returns_Roles()
@@ -60,7 +59,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			Assert.NotNull(roles);
 			Assert.Equal(2, roles.Count);
 
-			Assert.Contains(roles, r => r.Id == RoleSettings.RoleId && r.Name == RoleSettings.RoleName);
+			Assert.Contains(roles, r => r.Id == ApiRoleSettings.RoleId && r.Name == ApiRoleSettings.RoleName);
 			Assert.Contains(roles, r => r.Id == additionalRoleId && r.Name == additionalRolename);
 		}
 
@@ -779,7 +778,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			Assert.NotNull(roles);
 			Assert.Equal(1, roles?.Count);
 
-			Assert.Contains(RoleSettings.RoleName, roles?[0]);
+			Assert.Contains(ApiRoleSettings.RoleName, roles?[0]);
 		}
 
 		[Fact]
@@ -914,7 +913,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			Assert.Equal(2, roles?.Count);
 
 			Assert.True(roles?.Where(r => r == additionalRolename).Any());
-			Assert.True(roles?.Where(r => r == RoleSettings.RoleName).Any());
+			Assert.True(roles?.Where(r => r == ApiRoleSettings.RoleName).Any());
 		}
 
 		[Fact]
@@ -931,7 +930,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			var requestPayload = new
 			{
 				UserSettings.UserId,
-				RoleSettings.RoleId
+				ApiRoleSettings.RoleId
 			};
 
 			// Act
@@ -1098,7 +1097,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			var requestPayload = new
 			{
-				RoleSettings.RoleId,
+				ApiRoleSettings.RoleId,
 				Resource = "user",
 				Action = "create",
 			};
@@ -1143,9 +1142,9 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			var requestPayload = new
 			{
-				RoleSettings.RoleId,
-				ScopeClaimSettings.Resource,
-				ScopeClaimSettings.Action,
+				ApiRoleSettings.RoleId,
+				ApiScopeClaimSettings.Resource,
+				ApiScopeClaimSettings.Action,
 			};
 
 			// Act
@@ -1162,7 +1161,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			Assert.Equal("Request Failed", jsonObject["requestStatus"]);
 			Assert.Equal("400 - BAD REQUEST", jsonObject["statusMessage"]);
 
-			Assert.Equal($"A record identified with - {ScopeClaimSettings.ScopeClaim} - exists", jsonObject["error"]?["message"]);
+			Assert.Equal($"A record identified with - {ApiScopeClaimSettings.ScopeClaim} - exists", jsonObject["error"]?["message"]);
 
 			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
 
@@ -1234,7 +1233,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			var requestPayload = new
 			{
-				RoleSettings.RoleId,
+				ApiRoleSettings.RoleId,
 				Resource = "user",
 				Action = "create",
 			};
@@ -1262,7 +1261,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			var requestPayload = new
 			{
-				RoleSettings.RoleId,
+				ApiRoleSettings.RoleId,
 				Resource = "user",
 				Action = "create",
 			};
@@ -1290,7 +1289,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			var requestPayload = new
 			{
-				RoleSettings.RoleId,
+				ApiRoleSettings.RoleId,
 				Resource = "user",
 				Action = "create",
 			};
@@ -1320,7 +1319,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			Assert.True(createRoleClaimResult);
 
 			// Act
-			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Get, _baseUri + "/claim/" + RoleSettings.RoleId);
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Get, _baseUri + "/claim/" + ApiRoleSettings.RoleId);
 
 			// Assert
 			var responseString = await response.ValidateRequestResponseAsync();
@@ -1338,9 +1337,9 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			Assert.NotNull(roleClaims);
 			Assert.Equal(1, roleClaims?.Count);
-			Assert.Equal(ScopeClaimSettings.Resource, roleClaims?[0].Resource);
-			Assert.Equal(ScopeClaimSettings.Action, roleClaims?[0].Action);
-			Assert.Equal(ScopeClaimSettings.ScopeClaim, roleClaims?[0].Scope);
+			Assert.Equal(ApiScopeClaimSettings.Resource, roleClaims?[0].Resource);
+			Assert.Equal(ApiScopeClaimSettings.Action, roleClaims?[0].Action);
+			Assert.Equal(ApiScopeClaimSettings.ScopeClaim, roleClaims?[0].Scope);
 		}
 
 		[Fact]
@@ -1388,7 +1387,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			DBContexUtils.SeedIdentityRole(_appDbContext, additionalRoleId, additionalRolename);
 
 			// Act
-			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Get, _baseUri + "/claim/" + RoleSettings.RoleId);
+			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Get, _baseUri + "/claim/" + ApiRoleSettings.RoleId);
 
 			// Assert
 			await response.ValidateRequestResponseAsync();
@@ -1409,7 +1408,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 
 			// Act
-			var response = await _httpClient.SendInvalidAuthRequestAsync(HttpMethod.Get, _baseUri + "/claim/" + RoleSettings.RoleId);
+			var response = await _httpClient.SendInvalidAuthRequestAsync(HttpMethod.Get, _baseUri + "/claim/" + ApiRoleSettings.RoleId);
 
 			// Assert
 			await response.ValidateRequestResponseAsync();
@@ -1430,7 +1429,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 			DBContexUtils.SeedRefreshToken(_appDbContext);
 
 			// Act
-			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Get, _baseUri + "/claim/" + RoleSettings.RoleId);
+			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Get, _baseUri + "/claim/" + ApiRoleSettings.RoleId);
 
 			// Assert
 			await response.ValidateRequestResponseAsync();
@@ -1455,9 +1454,9 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			var requestPayload = new
 			{
-				RoleSettings.RoleId,
-				ScopeClaimSettings.Resource,
-				ScopeClaimSettings.Action,
+				ApiRoleSettings.RoleId,
+				ApiScopeClaimSettings.Resource,
+				ApiScopeClaimSettings.Action,
 			};
 
 			// Act
@@ -1489,7 +1488,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			var requestPayload = new
 			{
-				RoleSettings.RoleId,
+				ApiRoleSettings.RoleId,
 				Resource = "user",
 				Action = "create",
 			};
@@ -1580,7 +1579,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			var requestPayload = new
 			{
-				RoleSettings.RoleId,
+				ApiRoleSettings.RoleId,
 				Resource = "user",
 				Action = "create",
 			};
@@ -1608,7 +1607,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			var requestPayload = new
 			{
-				RoleSettings.RoleId,
+				ApiRoleSettings.RoleId,
 				Resource = "user",
 				Action = "create",
 			};
@@ -1635,7 +1634,7 @@ namespace UserIdentity.IntegrationTests.Presentation.Controllers.Roles
 
 			var requestPayload = new
 			{
-				RoleSettings.RoleId,
+				ApiRoleSettings.RoleId,
 				Resource = "user",
 				Action = "create",
 			};

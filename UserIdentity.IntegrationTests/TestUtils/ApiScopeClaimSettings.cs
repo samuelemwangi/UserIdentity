@@ -2,7 +2,7 @@
 
 namespace UserIdentity.IntegrationTests.TestUtils
 {
-	internal class ScopeClaimSettings
+	internal class ApiScopeClaimSettings
 	{
 		public static string Resource = "user";
 		public static string Action = "edit";
