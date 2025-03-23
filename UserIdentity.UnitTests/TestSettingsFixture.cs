@@ -4,52 +4,51 @@ using System.IO;
 
 using Microsoft.Extensions.Configuration;
 
-namespace UserIdentity.UnitTests
+namespace UserIdentity.UnitTests;
+
+public class TestSettingsFixture : IDisposable
 {
-	public class TestSettingsFixture : IDisposable
+	public IConfiguration Configuration { get; internal set; }
+	public Dictionary<string, string> Props { get; internal set; }
+
+	public TestSettingsFixture()
 	{
-		public IConfiguration Configuration { get; internal set; }
-		public Dictionary<string, string> Props { get; internal set; }
+		Props = GetProps();
 
-		public TestSettingsFixture()
-		{
-			Props = GetProps();
+		foreach (var prop in Props)
+			Environment.SetEnvironmentVariable(prop.Key, prop.Value + "");
 
-			foreach (var prop in Props)
-				Environment.SetEnvironmentVariable(prop.Key, prop.Value + "");
+		SetConfiguration();
 
-			SetConfiguration();
+	}
 
-		}
+	public void SetConfiguration()
+	{
+		Configuration = new ConfigurationBuilder()
+				.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+				.AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true)
+				.AddEnvironmentVariables()
+				.Build();
+	}
 
-		public void SetConfiguration()
-		{
-			Configuration = new ConfigurationBuilder()
-					.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-					.AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true)
-					.AddEnvironmentVariables()
-					.Build();
-		}
-
-		public Dictionary<string, string> GetProps()
-		{
-			Dictionary<string, string> props = new Dictionary<string, string>();
-			string filePath = ".env";
-			if (!File.Exists(filePath))
-				return props;
-
-
-			foreach (string line in File.ReadLines(filePath))
-			{
-				string[] parts = line.Split('=', StringSplitOptions.RemoveEmptyEntries);
-				props.Add(parts[0].Trim(), parts[1].Trim());
-			}
-
+	public Dictionary<string, string> GetProps()
+	{
+		Dictionary<string, string> props = new Dictionary<string, string>();
+		string filePath = ".env";
+		if (!File.Exists(filePath))
 			return props;
+
+
+		foreach (string line in File.ReadLines(filePath))
+		{
+			string[] parts = line.Split('=', StringSplitOptions.RemoveEmptyEntries);
+			props.Add(parts[0].Trim(), parts[1].Trim());
 		}
 
-		public void Dispose()
-		{
-		}
+		return props;
+	}
+
+	public void Dispose()
+	{
 	}
 }

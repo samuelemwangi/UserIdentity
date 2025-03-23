@@ -9,48 +9,47 @@ using PolyzenKit.Application.Core.Interfaces;
 using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Persistence.Repositories.Users;
 
-namespace UserIdentity.Application.Core.Users.Commands.ConfirmUpdatePasswordToken
+namespace UserIdentity.Application.Core.Users.Commands.ConfirmUpdatePasswordToken;
+
+public record ConfirmUpdatePasswordTokenCommand : IBaseCommand
 {
-	public record ConfirmUpdatePasswordTokenCommand : BaseCommand
-	{
-		[Required]
-		public string ConfirmPasswordToken { get; init; } = null!;
+	[Required]
+	public string ConfirmPasswordToken { get; init; } = null!;
 
-		[Required]
-		public string UserId { get; init; } = null!;
-	}
-	public class ConfirmUpdatePasswordTokenCommandHandler(
-		IUserRepository userRepository
-		) : IUpdateItemCommandHandler<ConfirmUpdatePasswordTokenCommand, ConfirmUpdatePasswordTokenViewModel>
-	{
-		private readonly IUserRepository _userRepository = userRepository;
+	[Required]
+	public string UserId { get; init; } = null!;
+}
+public class ConfirmUpdatePasswordTokenCommandHandler(
+	IUserRepository userRepository
+	) : IUpdateItemCommandHandler<ConfirmUpdatePasswordTokenCommand, ConfirmUpdatePasswordTokenViewModel>
+{
+	private readonly IUserRepository _userRepository = userRepository;
 
-		public async Task<ConfirmUpdatePasswordTokenViewModel> UpdateItemAsync(ConfirmUpdatePasswordTokenCommand command, string userId)
+	public async Task<ConfirmUpdatePasswordTokenViewModel> UpdateItemAsync(ConfirmUpdatePasswordTokenCommand command, string userId)
+	{
+		try
 		{
-			try
+			string rawToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(command.ConfirmPasswordToken));
+
+			return new ConfirmUpdatePasswordTokenViewModel
 			{
-				string rawToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(command.ConfirmPasswordToken));
-
-				return new ConfirmUpdatePasswordTokenViewModel
+				TokenPasswordResult = new ConfirmUpdatePasswordDTO
 				{
-					TokenPasswordResult = new ConfirmUpdatePasswordDTO
-					{
-						UpdatePasswordTokenConfirmed = await _userRepository.ValidateUpdatePasswordTokenAsync(command.UserId, rawToken)
-					}
-				};
+					UpdatePasswordTokenConfirmed = await _userRepository.ValidateUpdatePasswordTokenAsync(command.UserId, rawToken)
+				}
+			};
 
-			}
-			catch (Exception)
+		}
+		catch (Exception)
+		{
+			return new ConfirmUpdatePasswordTokenViewModel
 			{
-				return new ConfirmUpdatePasswordTokenViewModel
+				TokenPasswordResult = new ConfirmUpdatePasswordDTO
 				{
-					TokenPasswordResult = new ConfirmUpdatePasswordDTO
-					{
-						UpdatePasswordTokenConfirmed = false
-					}
-				};
+					UpdatePasswordTokenConfirmed = false
+				}
+			};
 
-			}
 		}
 	}
 }

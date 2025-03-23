@@ -8,8 +8,8 @@ using UserIdentity.Persistence;
 
 #nullable disable
 
-namespace UserIdentity.Persistence.Migrations
-{
+namespace UserIdentity.Persistence.Migrations;
+
     [DbContext(typeof(AppDbContext))]
     [Migration("20230416093323_Update Audit Fields")]
     partial class UpdateAuditFields
@@ -352,4 +352,3 @@ namespace UserIdentity.Persistence.Migrations
 #pragma warning restore 612, 618
         }
     }
-}

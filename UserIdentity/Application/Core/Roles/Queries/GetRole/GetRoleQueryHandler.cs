@@ -6,33 +6,32 @@ using PolyzenKit.Common.Exceptions;
 
 using UserIdentity.Application.Core.Roles.ViewModels;
 
-namespace UserIdentity.Application.Core.Roles.Queries.GetRole
+namespace UserIdentity.Application.Core.Roles.Queries.GetRole;
+
+public record GetRoleQuery : IBaseQuery
 {
-	public record GetRoleQuery : BaseQuery
-	{
-		public required string RoleId { get; init; }
-	}
+	public required string RoleId { get; init; }
+}
 
-	public class GetRoleQueryHandler(
-		RoleManager<IdentityRole> roleManager
-		) : IGetItemQueryHandler<GetRoleQuery, RoleViewModel>
-	{
-		private readonly RoleManager<IdentityRole> _roleManager = roleManager;
+public class GetRoleQueryHandler(
+	RoleManager<IdentityRole> roleManager
+	) : IGetItemQueryHandler<GetRoleQuery, RoleViewModel>
+{
+	private readonly RoleManager<IdentityRole> _roleManager = roleManager;
 
-		public async Task<RoleViewModel> GetItemAsync(GetRoleQuery query)
+	public async Task<RoleViewModel> GetItemAsync(GetRoleQuery query)
+	{
+
+		var role = await _roleManager.FindByIdAsync(query.RoleId) ?? throw new NoRecordException(query.RoleId, "Role");
+
+		return new RoleViewModel
 		{
 
-			var role = await _roleManager.FindByIdAsync(query.RoleId) ?? throw new NoRecordException(query.RoleId, "Role");
-
-			return new RoleViewModel
+			Role = new RoleDTO
 			{
-
-				Role = new RoleDTO
-				{
-					Id = query.RoleId,
-					Name = role.Name!
-				}
-			};
-		}
+				Id = query.RoleId,
+				Name = role.Name!
+			}
+		};
 	}
 }

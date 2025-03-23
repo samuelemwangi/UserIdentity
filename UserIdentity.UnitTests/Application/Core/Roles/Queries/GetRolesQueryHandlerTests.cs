@@ -12,59 +12,58 @@ using UserIdentity.Application.Core.Roles.ViewModels;
 
 using Xunit;
 
-namespace UserIdentity.UnitTests.Application.Core.Roles.Queries
+namespace UserIdentity.UnitTests.Application.Core.Roles.Queries;
+
+public class GetRolesQueryHandlerTests
 {
-	public class GetRolesQueryHandlerTests
+	private readonly RoleManager<IdentityRole> _roleManager;
+	private readonly UserManager<IdentityUser> _userManager;
+
+
+	public GetRolesQueryHandlerTests()
 	{
-		private readonly RoleManager<IdentityRole> _roleManager;
-		private readonly UserManager<IdentityUser> _userManager;
+		_roleManager = A.Fake<RoleManager<IdentityRole>>();
+		_userManager = A.Fake<UserManager<IdentityUser>>();
+	}
+
+	[Fact]
+	public async Task Get_Roles_Returns_Roles()
+	{
+		// Arrange
+		var roles = new List<IdentityRole> {
+													new () { Id = "1", Name = "Admin" },
+													new () { Id = "2", Name = "User" }
+								};
 
 
-		public GetRolesQueryHandlerTests()
-		{
-			_roleManager = A.Fake<RoleManager<IdentityRole>>();
-			_userManager = A.Fake<UserManager<IdentityUser>>();
-		}
+		A.CallTo(() => _roleManager.Roles).Returns(roles.AsQueryable());
 
-		[Fact]
-		public async Task Get_Roles_Returns_Roles()
-		{
-			// Arrange
-			var roles = new List<IdentityRole> {
-														new () { Id = "1", Name = "Admin" },
-														new () { Id = "2", Name = "User" }
-									};
+		var handler = new GetRolesQueryHandler(_roleManager);
 
+		// Act
+		var vm = await handler.GetItemsAsync(new GetRolesQuery { });
 
-			A.CallTo(() => _roleManager.Roles).Returns(roles.AsQueryable());
+		// Assert
+		Assert.IsType<RolesViewModel>(vm);
+		Assert.Equal(roles.Count, vm.Roles.Count);
+		Assert.Equal(roles.Select(r => r.Id), vm.Roles.Select(r => r.Id));
+		Assert.Equal(roles.Select(r => r.Name), vm.Roles.Select(r => r.Name));
+	}
 
-			var handler = new GetRolesQueryHandler(_roleManager);
+	[Fact]
+	public async Task Get_Roles__When_No_Roles_Returns_Zero_Roles()
+	{
+		// Arrange
+		var roles = new List<IdentityRole>();
+		A.CallTo(() => _roleManager.Roles).Returns(roles.AsQueryable());
 
-			// Act
-			var vm = await handler.GetItemsAsync(new GetRolesQuery { });
+		var handler = new GetRolesQueryHandler(_roleManager);
 
-			// Assert
-			Assert.IsType<RolesViewModel>(vm);
-			Assert.Equal(roles.Count, vm.Roles.Count);
-			Assert.Equal(roles.Select(r => r.Id), vm.Roles.Select(r => r.Id));
-			Assert.Equal(roles.Select(r => r.Name), vm.Roles.Select(r => r.Name));
-		}
+		// Act
+		var vm = await handler.GetItemsAsync(new GetRolesQuery { });
 
-		[Fact]
-		public async Task Get_Roles__When_No_Roles_Returns_Zero_Roles()
-		{
-			// Arrange
-			var roles = new List<IdentityRole>();
-			A.CallTo(() => _roleManager.Roles).Returns(roles.AsQueryable());
-
-			var handler = new GetRolesQueryHandler(_roleManager);
-
-			// Act
-			var vm = await handler.GetItemsAsync(new GetRolesQuery { });
-
-			// Assert
-			Assert.IsType<RolesViewModel>(vm);
-			Assert.Empty(vm.Roles);
-		}
+		// Assert
+		Assert.IsType<RolesViewModel>(vm);
+		Assert.Empty(vm.Roles);
 	}
 }

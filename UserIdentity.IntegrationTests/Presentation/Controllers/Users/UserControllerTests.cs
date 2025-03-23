@@ -22,1256 +22,1255 @@ using UserIdentity.IntegrationTests.TestUtils;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users
+namespace UserIdentity.IntegrationTests.Presentation.Controllers.Users;
+
+
+public class UserControllerTests(
+	TestingWebAppFactory testingWebAppFactory,
+	ITestOutputHelper outputHelper
+	) : BaseControllerTests(testingWebAppFactory, outputHelper)
 {
 
-	public class UserControllerTests(
-		TestingWebAppFactory testingWebAppFactory,
-		ITestOutputHelper outputHelper
-		) : BaseControllerTests(testingWebAppFactory, outputHelper)
+	private readonly static string _baseUri = "/api/v1/user";
+
+	[Fact]
+	public async Task Get_Existing_User_Gets_User_Details()
 	{
+		// Arrange
+		DBContexUtils.SeedDatabase(_appDbContext);
 
-		private readonly static string _baseUri = "/api/v1/user";
+		// Act
+		var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Get, _baseUri + "/" + UserSettings.UserId);
 
-		[Fact]
-		public async Task Get_Existing_User_Gets_User_Details()
+		// Assert
+		var responseString = await response.ValidateRequestResponseAsync();
+
+		Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+		var jsonObject = SerDe.Deserialize<JObject>(responseString);
+
+		Assert.NotNull(jsonObject);
+
+
+		Assert.Equal("Request Successful", $"{jsonObject["requestStatus"]}");
+		Assert.Equal("Item fetched successfully", $"{jsonObject["statusMessage"]}");
+
+		var userDetails = jsonObject["user"]?.ToObject<UserDTO>();
+
+		Assert.Equal(UserSettings.FirstName + " " + UserSettings.LastName, userDetails?.FullName);
+		Assert.Equal(UserSettings.UserName, userDetails?.UserName);
+		Assert.Equal(UserSettings.UserEmail, userDetails?.Email);
+		Assert.Equal(userDetails?.Id, userDetails?.CreatedBy);
+		Assert.Equal(userDetails?.Id, userDetails?.UpdatedBy);
+	}
+
+	[Fact]
+	public async Task Get_Non_Existing_User_Returns_Forbidden_Error_For_Unauthorized_User()
+	{
+		// Arrange
+		DBContexUtils.SeedDatabase(_appDbContext);
+
+		var nonExistingUserId = Guid.NewGuid().ToString();
+
+		// Act
+		var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Get, _baseUri + "/" + nonExistingUserId);
+
+		// Assert
+		var responseString = await response.ValidateRequestResponseAsync();
+
+		Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+
+		var jsonObject = SerDe.Deserialize<JObject>(responseString);
+
+		Assert.Null(jsonObject);
+	}
+
+	[Fact]
+	public async Task Get_Non_Existing_User_Does_Not_Get_User_Details_For_Authorized_User()
+	{
+		// Arrange
+		DBContexUtils.SeedDatabase(_appDbContext);
+		DBContexUtils.SeedIdentityUserRole(_appDbContext, string.Empty, ApiRoleSettings.AdminRoles);
+
+		var nonExistingUserId = Guid.NewGuid().ToString();
+
+		// Act
+		var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Get, _baseUri + "/" + nonExistingUserId);
+
+		// Assert
+		var responseString = await response.ValidateRequestResponseAsync();
+
+		Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+		var jsonObject = SerDe.Deserialize<JObject>(responseString);
+
+		Assert.NotNull(jsonObject);
+
+
+		Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+		Assert.Equal("404 - NOT FOUND", $"{jsonObject["statusMessage"]}");
+
+		Assert.Equal($"No record exists for the provided identifier - {nonExistingUserId}", jsonObject["error"]?["message"]);
+
+		var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
+
+		Assert.NotNull(dateTime);
+		Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
+		Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
+		Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
+	}
+
+
+	[Fact]
+	public async Task Get_Deleted_AppUser_Does_Not_Get_User_Details_For_UnAuthorized_User()
+	{
+		// Arrange
+		DBContexUtils.SeedDatabase(_appDbContext);
+
+		(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
+
+		DBContexUtils.ClearAppUser(_appDbContext);
+
+		var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri + "/" + UserSettings.UserId);
+		httpRequest.AddAuthHeader(userToken);
+
+		// Act
+		var response = await _httpClient.SendAsync(httpRequest);
+
+		// Assert
+		var responseString = await response.ValidateRequestResponseAsync();
+
+		Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+		var jsonObject = SerDe.Deserialize<JObject>(responseString);
+
+		Assert.NotNull(jsonObject);
+
+		Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+		Assert.Equal("404 - NOT FOUND", $"{jsonObject["statusMessage"]}");
+
+		Assert.Equal($"No record exists for the provided identifier - {UserSettings.UserId}", jsonObject["error"]?["message"]);
+
+		var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
+
+		Assert.NotNull(dateTime);
+		Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
+		Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
+		Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
+	}
+
+	[Fact]
+	public async Task Get_Deleted_AppUser_Does_Not_Get_User_Details_For_Authorized_User()
+	{
+		// Arrange
+		DBContexUtils.SeedDatabase(_appDbContext);
+		DBContexUtils.SeedIdentityUserRole(_appDbContext, string.Empty, ApiRoleSettings.AdminRoles);
+
+		(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
+
+		DBContexUtils.ClearAppUser(_appDbContext);
+
+		var nonExistingUserId = Guid.NewGuid().ToString();
+
+		var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri + "/" + nonExistingUserId);
+		httpRequest.AddAuthHeader(userToken);
+
+		// Act
+		var response = await _httpClient.SendAsync(httpRequest);
+
+		// Assert
+		var responseString = await response.ValidateRequestResponseAsync();
+
+		Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+		var jsonObject = SerDe.Deserialize<JObject>(responseString);
+
+		Assert.NotNull(jsonObject);
+
+		Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+		Assert.Equal("404 - NOT FOUND", $"{jsonObject["statusMessage"]}");
+
+		Assert.Equal($"No record exists for the provided identifier - {nonExistingUserId}", jsonObject["error"]?["message"]);
+
+		var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
+
+		Assert.NotNull(dateTime);
+		Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
+		Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
+		Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
+	}
+
+	[Fact]
+	public async Task Register_User_With_Invalid_Request_Payload_Returns_Validation_Errors()
+	{
+		// Arrange
+		var requestPayload = new
 		{
-			// Arrange
-			DBContexUtils.SeedDatabase(_appDbContext);
+			UserSettings.LastName,
+			UserSettings.PhoneNumber,
+			UserSettings.UserEmail
+		};
 
-			// Act
-			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Get, _baseUri + "/" + UserSettings.UserId);
+		// Act
+		var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/register", requestPayload);
 
-			// Assert
-			var responseString = await response.ValidateRequestResponseAsync();
+		// Assert
+		var responseString = await response.ValidateRequestResponseAsync();
 
-			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+		Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
-			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+		var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
-			Assert.NotNull(jsonObject);
+		Assert.NotNull(jsonObject);
 
+		Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+		Assert.Equal("400 - BAD REQUEST", $"{jsonObject["statusMessage"]}");
 
-			Assert.Equal("Request Successful", $"{jsonObject["requestStatus"]}");
-			Assert.Equal("Item fetched successfully", $"{jsonObject["statusMessage"]}");
+		Assert.Equal("Validation Failed", jsonObject["error"]?["message"]);
 
-			var userDetails = jsonObject["user"]?.ToObject<UserDTO>();
+		var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
 
-			Assert.Equal(UserSettings.FirstName + " " + UserSettings.LastName, userDetails?.FullName);
-			Assert.Equal(UserSettings.UserName, userDetails?.UserName);
-			Assert.Equal(UserSettings.UserEmail, userDetails?.Email);
-			Assert.Equal(userDetails?.Id, userDetails?.Audit?.CreatedBy);
-			Assert.Equal(userDetails?.Id, userDetails?.Audit?.UpdatedBy);
-		}
+		Assert.NotNull(dateTime);
+		Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
+		Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
+		Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
 
-		[Fact]
-		public async Task Get_Non_Existing_User_Returns_Forbidden_Error_For_Unauthorized_User()
+		var errorList = jsonObject["error"]?["errorList"]?.ToObject<List<ValidationError>>();
+
+		Assert.Equal(3, errorList?.Count);
+
+		Assert.True(errorList?.Any(x => x.Field == "FirstName" && x.Message == "The FirstName field is required.") ?? false);
+		Assert.True(errorList?.Any(x => x.Field == "UserName" && x.Message == "The UserName field is required.") ?? false);
+		Assert.True(errorList?.Any(x => x.Field == "UserPassword" && x.Message == "The UserPassword field is required.") ?? false);
+	}
+
+	[Fact]
+	public async Task Register_User_With_Invalid_Request_Missing_Email_Phone_Number_Payload_Returns_Validation_Errors()
+	{
+		// Arrange
+		var requestPayload = new
 		{
-			// Arrange
-			DBContexUtils.SeedDatabase(_appDbContext);
+			UserSettings.FirstName,
+			UserSettings.UserName,
+			UserSettings.UserPassword
+		};
 
-			var nonExistingUserId = Guid.NewGuid().ToString();
+		// Act
+		var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/register", requestPayload);
 
-			// Act
-			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Get, _baseUri + "/" + nonExistingUserId);
 
-			// Assert
-			var responseString = await response.ValidateRequestResponseAsync();
+		// Assert
+		var responseString = await response.ValidateRequestResponseAsync();
 
-			Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+		Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
-			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+		var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
-			Assert.Null(jsonObject);
-		}
+		Assert.NotNull(jsonObject);
 
-		[Fact]
-		public async Task Get_Non_Existing_User_Does_Not_Get_User_Details_For_Authorized_User()
+		Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+		Assert.Equal("400 - BAD REQUEST", $"{jsonObject["statusMessage"]}");
+
+		Assert.Equal("Validation Failed", jsonObject["error"]?["message"]);
+
+		var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
+
+		Assert.NotNull(dateTime);
+		Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
+		Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
+		Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
+
+		var errorList = jsonObject["error"]?["errorList"]?.ToObject<List<ValidationError>>();
+
+		Assert.Equal(2, errorList?.Count);
+
+		Assert.True(errorList?.Any(x => x.Field == "UserEmail" && x.Message == "Either PhoneNumber or UserEmail must be provided.") ?? false);
+		Assert.True(errorList?.Any(x => x.Field == "PhoneNumber" && x.Message == "Either PhoneNumber or UserEmail must be provided.") ?? false);
+	}
+
+	[Fact]
+	public async Task Register_User_With_Valid_Request_Payload_Registers_User()
+	{
+		// Arrange
+		var requestPayload = new
 		{
-			// Arrange
-			DBContexUtils.SeedDatabase(_appDbContext);
-			DBContexUtils.SeedIdentityUserRole(_appDbContext, string.Empty, ApiRoleSettings.AdminRoles);
-
-			var nonExistingUserId = Guid.NewGuid().ToString();
-
-			// Act
-			var response = await _httpClient.SendValidAuthRequestAsync(HttpMethod.Get, _baseUri + "/" + nonExistingUserId);
-
-			// Assert
-			var responseString = await response.ValidateRequestResponseAsync();
-
-			Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-
-			var jsonObject = SerDe.Deserialize<JObject>(responseString);
-
-			Assert.NotNull(jsonObject);
+			UserSettings.FirstName,
+			UserSettings.LastName,
+			UserSettings.UserName,
+			UserSettings.PhoneNumber,
+			UserSettings.UserEmail,
+			UserSettings.UserPassword
+		};
 
 
-			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
-			Assert.Equal("404 - NOT FOUND", $"{jsonObject["statusMessage"]}");
+		// Act
+		var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/register", requestPayload);
 
-			Assert.Equal($"No record exists for the provided identifier - {nonExistingUserId}", jsonObject["error"]?["message"]);
+		// Assert
+		var responseString = await response.ValidateRequestResponseAsync();
 
-			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
+		Assert.Equal(HttpStatusCode.Created, response.StatusCode);
 
-			Assert.NotNull(dateTime);
-			Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
-			Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
-			Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
-		}
+		var jsonObject = SerDe.Deserialize<JObject>(responseString);
+
+		Assert.NotNull(jsonObject);
 
 
-		[Fact]
-		public async Task Get_Deleted_AppUser_Does_Not_Get_User_Details_For_UnAuthorized_User()
+		Assert.Equal("Request Successful", $"{jsonObject["requestStatus"]}");
+		Assert.Equal("Item created successfully", $"{jsonObject["statusMessage"]}");
+
+		var userDetails = jsonObject["userDetails"]?.ToObject<UserDTO>();
+
+		Assert.Equal(requestPayload.FirstName + " " + requestPayload.LastName, userDetails?.FullName);
+		Assert.Equal(requestPayload.UserName, userDetails?.UserName);
+		Assert.Equal(requestPayload.UserEmail, userDetails?.Email);
+		Assert.Equal(userDetails?.Id, userDetails?.CreatedBy);
+		Assert.Equal(userDetails?.Id, userDetails?.UpdatedBy);
+
+		var userToken = jsonObject["userToken"]?.ToObject<AccessTokenViewModel>();
+
+		Assert.NotNull(userToken);
+		Assert.IsType<AccessTokenDTO>(userToken.AccessToken);
+	}
+
+	[Theory]
+	[InlineData("random@test.com", null)]
+	[InlineData("random@test.com", "")]
+	[InlineData(null, "712121212")]
+	[InlineData("", "712121212")]
+	public async Task Register_User_With_Only_Required_Request_Payload_Registers_User(string? UserEmail, string? PhoneNumber)
+	{
+		// Arrange
+		var requestPayload = new
 		{
-			// Arrange
-			DBContexUtils.SeedDatabase(_appDbContext);
+			UserSettings.FirstName,
+			UserSettings.UserName,
+			UserSettings.UserPassword,
+			UserEmail,
+			PhoneNumber
+		};
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
+		// Act
+		var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/register", requestPayload);
 
-			DBContexUtils.ClearAppUser(_appDbContext);
+		// Assert
+		var responseString = await response.ValidateRequestResponseAsync();
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri + "/" + UserSettings.UserId);
-			httpRequest.AddAuthHeader(userToken);
+		Assert.Equal(HttpStatusCode.Created, response.StatusCode);
 
-			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
+		var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
-			// Assert
-			var responseString = await response.ValidateRequestResponseAsync();
+		Assert.NotNull(jsonObject);
 
-			Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 
-			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+		Assert.Equal("Request Successful", $"{jsonObject["requestStatus"]}");
+		Assert.Equal("Item created successfully", $"{jsonObject["statusMessage"]}");
 
-			Assert.NotNull(jsonObject);
+		var userDetails = jsonObject["userDetails"]?.ToObject<UserDTO>();
 
-			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
-			Assert.Equal("404 - NOT FOUND", $"{jsonObject["statusMessage"]}");
+		_outputHelper.WriteLine(responseString);
 
-			Assert.Equal($"No record exists for the provided identifier - {UserSettings.UserId}", jsonObject["error"]?["message"]);
+		Assert.Equal(requestPayload.FirstName, userDetails?.FullName);
+		Assert.Equal(requestPayload.UserName, userDetails?.UserName);
+		Assert.Equal(UserEmail, userDetails?.Email);
+		Assert.Equal(userDetails?.Id, userDetails?.CreatedBy);
+		Assert.Equal(userDetails?.Id, userDetails?.UpdatedBy);
 
-			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
+		var userToken = jsonObject["userToken"]?.ToObject<AccessTokenViewModel>();
 
-			Assert.NotNull(dateTime);
-			Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
-			Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
-			Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
-		}
+		Assert.NotNull(userToken);
+		Assert.IsType<AccessTokenDTO>(userToken.AccessToken);
+	}
 
-		[Fact]
-		public async Task Get_Deleted_AppUser_Does_Not_Get_User_Details_For_Authorized_User()
+	[Fact]
+	public async Task Register_Existing_User_With_Valid_Request_Payload_Does_Not_Create_User()
+	{
+		// Arrange
+		DBContexUtils.SeedDatabase(_appDbContext);
+
+
+		var requestPayload = new
 		{
-			// Arrange
-			DBContexUtils.SeedDatabase(_appDbContext);
-			DBContexUtils.SeedIdentityUserRole(_appDbContext, string.Empty, ApiRoleSettings.AdminRoles);
+			UserSettings.FirstName,
+			UserSettings.LastName,
+			UserSettings.UserName,
+			UserSettings.PhoneNumber,
+			UserSettings.UserEmail,
+			UserSettings.UserPassword
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
+		};
 
-			DBContexUtils.ClearAppUser(_appDbContext);
+		// Act
+		var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/register", requestPayload);
 
-			var nonExistingUserId = Guid.NewGuid().ToString();
+		// Assert
+		var responseString = await response.ValidateRequestResponseAsync();
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Get, _baseUri + "/" + nonExistingUserId);
-			httpRequest.AddAuthHeader(userToken);
+		Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+		var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
-			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
+		Assert.NotNull(jsonObject);
 
-			// Assert
-			var responseString = await response.ValidateRequestResponseAsync();
+		Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+		Assert.Equal("400 - BAD REQUEST", $"{jsonObject["statusMessage"]}");
 
-			Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+		Assert.Equal($"A record identified with - {requestPayload.UserName} - exists", jsonObject["error"]?["message"]);
 
-			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+		var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
 
-			Assert.NotNull(jsonObject);
+		Assert.NotNull(dateTime);
+		Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
+		Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
+		Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
+	}
 
-			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
-			Assert.Equal("404 - NOT FOUND", $"{jsonObject["statusMessage"]}");
+	[Fact]
+	public async Task Login_Existing_User_Logs_In_User()
+	{
+		// Arrange
+		DBContexUtils.SeedDatabase(_appDbContext);
 
-			Assert.Equal($"No record exists for the provided identifier - {nonExistingUserId}", jsonObject["error"]?["message"]);
-
-			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
-
-			Assert.NotNull(dateTime);
-			Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
-			Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
-			Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
-		}
-
-		[Fact]
-		public async Task Register_User_With_Invalid_Request_Payload_Returns_Validation_Errors()
+		var requestPayload = new
 		{
-			// Arrange
-			var requestPayload = new
-			{
-				UserSettings.LastName,
-				UserSettings.PhoneNumber,
-				UserSettings.UserEmail
-			};
+			UserName = UserSettings.UserName,
+			Password = UserSettings.UserPassword
+		};
 
-			// Act
-			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/register", requestPayload);
+		// Act
+		var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/login", requestPayload);
 
-			// Assert
-			var responseString = await response.ValidateRequestResponseAsync();
+		// Assert
+		var responseString = await response.ValidateRequestResponseAsync();
 
-			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+		Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+		var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
-			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+		Assert.NotNull(jsonObject);
 
-			Assert.NotNull(jsonObject);
+		Assert.Equal("Request Successful", $"{jsonObject["requestStatus"]}");
+		Assert.Equal("Login successful", $"{jsonObject["statusMessage"]}");
 
-			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
-			Assert.Equal("400 - BAD REQUEST", $"{jsonObject["statusMessage"]}");
+		var userDetails = jsonObject["userDetails"]?.ToObject<UserDTO>();
 
-			Assert.Equal("Validation Failed", jsonObject["error"]?["message"]);
+		Assert.Equal(UserSettings.FirstName + " " + UserSettings.LastName, userDetails?.FullName);
+		Assert.Equal(requestPayload.UserName, userDetails?.UserName);
+		Assert.Equal(UserSettings.UserEmail, userDetails?.Email);
+		Assert.Equal(userDetails?.Id, userDetails?.CreatedBy);
+		Assert.Equal(userDetails?.Id, userDetails?.UpdatedBy);
 
-			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
+		var userToken = jsonObject["userToken"]?.ToObject<AccessTokenViewModel>();
 
-			Assert.NotNull(dateTime);
-			Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
-			Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
-			Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
+		Assert.NotNull(userToken);
+		Assert.IsType<AccessTokenDTO>(userToken.AccessToken);
+	}
 
-			var errorList = jsonObject["error"]?["errorList"]?.ToObject<List<ValidationError>>();
-
-			Assert.Equal(3, errorList?.Count);
-
-			Assert.True(errorList?.Any(x => x.Field == "FirstName" && x.Message == "The FirstName field is required.") ?? false);
-			Assert.True(errorList?.Any(x => x.Field == "UserName" && x.Message == "The UserName field is required.") ?? false);
-			Assert.True(errorList?.Any(x => x.Field == "UserPassword" && x.Message == "The UserPassword field is required.") ?? false);
-		}
-
-		[Fact]
-		public async Task Register_User_With_Invalid_Request_Missing_Email_Phone_Number_Payload_Returns_Validation_Errors()
+	[Fact]
+	public async Task Login_Non_Existing_User_Does_Not_Log_In_User()
+	{
+		// Arrange
+		var requestPayload = new
 		{
-			// Arrange
-			var requestPayload = new
-			{
-				UserSettings.FirstName,
-				UserSettings.UserName,
-				UserSettings.UserPassword
-			};
+			UserName = UserSettings.UserName,
+			Password = UserSettings.UserPassword
+		};
 
-			// Act
-			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/register", requestPayload);
+		// Act
+		var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/login", requestPayload);
 
+		// Assert
+		var responseString = await response.ValidateRequestResponseAsync();
 
-			// Assert
-			var responseString = await response.ValidateRequestResponseAsync();
+		Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+		var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
-			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+		Assert.NotNull(jsonObject);
 
-			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+		Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+		Assert.Equal("401 - UNAUTHORIZED", $"{jsonObject["statusMessage"]}");
 
-			Assert.NotNull(jsonObject);
+		Assert.Equal("Provided credentials are invalid", jsonObject["error"]?["message"]);
 
-			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
-			Assert.Equal("400 - BAD REQUEST", $"{jsonObject["statusMessage"]}");
+		var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
 
-			Assert.Equal("Validation Failed", jsonObject["error"]?["message"]);
+		Assert.NotNull(dateTime);
+		Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
+		Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
+		Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
+	}
 
-			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
+	[Fact]
+	public async Task Login_Existing_Non_Existent_AppUser_Does_Not_Log_In_User()
+	{
+		// Arrange
+		DBContexUtils.SeedDatabase(_appDbContext);
+		DBContexUtils.ClearAppUser(_appDbContext);
 
-			Assert.NotNull(dateTime);
-			Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
-			Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
-			Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
-
-			var errorList = jsonObject["error"]?["errorList"]?.ToObject<List<ValidationError>>();
-
-			Assert.Equal(2, errorList?.Count);
-
-			Assert.True(errorList?.Any(x => x.Field == "UserEmail" && x.Message == "Either PhoneNumber or UserEmail must be provided.") ?? false);
-			Assert.True(errorList?.Any(x => x.Field == "PhoneNumber" && x.Message == "Either PhoneNumber or UserEmail must be provided.") ?? false);
-		}
-
-		[Fact]
-		public async Task Register_User_With_Valid_Request_Payload_Registers_User()
+		var requestPayload = new
 		{
-			// Arrange
-			var requestPayload = new
-			{
-				UserSettings.FirstName,
-				UserSettings.LastName,
-				UserSettings.UserName,
-				UserSettings.PhoneNumber,
-				UserSettings.UserEmail,
-				UserSettings.UserPassword
-			};
+			UserName = UserSettings.UserName,
+			Password = UserSettings.UserPassword
+		};
 
+		// Act
+		var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/login", requestPayload);
 
-			// Act
-			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/register", requestPayload);
+		// Assert
+		var responseString = await response.ValidateRequestResponseAsync();
 
-			// Assert
-			var responseString = await response.ValidateRequestResponseAsync();
+		Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+		var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
-			Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+		Assert.NotNull(jsonObject);
 
-			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+		Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+		Assert.Equal("401 - UNAUTHORIZED", $"{jsonObject["statusMessage"]}");
 
-			Assert.NotNull(jsonObject);
+		Assert.Equal("Provided credentials are invalid", jsonObject["error"]?["message"]);
 
+		var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
 
-			Assert.Equal("Request Successful", $"{jsonObject["requestStatus"]}");
-			Assert.Equal("Item created successfully", $"{jsonObject["statusMessage"]}");
+		Assert.NotNull(dateTime);
+		Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
+		Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
+		Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
+	}
 
-			var userDetails = jsonObject["userDetails"]?.ToObject<UserDTO>();
+	[Fact]
+	public async Task Login_Existing_Deleted_AppUser_Does_Not_Log_In_User()
+	{
+		// Arrange
+		DBContexUtils.SeedDatabase(_appDbContext);
+		DBContexUtils.DeleteAppUser(_appDbContext);
 
-			Assert.Equal(requestPayload.FirstName + " " + requestPayload.LastName, userDetails?.FullName);
-			Assert.Equal(requestPayload.UserName, userDetails?.UserName);
-			Assert.Equal(requestPayload.UserEmail, userDetails?.Email);
-			Assert.Equal(userDetails?.Id, userDetails?.Audit?.CreatedBy);
-			Assert.Equal(userDetails?.Id, userDetails?.Audit?.UpdatedBy);
-
-			var userToken = jsonObject["userToken"]?.ToObject<AccessTokenViewModel>();
-
-			Assert.NotNull(userToken);
-			Assert.IsType<AccessTokenDTO>(userToken.AccessToken);
-		}
-
-		[Theory]
-		[InlineData("random@test.com", null)]
-		[InlineData("random@test.com", "")]
-		[InlineData(null, "712121212")]
-		[InlineData("", "712121212")]
-		public async Task Register_User_With_Only_Required_Request_Payload_Registers_User(string? UserEmail, string? PhoneNumber)
+		var requestPayload = new
 		{
-			// Arrange
-			var requestPayload = new
-			{
-				UserSettings.FirstName,
-				UserSettings.UserName,
-				UserSettings.UserPassword,
-				UserEmail,
-				PhoneNumber
-			};
+			UserName = UserSettings.UserName,
+			Password = UserSettings.UserPassword
+		};
 
-			// Act
-			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/register", requestPayload);
+		// Act
+		var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/login", requestPayload);
 
-			// Assert
-			var responseString = await response.ValidateRequestResponseAsync();
+		// Assert
+		var responseString = await response.ValidateRequestResponseAsync();
 
-			Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+		Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+		var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
-			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+		Assert.NotNull(jsonObject);
 
-			Assert.NotNull(jsonObject);
+		Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+		Assert.Equal("401 - UNAUTHORIZED", $"{jsonObject["statusMessage"]}");
 
+		Assert.Equal("Provided credentials are invalid", jsonObject["error"]?["message"]);
 
-			Assert.Equal("Request Successful", $"{jsonObject["requestStatus"]}");
-			Assert.Equal("Item created successfully", $"{jsonObject["statusMessage"]}");
+		var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
 
-			var userDetails = jsonObject["userDetails"]?.ToObject<UserDTO>();
+		Assert.NotNull(dateTime);
+		Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
+		Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
+		Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
+	}
 
-			_outputHelper.WriteLine(responseString);
+	[Fact]
+	public async Task Login_Existing_With_Invalid_Password_Does_Not_Log_In_User()
+	{
+		// Arrange
+		DBContexUtils.SeedDatabase(_appDbContext);
 
-			Assert.Equal(requestPayload.FirstName, userDetails?.FullName);
-			Assert.Equal(requestPayload.UserName, userDetails?.UserName);
-			Assert.Equal(UserEmail, userDetails?.Email);
-			Assert.Equal(userDetails?.Id, userDetails?.Audit?.CreatedBy);
-			Assert.Equal(userDetails?.Id, userDetails?.Audit?.UpdatedBy);
-
-			var userToken = jsonObject["userToken"]?.ToObject<AccessTokenViewModel>();
-
-			Assert.NotNull(userToken);
-			Assert.IsType<AccessTokenDTO>(userToken.AccessToken);
-		}
-
-		[Fact]
-		public async Task Register_Existing_User_With_Valid_Request_Payload_Does_Not_Create_User()
+		var requestPayload = new
 		{
-			// Arrange
-			DBContexUtils.SeedDatabase(_appDbContext);
+			UserName = UserSettings.UserName,
+			Password = UserSettings.UserPassword + "123"
+		};
 
+		// Act
+		var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/login", requestPayload);
 
-			var requestPayload = new
-			{
-				UserSettings.FirstName,
-				UserSettings.LastName,
-				UserSettings.UserName,
-				UserSettings.PhoneNumber,
-				UserSettings.UserEmail,
-				UserSettings.UserPassword
+		// Assert
+		var responseString = await response.ValidateRequestResponseAsync();
 
-			};
+		Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+		var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
-			// Act
-			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/register", requestPayload);
+		Assert.NotNull(jsonObject);
 
-			// Assert
-			var responseString = await response.ValidateRequestResponseAsync();
+		Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+		Assert.Equal("401 - UNAUTHORIZED", $"{jsonObject["statusMessage"]}");
 
-			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+		Assert.Equal("Provided credentials are invalid", jsonObject["error"]?["message"]);
 
-			Assert.NotNull(jsonObject);
+		var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
 
-			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
-			Assert.Equal("400 - BAD REQUEST", $"{jsonObject["statusMessage"]}");
+		Assert.NotNull(dateTime);
+		Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
+		Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
+		Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
+	}
 
-			Assert.Equal($"A record identified with - {requestPayload.UserName} - exists", jsonObject["error"]?["message"]);
+	[Fact]
+	public async Task Refresh_Valid_User_Token_Refreshes_User_token()
+	{
+		// Arrange
+		DBContexUtils.SeedDatabase(_appDbContext);
 
-			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
+		(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
-			Assert.NotNull(dateTime);
-			Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
-			Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
-			Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
-		}
-
-		[Fact]
-		public async Task Login_Existing_User_Logs_In_User()
+		var requestPayload = new
 		{
-			// Arrange
-			DBContexUtils.SeedDatabase(_appDbContext);
+			AccessToken = userToken,
+			RefreshToken = refreshToken
+		};
 
-			var requestPayload = new
-			{
-				UserName = UserSettings.UserName,
-				Password = UserSettings.UserPassword
-			};
+		var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/refresh-token");
+		httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
 
-			// Act
-			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/login", requestPayload);
+		// Act
+		var response = await _httpClient.SendAsync(httpRequest);
 
-			// Assert
-			var responseString = await response.ValidateRequestResponseAsync();
+		// Assert
+		var responseString = await response.ValidateRequestResponseAsync();
 
-			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+		Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+		var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
-			Assert.NotNull(jsonObject);
+		Assert.NotNull(jsonObject);
 
-			Assert.Equal("Request Successful", $"{jsonObject["requestStatus"]}");
-			Assert.Equal("Login successful", $"{jsonObject["statusMessage"]}");
+		Assert.Equal("Request Successful", $"{jsonObject["requestStatus"]}");
+		Assert.Equal("Refresh token generated successfully", $"{jsonObject["statusMessage"]}");
 
-			var userDetails = jsonObject["userDetails"]?.ToObject<UserDTO>();
 
-			Assert.Equal(UserSettings.FirstName + " " + UserSettings.LastName, userDetails?.FullName);
-			Assert.Equal(requestPayload.UserName, userDetails?.UserName);
-			Assert.Equal(UserSettings.UserEmail, userDetails?.Email);
-			Assert.Equal(userDetails?.Id, userDetails?.Audit?.CreatedBy);
-			Assert.Equal(userDetails?.Id, userDetails?.Audit?.UpdatedBy);
+		var userTokenVM = jsonObject["userToken"]?.ToObject<AccessTokenViewModel>();
 
-			var userToken = jsonObject["userToken"]?.ToObject<AccessTokenViewModel>();
+		Assert.NotNull(userTokenVM);
+		Assert.IsType<AccessTokenDTO>(userTokenVM.AccessToken);
 
-			Assert.NotNull(userToken);
-			Assert.IsType<AccessTokenDTO>(userToken.AccessToken);
-		}
+		Assert.NotEqual(userToken, userTokenVM.AccessToken.Token);
+		Assert.NotEqual(refreshToken, userTokenVM.RefreshToken);
 
-		[Fact]
-		public async Task Login_Non_Existing_User_Does_Not_Log_In_User()
+		Assert.True(userTokenVM?.AccessToken.ExpiresIn > 0);
+	}
+
+	[Fact]
+	public async Task Refresh_User_Token_With_Invalid_Refresh_Token_Does_Not_Refresh_User_token()
+	{
+		// Arrange
+		DBContexUtils.SeedDatabase(_appDbContext);
+
+		(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
+
+		var requestPayload = new
 		{
-			// Arrange
-			var requestPayload = new
-			{
-				UserName = UserSettings.UserName,
-				Password = UserSettings.UserPassword
-			};
+			AccessToken = userToken,
+			RefreshToken = Base64UrlEncoder.Encode(refreshToken)
+		};
 
-			// Act
-			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/login", requestPayload);
+		var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/refresh-token");
+		httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
 
-			// Assert
-			var responseString = await response.ValidateRequestResponseAsync();
+		// Act
+		var response = await _httpClient.SendAsync(httpRequest);
 
-			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+		// Assert
+		var responseString = await response.ValidateRequestResponseAsync();
 
-			Assert.NotNull(jsonObject);
+		Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+		var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
-			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
-			Assert.Equal("401 - UNAUTHORIZED", $"{jsonObject["statusMessage"]}");
+		Assert.NotNull(jsonObject);
 
-			Assert.Equal("Provided credentials are invalid", jsonObject["error"]?["message"]);
+		Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+		Assert.Equal("401 - UNAUTHORIZED", $"{jsonObject["statusMessage"]}");
 
-			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
+		Assert.Equal("Invalid refresh token provided", jsonObject["error"]?["message"]);
 
-			Assert.NotNull(dateTime);
-			Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
-			Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
-			Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
-		}
+		var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
 
-		[Fact]
-		public async Task Login_Existing_Non_Existent_AppUser_Does_Not_Log_In_User()
+		Assert.NotNull(dateTime);
+		Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
+		Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
+		Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
+	}
+
+	[Fact]
+	public async Task Refresh_User_Token_With_Deleted_Refresh_Token_Does_Not_Refresh_User_token()
+	{
+		// Arrange
+		DBContexUtils.SeedDatabase(_appDbContext);
+
+		(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
+
+		DBContexUtils.DeleteRefreshToken(_appDbContext);
+
+		var requestPayload = new
 		{
-			// Arrange
-			DBContexUtils.SeedDatabase(_appDbContext);
-			DBContexUtils.ClearAppUser(_appDbContext);
+			AccessToken = userToken,
+			RefreshToken = Base64UrlEncoder.Encode(refreshToken)
+		};
 
-			var requestPayload = new
-			{
-				UserName = UserSettings.UserName,
-				Password = UserSettings.UserPassword
-			};
+		var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/refresh-token");
+		httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
 
-			// Act
-			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/login", requestPayload);
+		// Act
+		var response = await _httpClient.SendAsync(httpRequest);
 
-			// Assert
-			var responseString = await response.ValidateRequestResponseAsync();
+		// Assert
+		var responseString = await response.ValidateRequestResponseAsync();
 
-			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+		Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+		var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
-			Assert.NotNull(jsonObject);
+		Assert.NotNull(jsonObject);
 
-			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
-			Assert.Equal("401 - UNAUTHORIZED", $"{jsonObject["statusMessage"]}");
+		Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+		Assert.Equal("401 - UNAUTHORIZED", $"{jsonObject["statusMessage"]}");
 
-			Assert.Equal("Provided credentials are invalid", jsonObject["error"]?["message"]);
+		Assert.Equal("Invalid refresh token provided", jsonObject["error"]?["message"]);
 
-			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
+		var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
 
-			Assert.NotNull(dateTime);
-			Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
-			Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
-			Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
-		}
+		Assert.NotNull(dateTime);
+		Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
+		Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
+		Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
+	}
 
-		[Fact]
-		public async Task Login_Existing_Deleted_AppUser_Does_Not_Log_In_User()
+	[Fact]
+	public async Task Refresh_User_Token_With_Invalid_Access_Token_Does_Not_Refresh_User_token()
+	{
+		// Arrange
+		DBContexUtils.SeedDatabase(_appDbContext);
+
+		(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
+
+		var requestPayload = new
 		{
-			// Arrange
-			DBContexUtils.SeedDatabase(_appDbContext);
-			DBContexUtils.DeleteAppUser(_appDbContext);
+			AccessToken = UserSettings.InvalidUserToken,
+			RefreshToken = refreshToken
+		};
 
-			var requestPayload = new
-			{
-				UserName = UserSettings.UserName,
-				Password = UserSettings.UserPassword
-			};
+		var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/refresh-token");
+		httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
 
-			// Act
-			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/login", requestPayload);
+		// Act
+		var response = await _httpClient.SendAsync(httpRequest);
 
-			// Assert
-			var responseString = await response.ValidateRequestResponseAsync();
+		// Assert
+		var responseString = await response.ValidateRequestResponseAsync();
 
-			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+		Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+		var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
-			Assert.NotNull(jsonObject);
+		Assert.NotNull(jsonObject);
 
-			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
-			Assert.Equal("401 - UNAUTHORIZED", $"{jsonObject["statusMessage"]}");
+		Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+		Assert.Equal("401 - UNAUTHORIZED", $"{jsonObject["statusMessage"]}");
 
-			Assert.Equal("Provided credentials are invalid", jsonObject["error"]?["message"]);
+		Assert.Equal("An invalid access token was provided", jsonObject["error"]?["message"]);
 
-			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
+		var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
 
-			Assert.NotNull(dateTime);
-			Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
-			Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
-			Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
-		}
+		Assert.NotNull(dateTime);
+		Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
+		Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
+		Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
+	}
 
-		[Fact]
-		public async Task Login_Existing_With_Invalid_Password_Does_Not_Log_In_User()
+	[Fact]
+	public async Task Reset_Password_With_Invalid_Payload_Returns_Validation_Results()
+	{
+		// Arrange
+		var requestPayload = new
 		{
-			// Arrange
-			DBContexUtils.SeedDatabase(_appDbContext);
+		};
 
-			var requestPayload = new
-			{
-				UserName = UserSettings.UserName,
-				Password = UserSettings.UserPassword + "123"
-			};
+		// Act
+		var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/reset-password", requestPayload);
 
-			// Act
-			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/login", requestPayload);
+		// Assert
+		var responseString = await response.ValidateRequestResponseAsync();
 
-			// Assert
-			var responseString = await response.ValidateRequestResponseAsync();
+		Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+		var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
-			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+		Assert.NotNull(jsonObject);
 
-			Assert.NotNull(jsonObject);
+		Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+		Assert.Equal("400 - BAD REQUEST", $"{jsonObject["statusMessage"]}");
 
-			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
-			Assert.Equal("401 - UNAUTHORIZED", $"{jsonObject["statusMessage"]}");
+		Assert.Equal("Validation Failed", jsonObject["error"]?["message"]);
 
-			Assert.Equal("Provided credentials are invalid", jsonObject["error"]?["message"]);
+		var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
 
-			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
+		Assert.NotNull(dateTime);
+		Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
+		Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
+		Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
 
-			Assert.NotNull(dateTime);
-			Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
-			Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
-			Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
-		}
+		var errorList = jsonObject["error"]?["errorList"]?.ToObject<List<ValidationError>>();
 
-		[Fact]
-		public async Task Refresh_Valid_User_Token_Refreshes_User_token()
+		Assert.Equal(1, errorList?.Count);
+
+		Assert.True(errorList?.Any(x => x.Field == "UserEmail" && x.Message == "The UserEmail field is required.") ?? false);
+	}
+
+	[Fact]
+	public async Task Reset_Password_For_Existing_User_Resets_Password()
+	{
+		// Arrange
+		DBContexUtils.SeedDatabase(_appDbContext);
+
+		var requestPayload = new
 		{
-			// Arrange
-			DBContexUtils.SeedDatabase(_appDbContext);
+			UserSettings.UserEmail,
+		};
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
+		// Act
+		var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/reset-password", requestPayload);
 
-			var requestPayload = new
-			{
-				AccessToken = userToken,
-				RefreshToken = refreshToken
-			};
+		// Assert
+		var responseString = await response.ValidateRequestResponseAsync();
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/refresh-token");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
+		Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+		var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
-			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
-
-			// Assert
-			var responseString = await response.ValidateRequestResponseAsync();
-
-			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-			var jsonObject = SerDe.Deserialize<JObject>(responseString);
-
-			Assert.NotNull(jsonObject);
-
-			Assert.Equal("Request Successful", $"{jsonObject["requestStatus"]}");
-			Assert.Equal("Refresh token generated successfully", $"{jsonObject["statusMessage"]}");
+		Assert.NotNull(jsonObject);
 
 
-			var userTokenVM = jsonObject["userToken"]?.ToObject<AccessTokenViewModel>();
+		Assert.Equal("Request Successful", $"{jsonObject["requestStatus"]}");
+		Assert.Equal("Password reset request successful", $"{jsonObject["statusMessage"]}");
 
-			Assert.NotNull(userTokenVM);
-			Assert.IsType<AccessTokenDTO>(userTokenVM.AccessToken);
 
-			Assert.NotEqual(userToken, userTokenVM.AccessToken.Token);
-			Assert.NotEqual(refreshToken, userTokenVM.RefreshToken);
+		var resetPasswordDTO = jsonObject["resetPasswordDetails"]?.ToObject<ResetPasswordDTO>();
 
-			Assert.True(userTokenVM?.AccessToken.ExpiresIn > 0);
-		}
+		Assert.NotNull(resetPasswordDTO);
+	}
 
-		[Fact]
-		public async Task Refresh_User_Token_With_Invalid_Refresh_Token_Does_Not_Refresh_User_token()
+	[Fact]
+	public async Task Reset_Password_For_Non_Existing_User_Returns_Success_Message()
+	{
+		// Arrange
+		DBContexUtils.SeedDatabase(_appDbContext);
+
+		var requestPayload = new
 		{
-			// Arrange
-			DBContexUtils.SeedDatabase(_appDbContext);
+			UserEmail = "hello@test.com",
+		};
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
+		// Act
+		var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/reset-password", requestPayload);
 
-			var requestPayload = new
-			{
-				AccessToken = userToken,
-				RefreshToken = Base64UrlEncoder.Encode(refreshToken)
-			};
+		// Assert
+		var responseString = await response.ValidateRequestResponseAsync();
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/refresh-token");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
+		Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+		var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
-			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
+		Assert.NotNull(jsonObject);
 
-			// Assert
-			var responseString = await response.ValidateRequestResponseAsync();
+		Assert.Equal("Request Successful", $"{jsonObject["requestStatus"]}");
+		Assert.Equal("Password reset request successful", $"{jsonObject["statusMessage"]}");
 
-			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+		var resetPasswordDTO = jsonObject["resetPasswordDetails"]?.ToObject<ResetPasswordDTO>();
 
-			Assert.NotNull(jsonObject);
+		Assert.NotNull(resetPasswordDTO);
+	}
 
-			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
-			Assert.Equal("401 - UNAUTHORIZED", $"{jsonObject["statusMessage"]}");
+	[Fact]
+	public async Task Reset_Password_For_Non_Existing_UserDetails_Record_Does_Not_Reset_Password()
+	{
+		// Arrange
+		DBContexUtils.SeedIdentityUser(_appDbContext);
 
-			Assert.Equal("Invalid refresh token provided", jsonObject["error"]?["message"]);
-
-			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
-
-			Assert.NotNull(dateTime);
-			Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
-			Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
-			Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
-		}
-
-		[Fact]
-		public async Task Refresh_User_Token_With_Deleted_Refresh_Token_Does_Not_Refresh_User_token()
+		var requestPayload = new
 		{
-			// Arrange
-			DBContexUtils.SeedDatabase(_appDbContext);
+			UserSettings.UserEmail
+		};
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
 
-			DBContexUtils.DeleteRefreshToken(_appDbContext);
+		// Act
+		var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/reset-password", requestPayload);
 
-			var requestPayload = new
-			{
-				AccessToken = userToken,
-				RefreshToken = Base64UrlEncoder.Encode(refreshToken)
-			};
+		// Assert
+		var responseString = await response.ValidateRequestResponseAsync();
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/refresh-token");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
+		Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
 
-			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
+		var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
-			// Assert
-			var responseString = await response.ValidateRequestResponseAsync();
+		Assert.NotNull(jsonObject);
 
-			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-			var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
-			Assert.NotNull(jsonObject);
+		Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+		Assert.Equal("500 - INTERNAL SERVER ERROR", $"{jsonObject["statusMessage"]}");
 
-			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
-			Assert.Equal("401 - UNAUTHORIZED", $"{jsonObject["statusMessage"]}");
+		Assert.Equal($"An error occured while updating a record identified by - {requestPayload.UserEmail}", jsonObject["error"]?["message"]);
 
-			Assert.Equal("Invalid refresh token provided", jsonObject["error"]?["message"]);
+		var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
 
-			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
+		Assert.NotNull(dateTime);
+		Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
+		Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
+		Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
+	}
 
-			Assert.NotNull(dateTime);
-			Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
-			Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
-			Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
-		}
 
-		[Fact]
-		public async Task Refresh_User_Token_With_Invalid_Access_Token_Does_Not_Refresh_User_token()
+	[Fact]
+	public async Task Confirm_Password_Token_With_Invalid_Payload_Returns_Validation_Results()
+	{
+		// Arrange
+		var requestPayload = new
 		{
-			// Arrange
-			DBContexUtils.SeedDatabase(_appDbContext);
+		};
 
-			(var userToken, var refreshToken) = await _httpClient.LoginUserAsync(UserSettings.UserName, UserSettings.UserPassword);
+		// Act
+		var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/confirm-update-password-token", requestPayload);
 
-			var requestPayload = new
-			{
-				AccessToken = UserSettings.InvalidUserToken,
-				RefreshToken = refreshToken
-			};
+		// Assert
+		var responseString = await response.ValidateRequestResponseAsync();
 
-			var httpRequest = APIHelper.CreateHttpRequestMessage(HttpMethod.Post, _baseUri + "/refresh-token");
-			httpRequest.Content = SerDe.ConvertToHttpContent(requestPayload);
+		Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+		var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
-			// Act
-			var response = await _httpClient.SendAsync(httpRequest);
+		Assert.NotNull(jsonObject);
 
-			// Assert
-			var responseString = await response.ValidateRequestResponseAsync();
+		Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+		Assert.Equal("400 - BAD REQUEST", $"{jsonObject["statusMessage"]}");
 
-			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+		Assert.Equal("Validation Failed", jsonObject["error"]?["message"]);
 
-			Assert.NotNull(jsonObject);
+		var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
 
-			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
-			Assert.Equal("401 - UNAUTHORIZED", $"{jsonObject["statusMessage"]}");
+		Assert.NotNull(dateTime);
+		Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
+		Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
+		Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
 
-			Assert.Equal("An invalid access token was provided", jsonObject["error"]?["message"]);
+		var errorList = jsonObject["error"]?["errorList"]?.ToObject<List<ValidationError>>();
 
-			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
+		Assert.Equal(2, errorList?.Count);
 
-			Assert.NotNull(dateTime);
-			Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
-			Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
-			Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
-		}
+		Assert.True(errorList?.Any(x => x.Field == "ConfirmPasswordToken" && x.Message == "The ConfirmPasswordToken field is required.") ?? false);
+		Assert.True(errorList?.Any(x => x.Field == "UserId" && x.Message == "The UserId field is required.") ?? false);
+	}
 
-		[Fact]
-		public async Task Reset_Password_With_Invalid_Payload_Returns_Validation_Results()
+	[Fact]
+	public async Task Confirm_Password_Token_With_Valid_Payload_Confirms_Password_Token()
+	{
+		// Arrange
+		DBContexUtils.SeedDatabase(_appDbContext);
+		var resetPasswordToken = DBContexUtils.UpdateResetPasswordToken(_appDbContext, _userManager);
+
+		var requestPayload = new
 		{
-			// Arrange
-			var requestPayload = new
-			{
-			};
+			ConfirmPasswordToken = resetPasswordToken,
+			UserSettings.UserId
+		};
 
-			// Act
-			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/reset-password", requestPayload);
+		// Act
+		var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/confirm-update-password-token", requestPayload);
 
-			// Assert
-			var responseString = await response.ValidateRequestResponseAsync();
+		// Assert
+		var responseString = await response.ValidateRequestResponseAsync();
 
-			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+		Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+		var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
-			Assert.NotNull(jsonObject);
+		Assert.NotNull(jsonObject);
 
-			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
-			Assert.Equal("400 - BAD REQUEST", $"{jsonObject["statusMessage"]}");
+		Assert.Equal("Request Successful", $"{jsonObject["requestStatus"]}");
+		Assert.Equal("Token confirmation successful", $"{jsonObject["statusMessage"]}");
 
-			Assert.Equal("Validation Failed", jsonObject["error"]?["message"]);
 
-			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
+		var resetPasswordDTO = jsonObject["tokenPasswordResult"]?.ToObject<ConfirmUpdatePasswordDTO>();
 
-			Assert.NotNull(dateTime);
-			Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
-			Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
-			Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
+		Assert.NotNull(resetPasswordDTO);
+		Assert.True(resetPasswordDTO?.UpdatePasswordTokenConfirmed);
+	}
 
-			var errorList = jsonObject["error"]?["errorList"]?.ToObject<List<ValidationError>>();
 
-			Assert.Equal(1, errorList?.Count);
+	[Fact]
+	public async Task Confirm_Password_Token_With_Invalid_Token_Does_Not_Confirm_Password_Token()
+	{
+		// Arrange
+		DBContexUtils.SeedDatabase(_appDbContext);
+		var resetPasswordToken = DBContexUtils.UpdateResetPasswordToken(_appDbContext, _userManager);
 
-			Assert.True(errorList?.Any(x => x.Field == "UserEmail" && x.Message == "The UserEmail field is required.") ?? false);
-		}
-
-		[Fact]
-		public async Task Reset_Password_For_Existing_User_Resets_Password()
+		var requestPayload = new
 		{
-			// Arrange
-			DBContexUtils.SeedDatabase(_appDbContext);
+			ConfirmPasswordToken = resetPasswordToken + "897455\\f",
+			UserSettings.UserId
+		};
 
-			var requestPayload = new
-			{
-				UserSettings.UserEmail,
-			};
+		// Act
+		var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/confirm-update-password-token", requestPayload);
 
-			// Act
-			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/reset-password", requestPayload);
+		// Assert
+		var responseString = await response.ValidateRequestResponseAsync();
 
-			// Assert
-			var responseString = await response.ValidateRequestResponseAsync();
+		Assert.Equal(HttpStatusCode.NotAcceptable, response.StatusCode);
+		var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
-			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+		Assert.NotNull(jsonObject);
 
-			Assert.NotNull(jsonObject);
-
-
-			Assert.Equal("Request Successful", $"{jsonObject["requestStatus"]}");
-			Assert.Equal("Password reset request successful", $"{jsonObject["statusMessage"]}");
+		Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+		Assert.Equal("Token confirmation failed", $"{jsonObject["statusMessage"]}");
 
 
-			var resetPasswordDTO = jsonObject["resetPasswordDetails"]?.ToObject<ResetPasswordDTO>();
+		var resetPasswordDTO = jsonObject["tokenPasswordResult"]?.ToObject<ConfirmUpdatePasswordDTO>();
 
-			Assert.NotNull(resetPasswordDTO);
-		}
+		Assert.NotNull(resetPasswordDTO);
+		Assert.False(resetPasswordDTO?.UpdatePasswordTokenConfirmed);
+	}
 
-		[Fact]
-		public async Task Reset_Password_For_Non_Existing_User_Returns_Success_Message()
+	[Fact]
+	public async Task Confirm_Password_Token_With_Non_Existent_Token_Does_Not_Confirm_Password_Token()
+	{
+		// Arrange
+		DBContexUtils.SeedDatabase(_appDbContext);
+		var resetPasswordToken = DBContexUtils.UpdateResetPasswordToken(_appDbContext, _userManager);
+
+		var requestPayload = new
 		{
-			// Arrange
-			DBContexUtils.SeedDatabase(_appDbContext);
+			ConfirmPasswordToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(resetPasswordToken + "897455989")),
+			UserSettings.UserId
+		};
 
-			var requestPayload = new
-			{
-				UserEmail = "hello@test.com",
-			};
+		// Act
+		var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/confirm-update-password-token", requestPayload);
 
-			// Act
-			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/reset-password", requestPayload);
+		// Assert
+		var responseString = await response.ValidateRequestResponseAsync();
 
-			// Assert
-			var responseString = await response.ValidateRequestResponseAsync();
+		Assert.Equal(HttpStatusCode.NotAcceptable, response.StatusCode);
+		var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
-			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+		Assert.NotNull(jsonObject);
 
-			Assert.NotNull(jsonObject);
+		Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+		Assert.Equal("Token confirmation failed", $"{jsonObject["statusMessage"]}");
 
-			Assert.Equal("Request Successful", $"{jsonObject["requestStatus"]}");
-			Assert.Equal("Password reset request successful", $"{jsonObject["statusMessage"]}");
 
-			var resetPasswordDTO = jsonObject["resetPasswordDetails"]?.ToObject<ResetPasswordDTO>();
+		var resetPasswordDTO = jsonObject["tokenPasswordResult"]?.ToObject<ConfirmUpdatePasswordDTO>();
 
-			Assert.NotNull(resetPasswordDTO);
-		}
+		Assert.NotNull(resetPasswordDTO);
+		Assert.False(resetPasswordDTO?.UpdatePasswordTokenConfirmed);
+	}
 
-		[Fact]
-		public async Task Reset_Password_For_Non_Existing_UserDetails_Record_Does_Not_Reset_Password()
+	[Fact]
+	public async Task Update_Password_With_Invalid_Payload_Returns_Validation_Results()
+	{
+		// Arrange
+		var requestPayload = new
 		{
-			// Arrange
-			DBContexUtils.SeedIdentityUser(_appDbContext);
+		};
 
-			var requestPayload = new
-			{
-				UserSettings.UserEmail
-			};
+		// Act
+		var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/update-password", requestPayload);
 
+		// Assert
+		var responseString = await response.ValidateRequestResponseAsync();
 
-			// Act
-			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/reset-password", requestPayload);
+		Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+		var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
-			// Assert
-			var responseString = await response.ValidateRequestResponseAsync();
+		Assert.NotNull(jsonObject);
 
-			Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+		Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+		Assert.Equal("400 - BAD REQUEST", $"{jsonObject["statusMessage"]}");
 
-			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+		Assert.Equal("Validation Failed", jsonObject["error"]?["message"]);
 
-			Assert.NotNull(jsonObject);
+		var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
 
+		Assert.NotNull(dateTime);
+		Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
+		Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
+		Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
 
-			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
-			Assert.Equal("500 - INTERNAL SERVER ERROR", $"{jsonObject["statusMessage"]}");
+		var errorList = jsonObject["error"]?["errorList"]?.ToObject<List<ValidationError>>();
 
-			Assert.Equal($"An error occured while updating a record identified by - {requestPayload.UserEmail}", jsonObject["error"]?["message"]);
+		Assert.Equal(3, errorList?.Count);
 
-			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
+		Assert.True(errorList?.Any(x => x.Field == "NewPassword" && x.Message == "The NewPassword field is required.") ?? false);
+		Assert.True(errorList?.Any(x => x.Field == "UserId" && x.Message == "The UserId field is required.") ?? false);
+		Assert.True(errorList?.Any(x => x.Field == "PasswordResetToken" && x.Message == "The PasswordResetToken field is required.") ?? false);
+	}
 
-			Assert.NotNull(dateTime);
-			Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
-			Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
-			Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
-		}
+	[Fact]
+	public async Task Update_Password_For_Non_Existent_User_Does_Not_Update_Password()
+	{
+		// Arrange
+		DBContexUtils.SeedDatabase(_appDbContext);
+		var resetPasswordToken = DBContexUtils.UpdateResetPasswordToken(_appDbContext, _userManager);
 
-
-		[Fact]
-		public async Task Confirm_Password_Token_With_Invalid_Payload_Returns_Validation_Results()
+		var requestPayload = new
 		{
-			// Arrange
-			var requestPayload = new
-			{
-			};
+			NewPassword = "12345",
+			UserId = Guid.NewGuid().ToString(),
+			PasswordResetToken = resetPasswordToken
+		};
 
-			// Act
-			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/confirm-update-password-token", requestPayload);
+		// Act
+		var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/update-password", requestPayload);
 
-			// Assert
-			var responseString = await response.ValidateRequestResponseAsync();
+		// Assert
+		var responseString = await response.ValidateRequestResponseAsync();
 
-			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+		Assert.Equal(HttpStatusCode.NotAcceptable, response.StatusCode);
+		var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
-			Assert.NotNull(jsonObject);
+		Assert.NotNull(jsonObject);
 
-			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
-			Assert.Equal("400 - BAD REQUEST", $"{jsonObject["statusMessage"]}");
+		Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+		Assert.Equal("Password update failed", $"{jsonObject["statusMessage"]}");
 
-			Assert.Equal("Validation Failed", jsonObject["error"]?["message"]);
 
-			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
+		var updatePasswordDTO = jsonObject["updatePasswordResult"]?.ToObject<UpdatePasswordDTO>();
 
-			Assert.NotNull(dateTime);
-			Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
-			Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
-			Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
+		Assert.NotNull(updatePasswordDTO);
+		Assert.False(updatePasswordDTO?.PassWordUpdated);
+	}
 
-			var errorList = jsonObject["error"]?["errorList"]?.ToObject<List<ValidationError>>();
+	[Fact]
+	public async Task Update_Password_With_Invalid_Payload_Does_Not_Update_Password()
+	{
+		// Arrange
+		DBContexUtils.SeedDatabase(_appDbContext);
+		var resetPasswordToken = DBContexUtils.UpdateResetPasswordToken(_appDbContext, _userManager);
 
-			Assert.Equal(2, errorList?.Count);
 
-			Assert.True(errorList?.Any(x => x.Field == "ConfirmPasswordToken" && x.Message == "The ConfirmPasswordToken field is required.") ?? false);
-			Assert.True(errorList?.Any(x => x.Field == "UserId" && x.Message == "The UserId field is required.") ?? false);
-		}
-
-		[Fact]
-		public async Task Confirm_Password_Token_With_Valid_Payload_Confirms_Password_Token()
+		var requestPayload = new
 		{
-			// Arrange
-			DBContexUtils.SeedDatabase(_appDbContext);
-			var resetPasswordToken = DBContexUtils.UpdateResetPasswordToken(_appDbContext, _userManager);
+			NewPassword = "12345",
+			UserSettings.UserId,
+			PasswordResetToken = resetPasswordToken
+		};
 
-			var requestPayload = new
-			{
-				ConfirmPasswordToken = resetPasswordToken,
-				UserSettings.UserId
-			};
+		// Act
+		var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/update-password", requestPayload);
 
-			// Act
-			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/confirm-update-password-token", requestPayload);
+		// Assert
+		var responseString = await response.ValidateRequestResponseAsync();
 
-			// Assert
-			var responseString = await response.ValidateRequestResponseAsync();
+		Assert.Equal(HttpStatusCode.NotAcceptable, response.StatusCode);
+		var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
-			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+		Assert.NotNull(jsonObject);
 
-			Assert.NotNull(jsonObject);
-
-			Assert.Equal("Request Successful", $"{jsonObject["requestStatus"]}");
-			Assert.Equal("Token confirmation successful", $"{jsonObject["statusMessage"]}");
+		Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+		Assert.Equal("Password update failed", $"{jsonObject["statusMessage"]}");
 
 
-			var resetPasswordDTO = jsonObject["tokenPasswordResult"]?.ToObject<ConfirmUpdatePasswordDTO>();
+		var updatePasswordDTO = jsonObject["updatePasswordResult"]?.ToObject<UpdatePasswordDTO>();
 
-			Assert.NotNull(resetPasswordDTO);
-			Assert.True(resetPasswordDTO?.UpdatePasswordTokenConfirmed);
-		}
+		Assert.NotNull(updatePasswordDTO);
+		Assert.False(updatePasswordDTO?.PassWordUpdated);
+	}
+
+	[Fact]
+	public async Task Update_Password_With_Valid_Payload_Updates_Password()
+	{
+		// Arrange
+		DBContexUtils.SeedDatabase(_appDbContext);
+		var resetPasswordToken = DBContexUtils.UpdateResetPasswordToken(_appDbContext, _userManager);
 
 
-		[Fact]
-		public async Task Confirm_Password_Token_With_Invalid_Token_Does_Not_Confirm_Password_Token()
+		var requestPayload = new
 		{
-			// Arrange
-			DBContexUtils.SeedDatabase(_appDbContext);
-			var resetPasswordToken = DBContexUtils.UpdateResetPasswordToken(_appDbContext, _userManager);
+			NewPassword = "12345P@ss",
+			UserSettings.UserId,
+			PasswordResetToken = resetPasswordToken
+		};
 
-			var requestPayload = new
-			{
-				ConfirmPasswordToken = resetPasswordToken + "897455\\f",
-				UserSettings.UserId
-			};
+		// Act
+		var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/update-password", requestPayload);
 
-			// Act
-			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/confirm-update-password-token", requestPayload);
+		// Assert
+		var responseString = await response.ValidateRequestResponseAsync();
 
-			// Assert
-			var responseString = await response.ValidateRequestResponseAsync();
+		Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+		var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
-			Assert.Equal(HttpStatusCode.NotAcceptable, response.StatusCode);
-			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+		Assert.NotNull(jsonObject);
 
-			Assert.NotNull(jsonObject);
-
-			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
-			Assert.Equal("Token confirmation failed", $"{jsonObject["statusMessage"]}");
+		Assert.Equal("Request Successful", $"{jsonObject["requestStatus"]}");
+		Assert.Equal("Password updated successfully", $"{jsonObject["statusMessage"]}");
 
 
-			var resetPasswordDTO = jsonObject["tokenPasswordResult"]?.ToObject<ConfirmUpdatePasswordDTO>();
+		var updatePasswordDTO = jsonObject["updatePasswordResult"]?.ToObject<UpdatePasswordDTO>();
 
-			Assert.NotNull(resetPasswordDTO);
-			Assert.False(resetPasswordDTO?.UpdatePasswordTokenConfirmed);
-		}
+		Assert.NotNull(updatePasswordDTO);
+		Assert.True(updatePasswordDTO?.PassWordUpdated);
+	}
 
-		[Fact]
-		public async Task Confirm_Password_Token_With_Non_Existent_Token_Does_Not_Confirm_Password_Token()
+	[Fact]
+	public async Task Update_Password_With_Invalid_Token_Does_Not_Update_Password()
+	{
+		// Arrange
+		DBContexUtils.SeedDatabase(_appDbContext);
+		var resetPasswordToken = DBContexUtils.UpdateResetPasswordToken(_appDbContext, _userManager);
+
+		var requestPayload = new
 		{
-			// Arrange
-			DBContexUtils.SeedDatabase(_appDbContext);
-			var resetPasswordToken = DBContexUtils.UpdateResetPasswordToken(_appDbContext, _userManager);
+			NewPassword = "12345",
+			UserSettings.UserId,
+			PasswordResetToken = resetPasswordToken + "897455\\f",
+		};
 
-			var requestPayload = new
-			{
-				ConfirmPasswordToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(resetPasswordToken + "897455989")),
-				UserSettings.UserId
-			};
+		// Act
+		var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/update-password", requestPayload);
 
-			// Act
-			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/confirm-update-password-token", requestPayload);
+		// Assert
+		var responseString = await response.ValidateRequestResponseAsync();
 
-			// Assert
-			var responseString = await response.ValidateRequestResponseAsync();
+		Assert.Equal(HttpStatusCode.NotAcceptable, response.StatusCode);
+		var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
-			Assert.Equal(HttpStatusCode.NotAcceptable, response.StatusCode);
-			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+		Assert.NotNull(jsonObject);
 
-			Assert.NotNull(jsonObject);
-
-			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
-			Assert.Equal("Token confirmation failed", $"{jsonObject["statusMessage"]}");
+		Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+		Assert.Equal("Password update failed", $"{jsonObject["statusMessage"]}");
 
 
-			var resetPasswordDTO = jsonObject["tokenPasswordResult"]?.ToObject<ConfirmUpdatePasswordDTO>();
+		var updatePasswordDTO = jsonObject["updatePasswordResult"]?.ToObject<UpdatePasswordDTO>();
 
-			Assert.NotNull(resetPasswordDTO);
-			Assert.False(resetPasswordDTO?.UpdatePasswordTokenConfirmed);
-		}
+		Assert.NotNull(updatePasswordDTO);
+		Assert.False(updatePasswordDTO?.PassWordUpdated);
+	}
 
-		[Fact]
-		public async Task Update_Password_With_Invalid_Payload_Returns_Validation_Results()
+	[Fact]
+	public async Task Update_Password_With_Non_Existent_Token_Does_Not_Update_Password()
+	{
+		// Arrange
+		DBContexUtils.SeedDatabase(_appDbContext);
+		var resetPasswordToken = DBContexUtils.UpdateResetPasswordToken(_appDbContext, _userManager);
+
+		var requestPayload = new
 		{
-			// Arrange
-			var requestPayload = new
-			{
-			};
+			NewPassword = "12345",
+			UserSettings.UserId,
+			PasswordResetToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(TestStringHelper.GenerateRandomString(56))),
+		};
 
-			// Act
-			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/update-password", requestPayload);
+		// Act
+		var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/update-password", requestPayload);
 
-			// Assert
-			var responseString = await response.ValidateRequestResponseAsync();
+		// Assert
+		var responseString = await response.ValidateRequestResponseAsync();
 
-			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+		Assert.Equal(HttpStatusCode.NotAcceptable, response.StatusCode);
+		var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
-			Assert.NotNull(jsonObject);
+		Assert.NotNull(jsonObject);
 
-			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
-			Assert.Equal("400 - BAD REQUEST", $"{jsonObject["statusMessage"]}");
-
-			Assert.Equal("Validation Failed", jsonObject["error"]?["message"]);
-
-			var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
-
-			Assert.NotNull(dateTime);
-			Assert.Equal(DateTime.UtcNow.Year, dateTime.Value.Year);
-			Assert.Equal(DateTime.UtcNow.Month, dateTime.Value.Month);
-			Assert.Equal(DateTime.UtcNow.Day, dateTime.Value.Day);
-
-			var errorList = jsonObject["error"]?["errorList"]?.ToObject<List<ValidationError>>();
-
-			Assert.Equal(3, errorList?.Count);
-
-			Assert.True(errorList?.Any(x => x.Field == "NewPassword" && x.Message == "The NewPassword field is required.") ?? false);
-			Assert.True(errorList?.Any(x => x.Field == "UserId" && x.Message == "The UserId field is required.") ?? false);
-			Assert.True(errorList?.Any(x => x.Field == "PasswordResetToken" && x.Message == "The PasswordResetToken field is required.") ?? false);
-		}
-
-		[Fact]
-		public async Task Update_Password_For_Non_Existent_User_Does_Not_Update_Password()
-		{
-			// Arrange
-			DBContexUtils.SeedDatabase(_appDbContext);
-			var resetPasswordToken = DBContexUtils.UpdateResetPasswordToken(_appDbContext, _userManager);
-
-			var requestPayload = new
-			{
-				NewPassword = "12345",
-				UserId = Guid.NewGuid().ToString(),
-				PasswordResetToken = resetPasswordToken
-			};
-
-			// Act
-			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/update-password", requestPayload);
-
-			// Assert
-			var responseString = await response.ValidateRequestResponseAsync();
-
-			Assert.Equal(HttpStatusCode.NotAcceptable, response.StatusCode);
-			var jsonObject = SerDe.Deserialize<JObject>(responseString);
-
-			Assert.NotNull(jsonObject);
-
-			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
-			Assert.Equal("Password update failed", $"{jsonObject["statusMessage"]}");
+		Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
+		Assert.Equal("Password update failed", $"{jsonObject["statusMessage"]}");
 
 
-			var updatePasswordDTO = jsonObject["updatePasswordResult"]?.ToObject<UpdatePasswordDTO>();
+		var updatePasswordDTO = jsonObject["updatePasswordResult"]?.ToObject<UpdatePasswordDTO>();
 
-			Assert.NotNull(updatePasswordDTO);
-			Assert.False(updatePasswordDTO?.PassWordUpdated);
-		}
-
-		[Fact]
-		public async Task Update_Password_With_Invalid_Payload_Does_Not_Update_Password()
-		{
-			// Arrange
-			DBContexUtils.SeedDatabase(_appDbContext);
-			var resetPasswordToken = DBContexUtils.UpdateResetPasswordToken(_appDbContext, _userManager);
-
-
-			var requestPayload = new
-			{
-				NewPassword = "12345",
-				UserSettings.UserId,
-				PasswordResetToken = resetPasswordToken
-			};
-
-			// Act
-			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/update-password", requestPayload);
-
-			// Assert
-			var responseString = await response.ValidateRequestResponseAsync();
-
-			Assert.Equal(HttpStatusCode.NotAcceptable, response.StatusCode);
-			var jsonObject = SerDe.Deserialize<JObject>(responseString);
-
-			Assert.NotNull(jsonObject);
-
-			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
-			Assert.Equal("Password update failed", $"{jsonObject["statusMessage"]}");
-
-
-			var updatePasswordDTO = jsonObject["updatePasswordResult"]?.ToObject<UpdatePasswordDTO>();
-
-			Assert.NotNull(updatePasswordDTO);
-			Assert.False(updatePasswordDTO?.PassWordUpdated);
-		}
-
-		[Fact]
-		public async Task Update_Password_With_Valid_Payload_Updates_Password()
-		{
-			// Arrange
-			DBContexUtils.SeedDatabase(_appDbContext);
-			var resetPasswordToken = DBContexUtils.UpdateResetPasswordToken(_appDbContext, _userManager);
-
-
-			var requestPayload = new
-			{
-				NewPassword = "12345P@ss",
-				UserSettings.UserId,
-				PasswordResetToken = resetPasswordToken
-			};
-
-			// Act
-			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/update-password", requestPayload);
-
-			// Assert
-			var responseString = await response.ValidateRequestResponseAsync();
-
-			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-			var jsonObject = SerDe.Deserialize<JObject>(responseString);
-
-			Assert.NotNull(jsonObject);
-
-			Assert.Equal("Request Successful", $"{jsonObject["requestStatus"]}");
-			Assert.Equal("Password updated successfully", $"{jsonObject["statusMessage"]}");
-
-
-			var updatePasswordDTO = jsonObject["updatePasswordResult"]?.ToObject<UpdatePasswordDTO>();
-
-			Assert.NotNull(updatePasswordDTO);
-			Assert.True(updatePasswordDTO?.PassWordUpdated);
-		}
-
-		[Fact]
-		public async Task Update_Password_With_Invalid_Token_Does_Not_Update_Password()
-		{
-			// Arrange
-			DBContexUtils.SeedDatabase(_appDbContext);
-			var resetPasswordToken = DBContexUtils.UpdateResetPasswordToken(_appDbContext, _userManager);
-
-			var requestPayload = new
-			{
-				NewPassword = "12345",
-				UserSettings.UserId,
-				PasswordResetToken = resetPasswordToken + "897455\\f",
-			};
-
-			// Act
-			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/update-password", requestPayload);
-
-			// Assert
-			var responseString = await response.ValidateRequestResponseAsync();
-
-			Assert.Equal(HttpStatusCode.NotAcceptable, response.StatusCode);
-			var jsonObject = SerDe.Deserialize<JObject>(responseString);
-
-			Assert.NotNull(jsonObject);
-
-			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
-			Assert.Equal("Password update failed", $"{jsonObject["statusMessage"]}");
-
-
-			var updatePasswordDTO = jsonObject["updatePasswordResult"]?.ToObject<UpdatePasswordDTO>();
-
-			Assert.NotNull(updatePasswordDTO);
-			Assert.False(updatePasswordDTO?.PassWordUpdated);
-		}
-
-		[Fact]
-		public async Task Update_Password_With_Non_Existent_Token_Does_Not_Update_Password()
-		{
-			// Arrange
-			DBContexUtils.SeedDatabase(_appDbContext);
-			var resetPasswordToken = DBContexUtils.UpdateResetPasswordToken(_appDbContext, _userManager);
-
-			var requestPayload = new
-			{
-				NewPassword = "12345",
-				UserSettings.UserId,
-				PasswordResetToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(TestStringHelper.GenerateRandomString(56))),
-			};
-
-			// Act
-			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Post, _baseUri + "/update-password", requestPayload);
-
-			// Assert
-			var responseString = await response.ValidateRequestResponseAsync();
-
-			Assert.Equal(HttpStatusCode.NotAcceptable, response.StatusCode);
-			var jsonObject = SerDe.Deserialize<JObject>(responseString);
-
-			Assert.NotNull(jsonObject);
-
-			Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
-			Assert.Equal("Password update failed", $"{jsonObject["statusMessage"]}");
-
-
-			var updatePasswordDTO = jsonObject["updatePasswordResult"]?.ToObject<UpdatePasswordDTO>();
-
-			Assert.NotNull(updatePasswordDTO);
-			Assert.False(updatePasswordDTO?.PassWordUpdated);
-		}
+		Assert.NotNull(updatePasswordDTO);
+		Assert.False(updatePasswordDTO?.PassWordUpdated);
 	}
 }

@@ -1,19 +1,19 @@
 ﻿using PolyzenKit.Application.Core;
 using PolyzenKit.Domain.DTO;
+using PolyzenKit.Domain.Entity;
 
-namespace UserIdentity.Application.Core.Users.ViewModels
+namespace UserIdentity.Application.Core.Users.ViewModels;
+
+public record UserDTO : BaseAuditableEntity<string>, IBaseAuditableEntityDTO<string>
 {
-	public record UserDTO : BaseEntityDTO<string>
-	{
-		public string? FullName { get; init; }
+	public string? FullName { get; init; }
 
-		public string? UserName { get; init; }
+	public string? UserName { get; init; }
 
-		public string? Email { get; init; }
-	}
+	public string? Email { get; init; }
+}
 
-	public record UserViewModel : ItemDetailBaseViewModel
-	{
-		public required UserDTO User { get; init; }
-	}
+public record UserViewModel : ItemDetailBaseViewModel
+{
+	public required UserDTO User { get; init; }
 }
