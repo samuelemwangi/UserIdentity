@@ -3,60 +3,59 @@
 using UserIdentity.Domain.Identity;
 
 
-namespace UserIdentity.Persistence.Repositories.Users
+namespace UserIdentity.Persistence.Repositories.Users;
+
+public class UserRepository(
+	AppDbContext appDbContext
+	) : IUserRepository
 {
-	public class UserRepository(
-		AppDbContext appDbContext
-		) : IUserRepository
+	private readonly AppDbContext _appDbContext = appDbContext;
+
+	public async Task<int> CreateUserAsync(User user)
 	{
-		private readonly AppDbContext _appDbContext = appDbContext;
-
-		public async Task<int> CreateUserAsync(User user)
+		try
 		{
-			try
-			{
-				_appDbContext.AppUser?.Add(user);
-				return await _appDbContext.SaveChangesAsync();
+			_appDbContext.AppUser?.Add(user);
+			return await _appDbContext.SaveChangesAsync();
 
-			}
-			catch (Exception)
-			{
+		}
+		catch (Exception)
+		{
+			return 0;
+		}
+	}
+
+	public async Task<User?> GetUserAsync(string Id)
+	{
+		return await _appDbContext.AppUser
+				.Where(u => (u.Id + "").Equals(Id) && !u.IsDeleted)
+				.FirstOrDefaultAsync();
+	}
+
+	public async Task<int> UpdateResetPasswordTokenAsync(string userId, string resetPasswordToken)
+	{
+		try
+		{
+			var user = await GetUserAsync(userId);
+
+			if (user == null)
 				return 0;
-			}
-		}
 
-		public async Task<User?> GetUserAsync(string Id)
+			user.ForgotPasswordToken = resetPasswordToken;
+			var result = await _appDbContext.SaveChangesAsync();
+
+
+			return result;
+		}
+		catch (Exception)
 		{
-			return await _appDbContext.AppUser
-					.Where(u => (u.Id + "").Equals(Id) && !u.IsDeleted)
-					.FirstOrDefaultAsync();
+			return 0;
 		}
+	}
 
-		public async Task<int> UpdateResetPasswordTokenAsync(string userId, string resetPasswordToken)
-		{
-			try
-			{
-				var user = await GetUserAsync(userId);
-
-				if (user == null)
-					return 0;
-
-				user.ForgotPasswordToken = resetPasswordToken;
-				var result = await _appDbContext.SaveChangesAsync();
-
-
-				return result;
-			}
-			catch (Exception)
-			{
-				return 0;
-			}
-		}
-
-		public async Task<bool> ValidateUpdatePasswordTokenAsync(string userId, string token)
-		{
-			return await _appDbContext.AppUser
-					.AnyAsync(u => (u.Id + "").Equals(userId) && (u.ForgotPasswordToken + "").Equals(token) && !u.IsDeleted);
-		}
+	public async Task<bool> ValidateUpdatePasswordTokenAsync(string userId, string token)
+	{
+		return await _appDbContext.AppUser
+				.AnyAsync(u => (u.Id + "").Equals(userId) && (u.ForgotPasswordToken + "").Equals(token) && !u.IsDeleted);
 	}
 }

@@ -9,46 +9,45 @@ using PolyzenKit.Domain.DTO;
 using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Persistence.Repositories.Users;
 
-namespace UserIdentity.Application.Core.Users.Queries.GetUser
+namespace UserIdentity.Application.Core.Users.Queries.GetUser;
+
+public record GetUserQuery : IBaseQuery
 {
-	public record GetUserQuery : BaseQuery
+	public required string UserId { get; init; }
+}
+
+public class GetUserQueryHandler(
+	UserManager<IdentityUser> userManager,
+	IUserRepository userRepository,
+	IMachineDateTime machineDateTime
+	) : IGetItemQueryHandler<GetUserQuery, UserViewModel>
+{
+
+	private readonly UserManager<IdentityUser> _userManager = userManager;
+	private readonly IUserRepository _userRepository = userRepository;
+	private readonly IMachineDateTime _machineDateTime = machineDateTime;
+
+	public async Task<UserViewModel> GetItemAsync(GetUserQuery query)
 	{
-		public required string UserId { get; init; }
-	}
+		var user = await _userManager.FindByIdAsync(query.UserId) ?? throw new NoRecordException(query.UserId + "", "User");
 
-	public class GetUserQueryHandler(
-		UserManager<IdentityUser> userManager,
-		IUserRepository userRepository,
-		IMachineDateTime machineDateTime
-		) : IGetItemQueryHandler<GetUserQuery, UserViewModel>
-	{
+		var userDetails = await _userRepository.GetUserAsync(query.UserId) ?? throw new NoRecordException(query.UserId + "", "User");
 
-		private readonly UserManager<IdentityUser> _userManager = userManager;
-		private readonly IUserRepository _userRepository = userRepository;
-		private readonly IMachineDateTime _machineDateTime = machineDateTime;
-
-		public async Task<UserViewModel> GetItemAsync(GetUserQuery query)
+		var userDTO = new UserDTO
 		{
-			var user = await _userManager.FindByIdAsync(query.UserId) ?? throw new NoRecordException(query.UserId + "", "User");
+			Id = user.Id,
+			UserName = user != null ? user.UserName : "",
+			FullName = (userDetails.FirstName + " " + userDetails.LastName).Trim(),
+			Email = user != null ? user.Email : "",
+		};
 
-			var userDetails = await _userRepository.GetUserAsync(query.UserId) ?? throw new NoRecordException(query.UserId + "", "User");
+		userDTO.SetDTOAuditFields(userDetails);
 
-			var userDTO = new UserDTO
-			{
-				Id = user.Id,
-				UserName = user != null ? user.UserName : "",
-				FullName = (userDetails.FirstName + " " + userDetails.LastName).Trim(),
-				Email = user != null ? user.Email : "",
-			};
+		return new UserViewModel
+		{
+			User = userDTO
 
-			userDTO.SetDTOAuditFields(userDetails, _machineDateTime.ResolveDate);
-
-			return new UserViewModel
-			{
-				User = userDTO
-
-			};
-		}
-
+		};
 	}
+
 }

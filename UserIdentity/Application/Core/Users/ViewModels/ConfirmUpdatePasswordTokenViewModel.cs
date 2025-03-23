@@ -1,15 +1,14 @@
 ﻿using PolyzenKit.Application.Core;
 
-namespace UserIdentity.Application.Core.Users.ViewModels
+namespace UserIdentity.Application.Core.Users.ViewModels;
+
+public record ConfirmUpdatePasswordDTO
 {
-	public record ConfirmUpdatePasswordDTO
-	{
-		public bool UpdatePasswordTokenConfirmed { get; init; }
-	}
+	public bool UpdatePasswordTokenConfirmed { get; init; }
+}
 
-	public record ConfirmUpdatePasswordTokenViewModel : BaseViewModel
-	{
-		public ConfirmUpdatePasswordDTO TokenPasswordResult { get; init; } = null!;
+public record ConfirmUpdatePasswordTokenViewModel : BaseViewModel
+{
+	public ConfirmUpdatePasswordDTO TokenPasswordResult { get; init; } = null!;
 
-	}
 }

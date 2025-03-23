@@ -10,50 +10,49 @@ using UserIdentity.IntegrationTests.Presentation.Helpers;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace UserIdentity.IntegrationTests.Presentation.Controllers.Security
+namespace UserIdentity.IntegrationTests.Presentation.Controllers.Security;
+
+
+public class JWKSControllerTests(
+	TestingWebAppFactory testingWebAppFactory,
+	ITestOutputHelper outputHelper
+	) : BaseControllerTests(testingWebAppFactory, outputHelper)
 {
 
-	public class JWKSControllerTests(
-		TestingWebAppFactory testingWebAppFactory,
-		ITestOutputHelper outputHelper
-		) : BaseControllerTests(testingWebAppFactory, outputHelper)
+	private readonly static string _baseUri = "/api/v1/JWKS/keys";
+
+	[Fact]
+	public async Task Get_KeySets_Returns_KeySets()
 	{
+		// Arrange & Act
+		var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Get, _baseUri);
 
-		private readonly static string _baseUri = "/api/v1/JWKS/keys";
+		// Assert
+		var responseString = await response.ValidateRequestResponseAsync();
 
-		[Fact]
-		public async Task Get_KeySets_Returns_KeySets()
-		{
-			// Arrange & Act
-			var response = await _httpClient.SendNoAuthRequestAsync(HttpMethod.Get, _baseUri);
+		Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-			// Assert
-			var responseString = await response.ValidateRequestResponseAsync();
+		var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
-			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+		Assert.NotNull(jsonObject);
 
-			var jsonObject = SerDe.Deserialize<JObject>(responseString);
+		var keySets = jsonObject?.ToObject<IDictionary<string, IList<Dictionary<string, string>>>>();
 
-			Assert.NotNull(jsonObject);
+		Assert.NotNull(keySets);
 
-			var keySets = jsonObject?.ToObject<IDictionary<string, IList<Dictionary<string, string>>>>();
+		Assert.Equal(1, keySets?.Count);
 
-			Assert.NotNull(keySets);
+		var keysetList = keySets?["keys"];
+		Assert.NotNull(keysetList);
+		Assert.Equal(1, keysetList?.Count);
 
-			Assert.Equal(1, keySets?.Count);
+		Assert.Equal(5, keysetList?[0].Count);
 
-			var keysetList = keySets?["keys"];
-			Assert.NotNull(keysetList);
-			Assert.Equal(1, keysetList?.Count);
-
-			Assert.Equal(5, keysetList?[0].Count);
-
-			Assert.Equal("EdDSA", keysetList?[0]["alg"]);
-			Assert.Equal("OKP", keysetList?[0]["kty"]);
-			Assert.Equal("Ed25519", keysetList?[0]["crv"]);
-			Assert.NotNull(keysetList?[0]["x"]);
-			Assert.NotNull(keysetList?[0]["kid"]);
-		}
-
+		Assert.Equal("EdDSA", keysetList?[0]["alg"]);
+		Assert.Equal("OKP", keysetList?[0]["kty"]);
+		Assert.Equal("Ed25519", keysetList?[0]["crv"]);
+		Assert.NotNull(keysetList?[0]["x"]);
+		Assert.NotNull(keysetList?[0]["kid"]);
 	}
+
 }

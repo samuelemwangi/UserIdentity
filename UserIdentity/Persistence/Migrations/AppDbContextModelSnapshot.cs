@@ -8,8 +8,8 @@ using UserIdentity.Persistence;
 
 #nullable disable
 
-namespace UserIdentity.Persistence.Migrations
-{
+namespace UserIdentity.Persistence.Migrations;
+
     [DbContext(typeof(AppDbContext))]
     partial class AppDbContextModelSnapshot : ModelSnapshot
     {
@@ -474,4 +474,3 @@ namespace UserIdentity.Persistence.Migrations
 #pragma warning restore 612, 618
         }
     }
-}

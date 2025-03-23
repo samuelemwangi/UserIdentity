@@ -6,32 +6,31 @@ using PolyzenKit.Common.Exceptions;
 
 using UserIdentity.Application.Core.Roles.ViewModels;
 
-namespace UserIdentity.Application.Core.Roles.Queries.GetRoles
+namespace UserIdentity.Application.Core.Roles.Queries.GetRoles;
+
+public record GetUserRolesQuery : IBaseQuery
 {
-	public record GetUserRolesQuery : BaseQuery
-	{
-		public required string UserId { get; init; }
-	}
+	public required string UserId { get; init; }
+}
 
-	public class GetUserRolesQueryHandler(
-		RoleManager<IdentityRole> roleManager,
-		UserManager<IdentityUser> userManager
-		) : IGetItemsQueryHandler<GetUserRolesQuery, UserRolesViewModel>
-	{
-		private readonly RoleManager<IdentityRole> _roleManager = roleManager;
-		private readonly UserManager<IdentityUser> _userManager = userManager;
+public class GetUserRolesQueryHandler(
+	RoleManager<IdentityRole> roleManager,
+	UserManager<IdentityUser> userManager
+	) : IGetItemsQueryHandler<GetUserRolesQuery, UserRolesViewModel>
+{
+	private readonly RoleManager<IdentityRole> _roleManager = roleManager;
+	private readonly UserManager<IdentityUser> _userManager = userManager;
 
-		public async Task<UserRolesViewModel> GetItemsAsync(GetUserRolesQuery query)
+	public async Task<UserRolesViewModel> GetItemsAsync(GetUserRolesQuery query)
+	{
+
+		var user = await _userManager.FindByIdAsync(query.UserId) ?? throw new NoRecordException(query.UserId, "User");
+
+		var userRoles = await _userManager.GetRolesAsync(user) ?? [];
+
+		return new UserRolesViewModel
 		{
-
-			var user = await _userManager.FindByIdAsync(query.UserId) ?? throw new NoRecordException(query.UserId, "User");
-
-			var userRoles = await _userManager.GetRolesAsync(user) ?? [];
-
-			return new UserRolesViewModel
-			{
-				UserRoles = userRoles
-			};
-		}
+			UserRoles = userRoles
+		};
 	}
 }

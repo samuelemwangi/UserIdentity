@@ -8,8 +8,8 @@ using UserIdentity.Persistence;
 
 #nullable disable
 
-namespace UserIdentity.Persistence.Migrations
-{
+namespace UserIdentity.Persistence.Migrations;
+
     [DbContext(typeof(AppDbContext))]
     [Migration("20220529215332_UpdateUseRemoveUsernameColumn")]
     partial class UpdateUseRemoveUsernameColumn
@@ -354,4 +354,3 @@ namespace UserIdentity.Persistence.Migrations
 #pragma warning restore 612, 618
         }
     }
-}

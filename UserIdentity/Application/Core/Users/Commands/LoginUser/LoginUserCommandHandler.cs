@@ -20,92 +20,91 @@ using UserIdentity.Domain.Identity;
 using UserIdentity.Persistence.Repositories.RefreshTokens;
 using UserIdentity.Persistence.Repositories.Users;
 
-namespace UserIdentity.Application.Core.Users.Commands.LoginUser
+namespace UserIdentity.Application.Core.Users.Commands.LoginUser;
+
+public record LoginUserCommand : IBaseCommand
 {
-	public record LoginUserCommand : BaseCommand
+	[Required]
+	public required string UserName { get; init; }
+
+	[Required]
+	public required string Password { get; init; }
+}
+
+public class LoginUserCommandHandler(
+	IJwtTokenHandler jwtTokenHandler,
+	ITokenFactory tokenFactory,
+	UserManager<IdentityUser> userManager,
+	IUserRepository userRepository,
+	IRefreshTokenRepository refreshTokenRepository,
+	IMachineDateTime machineDateTime,
+	IGetItemsQueryHandler<GetRoleClaimsForRolesQuery, RoleClaimsForRolesViewModels> getRoleClaimsQueryHandler
+	) : ICreateItemCommandHandler<LoginUserCommand, AuthUserViewModel>
+{
+	private readonly IJwtTokenHandler _jwtTokenHandler = jwtTokenHandler;
+	private readonly ITokenFactory _tokenFactory = tokenFactory;
+	private readonly UserManager<IdentityUser> _userManager = userManager;
+	private readonly IUserRepository _userRepository = userRepository;
+	private readonly IRefreshTokenRepository _refreshTokenRepository = refreshTokenRepository;
+	private readonly IMachineDateTime _machineDateTime = machineDateTime;
+
+	private readonly IGetItemsQueryHandler<GetRoleClaimsForRolesQuery, RoleClaimsForRolesViewModels> _getRoleClaimsQueryHandler = getRoleClaimsQueryHandler;
+
+	public async Task<AuthUserViewModel> CreateItemAsync(LoginUserCommand command, string userId)
 	{
-		[Required]
-		public required string UserName { get; init; }
+		var user = (
+				await _userManager.FindByNameAsync(command.UserName)
+				?? await _userManager.FindByEmailAsync(command.UserName)
+				) ?? throw new InvalidCredentialException("No Identity User for User Name - " + command.UserName);
 
-		[Required]
-		public required string Password { get; init; }
-	}
+		var appUserDetails = await _userRepository.GetUserAsync(user.Id) ?? throw new InvalidCredentialException("No User details for User Name - " + command.UserName);
 
-	public class LoginUserCommandHandler(
-		IJwtTokenHandler jwtTokenHandler,
-		ITokenFactory tokenFactory,
-		UserManager<IdentityUser> userManager,
-		IUserRepository userRepository,
-		IRefreshTokenRepository refreshTokenRepository,
-		IMachineDateTime machineDateTime,
-		IGetItemsQueryHandler<GetRoleClaimsForRolesQuery, RoleClaimsForRolesViewModels> getRoleClaimsQueryHandler
-		) : ICreateItemCommandHandler<LoginUserCommand, AuthUserViewModel>
-	{
-		private readonly IJwtTokenHandler _jwtTokenHandler = jwtTokenHandler;
-		private readonly ITokenFactory _tokenFactory = tokenFactory;
-		private readonly UserManager<IdentityUser> _userManager = userManager;
-		private readonly IUserRepository _userRepository = userRepository;
-		private readonly IRefreshTokenRepository _refreshTokenRepository = refreshTokenRepository;
-		private readonly IMachineDateTime _machineDateTime = machineDateTime;
+		var userExists = await _userManager.CheckPasswordAsync(user, command.Password);
 
-		private readonly IGetItemsQueryHandler<GetRoleClaimsForRolesQuery, RoleClaimsForRolesViewModels> _getRoleClaimsQueryHandler = getRoleClaimsQueryHandler;
+		if (!userExists)
+			throw new InvalidCredentialException("Invalid Credentials Provided for - " + command.UserName);
 
-		public async Task<AuthUserViewModel> CreateItemAsync(LoginUserCommand command, string userId)
+		var userRoles = await _userManager.GetRolesAsync(user);
+
+		var userRoleClaims = await _getRoleClaimsQueryHandler.GetItemsAsync(new GetRoleClaimsForRolesQuery { Roles = userRoles });
+
+		var refreshToken = _tokenFactory.GenerateToken();
+
+		(string token, int expiresIn) = _jwtTokenHandler.CreateToken(user.Id, user.UserName!, new HashSet<string>(userRoles), userRoleClaims.RoleClaims);
+
+		var newRefreshToken = new RefreshToken
 		{
-			var user = (
-					await _userManager.FindByNameAsync(command.UserName)
-					?? await _userManager.FindByEmailAsync(command.UserName)
-					) ?? throw new InvalidCredentialException("No Identity User for User Name - " + command.UserName);
+			Id = Guid.NewGuid(),
+			Expires = _machineDateTime.Now.AddSeconds((long)expiresIn),
+			UserId = user.Id,
+			Token = refreshToken,
+		};
 
-			var appUserDetails = await _userRepository.GetUserAsync(user.Id) ?? throw new InvalidCredentialException("No User details for User Name - " + command.UserName);
+		newRefreshToken.SetEntityAuditFields(userId, _machineDateTime.Now);
 
-			var userExists = await _userManager.CheckPasswordAsync(user, command.Password);
+		int createTokenResult = await _refreshTokenRepository.CreateRefreshTokenAsync(newRefreshToken);
 
-			if (!userExists)
-				throw new InvalidCredentialException("Invalid Credentials Provided for - " + command.UserName);
+		if (createTokenResult < 1)
+			throw new RecordCreationException(refreshToken, "Refresh Token");
 
-			var userRoles = await _userManager.GetRolesAsync(user);
+		var userDTO = new UserDTO
+		{
+			Id = user.Id,
+			UserName = user.UserName,
+			FullName = (appUserDetails.FirstName + " " + appUserDetails.LastName).Trim(),
+			Email = user.Email,
+		};
 
-			var userRoleClaims = await _getRoleClaimsQueryHandler.GetItemsAsync(new GetRoleClaimsForRolesQuery { Roles = userRoles });
+		userDTO.SetDTOAuditFields(appUserDetails);
 
-			var refreshToken = _tokenFactory.GenerateToken();
-
-			(string token, int expiresIn) = _jwtTokenHandler.CreateToken(user.Id, user.UserName!, new HashSet<string>(userRoles), userRoleClaims.RoleClaims);
-
-			var newRefreshToken = new RefreshToken
+		return new AuthUserViewModel
+		{
+			UserDetails = userDTO,
+			UserToken = new AccessTokenViewModel
 			{
-				Id = Guid.NewGuid(),
-				Expires = _machineDateTime.Now.AddSeconds((long)expiresIn),
-				UserId = user.Id,
-				Token = refreshToken,
-			};
-
-			newRefreshToken.SetEntityAuditFields(userId, _machineDateTime.Now);
-
-			int createTokenResult = await _refreshTokenRepository.CreateRefreshTokenAsync(newRefreshToken);
-
-			if (createTokenResult < 1)
-				throw new RecordCreationException(refreshToken, "Refresh Token");
-
-			var userDTO = new UserDTO
-			{
-				Id = user.Id,
-				UserName = user.UserName,
-				FullName = (appUserDetails.FirstName + " " + appUserDetails.LastName).Trim(),
-				Email = user.Email,
-			};
-
-			userDTO.SetDTOAuditFields(appUserDetails, _machineDateTime.ResolveDate);
-
-			return new AuthUserViewModel
-			{
-				UserDetails = userDTO,
-				UserToken = new AccessTokenViewModel
-				{
-					AccessToken = new AccessTokenDTO { Token = token, ExpiresIn = expiresIn },
-					RefreshToken = refreshToken,
-				}
-			};
-		}
+				AccessToken = new AccessTokenDTO { Token = token, ExpiresIn = expiresIn },
+				RefreshToken = refreshToken,
+			}
+		};
 	}
 }

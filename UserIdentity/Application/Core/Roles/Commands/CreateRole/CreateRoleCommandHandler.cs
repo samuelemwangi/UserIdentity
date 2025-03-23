@@ -8,44 +8,43 @@ using PolyzenKit.Common.Exceptions;
 
 using UserIdentity.Application.Core.Roles.ViewModels;
 
-namespace UserIdentity.Application.Core.Roles.Commands.CreateRole
+namespace UserIdentity.Application.Core.Roles.Commands.CreateRole;
+
+public record CreateRoleCommand : IBaseCommand
 {
-	public record CreateRoleCommand : BaseCommand
+	[Required]
+	public string RoleName { get; init; } = null!;
+}
+
+
+
+public class CreateRoleCommandHandler(
+	RoleManager<IdentityRole> roleManager
+	) : ICreateItemCommandHandler<CreateRoleCommand, RoleViewModel>
+{
+	private readonly RoleManager<IdentityRole> _roleManager = roleManager;
+
+	public async Task<RoleViewModel> CreateItemAsync(CreateRoleCommand command, string userid)
 	{
-		[Required]
-		public string RoleName { get; init; } = null!;
-	}
+		var existingRole = await _roleManager.FindByNameAsync(command.RoleName);
 
+		if (existingRole != null)
+			throw new RecordExistsException(command.RoleName, "Role");
 
+		var newRole = new IdentityRole { Name = command.RoleName };
 
-	public class CreateRoleCommandHandler(
-		RoleManager<IdentityRole> roleManager
-		) : ICreateItemCommandHandler<CreateRoleCommand, RoleViewModel>
-	{
-		private readonly RoleManager<IdentityRole> _roleManager = roleManager;
+		var createdRoleResult = await _roleManager.CreateAsync(newRole);
 
-		public async Task<RoleViewModel> CreateItemAsync(CreateRoleCommand command, string userid)
+		if (!createdRoleResult.Succeeded)
+			throw new RecordCreationException(command.RoleName, "Role");
+
+		return new RoleViewModel
 		{
-			var existingRole = await _roleManager.FindByNameAsync(command.RoleName);
-
-			if (existingRole != null)
-				throw new RecordExistsException(command.RoleName, "Role");
-
-			var newRole = new IdentityRole { Name = command.RoleName };
-
-			var createdRoleResult = await _roleManager.CreateAsync(newRole);
-
-			if (!createdRoleResult.Succeeded)
-				throw new RecordCreationException(command.RoleName, "Role");
-
-			return new RoleViewModel
+			Role = new RoleDTO
 			{
-				Role = new RoleDTO
-				{
-					Id = newRole.Id,
-					Name = newRole.Name
-				}
-			};
-		}
+				Id = newRole.Id,
+				Name = newRole.Name
+			}
+		};
 	}
 }

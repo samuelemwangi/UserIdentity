@@ -9,8 +9,8 @@ using UserIdentity.Persistence;
 
 #nullable disable
 
-namespace UserIdentity.Persistence.Migrations
-{
+namespace UserIdentity.Persistence.Migrations;
+
     [DbContext(typeof(AppDbContext))]
     [Migration("20250119123654_AddAppEntity")]
     partial class AddAppEntity
@@ -477,4 +477,3 @@ namespace UserIdentity.Persistence.Migrations
 #pragma warning restore 612, 618
         }
     }
-}

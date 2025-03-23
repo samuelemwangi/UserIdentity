@@ -1,18 +1,17 @@
 ﻿using PolyzenKit.Application.Core;
 
-namespace UserIdentity.Application.Core.Tokens.ViewModels
+namespace UserIdentity.Application.Core.Tokens.ViewModels;
+
+public record AccessTokenDTO
 {
-	public record AccessTokenDTO
-	{
-		public string? Token { get; init; }
+	public string? Token { get; init; }
 
-		public int ExpiresIn { get; init; }
-	}
+	public int ExpiresIn { get; init; }
+}
 
-	public record AccessTokenViewModel : BaseViewModel
-	{
-		public AccessTokenDTO? AccessToken { get; init; }
+public record AccessTokenViewModel : BaseViewModel
+{
+	public AccessTokenDTO? AccessToken { get; init; }
 
-		public string? RefreshToken { get; init; }
-	}
+	public string? RefreshToken { get; init; }
 }

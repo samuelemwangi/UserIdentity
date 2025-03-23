@@ -16,80 +16,79 @@ using UserIdentity.Application.Core.Roles.ViewModels;
 using UserIdentity.Application.Core.Tokens.ViewModels;
 using UserIdentity.Persistence.Repositories.RefreshTokens;
 
-namespace UserIdentity.Application.Core.Tokens.Commands.ExchangeRefreshToken
+namespace UserIdentity.Application.Core.Tokens.Commands.ExchangeRefreshToken;
+
+public record ExchangeRefreshTokenCommand : IBaseCommand
 {
-	public record ExchangeRefreshTokenCommand : BaseCommand
+	[Required]
+	public string AccessToken { get; init; } = null!;
+
+	[Required]
+	public string RefreshToken { get; init; } = null!;
+}
+
+public class ExchangeRefreshTokenCommandHandler(
+	IJwtTokenHandler jwtTokenHandler,
+	ITokenFactory tokenFactory,
+	UserManager<IdentityUser> userManager,
+	IRefreshTokenRepository refreshTokenRepository,
+	IMachineDateTime machineDateTime,
+	IGetItemsQueryHandler<GetRoleClaimsForRolesQuery, RoleClaimsForRolesViewModels> getRoleClaimsQueryHandler
+	) : IUpdateItemCommandHandler<ExchangeRefreshTokenCommand, ExchangeRefreshTokenViewModel>
+{
+	private readonly IJwtTokenHandler _jwtTokenHandler = jwtTokenHandler;
+	private readonly ITokenFactory _tokenFactory = tokenFactory;
+
+	private readonly UserManager<IdentityUser> _userManager = userManager;
+	private readonly IRefreshTokenRepository _refreshTokenRepository = refreshTokenRepository;
+	private readonly IMachineDateTime _machineDateTime = machineDateTime;
+
+	private readonly IGetItemsQueryHandler<GetRoleClaimsForRolesQuery, RoleClaimsForRolesViewModels> _getRoleClaimsQueryHandler = getRoleClaimsQueryHandler;
+
+	public async Task<ExchangeRefreshTokenViewModel> UpdateItemAsync(ExchangeRefreshTokenCommand command, string userId)
 	{
-		[Required]
-		public string AccessToken { get; init; } = null!;
+		// validate accesstoken - lifetime not checked
+		var tokenValidationResult = await _jwtTokenHandler.ValidateTokenAsync(command.AccessToken);
 
-		[Required]
-		public string RefreshToken { get; init; } = null!;
-	}
+		var tokenUserId = _jwtTokenHandler.ResolveTokenValue<string?>(tokenValidationResult, JwtCustomClaimNames.Id);
 
-	public class ExchangeRefreshTokenCommandHandler(
-		IJwtTokenHandler jwtTokenHandler,
-		ITokenFactory tokenFactory,
-		UserManager<IdentityUser> userManager,
-		IRefreshTokenRepository refreshTokenRepository,
-		IMachineDateTime machineDateTime,
-		IGetItemsQueryHandler<GetRoleClaimsForRolesQuery, RoleClaimsForRolesViewModels> getRoleClaimsQueryHandler
-		) : IUpdateItemCommandHandler<ExchangeRefreshTokenCommand, ExchangeRefreshTokenViewModel>
-	{
-		private readonly IJwtTokenHandler _jwtTokenHandler = jwtTokenHandler;
-		private readonly ITokenFactory _tokenFactory = tokenFactory;
+		var tokenUserName = _jwtTokenHandler.ResolveTokenValue<string?>(tokenValidationResult, JwtRegisteredClaimNames.Sub);
 
-		private readonly UserManager<IdentityUser> _userManager = userManager;
-		private readonly IRefreshTokenRepository _refreshTokenRepository = refreshTokenRepository;
-		private readonly IMachineDateTime _machineDateTime = machineDateTime;
+		if (tokenUserId == null || tokenUserName == null)
+			throw new SecurityTokenException("Invalid access token provided");
 
-		private readonly IGetItemsQueryHandler<GetRoleClaimsForRolesQuery, RoleClaimsForRolesViewModels> _getRoleClaimsQueryHandler = getRoleClaimsQueryHandler;
+		var refreshToken = await _refreshTokenRepository.GetRefreshTokenAsync(tokenUserId, command.RefreshToken) ?? throw new SecurityTokenException("Invalid refresh token provided");
 
-		public async Task<ExchangeRefreshTokenViewModel> UpdateItemAsync(ExchangeRefreshTokenCommand command, string userId)
+		var userRoles = await _userManager.GetRolesAsync(new IdentityUser { Id = tokenUserId });
+
+		var userRoleClaims = await _getRoleClaimsQueryHandler.GetItemsAsync(new GetRoleClaimsForRolesQuery { Roles = userRoles });
+
+		var updateRefreshToken = _tokenFactory.GenerateToken();
+
+		(string token, int expiresIn) = _jwtTokenHandler.CreateToken(tokenUserId, tokenUserName, new HashSet<string>(userRoles), userRoleClaims.RoleClaims);
+
+		refreshToken.Token = updateRefreshToken;
+		refreshToken.Expires = _machineDateTime.Now.AddSeconds((long)expiresIn);
+
+		int createTokenResult = await _refreshTokenRepository.UpdateRefreshTokenAsync(refreshToken);
+
+		if (createTokenResult < 1)
 		{
-			// validate accesstoken - lifetime not checked
-			var tokenValidationResult = await _jwtTokenHandler.ValidateTokenAsync(command.AccessToken);
-
-			var tokenUserId = _jwtTokenHandler.ResolveTokenValue<string?>(tokenValidationResult, JwtCustomClaimNames.Id);
-
-			var tokenUserName = _jwtTokenHandler.ResolveTokenValue<string?>(tokenValidationResult, JwtRegisteredClaimNames.Sub);
-
-			if (tokenUserId == null || tokenUserName == null)
-				throw new SecurityTokenException("Invalid access token provided");
-
-			var refreshToken = await _refreshTokenRepository.GetRefreshTokenAsync(tokenUserId, command.RefreshToken) ?? throw new SecurityTokenException("Invalid refresh token provided");
-
-			var userRoles = await _userManager.GetRolesAsync(new IdentityUser { Id = tokenUserId });
-
-			var userRoleClaims = await _getRoleClaimsQueryHandler.GetItemsAsync(new GetRoleClaimsForRolesQuery { Roles = userRoles });
-
-			var updateRefreshToken = _tokenFactory.GenerateToken();
-
-			(string token, int expiresIn) = _jwtTokenHandler.CreateToken(tokenUserId, tokenUserName, new HashSet<string>(userRoles), userRoleClaims.RoleClaims);
-
-			refreshToken.Token = updateRefreshToken;
-			refreshToken.Expires = _machineDateTime.Now.AddSeconds((long)expiresIn);
-
-			int createTokenResult = await _refreshTokenRepository.UpdateRefreshTokenAsync(refreshToken);
-
-			if (createTokenResult < 1)
-			{
-				throw new RecordUpdateException(updateRefreshToken, "Refresh Token");
-			}
-
-			var accessTokenVM = new AccessTokenViewModel
-			{
-				AccessToken = new AccessTokenDTO { Token = token, ExpiresIn = expiresIn },
-				RefreshToken = updateRefreshToken,
-			};
-
-			return new ExchangeRefreshTokenViewModel
-			{
-				UserToken = accessTokenVM,
-				EditEnabled = false,
-				DeleteEnabled = false
-			};
-
+			throw new RecordUpdateException(updateRefreshToken, "Refresh Token");
 		}
+
+		var accessTokenVM = new AccessTokenViewModel
+		{
+			AccessToken = new AccessTokenDTO { Token = token, ExpiresIn = expiresIn },
+			RefreshToken = updateRefreshToken,
+		};
+
+		return new ExchangeRefreshTokenViewModel
+		{
+			UserToken = accessTokenVM,
+			EditEnabled = false,
+			DeleteEnabled = false
+		};
+
 	}
 }

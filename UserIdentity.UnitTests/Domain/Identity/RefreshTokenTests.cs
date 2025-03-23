@@ -6,20 +6,19 @@ using UserIdentity.Domain.Identity;
 
 using Xunit;
 
-namespace UserIdentity.UnitTests.Domain.Identity
+namespace UserIdentity.UnitTests.Domain.Identity;
+
+public class RefreshTokenTests
 {
-	public class RefreshTokenTests
+	[Fact]
+	public void New_RefreshToken_is_a_Valid_RefreshToken_Instance()
 	{
-		[Fact]
-		public void New_RefreshToken_is_a_Valid_RefreshToken_Instance()
-		{
-			// Arrange
-			RefreshToken refreshToken = new() { Id = Guid.NewGuid() };
+		// Arrange
+		RefreshToken refreshToken = new() { Id = Guid.NewGuid() };
 
 
-			// Act & Assert
-			Assert.IsType<BaseEntity<Guid>>(refreshToken, exactMatch: false);
-		}
+		// Act & Assert
+		Assert.IsType<BaseEntity<Guid>>(refreshToken, exactMatch: false);
 	}
 }
 
