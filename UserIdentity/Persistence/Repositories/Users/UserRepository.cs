@@ -11,7 +11,7 @@ public class UserRepository(
 {
 	private readonly AppDbContext _appDbContext = appDbContext;
 
-	public async Task<int> CreateUserAsync(User user)
+	public async Task<int> CreateUserAsync(UserEntity user)
 	{
 		try
 		{
@@ -25,7 +25,7 @@ public class UserRepository(
 		}
 	}
 
-	public async Task<User?> GetUserAsync(string Id)
+	public async Task<UserEntity?> GetUserAsync(string Id)
 	{
 		return await _appDbContext.AppUser
 				.Where(u => (u.Id + "").Equals(Id) && !u.IsDeleted)
@@ -57,5 +57,11 @@ public class UserRepository(
 	{
 		return await _appDbContext.AppUser
 				.AnyAsync(u => (u.Id + "").Equals(userId) && (u.ForgotPasswordToken + "").Equals(token) && !u.IsDeleted);
+	}
+
+	public async Task DeleteUserAsync(string userId)
+	{
+		if ((await _appDbContext.AppUser.Where(e => e.Id == userId).ExecuteDeleteAsync()) < 1)
+			throw new InvalidOperationException($"deleting user identified with {userId}");
 	}
 }

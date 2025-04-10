@@ -1,9 +1,11 @@
-USE test_db;
+USE useridentity;
 
 SET @username = 'UNIQUE_USERNAME';
-SET @role_name = 'super-administrator';
+SET @role_name = 'useridentity:admin';
 
-SELECT @role_id := UUID();
+SELECT @role_id := 
+FROM roles 
+WHERE name = @role_name
 
 SELECT @role_id;
 

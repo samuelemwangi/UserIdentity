@@ -6,11 +6,19 @@ namespace UserIdentity.Application.Core.Users.ViewModels;
 
 public record UserDTO : BaseAuditableEntity<string>, IBaseAuditableEntityDTO<string>
 {
-	public string? FullName { get; init; }
+	public string? FirstName { get; init; }
+
+	public string? LastName { get; init; }
 
 	public string? UserName { get; init; }
 
 	public string? Email { get; init; }
+
+	public string? PhoneNumber { get; init; }
+
+	public HashSet<string> Roles { get; init; } = [];
+
+	public HashSet<string> RoleClaims { get; init; } = [];
 }
 
 public record UserViewModel : ItemDetailBaseViewModel

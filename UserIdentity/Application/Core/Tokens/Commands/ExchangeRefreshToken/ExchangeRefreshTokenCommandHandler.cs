@@ -8,6 +8,7 @@ using PolyzenKit.Application.Core;
 using PolyzenKit.Application.Core.Interfaces;
 using PolyzenKit.Application.Interfaces;
 using PolyzenKit.Common.Exceptions;
+using PolyzenKit.Common.Utilities;
 using PolyzenKit.Infrastructure.Security.Jwt;
 using PolyzenKit.Infrastructure.Security.Tokens;
 
@@ -21,10 +22,10 @@ namespace UserIdentity.Application.Core.Tokens.Commands.ExchangeRefreshToken;
 public record ExchangeRefreshTokenCommand : IBaseCommand
 {
 	[Required]
-	public string AccessToken { get; init; } = null!;
+	public string? AccessToken { get; init; }
 
 	[Required]
-	public string RefreshToken { get; init; } = null!;
+	public string? RefreshToken { get; init; }
 }
 
 public class ExchangeRefreshTokenCommandHandler(
@@ -47,8 +48,10 @@ public class ExchangeRefreshTokenCommandHandler(
 
 	public async Task<ExchangeRefreshTokenViewModel> UpdateItemAsync(ExchangeRefreshTokenCommand command, string userId)
 	{
-		// validate accesstoken - lifetime not checked
-		var tokenValidationResult = await _jwtTokenHandler.ValidateTokenAsync(command.AccessToken);
+		var requestAccessToken = ObjectUtil.RequireNonNullValue<string>(command.AccessToken, nameof(command.AccessToken));
+		var requestRefreshToken = ObjectUtil.RequireNonNullValue<string>(command.RefreshToken, nameof(command.RefreshToken));
+
+		var tokenValidationResult = await _jwtTokenHandler.ValidateTokenAsync(requestAccessToken);
 
 		var tokenUserId = _jwtTokenHandler.ResolveTokenValue<string?>(tokenValidationResult, JwtCustomClaimNames.Id);
 
@@ -57,7 +60,7 @@ public class ExchangeRefreshTokenCommandHandler(
 		if (tokenUserId == null || tokenUserName == null)
 			throw new SecurityTokenException("Invalid access token provided");
 
-		var refreshToken = await _refreshTokenRepository.GetRefreshTokenAsync(tokenUserId, command.RefreshToken) ?? throw new SecurityTokenException("Invalid refresh token provided");
+		var refreshToken = await _refreshTokenRepository.GetRefreshTokenAsync(tokenUserId, requestRefreshToken) ?? throw new SecurityTokenException("Invalid refresh token provided");
 
 		var userRoles = await _userManager.GetRolesAsync(new IdentityUser { Id = tokenUserId });
 
@@ -65,7 +68,7 @@ public class ExchangeRefreshTokenCommandHandler(
 
 		var updateRefreshToken = _tokenFactory.GenerateToken();
 
-		(string token, int expiresIn) = _jwtTokenHandler.CreateToken(tokenUserId, tokenUserName, new HashSet<string>(userRoles), userRoleClaims.RoleClaims);
+		(string token, int expiresIn) = _jwtTokenHandler.CreateToken(tokenUserId, tokenUserName, [.. userRoles], userRoleClaims.RoleClaims);
 
 		refreshToken.Token = updateRefreshToken;
 		refreshToken.Expires = _machineDateTime.Now.AddSeconds((long)expiresIn);

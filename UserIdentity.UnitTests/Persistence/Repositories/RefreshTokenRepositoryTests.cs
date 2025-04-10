@@ -19,7 +19,7 @@ public class RefreshTokenRepositoryTests
 		var context = AppDbContextTestFactory.GetAppDbContext();
 		var refreshTokenRepo = new RefreshTokenRepository(context);
 
-		var refreshToken = new RefreshToken
+		var refreshToken = new RefreshTokenEntity
 		{
 			Id = Guid.NewGuid(),
 			UserId = Guid.NewGuid().ToString(),
@@ -40,7 +40,7 @@ public class RefreshTokenRepositoryTests
 		var context = AppDbContextTestFactory.GetAppDbContext();
 		var refreshTokenRepo = new RefreshTokenRepository(context);
 
-		var refreshToken = new RefreshToken
+		var refreshToken = new RefreshTokenEntity
 		{
 			Id = Guid.NewGuid(),
 			UserId = Guid.NewGuid().ToString(),
@@ -65,7 +65,7 @@ public class RefreshTokenRepositoryTests
 
 		var refreshTokenRepo = new RefreshTokenRepository(context);
 
-		var refreshToken = new RefreshToken
+		var refreshToken = new RefreshTokenEntity
 		{
 			Id = Guid.NewGuid(),
 			UserId = Guid.NewGuid().ToString(),
@@ -80,7 +80,7 @@ public class RefreshTokenRepositoryTests
 		var result = await refreshTokenRepo.GetRefreshTokenAsync(refreshToken.UserId, refreshToken.Token);
 
 		// Assert
-		Assert.IsType<RefreshToken>(result);
+		Assert.IsType<RefreshTokenEntity>(result);
 		Assert.Equal(refreshToken.Token, result?.Token);
 		Assert.Equal(refreshToken.CreatedBy, result?.CreatedBy);
 		Assert.True(result?.Active);
@@ -109,7 +109,7 @@ public class RefreshTokenRepositoryTests
 
 		var refreshTokenRepo = new RefreshTokenRepository(context);
 
-		var refreshToken = new RefreshToken
+		var refreshToken = new RefreshTokenEntity
 		{
 			Id = Guid.NewGuid(),
 			UserId = Guid.NewGuid().ToString(),
@@ -139,7 +139,7 @@ public class RefreshTokenRepositoryTests
 
 		var refreshTokenRepo = new RefreshTokenRepository(context);
 
-		var refreshToken = new RefreshToken
+		var refreshToken = new RefreshTokenEntity
 		{
 			Id = Guid.NewGuid(),
 			UserId = Guid.NewGuid().ToString(),
@@ -148,7 +148,7 @@ public class RefreshTokenRepositoryTests
 			Expires = DateTime.UtcNow.AddMinutes(10),
 		};
 
-		var updatedRefreshToken = new RefreshToken
+		var updatedRefreshToken = new RefreshTokenEntity
 		{
 			Id = Guid.NewGuid(),
 			Expires = DateTime.UtcNow.AddMinutes(20),

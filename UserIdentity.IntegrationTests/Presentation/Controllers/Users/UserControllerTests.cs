@@ -57,7 +57,7 @@ public class UserControllerTests(
 
 		var userDetails = jsonObject["user"]?.ToObject<UserDTO>();
 
-		Assert.Equal(UserSettings.FirstName + " " + UserSettings.LastName, userDetails?.FullName);
+		Assert.Equal(UserSettings.FirstName,userDetails?.FirstName);
 		Assert.Equal(UserSettings.UserName, userDetails?.UserName);
 		Assert.Equal(UserSettings.UserEmail, userDetails?.Email);
 		Assert.Equal(userDetails?.Id, userDetails?.CreatedBy);
@@ -321,7 +321,7 @@ public class UserControllerTests(
 
 		var userDetails = jsonObject["userDetails"]?.ToObject<UserDTO>();
 
-		Assert.Equal(requestPayload.FirstName + " " + requestPayload.LastName, userDetails?.FullName);
+		Assert.Equal(requestPayload.FirstName, userDetails?.FirstName);
 		Assert.Equal(requestPayload.UserName, userDetails?.UserName);
 		Assert.Equal(requestPayload.UserEmail, userDetails?.Email);
 		Assert.Equal(userDetails?.Id, userDetails?.CreatedBy);
@@ -370,7 +370,7 @@ public class UserControllerTests(
 
 		_outputHelper.WriteLine(responseString);
 
-		Assert.Equal(requestPayload.FirstName, userDetails?.FullName);
+		Assert.Equal(requestPayload.FirstName, userDetails?.FirstName);
 		Assert.Equal(requestPayload.UserName, userDetails?.UserName);
 		Assert.Equal(UserEmail, userDetails?.Email);
 		Assert.Equal(userDetails?.Id, userDetails?.CreatedBy);
@@ -452,7 +452,7 @@ public class UserControllerTests(
 
 		var userDetails = jsonObject["userDetails"]?.ToObject<UserDTO>();
 
-		Assert.Equal(UserSettings.FirstName + " " + UserSettings.LastName, userDetails?.FullName);
+		Assert.Equal(UserSettings.FirstName, userDetails?.FirstName);
 		Assert.Equal(requestPayload.UserName, userDetails?.UserName);
 		Assert.Equal(UserSettings.UserEmail, userDetails?.Email);
 		Assert.Equal(userDetails?.Id, userDetails?.CreatedBy);

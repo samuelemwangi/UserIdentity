@@ -1,6 +1,7 @@
 using System.Net.Mime;
 using System.Text.Json.Serialization;
 
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.IdentityModel.Logging;
 
 using PolyzenKit;
@@ -11,6 +12,9 @@ using PolyzenKit.Presentation.Middlewares;
 using PolyzenKit.Presentation.ValidationHelpers;
 
 using UserIdentity;
+using UserIdentity.Application.Interfaces;
+using UserIdentity.Application.Utilities;
+using UserIdentity.Infrastructure.ExternalServices;
 using UserIdentity.Persistence;
 using UserIdentity.Persistence.Migrations;
 
@@ -31,6 +35,9 @@ builder.Services.AddAppRepositories();
 // Command and Query Handlers
 builder.Services.AddAppCommandAndQueryHandlers();
 
+// Event Handlers
+builder.Services.AddAppEventHandlers();
+
 // Controllers
 builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
 {
@@ -45,17 +52,21 @@ builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
 	options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
 });
 
+// Add AutoMapper
+builder.Services.AddAutoMapper(typeof(MapperProfile));
+
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Utilities e.g for Time, String, Logging 
-builder.Services.AddAppDateTimeStringLogHelpers();
+// Utilities - Time, String, Log
+builder.Services.AddAppDateTimeHelpers();
+builder.Services.AddAppStringHelpers();
+builder.Services.AddAppLogHelpers();
 
 // Authentication Identity
 builder.Services.AddAppAuthentication(
 	builder.Configuration,
-	true,
 	(config) => new FileSystemKeyProvider(),
 	(options, keyProvider) => new EdDSAKeySetFactory(options, keyProvider)
 );
@@ -66,11 +77,19 @@ builder.Services.AddAppAuthorization(builder.Configuration);
 // Api Key Settings
 builder.Services.AddAppApiKeySettings(builder.Configuration);
 
-// Cors Policy
-var corsPolicyName = builder.Services.AddAppCorsPolicy(builder.Configuration);
-
 // Health Checks
 builder.Services.AddHealthChecks();
+
+// Add Http Context Accessor
+builder.Services.AddHttpContextAccessor();
+
+// Add External Services & Google Recaptcha
+builder.Services.AddAppExternalServices(builder.Configuration);
+builder.Services.AddScoped<IAppCallbackService, AppCallbackService>();
+builder.Services.AddGoogleRecaptcha(builder.Configuration);
+
+// Cors Policy
+var corsPolicyName = builder.Services.AddAppCorsPolicy(builder.Configuration);
 
 // build the app
 var app = builder.Build();

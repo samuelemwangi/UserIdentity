@@ -21,9 +21,11 @@ using PolyzenKit.Presentation.Settings;
 using UserIdentity.Application.Core.Roles.Queries.GetRoleClaims;
 using UserIdentity.Application.Core.Roles.ViewModels;
 using UserIdentity.Application.Core.Users.Commands.RegisterUser;
+using UserIdentity.Application.Core.Users.Events;
 using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Domain.Identity;
 using UserIdentity.Persistence.Repositories.RefreshTokens;
+using UserIdentity.Persistence.Repositories.UserRegisteredApps;
 using UserIdentity.Persistence.Repositories.Users;
 using UserIdentity.UnitTests.TestUtils;
 
@@ -39,14 +41,16 @@ public class RegisterUserCommandHandlerTests : IClassFixture<TestSettingsFixture
 
 	private readonly IUserRepository _userRepository;
 	private readonly IRefreshTokenRepository _refreshTokenRepository;
+	private readonly IUserRegisteredAppRepository _userRegisteredAppRepository;
+
 	private readonly IJwtTokenHandler _jwtTokenHandler;
 	private readonly ITokenFactory _tokenFactory;
-
-	private readonly IConfiguration _configuration;
 
 	private readonly IMachineDateTime _machineDateTime;
 
 	private readonly IGetItemsQueryHandler<GetRoleClaimsForRolesQuery, RoleClaimsForRolesViewModels> _getRoleClaimsQueryHandler;
+
+	IBaseEventHandler<UserUpdateEvent> _userUpdateEventHandler;
 
 	public RegisterUserCommandHandlerTests()
 	{
@@ -57,15 +61,15 @@ public class RegisterUserCommandHandlerTests : IClassFixture<TestSettingsFixture
 
 		_userRepository = A.Fake<IUserRepository>();
 		_refreshTokenRepository = A.Fake<IRefreshTokenRepository>();
+		_userRegisteredAppRepository = A.Fake<IUserRegisteredAppRepository>();
 
 		_jwtTokenHandler = A.Fake<IJwtTokenHandler>();
 		_tokenFactory = A.Fake<ITokenFactory>();
 
-		_configuration = A.Fake<IConfiguration>();
-
 		_machineDateTime = new MachineDateTime();
 
 		_getRoleClaimsQueryHandler = A.Fake<IGetItemsQueryHandler<GetRoleClaimsForRolesQuery, RoleClaimsForRolesViewModels>>();
+		_userUpdateEventHandler = A.Fake<IBaseEventHandler<UserUpdateEvent>>();
 	}
 
 
@@ -188,7 +192,7 @@ public class RegisterUserCommandHandlerTests : IClassFixture<TestSettingsFixture
 
 		A.CallTo(() => _userManager.GenerateEmailConfirmationTokenAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName))).Returns("token");
 
-		A.CallTo(() => _userRepository.CreateUserAsync(A<User>.That.Matches(x => x.FirstName == command.FirstName))).Returns(Task.FromResult(0));
+		A.CallTo(() => _userRepository.CreateUserAsync(A<UserEntity>.That.Matches(x => x.FirstName == command.FirstName))).Returns(Task.FromResult(0));
 
 		var handler = GetRegisterUserCommandHandler();
 
@@ -220,7 +224,7 @@ public class RegisterUserCommandHandlerTests : IClassFixture<TestSettingsFixture
 
 		A.CallTo(() => _userManager.GenerateEmailConfirmationTokenAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName))).Returns("token");
 
-		A.CallTo(() => _userRepository.CreateUserAsync(A<User>.That.Matches(x => x.FirstName == command.FirstName))).Returns(Task.FromResult(1));
+		A.CallTo(() => _userRepository.CreateUserAsync(A<UserEntity>.That.Matches(x => x.FirstName == command.FirstName))).Returns(Task.FromResult(1));
 
 		A.CallTo(() => _userManager.GetRolesAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName))).Returns(userRoles);
 
@@ -230,7 +234,7 @@ public class RegisterUserCommandHandlerTests : IClassFixture<TestSettingsFixture
 
 		A.CallTo(() => _tokenFactory.GenerateToken(32)).Returns("refreshToken");
 
-		A.CallTo(() => _refreshTokenRepository.CreateRefreshTokenAsync(A<RefreshToken>.That.Matches(x => x.UserId == "1"))).Returns(Task.FromResult(0));
+		A.CallTo(() => _refreshTokenRepository.CreateRefreshTokenAsync(A<RefreshTokenEntity>.That.Matches(x => x.UserId == "1"))).Returns(Task.FromResult(0));
 
 		var handler = GetRegisterUserCommandHandler();
 
@@ -264,7 +268,7 @@ public class RegisterUserCommandHandlerTests : IClassFixture<TestSettingsFixture
 
 		A.CallTo(() => _userManager.GenerateEmailConfirmationTokenAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName))).Returns("token");
 
-		A.CallTo(() => _userRepository.CreateUserAsync(A<User>.That.Matches(x => x.FirstName == command.FirstName))).Returns(Task.FromResult(1));
+		A.CallTo(() => _userRepository.CreateUserAsync(A<UserEntity>.That.Matches(x => x.FirstName == command.FirstName))).Returns(Task.FromResult(1));
 
 		A.CallTo(() => _userManager.GetRolesAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName))).Returns(userRoles);
 
@@ -274,7 +278,7 @@ public class RegisterUserCommandHandlerTests : IClassFixture<TestSettingsFixture
 
 		A.CallTo(() => _tokenFactory.GenerateToken(32)).Returns(resfreshToken);
 
-		A.CallTo(() => _refreshTokenRepository.CreateRefreshTokenAsync(A<RefreshToken>.That.Matches(x => x.Token == resfreshToken))).Returns(Task.FromResult(1));
+		A.CallTo(() => _refreshTokenRepository.CreateRefreshTokenAsync(A<RefreshTokenEntity>.That.Matches(x => x.Token == resfreshToken))).Returns(Task.FromResult(1));
 
 		var handler = GetRegisterUserCommandHandler();
 
@@ -283,7 +287,7 @@ public class RegisterUserCommandHandlerTests : IClassFixture<TestSettingsFixture
 
 		// Assert
 		Assert.IsType<AuthUserViewModel>(vm);
-		Assert.NotNull(vm.UserDetails);
+		Assert.NotNull(vm.User);
 		Assert.NotNull(vm.UserToken);
 		Assert.NotNull(vm.UserToken?.AccessToken);
 		Assert.NotNull(vm.UserToken?.RefreshToken);
@@ -331,7 +335,7 @@ public class RegisterUserCommandHandlerTests : IClassFixture<TestSettingsFixture
 
 		A.CallTo(() => _userManager.GenerateEmailConfirmationTokenAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName))).Returns("token");
 
-		A.CallTo(() => _userRepository.CreateUserAsync(A<User>.That.Matches(x => x.FirstName == command.FirstName))).Returns(Task.FromResult(1));
+		A.CallTo(() => _userRepository.CreateUserAsync(A<UserEntity>.That.Matches(x => x.FirstName == command.FirstName))).Returns(Task.FromResult(1));
 
 		A.CallTo(() => _userManager.GetRolesAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName))).Returns(userRoles);
 
@@ -341,7 +345,7 @@ public class RegisterUserCommandHandlerTests : IClassFixture<TestSettingsFixture
 
 		A.CallTo(() => _tokenFactory.GenerateToken(32)).Returns(resfreshToken);
 
-		A.CallTo(() => _refreshTokenRepository.CreateRefreshTokenAsync(A<RefreshToken>.That.Matches(x => x.Token == resfreshToken))).Returns(Task.FromResult(1));
+		A.CallTo(() => _refreshTokenRepository.CreateRefreshTokenAsync(A<RefreshTokenEntity>.That.Matches(x => x.Token == resfreshToken))).Returns(Task.FromResult(1));
 
 		var handler = GetRegisterUserCommandHandler();
 
@@ -350,7 +354,7 @@ public class RegisterUserCommandHandlerTests : IClassFixture<TestSettingsFixture
 
 		// Assert
 		Assert.IsType<AuthUserViewModel>(vm);
-		Assert.NotNull(vm.UserDetails);
+		Assert.NotNull(vm.User);
 		Assert.NotNull(vm.UserToken);
 		Assert.NotNull(vm.UserToken?.AccessToken);
 		Assert.NotNull(vm.UserToken?.RefreshToken);
@@ -366,16 +370,18 @@ public class RegisterUserCommandHandlerTests : IClassFixture<TestSettingsFixture
 										_roleManager,
 										_userRepository,
 										_refreshTokenRepository,
+										_userRegisteredAppRepository,
 										_jwtTokenHandler,
 										_tokenFactory,
-										_configuration,
 										_machineDateTime,
-										_getRoleClaimsQueryHandler
+										_getRoleClaimsQueryHandler,
+										_userUpdateEventHandler
 										);
 	}
 
 	private RoleSettings GetRoleSettings() => new()
 	{
+		ServiceName = "UserIdentity",
 		DefaultRole = "DefaultRole",
 		AdminRoles = "AdminRoles",
 	};

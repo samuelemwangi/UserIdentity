@@ -12,17 +12,17 @@ public class UserConfigurationTests
 	{
 		// Arrange
 		var userConfiguration = new UserConfiguration();
-		(var builder, var entityType) = EntityConfigurationTestsHelper<User>.GetEntityTypeBuilder();
+		(var builder, var entityType) = EntityConfigurationTestsHelper<UserEntity>.GetEntityTypeBuilder();
 
 		// Act
 		userConfiguration.Configure(builder);
 
 		// Assert
-		Assert.True(entityType.ConfirmMaxColumnLength(nameof(User.EmailConfirmationToken), 600));
-		Assert.True(entityType.ConfirmMaxColumnLength(nameof(User.FirstName), 20));
-		Assert.True(entityType.ConfirmMaxColumnLength(nameof(User.LastName), 20));
-		Assert.True(entityType.ConfirmMaxColumnLength(nameof(User.ForgotPasswordToken), 600));
+		Assert.True(entityType.ConfirmMaxColumnLength(nameof(UserEntity.EmailConfirmationToken), 600));
+		Assert.True(entityType.ConfirmMaxColumnLength(nameof(UserEntity.FirstName), 20));
+		Assert.True(entityType.ConfirmMaxColumnLength(nameof(UserEntity.LastName), 20));
+		Assert.True(entityType.ConfirmMaxColumnLength(nameof(UserEntity.ForgotPasswordToken), 600));
 
-		Assert.True(entityType.ConfirmColumnHasKey(nameof(User.Id)));
+		Assert.True(entityType.ConfirmColumnHasKey(nameof(UserEntity.Id)));
 	}
 }

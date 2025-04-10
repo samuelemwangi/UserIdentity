@@ -8,8 +8,8 @@ using UserIdentity.Persistence;
 
 #nullable disable
 
-namespace UserIdentity.Persistence.Migrations;
-
+namespace UserIdentity.Persistence.Migrations
+{
     [DbContext(typeof(AppDbContext))]
     partial class AppDbContextModelSnapshot : ModelSnapshot
     {
@@ -278,7 +278,8 @@ namespace UserIdentity.Persistence.Migrations;
                         .HasColumnName("created_at");
 
                     b.Property<string>("CreatedBy")
-                        .HasColumnType("longtext")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
                         .HasColumnName("created_by");
 
                     b.Property<string>("EntityName")
@@ -296,7 +297,8 @@ namespace UserIdentity.Persistence.Migrations;
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
-                        .HasColumnType("longtext")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id")
@@ -305,7 +307,7 @@ namespace UserIdentity.Persistence.Migrations;
                     b.ToTable("app_entities", (string)null);
                 });
 
-            modelBuilder.Entity("UserIdentity.Domain.Identity.RefreshToken", b =>
+            modelBuilder.Entity("UserIdentity.Domain.Identity.RefreshTokenEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -317,7 +319,8 @@ namespace UserIdentity.Persistence.Migrations;
                         .HasColumnName("created_at");
 
                     b.Property<string>("CreatedBy")
-                        .HasColumnType("longtext")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
                         .HasColumnName("created_by");
 
                     b.Property<DateTime>("Expires")
@@ -343,7 +346,8 @@ namespace UserIdentity.Persistence.Migrations;
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
-                        .HasColumnType("longtext")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
                         .HasColumnName("updated_by");
 
                     b.Property<string>("UserId")
@@ -363,7 +367,73 @@ namespace UserIdentity.Persistence.Migrations;
                     b.ToTable("refresh_tokens", (string)null);
                 });
 
-            modelBuilder.Entity("UserIdentity.Domain.Identity.User", b =>
+            modelBuilder.Entity("UserIdentity.Domain.Identity.RegisteredAppEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AppName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("app_name");
+
+                    b.Property<string>("AppSecretKey")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("app_secret_key");
+
+                    b.Property<string>("CallbackHeaders")
+                        .HasMaxLength(800)
+                        .HasColumnType("varchar(800)")
+                        .HasColumnName("callback_headers");
+
+                    b.Property<string>("CallbackUrl")
+                        .HasMaxLength(600)
+                        .HasColumnType("varchar(600)")
+                        .HasColumnName("callback_url");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("created_by");
+
+                    b.Property<bool>("ForwardServiceToken")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("forward_service_token");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("updated_by");
+
+                    b.HasKey("Id")
+                        .HasName("pk_registered_apps");
+
+                    b.HasIndex("AppName")
+                        .HasDatabaseName("ix_registered_apps_app_name");
+
+                    b.ToTable("registered_apps", (string)null);
+                });
+
+            modelBuilder.Entity("UserIdentity.Domain.Identity.UserEntity", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("varchar(255)")
@@ -374,7 +444,8 @@ namespace UserIdentity.Persistence.Migrations;
                         .HasColumnName("created_at");
 
                     b.Property<string>("CreatedBy")
-                        .HasColumnType("longtext")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
                         .HasColumnName("created_by");
 
                     b.Property<string>("EmailConfirmationToken")
@@ -406,13 +477,63 @@ namespace UserIdentity.Persistence.Migrations;
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
-                        .HasColumnType("longtext")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id")
                         .HasName("pk_user_details");
 
                     b.ToTable("user_details", (string)null);
+                });
+
+            modelBuilder.Entity("UserIdentity.Domain.Identity.UserRegisteredAppEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("id");
+
+                    b.Property<int>("AppId")
+                        .HasColumnType("int")
+                        .HasColumnName("app_id");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("created_by");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_user_registered_apps");
+
+                    b.HasIndex("AppId")
+                        .HasDatabaseName("ix_user_registered_apps_app_id");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_user_registered_apps_user_id");
+
+                    b.ToTable("user_registered_apps", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -471,6 +592,38 @@ namespace UserIdentity.Persistence.Migrations;
                         .IsRequired()
                         .HasConstraintName("fk_user_tokens_users_user_id");
                 });
+
+            modelBuilder.Entity("UserIdentity.Domain.Identity.UserRegisteredAppEntity", b =>
+                {
+                    b.HasOne("UserIdentity.Domain.Identity.RegisteredAppEntity", "App")
+                        .WithMany("UserRegisteredApps")
+                        .HasForeignKey("AppId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_user_registered_apps_registered_apps_app_id");
+
+                    b.HasOne("UserIdentity.Domain.Identity.UserEntity", "User")
+                        .WithMany("UserRegisteredApps")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_user_registered_apps_user_details_user_id");
+
+                    b.Navigation("App");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("UserIdentity.Domain.Identity.RegisteredAppEntity", b =>
+                {
+                    b.Navigation("UserRegisteredApps");
+                });
+
+            modelBuilder.Entity("UserIdentity.Domain.Identity.UserEntity", b =>
+                {
+                    b.Navigation("UserRegisteredApps");
+                });
 #pragma warning restore 612, 618
         }
     }
+}

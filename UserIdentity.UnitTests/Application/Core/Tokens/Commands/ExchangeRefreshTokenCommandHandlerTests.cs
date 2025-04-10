@@ -94,7 +94,7 @@ public class ExchangeRefreshTokenCommandHandlerTests
 		A.CallTo(() => _jwtTokenHandler.ResolveTokenValue<string?>(tokenValidationResult, JwtCustomClaimNames.Id)).Returns(TestStringHelper.UserId);
 		A.CallTo(() => _jwtTokenHandler.ResolveTokenValue<string?>(tokenValidationResult, JwtRegisteredClaimNames.Sub)).Returns(TestStringHelper.UserName);
 
-		A.CallTo(() => _refreshTokenRepository.GetRefreshTokenAsync(TestStringHelper.UserId, command.RefreshToken)).Returns(default(RefreshToken));
+		A.CallTo(() => _refreshTokenRepository.GetRefreshTokenAsync(TestStringHelper.UserId, command.RefreshToken)).Returns(default(RefreshTokenEntity));
 
 		var hanndler = GetExchangeRefreshTokenCommandHandler();
 
@@ -118,7 +118,7 @@ public class ExchangeRefreshTokenCommandHandlerTests
 			RefreshToken = refreshToken
 		};
 
-		var dbRefreshToken = new RefreshToken
+		var dbRefreshToken = new RefreshTokenEntity
 		{
 			Id = Guid.NewGuid(),
 			UserId = TestStringHelper.UserId,
@@ -151,7 +151,7 @@ public class ExchangeRefreshTokenCommandHandlerTests
 
 		A.CallTo(() => _jwtTokenHandler.CreateToken(TestStringHelper.UserId, TestStringHelper.UserName, userRoles.Roles.ToHashSet(), userRoleClaims.RoleClaims)).Returns((newAccesToken, newAccesstokenExpiresIn));
 
-		A.CallTo(() => _refreshTokenRepository.UpdateRefreshTokenAsync(A<RefreshToken>.That.Matches(x => x.Token == updatedRefreshToken))).Returns(0);
+		A.CallTo(() => _refreshTokenRepository.UpdateRefreshTokenAsync(A<RefreshTokenEntity>.That.Matches(x => x.Token == updatedRefreshToken))).Returns(0);
 
 		var hanndler = GetExchangeRefreshTokenCommandHandler();
 
@@ -174,7 +174,7 @@ public class ExchangeRefreshTokenCommandHandlerTests
 			RefreshToken = refreshToken
 		};
 
-		var dbRefreshToken = new RefreshToken
+		var dbRefreshToken = new RefreshTokenEntity
 		{
 			Id = Guid.NewGuid(),
 			UserId = TestStringHelper.UserId,
@@ -207,7 +207,7 @@ public class ExchangeRefreshTokenCommandHandlerTests
 
 		A.CallTo(() => _jwtTokenHandler.CreateToken(TestStringHelper.UserId, TestStringHelper.UserName, userRoles.Roles.ToHashSet(), userRoleClaims.RoleClaims)).Returns((newAccesToken, newAccesstokenExpiresIn));
 
-		A.CallTo(() => _refreshTokenRepository.UpdateRefreshTokenAsync(A<RefreshToken>.That.Matches(x => x.Token == updatedRefreshToken))).Returns(1);
+		A.CallTo(() => _refreshTokenRepository.UpdateRefreshTokenAsync(A<RefreshTokenEntity>.That.Matches(x => x.Token == updatedRefreshToken))).Returns(1);
 
 		var hanndler = GetExchangeRefreshTokenCommandHandler();
 

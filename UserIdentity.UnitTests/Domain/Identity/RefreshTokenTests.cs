@@ -14,7 +14,7 @@ public class RefreshTokenTests
 	public void New_RefreshToken_is_a_Valid_RefreshToken_Instance()
 	{
 		// Arrange
-		RefreshToken refreshToken = new() { Id = Guid.NewGuid() };
+		RefreshTokenEntity refreshToken = new() { Id = Guid.NewGuid() };
 
 
 		// Act & Assert

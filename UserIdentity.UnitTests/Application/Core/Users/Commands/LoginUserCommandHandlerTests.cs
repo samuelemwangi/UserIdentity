@@ -87,7 +87,7 @@ public class LoginUserCommandHandlerTests
 		A.CallTo(() => _userManager.FindByNameAsync(command.UserName)).Returns(default(IdentityUser));
 		A.CallTo(() => _userManager.FindByEmailAsync(command.UserName)).Returns(existingIdentityUser);
 
-		A.CallTo(() => _userRepository.GetUserAsync(existingIdentityUser.Id)).Returns(default(User));
+		A.CallTo(() => _userRepository.GetUserAsync(existingIdentityUser.Id)).Returns(default(UserEntity));
 
 		var handler = GetLoginUserCommandHandler();
 
@@ -159,7 +159,7 @@ public class LoginUserCommandHandlerTests
 
 		A.CallTo(() => _jwtTokenHandler.CreateToken(existingIdentityUser.Id, A<string>.Ignored, userRoles.Roles.ToHashSet(), userRoleClaims.RoleClaims)).Returns((accessToken, expiresIn));
 
-		A.CallTo(() => _refreshTokenRepository.CreateRefreshTokenAsync(A<RefreshToken>.That.Matches(x => x.Token == refreshToken))).Returns(Task.FromResult(0));
+		A.CallTo(() => _refreshTokenRepository.CreateRefreshTokenAsync(A<RefreshTokenEntity>.That.Matches(x => x.Token == refreshToken))).Returns(Task.FromResult(0));
 
 		var handler = GetLoginUserCommandHandler();
 
@@ -204,7 +204,7 @@ public class LoginUserCommandHandlerTests
 
 		A.CallTo(() => _jwtTokenHandler.CreateToken(existingIdentityUser.Id, A<string>.Ignored, userRoles.Roles.ToHashSet(), userRoleClaims.RoleClaims)).Returns((accessToken, expiresIn));
 
-		A.CallTo(() => _refreshTokenRepository.CreateRefreshTokenAsync(A<RefreshToken>.That.Matches(x => x.Token == refreshToken))).Returns(Task.FromResult(1));
+		A.CallTo(() => _refreshTokenRepository.CreateRefreshTokenAsync(A<RefreshTokenEntity>.That.Matches(x => x.Token == refreshToken))).Returns(Task.FromResult(1));
 
 		var handler = GetLoginUserCommandHandler();
 
@@ -213,7 +213,7 @@ public class LoginUserCommandHandlerTests
 
 		// Assert
 		Assert.IsType<AuthUserViewModel>(vm);
-		Assert.NotNull(vm.UserDetails);
+		Assert.NotNull(vm.User);
 		Assert.NotNull(vm.UserToken);
 		Assert.NotNull(vm.UserToken?.AccessToken);
 		Assert.NotNull(vm.UserToken?.RefreshToken);
@@ -245,9 +245,9 @@ public class LoginUserCommandHandlerTests
 
 	}
 
-	private User GetUser(string? id = null)
+	private UserEntity GetUser(string? id = null)
 	{
-		return new User
+		return new UserEntity
 		{
 			Id = id ?? Guid.NewGuid().ToString(),
 			FirstName = "test",

@@ -10,7 +10,7 @@ public class RefreshTokenRepository(
 {
 	private readonly AppDbContext _appDbContext = appDbContext;
 
-	public async Task<int> CreateRefreshTokenAsync(RefreshToken refreshToken)
+	public async Task<int> CreateRefreshTokenAsync(RefreshTokenEntity refreshToken)
 	{
 		try
 		{
@@ -24,7 +24,7 @@ public class RefreshTokenRepository(
 		}
 	}
 
-	public async Task<RefreshToken?> GetRefreshTokenAsync(string userId, string token)
+	public async Task<RefreshTokenEntity?> GetRefreshTokenAsync(string userId, string token)
 	{
 		var refreshToken = await _appDbContext.RefreshToken
 			.Where(e => e.UserId == userId && e.Token == token && !e.IsDeleted)
@@ -33,7 +33,7 @@ public class RefreshTokenRepository(
 		return refreshToken;
 	}
 
-	public async Task<int> UpdateRefreshTokenAsync(RefreshToken refreshToken)
+	public async Task<int> UpdateRefreshTokenAsync(RefreshTokenEntity refreshToken)
 	{
 		try
 		{
@@ -44,5 +44,11 @@ public class RefreshTokenRepository(
 		{
 			return 0;
 		}
+	}
+
+	public async Task DeleteRefreshTokenAsync(string userId)
+	{
+		if ((await _appDbContext.RefreshToken.Where(e => e.UserId == userId).ExecuteDeleteAsync()) < 1)
+			throw new InvalidOperationException($"deleting user identified with {userId}");
 	}
 }
