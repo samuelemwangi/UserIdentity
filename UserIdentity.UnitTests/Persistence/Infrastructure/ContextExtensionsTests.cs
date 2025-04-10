@@ -22,8 +22,8 @@ public class ContextExtensionsTests
 		using var context = AppDbContextTestFactory.GetAppDbContext();
 
 		// Assert	
-		Assert.Equal(entityPrefix + "user_details", context.GetTableName<User>());
-		Assert.Equal(entityPrefix + "refresh_tokens", context.GetTableName<RefreshToken>());
+		Assert.Equal(entityPrefix + "user_details", context.GetTableName<UserEntity>());
+		Assert.Equal(entityPrefix + "refresh_tokens", context.GetTableName<RefreshTokenEntity>());
 
 		Assert.Equal(entityPrefix + "users", context.GetTableName<IdentityUser>());
 		Assert.Equal(entityPrefix + "roles", context.GetTableName<IdentityRole>());
@@ -47,8 +47,8 @@ public class ContextExtensionsTests
 		using var context = AppDbContextTestFactory.GetAppDbContext();
 
 		// Assert	
-		Assert.Null(context.GetSchemaName<User>());
-		Assert.Null(context.GetSchemaName<RefreshToken>());
+		Assert.Null(context.GetSchemaName<UserEntity>());
+		Assert.Null(context.GetSchemaName<RefreshTokenEntity>());
 
 		Assert.Null(context.GetSchemaName<IdentityUser>());
 		Assert.Null(context.GetSchemaName<IdentityRole>());

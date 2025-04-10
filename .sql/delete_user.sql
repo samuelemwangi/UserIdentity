@@ -1,34 +1,34 @@
-USE #REPLACE_WITH_YOUR_DATABASE_NAME#;
+USE useridentity;
 
 SET @username = '#REPLACE_WITH_USERNAME#';
 
 SELECT @user_id := id
 FROM users
-WHERE UserName = @username;
+WHERE User_Name = @username;
 
 DELETE 
 FROM  refresh_tokens
-WHERE UserId = @user_id;
+WHERE User_Id = @user_id;
 
 DELETE 
 FROM user_claims
-WHERE UserId = @user_id;
+WHERE User_Id = @user_id;
 
 DELETE 
 FROM user_logins
-WHERE UserId = @user_id;
+WHERE User_Id = @user_id;
 
 DELETE 
 FROM user_logins
-WHERE UserId = @user_id;
+WHERE User_Id = @user_id;
 
 DELETE 
 FROM user_roles
-WHERE UserId = @user_id;
+WHERE User_Id = @user_id;
 
 DELETE 
 FROM user_tokens
-WHERE UserId = @user_id;
+WHERE User_Id = @user_id;
 
 DELETE 
 FROM user_details
@@ -37,6 +37,12 @@ WHERE Id = @user_id;
 DELETE 
 FROM users
 WHERE Id = @user_id;
+
+DELETE 
+FROM user_registered_apps 
+WHERE user_id = @user_id;
+
+
 
 
 

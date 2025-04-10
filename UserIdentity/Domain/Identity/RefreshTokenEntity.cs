@@ -2,7 +2,7 @@
 
 namespace UserIdentity.Domain.Identity;
 
-public record RefreshToken : BaseAuditableEntity<Guid>
+public record RefreshTokenEntity : BaseAuditableEntity<Guid>
 {
 	public string? Token { get; internal set; }
 

@@ -5,9 +5,9 @@ using UserIdentity.Domain.Identity;
 
 namespace UserIdentity.Persistence.Configurations.Identity;
 
-public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
+public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshTokenEntity>
 {
-	public void Configure(EntityTypeBuilder<RefreshToken> builder)
+	public void Configure(EntityTypeBuilder<RefreshTokenEntity> builder)
 	{
 		builder.Property(e => e.Token).HasMaxLength(200);
 		builder.HasIndex(e => e.Token);

@@ -21,7 +21,7 @@ public class UserRepositoryTests
 		var context = AppDbContextTestFactory.GetAppDbContext();
 		var userRepo = new UserRepository(context);
 
-		var newUser = new User
+		var newUser = new UserEntity
 		{
 			Id = Guid.NewGuid().ToString(),
 			FirstName = StringUtil.GenerateRandomString(15),
@@ -42,7 +42,7 @@ public class UserRepositoryTests
 		var context = AppDbContextTestFactory.GetAppDbContext();
 		var userRepo = new UserRepository(context);
 
-		var newUser = new User
+		var newUser = new UserEntity
 		{
 			Id = Guid.NewGuid().ToString(),
 			FirstName = StringUtil.GenerateRandomString(15),
@@ -66,7 +66,7 @@ public class UserRepositoryTests
 		var context = AppDbContextTestFactory.GetAppDbContext();
 		var userRepo = new UserRepository(context);
 
-		var newUser = new User
+		var newUser = new UserEntity
 		{
 			Id = Guid.NewGuid().ToString(),
 			FirstName = StringUtil.GenerateRandomString(15),
@@ -79,7 +79,7 @@ public class UserRepositoryTests
 
 		var result = await userRepo.GetUserAsync(newUser.Id);
 
-		Assert.IsType<User>(result);
+		Assert.IsType<UserEntity>(result);
 		Assert.Equal(newUser.Id, result?.Id);
 		Assert.Equal(newUser.FirstName, result?.FirstName);
 		Assert.Equal(newUser.LastName, result?.LastName);
@@ -105,7 +105,7 @@ public class UserRepositoryTests
 		var context = AppDbContextTestFactory.GetAppDbContext();
 		var userRepo = new UserRepository(context);
 
-		var newUser = new User
+		var newUser = new UserEntity
 		{
 			Id = Guid.NewGuid().ToString(),
 			FirstName = StringUtil.GenerateRandomString(15),
@@ -152,7 +152,7 @@ public class UserRepositoryTests
 		var userRepo = new UserRepository(context);
 		var forgotPasswordToken = StringUtil.GenerateRandomString(304);
 
-		var newUser = new User
+		var newUser = new UserEntity
 		{
 			Id = Guid.NewGuid().ToString(),
 			FirstName = StringUtil.GenerateRandomString(15),
@@ -177,7 +177,7 @@ public class UserRepositoryTests
 		var context = AppDbContextTestFactory.GetAppDbContext();
 		var userRepo = new UserRepository(context);
 
-		var newUser = new User
+		var newUser = new UserEntity
 		{
 			Id = Guid.NewGuid().ToString(),
 			FirstName = StringUtil.GenerateRandomString(15),

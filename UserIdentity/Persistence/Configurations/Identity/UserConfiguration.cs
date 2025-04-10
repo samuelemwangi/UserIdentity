@@ -5,9 +5,9 @@ using UserIdentity.Domain.Identity;
 
 namespace UserIdentity.Persistence.Configurations.Identity;
 
-public class UserConfiguration : IEntityTypeConfiguration<User>
+public class UserConfiguration : IEntityTypeConfiguration<UserEntity>
 {
-	public void Configure(EntityTypeBuilder<User> builder)
+	public void Configure(EntityTypeBuilder<UserEntity> builder)
 	{
 		builder.HasKey(e => e.Id);
 

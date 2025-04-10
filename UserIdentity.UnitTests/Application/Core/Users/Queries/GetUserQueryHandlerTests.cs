@@ -66,7 +66,7 @@ public class GetUserQueryHandlerTests
 		};
 
 		A.CallTo(() => _userManager.FindByIdAsync(query.UserId)).Returns(existingIdentityUser);
-		A.CallTo(() => _userRepository.GetUserAsync(query.UserId)).Returns(default(User));
+		A.CallTo(() => _userRepository.GetUserAsync(query.UserId)).Returns(default(UserEntity));
 
 		var handler = new GetUserQueryHandler(_userManager, _userRepository, _machineDateTime);
 
@@ -91,7 +91,7 @@ public class GetUserQueryHandlerTests
 			Email = "test@lp.mll",
 		};
 
-		var existingUser = new User
+		var existingUser = new UserEntity
 		{
 			Id = existingIdentityUser.Id,
 			FirstName = "test",

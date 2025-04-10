@@ -4,9 +4,11 @@ namespace UserIdentity.Persistence.Repositories.RefreshTokens;
 
 public interface IRefreshTokenRepository
 {
-	Task<int> CreateRefreshTokenAsync(RefreshToken refreshToken);
+	Task<int> CreateRefreshTokenAsync(RefreshTokenEntity refreshToken);
 
-	Task<RefreshToken?> GetRefreshTokenAsync(string userId, string token);
+	Task<RefreshTokenEntity?> GetRefreshTokenAsync(string userId, string token);
 
-	Task<int> UpdateRefreshTokenAsync(RefreshToken refreshToken);
+	Task<int> UpdateRefreshTokenAsync(RefreshTokenEntity refreshToken);
+
+	Task DeleteRefreshTokenAsync(string userId);
 }

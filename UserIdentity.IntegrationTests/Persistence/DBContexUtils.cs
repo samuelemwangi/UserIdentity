@@ -105,7 +105,7 @@ internal class DBContexUtils
 
 	public static void SeedAppUser(AppDbContext appDbContext)
 	{
-		var appuser = new User
+		var appuser = new UserEntity
 		{
 			Id = UserSettings.UserId.ToString(),
 			FirstName = UserSettings.FirstName,
@@ -122,7 +122,7 @@ internal class DBContexUtils
 
 	public static void SeedRefreshToken(AppDbContext appDbContext)
 	{
-		var refreshToken = new RefreshToken
+		var refreshToken = new RefreshTokenEntity
 		{
 			Id = Guid.NewGuid(),
 			UserId = UserSettings.UserId.ToString(),

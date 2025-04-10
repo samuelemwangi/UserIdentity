@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 using PolyzenKit.Application.Core.Interfaces;
 using PolyzenKit.Application.Enums;
 
+using UserIdentity.Application.Core.RegisteredApps.Queries;
+using UserIdentity.Application.Core.RegisteredApps.ViewModels;
 using UserIdentity.Application.Core.Tokens.Commands.ExchangeRefreshToken;
 using UserIdentity.Application.Core.Tokens.ViewModels;
 using UserIdentity.Application.Core.Users.Commands.ConfirmUpdatePasswordToken;
@@ -37,6 +39,8 @@ public class UserControllerTests
 	private readonly IUpdateItemCommandHandler<ConfirmUpdatePasswordTokenCommand, ConfirmUpdatePasswordTokenViewModel> _confirmUpdatePasswordTokenCommandHandler;
 	private readonly IUpdateItemCommandHandler<UpdatePasswordCommand, UpdatePasswordViewModel> _updatePasswordCommandHandler;
 
+	private readonly IGetItemQueryHandler<GetRegisteredAppQuery, RegisteredAppViewModel> _getRegisteredAppQueryHandler;
+
 
 	public UserControllerTests()
 	{
@@ -47,6 +51,7 @@ public class UserControllerTests
 		_resetPasswordCommandHandler = A.Fake<ICreateItemCommandHandler<ResetPasswordCommand, ResetPasswordViewModel>>();
 		_confirmUpdatePasswordTokenCommandHandler = A.Fake<IUpdateItemCommandHandler<ConfirmUpdatePasswordTokenCommand, ConfirmUpdatePasswordTokenViewModel>>();
 		_updatePasswordCommandHandler = A.Fake<IUpdateItemCommandHandler<UpdatePasswordCommand, UpdatePasswordViewModel>>();
+		_getRegisteredAppQueryHandler = A.Fake<IGetItemQueryHandler<GetRegisteredAppQuery, RegisteredAppViewModel>>();
 	}
 
 	[Fact]
@@ -59,7 +64,7 @@ public class UserControllerTests
 		var userName = "test.user";
 		var userEmail = userName + "@test.com";
 		var getUserQuery = new GetUserQuery { UserId = userId };
-		var userVM = new UserViewModel { User = new UserDTO { Id = userId, FullName = userFName + userLName, UserName = userName, Email = userEmail } };
+		var userVM = new UserViewModel { User = new UserDTO { Id = userId, FirstName = userFName, LastName = userLName, UserName = userName, Email = userEmail } };
 
 		// Act
 		A.CallTo(() => _getUserQueryHandler.GetItemAsync(getUserQuery)).Returns(userVM);
@@ -75,7 +80,8 @@ public class UserControllerTests
 
 		Assert.NotNull(vm);
 		Assert.Equal(userId, vm?.User?.Id);
-		Assert.Equal(userFName + userLName, vm?.User?.FullName);
+		Assert.Equal(userFName, vm?.User?.FirstName);
+		Assert.Equal(userLName, vm?.User?.LastName);
 		Assert.Equal(userName, vm?.User?.UserName);
 		Assert.Equal(userEmail, vm?.User?.Email);
 
@@ -101,7 +107,7 @@ public class UserControllerTests
 
 		var command = new RegisterUserCommand { FirstName = userFName, LastName = userLName, UserName = userName, UserEmail = userEmail, UserPassword = userPassword };
 
-		var authVM = new AuthUserViewModel { UserDetails = new UserDTO { Id = userId, FullName = userFName + userLName, UserName = userName, Email = userEmail }, UserToken = new AccessTokenViewModel { RefreshToken = refreshToken } };
+		var authVM = new AuthUserViewModel { User = new UserDTO { Id = userId, FirstName = userFName, LastName = userLName, UserName = userName, Email = userEmail }, UserToken = new AccessTokenViewModel { RefreshToken = refreshToken } };
 
 		// Act
 		A.CallTo(() => _registerUserCommandHandler.CreateItemAsync(command, TestStringHelper.UserId)).Returns(authVM);
@@ -116,10 +122,11 @@ public class UserControllerTests
 		Assert.Equal((int)HttpStatusCode.Created, result?.StatusCode);
 
 		Assert.NotNull(vm);
-		Assert.Equal(userId, vm?.UserDetails?.Id);
-		Assert.Equal(userFName + userLName, vm?.UserDetails?.FullName);
-		Assert.Equal(userName, vm?.UserDetails?.UserName);
-		Assert.Equal(userEmail, vm?.UserDetails?.Email);
+		Assert.Equal(userId, vm?.User?.Id);
+		Assert.Equal(userFName, vm?.User?.FirstName);
+		Assert.Equal(userLName, vm?.User?.LastName);
+		Assert.Equal(userName, vm?.User?.UserName);
+		Assert.Equal(userEmail, vm?.User?.Email);
 
 
 		Assert.Equal(refreshToken, vm?.UserToken?.RefreshToken);
@@ -147,7 +154,7 @@ public class UserControllerTests
 		var loginMessage = "Login successful";
 
 		var command = new LoginUserCommand { UserName = userName, Password = userPassword };
-		var authVM = new AuthUserViewModel { UserDetails = new UserDTO { Id = userId, FullName = userFName + userLName, UserName = userName, Email = userEmail }, UserToken = new AccessTokenViewModel { RefreshToken = refreshToken } };
+		var authVM = new AuthUserViewModel { User = new UserDTO { Id = userId, FirstName = userFName, LastName = userLName, UserName = userName, Email = userEmail }, UserToken = new AccessTokenViewModel { RefreshToken = refreshToken } };
 
 		// Act
 		A.CallTo(() => _loginUserCommandHandler.CreateItemAsync(command, TestStringHelper.UserId)).Returns(authVM);
@@ -162,10 +169,11 @@ public class UserControllerTests
 		Assert.Equal((int)HttpStatusCode.OK, result?.StatusCode);
 
 		Assert.NotNull(vm);
-		Assert.Equal(userId, vm?.UserDetails?.Id);
-		Assert.Equal(userFName + userLName, vm?.UserDetails?.FullName);
-		Assert.Equal(userName, vm?.UserDetails?.UserName);
-		Assert.Equal(userEmail, vm?.UserDetails?.Email);
+		Assert.Equal(userId, vm?.User?.Id);
+		Assert.Equal(userFName, vm?.User?.FirstName);
+		Assert.Equal(userLName, vm?.User?.LastName);
+		Assert.Equal(userName, vm?.User?.UserName);
+		Assert.Equal(userEmail, vm?.User?.Email);
 		Assert.Equal(refreshToken, vm?.UserToken?.RefreshToken);
 
 		Assert.True(vm?.EditEnabled);
@@ -314,7 +322,8 @@ public class UserControllerTests
 			_exchangeRefreshTokenCommandHandler,
 			_resetPasswordCommandHandler,
 			_confirmUpdatePasswordTokenCommandHandler,
-			_updatePasswordCommandHandler
+			_updatePasswordCommandHandler,
+			_getRegisteredAppQueryHandler
 		);
 
 	}

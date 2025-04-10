@@ -9,8 +9,11 @@ using PolyzenKit.Application.Enums;
 using PolyzenKit.Common.Utilities;
 using PolyzenKit.Domain.DTO;
 using PolyzenKit.Presentation.Controllers;
+using PolyzenKit.Presentation.Helpers;
 using PolyzenKit.Presentation.ValidationHelpers;
 
+using UserIdentity.Application.Core.RegisteredApps.Queries;
+using UserIdentity.Application.Core.RegisteredApps.ViewModels;
 using UserIdentity.Application.Core.Tokens.Commands.ExchangeRefreshToken;
 using UserIdentity.Application.Core.Tokens.ViewModels;
 using UserIdentity.Application.Core.Users.Commands.ConfirmUpdatePasswordToken;
@@ -20,6 +23,7 @@ using UserIdentity.Application.Core.Users.Commands.ResetPassword;
 using UserIdentity.Application.Core.Users.Commands.UpdatePassword;
 using UserIdentity.Application.Core.Users.Queries.GetUser;
 using UserIdentity.Application.Core.Users.ViewModels;
+using UserIdentity.Application.Enums;
 using UserIdentity.Domain.Identity;
 
 namespace UserIdentity.Presentation.Controllers.Users;
@@ -33,7 +37,9 @@ public class UserController(
 	IUpdateItemCommandHandler<ExchangeRefreshTokenCommand, ExchangeRefreshTokenViewModel> exchangeRefreshTokenCommandHandler,
 	ICreateItemCommandHandler<ResetPasswordCommand, ResetPasswordViewModel> resetPasswordCommandHandler,
 	IUpdateItemCommandHandler<ConfirmUpdatePasswordTokenCommand, ConfirmUpdatePasswordTokenViewModel> confirmUpdatePasswordTokenCommandHandler,
-	IUpdateItemCommandHandler<UpdatePasswordCommand, UpdatePasswordViewModel> updatePasswordCommandHandler
+	IUpdateItemCommandHandler<UpdatePasswordCommand, UpdatePasswordViewModel> updatePasswordCommandHandler,
+
+	IGetItemQueryHandler<GetRegisteredAppQuery, RegisteredAppViewModel> getRegisteredAppQueryHandler
 	) : BaseController
 {
 	private readonly IGetItemQueryHandler<GetUserQuery, UserViewModel> _getUserQueryHandler = getUserQueryHandler;
@@ -43,6 +49,16 @@ public class UserController(
 	private readonly ICreateItemCommandHandler<ResetPasswordCommand, ResetPasswordViewModel> _resetPasswordCommandHandler = resetPasswordCommandHandler;
 	private readonly IUpdateItemCommandHandler<ConfirmUpdatePasswordTokenCommand, ConfirmUpdatePasswordTokenViewModel> _confirmUpdatePasswordTokenCommandHandler = confirmUpdatePasswordTokenCommandHandler;
 	private readonly IUpdateItemCommandHandler<UpdatePasswordCommand, UpdatePasswordViewModel> _updatePasswordCommandHandler = updatePasswordCommandHandler;
+
+		private readonly IGetItemQueryHandler<GetRegisteredAppQuery, RegisteredAppViewModel> _getRegisteredAppQueryHandler = getRegisteredAppQueryHandler;
+
+	private string GetXAppName() => HttpContext.GetHeaderValue<string>(ZenConstants.X_APP_NAME, true)!;
+
+	private async Task<RegisteredAppDTO> GetAppNameAsync(string appName)
+	{
+		var result = await _getRegisteredAppQueryHandler.GetItemAsync(new GetRegisteredAppQuery { AppName = appName });
+		return result.RegisteredApp;
+	}
 
 	[Authorize(Policy = ZenConstants.ADMIN_OR_SAME_USER_POLICY)]
 	[HttpGet]
@@ -63,10 +79,28 @@ public class UserController(
 	[Route("register")]
 	public async Task<ActionResult<AuthUserViewModel>> CreateUser(RegisterUserCommand command)
 	{
+		command.RegisteredApp = await GetAppNameAsync(GetXAppName());
+
 		var authUserVM = await _registerUserCommandHandler.CreateItemAsync(command, LoggedInUserId);
 
 		authUserVM.ResolveEditDeleteRights(UserScopeClaims, EntityName, true);
-		authUserVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.CREATE_ITEM_SUCCESSFUL);
+		authUserVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.CREATE_ITEM_SUCCESSFUL);		
+
+		return StatusCode((int)HttpStatusCode.Created, authUserVM);
+	}
+
+	[Authorize(Policy = ZenConstants.USER_SCOPE_POLICY, Roles = ZenConstants.INTERNAL_SERVICE_ROLE)]
+	[HttpPost]
+	[Route("register-for-service")]
+	public async Task<ActionResult<AuthUserViewModel>> CreateUserForService(RegisterUserCommand command)
+	{
+		command.RegisteredApp = await GetAppNameAsync(GetXAppName());
+		command.RequestSource = RequestSource.API;
+
+		var authUserVM = await _registerUserCommandHandler.CreateItemAsync(command, LoggedInUserId);
+
+		authUserVM.ResolveEditDeleteRights(UserScopeClaims, EntityName, true);
+		authUserVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.CREATE_ITEM_SUCCESSFUL);	
 
 		return StatusCode((int)HttpStatusCode.Created, authUserVM);
 	}
@@ -79,7 +113,7 @@ public class UserController(
 		var authUserVM = await _loginUserCommandHandler.CreateItemAsync(command, LoggedInUserId);
 
 		authUserVM.ResolveEditDeleteRights(UserScopeClaims, EntityName, true);
-		authUserVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEM_SUCCESSFUL, "Login successful");
+		authUserVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEM_SUCCESSFUL, "Login successful");		
 
 		return StatusCode((int)HttpStatusCode.OK, authUserVM);
 	}

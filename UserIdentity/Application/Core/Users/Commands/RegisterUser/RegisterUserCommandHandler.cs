@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Text;
+using System.Text.Json.Serialization;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
@@ -10,7 +11,9 @@ using PolyzenKit.Application.Core;
 using PolyzenKit.Application.Core.Attributes;
 using PolyzenKit.Application.Core.Interfaces;
 using PolyzenKit.Application.Interfaces;
+using PolyzenKit.Common.Enums;
 using PolyzenKit.Common.Exceptions;
+using PolyzenKit.Common.Utilities;
 using PolyzenKit.Domain.DTO;
 using PolyzenKit.Domain.Entity;
 using PolyzenKit.Infrastructure.Security.Jwt;
@@ -20,15 +23,30 @@ using PolyzenKit.Presentation.Settings;
 using UserIdentity.Application.Core.Roles.Queries.GetRoleClaims;
 using UserIdentity.Application.Core.Roles.ViewModels;
 using UserIdentity.Application.Core.Tokens.ViewModels;
+using UserIdentity.Application.Core.Users.Events;
+using UserIdentity.Application.Core.Users.Queries.GetUser;
+using UserIdentity.Application.Core.Users.Settings;
 using UserIdentity.Application.Core.Users.ViewModels;
+using UserIdentity.Application.Enums;
+using UserIdentity.Application.Interfaces;
 using UserIdentity.Domain.Identity;
 using UserIdentity.Persistence.Repositories.RefreshTokens;
+using UserIdentity.Persistence.Repositories.UserRegisteredApps;
 using UserIdentity.Persistence.Repositories.Users;
 
 namespace UserIdentity.Application.Core.Users.Commands.RegisterUser;
 
 public record RegisterUserCommand : IBaseCommand
 {
+	[JsonIgnore]
+	public RequestSource RequestSource { get; internal set; } = RequestSource.UI;
+
+	[JsonIgnore]
+	public RegisteredAppEntity? RegisteredApp { get; internal set; }
+
+	[JsonIgnore]
+	public CrudEvent Event { get; internal set; } = CrudEvent.CREATE;
+
 	[Required]
 	public string FirstName { get; init; } = null!;
 
@@ -45,42 +63,66 @@ public record RegisterUserCommand : IBaseCommand
 
 	[Required]
 	public string UserPassword { get; init; } = null!;
+
+	public string? GoogleRecaptchaToken { get; set; }
 }
 
 public class RegisterUserCommandHandler(
-	IOptions<RoleSettings> roleSettings,
+	IOptions<RoleSettings> roleSettingsOptions,
 	UserManager<IdentityUser> userManager,
 	RoleManager<IdentityRole> roleManager,
 	IUserRepository userRepository,
 	IRefreshTokenRepository refreshTokenRepository,
+	IUserRegisteredAppRepository userRegisteredAppRepository,
 	IJwtTokenHandler jwtTokenHandler,
 	ITokenFactory tokenFactory,
-	IConfiguration configuration,
 	IMachineDateTime machineDateTime,
-	IGetItemsQueryHandler<GetRoleClaimsForRolesQuery, RoleClaimsForRolesViewModels> getRoleClaimsQueryHandler
+	IGetItemsQueryHandler<GetRoleClaimsForRolesQuery, RoleClaimsForRolesViewModels> getRoleClaimsQueryHandler,
+	IBaseEventHandler<UserUpdateEvent> userUpdateEventHandler,
+	IOptions<GoogleRecaptchaSettings> googleRecaptchaSettingsOptions,
+	IGoogleRecaptchaService googleRecaptchaService,
+	IGetItemQueryHandler<GetUserQuery, UserViewModel> getUserQueryHandler
 	) : ICreateItemCommandHandler<RegisterUserCommand, AuthUserViewModel>
 {
-	private readonly RoleSettings _roleSettings = roleSettings.Value;
+	private readonly RoleSettings _roleSettings = roleSettingsOptions.Value;
 	private readonly UserManager<IdentityUser> _userManager = userManager;
 	private readonly RoleManager<IdentityRole> _roleManager = roleManager;
 
 	private readonly IUserRepository _userRepository = userRepository;
 	private readonly IRefreshTokenRepository _refreshTokenRepository = refreshTokenRepository;
+	private readonly IUserRegisteredAppRepository _userRegisteredAppRepository = userRegisteredAppRepository;
+
 	private readonly IJwtTokenHandler _jwtTokenHandler = jwtTokenHandler;
 	private readonly ITokenFactory _tokenFactory = tokenFactory;
-
-	private readonly IConfiguration _configuration = configuration;
 
 	private readonly IMachineDateTime _machineDateTime = machineDateTime;
 
 	private readonly IGetItemsQueryHandler<GetRoleClaimsForRolesQuery, RoleClaimsForRolesViewModels> _getRoleClaimsQueryHandler = getRoleClaimsQueryHandler;
 
+	private readonly IBaseEventHandler<UserUpdateEvent> _userUpdateEventHandler = userUpdateEventHandler;
+
+	private readonly GoogleRecaptchaSettings _googleRecaptchaSettings = googleRecaptchaSettingsOptions.Value;
+	private readonly IGoogleRecaptchaService _googleRecaptchaService = googleRecaptchaService;
+
+	private readonly IGetItemQueryHandler<GetUserQuery, UserViewModel> _getUserQueryHandler = getUserQueryHandler;
+
 	public async Task<AuthUserViewModel> CreateItemAsync(RegisterUserCommand command, string userId)
 	{
+		// Confirm Google Recaptcha Token is valid before processing
+		if (_googleRecaptchaSettings.Enabled && command.RequestSource == RequestSource.UI)
+		{
+			var googleRecaptchaToken = ObjectUtil.RequireNonNullValue<string>(command.GoogleRecaptchaToken, nameof(command.GoogleRecaptchaToken), $"{nameof(command.GoogleRecaptchaToken)} is required");
+
+			if (!(await _googleRecaptchaService.VerifyTokenAsync(googleRecaptchaToken)))
+				throw new InvalidDataException($"Invalid {nameof(command.GoogleRecaptchaToken)} provided");
+		}
+
+		var userDefaultRole = ResolveDefaultRole(command.RegisteredApp!.AppName);
+
 		//  Check if default role is created otherwise create 
-		if (await _roleManager.FindByNameAsync(_roleSettings.DefaultRole) == null)
-			if (!(await _roleManager.CreateAsync(new IdentityRole { Name = _roleSettings.DefaultRole })).Succeeded)
-				throw new RecordCreationException(_roleSettings.DefaultRole, "Role");
+		if (await _roleManager.FindByNameAsync(userDefaultRole) == null)
+			if (!(await _roleManager.CreateAsync(new IdentityRole { Name = userDefaultRole })).Succeeded)
+				throw new RecordCreationException(userDefaultRole, "Role");
 
 		// Check if user exists by user name, throw RecordExistsException 
 		if (await _userManager.FindByNameAsync(command.UserName) != null)
@@ -108,17 +150,17 @@ public class RegisterUserCommandHandler(
 		}
 
 		// User vs Default Role
-		var resultUserRole = await _userManager.AddToRoleAsync(newUser, _roleSettings.DefaultRole);
+		var resultUserRole = await _userManager.AddToRoleAsync(newUser, userDefaultRole);
 
 		if (!resultUserRole.Succeeded)
-			throw new RecordCreationException(_roleSettings.DefaultRole, "UserRole");
+			throw new RecordCreationException(userDefaultRole, "UserRole");
 
 
 		// Create user details
 		var emailTokenBytes = Encoding.UTF8.GetBytes(await _userManager.GenerateEmailConfirmationTokenAsync(newUser));
 		var confirmEmailToken = WebEncoders.Base64UrlEncode(emailTokenBytes);
 
-		var userDetails = new User
+		var userDetails = new UserEntity
 		{
 			Id = newUser.Id,
 			FirstName = command.FirstName,
@@ -134,20 +176,28 @@ public class RegisterUserCommandHandler(
 		if (createUserResult < 1)
 			throw new RecordCreationException(newUser.Id, "User");
 
+		// Create User Registered App Mapping
+		var userRegisteredApp = new UserRegisteredAppEntity
+		{
+			Id = $"{newUser.Id}-{command.RegisteredApp!.Id}",
+			UserId = newUser.Id,
+			AppId = command.RegisteredApp!.Id
+		};
+		userRegisteredApp.SetEntityAuditFields(newUser.Id, _machineDateTime.Now);
 
-		// Get User Roles 
-		var userRoles = await _userManager.GetRolesAsync(newUser);
+		await _userRegisteredAppRepository.CreateEntityItemAsync(userRegisteredApp);
 
-		var userRoleClaims = await _getRoleClaimsQueryHandler.GetItemsAsync(new GetRoleClaimsForRolesQuery { Roles = userRoles });
+
+		var userDto = (await _getUserQueryHandler.GetItemAsync(new GetUserQuery { UserId = userDetails.Id })).User;
 
 		// Generate access Token
-		(string token, int expiresIn) = _jwtTokenHandler.CreateToken(newUser.Id, newUser.UserName + "", new HashSet<string>(userRoles), userRoleClaims.RoleClaims);
+		(string token, int expiresIn) = _jwtTokenHandler.CreateToken(newUser.Id, newUser.UserName + "", userDto.Roles, userDto.RoleClaims);
 
 
 		//Generate and save Refresh Token details
 		var refreshToken = _tokenFactory.GenerateToken();
 
-		var userRefreshToken = new RefreshToken
+		var userRefreshToken = new RefreshTokenEntity
 		{
 			Id = Guid.NewGuid(),
 			UserId = newUser.Id,
@@ -162,28 +212,43 @@ public class RegisterUserCommandHandler(
 		if (createTokenResult < 1)
 			throw new RecordCreationException(refreshToken, $"Refresh Token {userRefreshToken.UserId}");
 
-
-		var userDTO = new UserDTO
-		{
-			Id = newUser.Id,
-			UserName = newUser.UserName,
-			FullName = (userDetails.FirstName + " " + userDetails.LastName).Trim(),
-			Email = newUser.Email
-		};
-
-		userDTO.SetDTOAuditFields(userDetails);
+		// Publish User Created Event
+		_ = HandleEventAsync(userDetails, newUser, command.RegisteredApp, command.RequestSource);
 
 		// Return registration results
 		return new AuthUserViewModel
 		{
-			UserDetails = userDTO,
+			User = userDto,
 			UserToken = new AccessTokenViewModel
 			{
 				AccessToken = new AccessTokenDTO { Token = token, ExpiresIn = expiresIn },
 				RefreshToken = refreshToken,
 			}
+		};
+	}
 
+	private string ResolveDefaultRole(string serviceName) => $"{serviceName.Trim().ToLower()}{ZenConstants.SERVICE_ROLE_SEPARATOR}{_roleSettings.DefaultRole.Trim().ToLower()}";
+
+	private async Task HandleEventAsync(UserEntity userEntity, IdentityUser identityUser, RegisteredAppEntity registeredAppEntity, RequestSource requestSource)
+	{
+		var eventItem = new UserUpdateEvent
+		{
+			EventType = CrudEvent.CREATE,
+			UserContent = new UserEventContent
+			{
+				UserIdentityId = identityUser.Id,
+				FirstName = userEntity.FirstName,
+				LastName = userEntity.LastName,
+				UserName = identityUser.UserName,
+				PhoneNumber = identityUser.PhoneNumber,
+				PhoneNumberConfirmed = identityUser.PhoneNumberConfirmed,
+				UserEmail = identityUser.Email,
+				EmailConfirmed = identityUser.EmailConfirmed
+			},
+			RegisteredApp = registeredAppEntity,
+			RequestSource = requestSource
 		};
 
+		await _userUpdateEventHandler.HandleEventAsync(eventItem);
 	}
 }

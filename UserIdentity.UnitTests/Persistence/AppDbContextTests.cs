@@ -28,8 +28,10 @@ public class AppDbContextTests
 
 		// Assert	
 		Assert.Equal(entityPrefix + "app_entities", entityTypes.Where(e => e.DisplayName() == nameof(AppEntity)).FirstOrDefault()?.GetTableName());
-		Assert.Equal(entityPrefix + "user_details", entityTypes.Where(e => e.DisplayName() == nameof(User)).FirstOrDefault()?.GetTableName());
-		Assert.Equal(entityPrefix + "refresh_tokens", entityTypes.Where(e => e.DisplayName() == nameof(RefreshToken)).FirstOrDefault()?.GetTableName());
+		Assert.Equal(entityPrefix + "user_details", entityTypes.Where(e => e.DisplayName() == nameof(UserEntity)).FirstOrDefault()?.GetTableName());
+		Assert.Equal(entityPrefix + "refresh_tokens", entityTypes.Where(e => e.DisplayName() == nameof(RefreshTokenEntity)).FirstOrDefault()?.GetTableName());
+		Assert.Equal(entityPrefix + "registered_apps", entityTypes.Where(e => e.DisplayName() == nameof(RegisteredAppEntity)).FirstOrDefault()?.GetTableName());
+		Assert.Equal(entityPrefix + "user_registered_apps", entityTypes.Where(e => e.DisplayName() == nameof(UserRegisteredAppEntity)).FirstOrDefault()?.GetTableName());
 
 		Assert.Equal(entityPrefix + "users", entityTypes.Where(e => e.DisplayName() == nameof(IdentityUser)).FirstOrDefault()?.GetTableName());
 		Assert.Equal(entityPrefix + "roles", entityTypes.Where(e => e.DisplayName() == nameof(IdentityRole)).FirstOrDefault()?.GetTableName());

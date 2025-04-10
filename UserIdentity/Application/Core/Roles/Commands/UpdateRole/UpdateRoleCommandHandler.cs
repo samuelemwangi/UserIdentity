@@ -13,8 +13,7 @@ namespace UserIdentity.Application.Core.Roles.Commands.UpdateRole;
 
 public record UpdateRoleCommand : IBaseCommand
 {
-	[Required]
-	public string RoleId { get; set; } = null!;
+	public string RoleId { get; internal set; } = string.Empty;
 
 	[Required]
 	public string RoleName { get; init; } = null!;
@@ -27,7 +26,7 @@ public class UpdateRoleCommandHandler(
 
 	public async Task<RoleViewModel> UpdateItemAsync(UpdateRoleCommand command, string userId)
 	{
-		var role = await _roleManager.FindByIdAsync(command.RoleId) ?? throw new NoRecordException(command.RoleId, "Role");
+		var role = await _roleManager.FindByIdAsync(command.RoleId!) ?? throw new NoRecordException(command.RoleId, "Role");
 
 		role.Name = command.RoleName;
 

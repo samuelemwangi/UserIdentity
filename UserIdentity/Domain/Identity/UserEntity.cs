@@ -2,7 +2,7 @@
 
 namespace UserIdentity.Domain.Identity;
 
-public record User : BaseAuditableEntity<string>
+public record UserEntity : BaseAuditableEntity<string>
 {
 	public string? FirstName { get; internal set; }
 
@@ -11,4 +11,6 @@ public record User : BaseAuditableEntity<string>
 	public string? EmailConfirmationToken { get; internal set; }
 
 	public string? ForgotPasswordToken { get; internal set; }
+
+	public virtual ICollection<UserRegisteredAppEntity> UserRegisteredApps { get; set; } = [];
 }

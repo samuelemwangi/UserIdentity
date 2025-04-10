@@ -13,7 +13,7 @@ public class UserTests
 	public void New_User_is_a_Valid_User_Instance()
 	{
 		// Arrange
-		User user = new() { Id = "" };
+		UserEntity user = new() { Id = "" };
 
 		// Act & Assert
 		Assert.IsType<BaseEntity<string>>(user, exactMatch: false);

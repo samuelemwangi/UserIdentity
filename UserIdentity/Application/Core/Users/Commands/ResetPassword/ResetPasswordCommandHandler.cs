@@ -62,6 +62,9 @@ public class ResetPasswordCommandHandler(
 			throw new RecordUpdateException(command.UserEmail, "User");
 
 		string emailToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(resetPasswordToken));
+
+		Console.WriteLine(emailToken);
+
 		// Send Email Logic here
 
 		return vm;
