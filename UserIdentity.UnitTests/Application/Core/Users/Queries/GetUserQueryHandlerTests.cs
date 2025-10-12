@@ -1,18 +1,16 @@
-﻿using System.Threading.Tasks;
-
-using FakeItEasy;
-
+﻿using FakeItEasy;
 using Microsoft.AspNetCore.Identity;
-
+using PolyzenKit.Application.Core.Interfaces;
 using PolyzenKit.Application.Interfaces;
 using PolyzenKit.Common.Exceptions;
 using PolyzenKit.Infrastructure.Utilities;
-
+using System.Threading.Tasks;
+using UserIdentity.Application.Core.Roles.Queries.GetRoleClaims;
+using UserIdentity.Application.Core.Roles.ViewModels;
 using UserIdentity.Application.Core.Users.Queries.GetUser;
 using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Domain.Identity;
 using UserIdentity.Persistence.Repositories.Users;
-
 using Xunit;
 
 namespace UserIdentity.UnitTests.Application.Core.Users.Queries;
@@ -21,14 +19,15 @@ public class GetUserQueryHandlerTests
 {
 	private readonly UserManager<IdentityUser> _userManager;
 	private readonly IUserRepository _userRepository;
-	private readonly IMachineDateTime _machineDateTime;
+	private readonly IGetItemsQueryHandler<GetRoleClaimsForRolesQuery, RoleClaimsForRolesViewModels> _getRoleClaimsQueryHandler;
 
-	public GetUserQueryHandlerTests()
+
+  public GetUserQueryHandlerTests()
 	{
 		_userManager = A.Fake<UserManager<IdentityUser>>();
 		_userRepository = A.Fake<IUserRepository>();
-		_machineDateTime = new MachineDateTime();
-	}
+		_getRoleClaimsQueryHandler = A.Fake<IGetItemsQueryHandler<GetRoleClaimsForRolesQuery, RoleClaimsForRolesViewModels>>();
+  }
 
 	[Fact]
 	public async Task Get_User_When_Non_Existent_In_User_Manager_Throws_NoRecordException()
@@ -42,7 +41,7 @@ public class GetUserQueryHandlerTests
 
 		A.CallTo(() => _userManager.FindByIdAsync(query.UserId)).Returns(default(IdentityUser));
 
-		var handler = new GetUserQueryHandler(_userManager, _userRepository, _machineDateTime);
+		var handler = new GetUserQueryHandler(_userManager, _userRepository, _getRoleClaimsQueryHandler);
 
 		// Act & Assert
 		await Assert.ThrowsAsync<NoRecordException>(() => handler.GetItemAsync(query));
@@ -68,7 +67,7 @@ public class GetUserQueryHandlerTests
 		A.CallTo(() => _userManager.FindByIdAsync(query.UserId)).Returns(existingIdentityUser);
 		A.CallTo(() => _userRepository.GetUserAsync(query.UserId)).Returns(default(UserEntity));
 
-		var handler = new GetUserQueryHandler(_userManager, _userRepository, _machineDateTime);
+		var handler = new GetUserQueryHandler(_userManager, _userRepository, _getRoleClaimsQueryHandler);
 
 		// Act & Assert
 		await Assert.ThrowsAsync<NoRecordException>(() => handler.GetItemAsync(query));
@@ -101,7 +100,7 @@ public class GetUserQueryHandlerTests
 		A.CallTo(() => _userManager.FindByIdAsync(query.UserId)).Returns(existingIdentityUser);
 		A.CallTo(() => _userRepository.GetUserAsync(query.UserId)).Returns(existingUser);
 
-		var handler = new GetUserQueryHandler(_userManager, _userRepository, _machineDateTime);
+		var handler = new GetUserQueryHandler(_userManager, _userRepository, _getRoleClaimsQueryHandler);
 
 		// Act 
 		var vm = await handler.GetItemAsync(query);

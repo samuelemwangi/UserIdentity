@@ -91,6 +91,9 @@ builder.Services.AddGoogleRecaptcha(builder.Configuration);
 // Cors Policy
 var corsPolicyName = builder.Services.AddAppCorsPolicy(builder.Configuration);
 
+// Kafka
+builder.Services.AddAppKafka(builder.Configuration);
+
 // build the app
 var app = builder.Build();
 
