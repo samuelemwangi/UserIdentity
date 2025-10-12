@@ -61,8 +61,7 @@ public static class Extensions
 
   public static void AddAppKafka(this IServiceCollection services, IConfiguration configuration)
   {
-    var polyzenKitAssembly = Assembly.GetAssembly(typeof(KafkaMessageProducer))!;
-    services.AddAppKafka(configuration, polyzenKitAssembly);
+    services.AddAppKafka(configuration, Assembly.GetExecutingAssembly());
   }
 
 
