@@ -1,12 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Data;
-using System.Text;
-using System.Text.Json.Serialization;
-
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
-
 using PolyzenKit.Application.Core;
 using PolyzenKit.Application.Core.Attributes;
 using PolyzenKit.Application.Core.Interfaces;
@@ -14,14 +8,14 @@ using PolyzenKit.Application.Interfaces;
 using PolyzenKit.Common.Enums;
 using PolyzenKit.Common.Exceptions;
 using PolyzenKit.Common.Utilities;
-using PolyzenKit.Domain.DTO;
 using PolyzenKit.Domain.Entity;
 using PolyzenKit.Infrastructure.Security.Jwt;
 using PolyzenKit.Infrastructure.Security.Tokens;
 using PolyzenKit.Presentation.Settings;
-
-using UserIdentity.Application.Core.Roles.Queries.GetRoleClaims;
-using UserIdentity.Application.Core.Roles.ViewModels;
+using System.ComponentModel.DataAnnotations;
+using System.Data;
+using System.Text;
+using System.Text.Json.Serialization;
 using UserIdentity.Application.Core.Tokens.ViewModels;
 using UserIdentity.Application.Core.Users.Events;
 using UserIdentity.Application.Core.Users.Queries.GetUser;
@@ -77,7 +71,6 @@ public class RegisterUserCommandHandler(
 	IJwtTokenHandler jwtTokenHandler,
 	ITokenFactory tokenFactory,
 	IMachineDateTime machineDateTime,
-	IGetItemsQueryHandler<GetRoleClaimsForRolesQuery, RoleClaimsForRolesViewModels> getRoleClaimsQueryHandler,
 	IBaseEventHandler<UserUpdateEvent> userUpdateEventHandler,
 	IOptions<GoogleRecaptchaSettings> googleRecaptchaSettingsOptions,
 	IGoogleRecaptchaService googleRecaptchaService,
@@ -96,8 +89,6 @@ public class RegisterUserCommandHandler(
 	private readonly ITokenFactory _tokenFactory = tokenFactory;
 
 	private readonly IMachineDateTime _machineDateTime = machineDateTime;
-
-	private readonly IGetItemsQueryHandler<GetRoleClaimsForRolesQuery, RoleClaimsForRolesViewModels> _getRoleClaimsQueryHandler = getRoleClaimsQueryHandler;
 
 	private readonly IBaseEventHandler<UserUpdateEvent> _userUpdateEventHandler = userUpdateEventHandler;
 

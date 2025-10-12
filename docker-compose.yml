@@ -3,7 +3,7 @@ services:
     image: mysql:8.0
     container_name: mysql_app_db
     ports:
-      - 3306:3306
+      - 3307:3306
     environment:
       MYSQL_ROOT_PASSWORD: tesT*_p@ss12
       MYSQL_DATABASE: test_db
@@ -27,10 +27,60 @@ services:
       - ./certs:/certs
       - ./logs:/var/log
     depends_on:
-      - db
+      - db    
+    restart: on-failure
     networks:
       - services_network
-    restart: on-failure
+
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:latest
+    container_name: redpanda
+    ports:
+      - 9092:9092 # Kafka API
+      - 8081:8081 # Schema Registry 
+      - 19092:19092 # Kafka API (internal)
+      - 9644:9644 # Redpanda Admin API
+    environment:
+      - REDPANDA_RPC_SERVER_LISTEN_ADDR=0.0.0.0
+      - REDPANDA_KAFKA_ADDRESS=0.0.0.0:9092
+      - REDPANDA_SEED_SERVERS=redpanda:33145
+      - REDPANDA_ADVERTISED_KAFKA_ADDR=redpanda:9092
+    volumes:
+      - ./mounts/redpanda-0:/var/lib/redpanda/data
+    command:
+      - redpanda
+      - start
+      - --kafka-addr=internal://0.0.0.0:19092,external://0.0.0.0:9092
+      - --advertise-kafka-addr=internal://redpanda:19092,external://localhost:9092
+      - --pandaproxy-addr=internal://0.0.0.0:8083,external://0.0.0.0:8082
+      - --advertise-pandaproxy-addr=internal://redpanda:8083,external://localhost:8082
+      - --schema-registry-addr=internal://0.0.0.0:8084,external://0.0.0.0:8081
+      - --rpc-addr=redpanda:33145
+      - --advertise-rpc-addr=redpanda:33145
+      - --mode=dev-container
+      - --smp=1
+      - --memory=1G
+      - --reserve-memory=0M
+      - --overprovisioned
+      - --default-log-level=info
+    networks:
+      - services_network
+
+  redpanda-console:
+    image: docker.redpanda.com/redpandadata/console:latest
+    container_name: redpanda-console
+    ports:
+      - "8090:8080"
+    environment:
+      KAFKA_BROKERS: redpanda:19092
+      KAFKA_SCHEMAREGISTRY_ENABLED: "true"
+      KAFKA_SCHEMAREGISTRY_URLS: http://redpanda:8081
+      CONNECT_ENABLED: "false"
+    depends_on:
+      - redpanda
+    restart: always
+    networks:
+      - services_network
 
 networks:
   services_network:

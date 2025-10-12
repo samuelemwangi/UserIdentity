@@ -3,9 +3,9 @@ USE useridentity;
 SET @username = 'UNIQUE_USERNAME';
 SET @role_name = 'useridentity:admin';
 
-SELECT @role_id := 
+SELECT @role_id := id
 FROM roles 
-WHERE name = @role_name
+WHERE name = @role_name;
 
 SELECT @role_id;
 

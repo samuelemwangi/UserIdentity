@@ -1,28 +1,24 @@
-﻿using System;
-using System.Linq;
-using System.Security.Authentication;
-using System.Threading.Tasks;
-
-using FakeItEasy;
-
+﻿using FakeItEasy;
 using Microsoft.AspNetCore.Identity;
-
 using PolyzenKit.Application.Core.Interfaces;
 using PolyzenKit.Application.Interfaces;
 using PolyzenKit.Common.Exceptions;
 using PolyzenKit.Infrastructure.Security.Jwt;
 using PolyzenKit.Infrastructure.Security.Tokens;
 using PolyzenKit.Infrastructure.Utilities;
-
+using System;
+using System.Linq;
+using System.Security.Authentication;
+using System.Threading.Tasks;
 using UserIdentity.Application.Core.Roles.Queries.GetRoleClaims;
 using UserIdentity.Application.Core.Roles.ViewModels;
 using UserIdentity.Application.Core.Users.Commands.LoginUser;
+using UserIdentity.Application.Core.Users.Queries.GetUser;
 using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Domain.Identity;
 using UserIdentity.Persistence.Repositories.RefreshTokens;
 using UserIdentity.Persistence.Repositories.Users;
 using UserIdentity.UnitTests.TestUtils;
-
 using Xunit;
 
 namespace UserIdentity.UnitTests.Application.Core.Users.Commands;
@@ -36,7 +32,7 @@ public class LoginUserCommandHandlerTests
 	private readonly IRefreshTokenRepository _refreshTokenRepository;
 	private readonly IMachineDateTime _machineDateTime;
 
-	private readonly IGetItemsQueryHandler<GetRoleClaimsForRolesQuery, RoleClaimsForRolesViewModels> _getRoleClaimsQueryHandler;
+	private readonly IGetItemQueryHandler<GetUserQuery, UserViewModel> _getUserQueryHandler;
 
 
 	public LoginUserCommandHandlerTests()
@@ -47,7 +43,7 @@ public class LoginUserCommandHandlerTests
 		_userRepository = A.Fake<IUserRepository>();
 		_refreshTokenRepository = A.Fake<IRefreshTokenRepository>();
 		_machineDateTime = new MachineDateTime();
-		_getRoleClaimsQueryHandler = A.Fake<IGetItemsQueryHandler<GetRoleClaimsForRolesQuery, RoleClaimsForRolesViewModels>>();
+		_getUserQueryHandler = A.Fake<IGetItemQueryHandler<GetUserQuery, UserViewModel>>();
 
 	}
 
@@ -153,7 +149,7 @@ public class LoginUserCommandHandlerTests
 
 		A.CallTo(() => _userManager.GetRolesAsync(existingIdentityUser)).Returns(userRoles.Roles);
 
-		A.CallTo(() => _getRoleClaimsQueryHandler.GetItemsAsync(userRoles)).Returns(userRoleClaims);
+		//A.CallTo(() => _getRoleClaimsQueryHandler.GetItemsAsync(userRoles)).Returns(userRoleClaims);
 
 		A.CallTo(() => _tokenFactory.GenerateToken(32)).Returns(refreshToken);
 
@@ -198,7 +194,7 @@ public class LoginUserCommandHandlerTests
 
 		A.CallTo(() => _userManager.GetRolesAsync(existingIdentityUser)).Returns(userRoles.Roles);
 
-		A.CallTo(() => _getRoleClaimsQueryHandler.GetItemsAsync(userRoles)).Returns(userRoleClaims);
+		//A.CallTo(() => _getRoleClaimsQueryHandler.GetItemsAsync(userRoles)).Returns(userRoleClaims);
 
 		A.CallTo(() => _tokenFactory.GenerateToken(32)).Returns(refreshToken);
 
@@ -227,10 +223,9 @@ public class LoginUserCommandHandlerTests
 												_jwtTokenHandler,
 												_tokenFactory,
 												_userManager,
-												_userRepository,
 												_refreshTokenRepository,
 												_machineDateTime,
-												_getRoleClaimsQueryHandler
+												_getUserQueryHandler
 										);
 	}
 
