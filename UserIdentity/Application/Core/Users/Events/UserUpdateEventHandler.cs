@@ -52,6 +52,7 @@ public class UserUpdateEventHandler(
     {
       CorrelationId = eventItem.UserContent.UserIdentityId!,
       Action = MessageAction.SEND,
+      RegisteredApp = eventItem.RegisteredApp.AppName,
       Attributes = new()
       {
         { MessageAttribute.RECIPIENT, eventItem.UserContent.UserEmail! }
