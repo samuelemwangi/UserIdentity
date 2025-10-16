@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 using PolyzenKit.Domain.AppEntities;
+using PolyzenKit.Domain.RegisteredApps;
 using PolyzenKit.Persistence.Configurations;
 
 using UserIdentity.Domain.Identity;

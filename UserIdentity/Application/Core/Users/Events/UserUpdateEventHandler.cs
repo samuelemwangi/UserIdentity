@@ -3,10 +3,9 @@ using PolyzenKit.Application.Core.Interfaces;
 using PolyzenKit.Application.Core.Messages.Events;
 using PolyzenKit.Application.Interfaces;
 using PolyzenKit.Common.Enums;
-
+using PolyzenKit.Domain.RegisteredApps;
 using UserIdentity.Application.Enums;
 using UserIdentity.Application.Interfaces;
-using UserIdentity.Domain.Identity;
 
 namespace UserIdentity.Application.Core.Users.Events;
 

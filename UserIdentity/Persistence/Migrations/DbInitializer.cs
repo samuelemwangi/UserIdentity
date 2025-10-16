@@ -2,12 +2,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using PolyzenKit.Application.Core.Interfaces;
+using PolyzenKit.Application.Core.RegisteredApps.Commands;
+using PolyzenKit.Application.Core.RegisteredApps.ViewModels;
 using PolyzenKit.Common.Exceptions;
 using PolyzenKit.Common.Utilities;
 using PolyzenKit.Presentation.Settings;
-using UserIdentity.Application.Core.RegisteredApps.Commands;
 using UserIdentity.Application.Core.RegisteredApps.Settings;
-using UserIdentity.Application.Core.RegisteredApps.ViewModels;
 
 namespace UserIdentity.Persistence.Migrations;
 

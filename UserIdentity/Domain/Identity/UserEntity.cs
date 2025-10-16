@@ -1,4 +1,5 @@
 ﻿using PolyzenKit.Domain.Entity;
+using System.Text.Json.Serialization;
 
 namespace UserIdentity.Domain.Identity;
 
@@ -12,5 +13,6 @@ public record UserEntity : BaseAuditableEntity<string>
 
 	public string? ForgotPasswordToken { get; internal set; }
 
-	public virtual ICollection<UserRegisteredAppEntity> UserRegisteredApps { get; set; } = [];
+	//[JsonIgnore]
+	//public virtual ICollection<UserRegisteredAppEntity> UserRegisteredApps { get; set; } = [];
 }

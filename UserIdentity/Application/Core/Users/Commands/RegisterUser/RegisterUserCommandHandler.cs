@@ -9,6 +9,7 @@ using PolyzenKit.Common.Enums;
 using PolyzenKit.Common.Exceptions;
 using PolyzenKit.Common.Utilities;
 using PolyzenKit.Domain.Entity;
+using PolyzenKit.Domain.RegisteredApps;
 using PolyzenKit.Infrastructure.Security.Jwt;
 using PolyzenKit.Infrastructure.Security.Tokens;
 using PolyzenKit.Presentation.Settings;
