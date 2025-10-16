@@ -1,15 +1,9 @@
-using System.Net.Mime;
-using System.Text.Json.Serialization;
-
-using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.IdentityModel.Logging;
 
 using PolyzenKit;
 using PolyzenKit.Infrastructure.Security.KeyProviders;
 using PolyzenKit.Infrastructure.Security.KeySets;
-using PolyzenKit.Presentation;
 using PolyzenKit.Presentation.Middlewares;
-using PolyzenKit.Presentation.ValidationHelpers;
 
 using UserIdentity;
 using UserIdentity.Application.Interfaces;
@@ -39,18 +33,7 @@ builder.Services.AddAppCommandAndQueryHandlers();
 builder.Services.AddAppEventHandlers();
 
 // Controllers
-builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
-{
-	options.InvalidModelStateResponseFactory = context =>
-	{
-		var result = new ValidationFailedResult(context.ModelState);
-		result.ContentTypes.Add(MediaTypeNames.Application.Json);
-		return result;
-	};
-}).AddJsonOptions(options =>
-{
-	options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-});
+builder.Services.AddAppControllers(builder.Configuration);
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(typeof(MapperProfile));

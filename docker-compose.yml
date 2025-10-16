@@ -36,9 +36,9 @@ services:
     image: docker.redpanda.com/redpandadata/redpanda:latest
     container_name: redpanda
     ports:
-      - 9092:9092 # Kafka API
-      - 8081:8081 # Schema Registry 
-      - 19092:19092 # Kafka API (internal)
+      - 9093:9092 # Kafka API
+      - 8083:8081 # Schema Registry 
+      - 19093:19092 # Kafka API (internal)
       - 9644:9644 # Redpanda Admin API
     environment:
       - REDPANDA_RPC_SERVER_LISTEN_ADDR=0.0.0.0

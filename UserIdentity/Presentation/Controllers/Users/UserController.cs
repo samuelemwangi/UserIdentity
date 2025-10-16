@@ -1,19 +1,17 @@
-﻿using System.Net;
-
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
 using PolyzenKit.Application.Core.Extensions;
 using PolyzenKit.Application.Core.Interfaces;
+using PolyzenKit.Application.Core.RegisteredApps.Queries;
+using PolyzenKit.Application.Core.RegisteredApps.ViewModels;
 using PolyzenKit.Application.Enums;
 using PolyzenKit.Common.Utilities;
 using PolyzenKit.Domain.DTO;
+using PolyzenKit.Domain.RegisteredApps;
 using PolyzenKit.Presentation.Controllers;
 using PolyzenKit.Presentation.Helpers;
 using PolyzenKit.Presentation.ValidationHelpers;
-
-using UserIdentity.Application.Core.RegisteredApps.Queries;
-using UserIdentity.Application.Core.RegisteredApps.ViewModels;
+using System.Net;
 using UserIdentity.Application.Core.Tokens.Commands.ExchangeRefreshToken;
 using UserIdentity.Application.Core.Tokens.ViewModels;
 using UserIdentity.Application.Core.Users.Commands.ConfirmUpdatePasswordToken;
@@ -24,7 +22,6 @@ using UserIdentity.Application.Core.Users.Commands.UpdatePassword;
 using UserIdentity.Application.Core.Users.Queries.GetUser;
 using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Application.Enums;
-using UserIdentity.Domain.Identity;
 
 namespace UserIdentity.Presentation.Controllers.Users;
 

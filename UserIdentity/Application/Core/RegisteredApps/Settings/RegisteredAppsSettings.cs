@@ -1,4 +1,4 @@
-﻿using UserIdentity.Domain.Identity;
+﻿using PolyzenKit.Domain.RegisteredApps;
 
 namespace UserIdentity.Application.Core.RegisteredApps.Settings;
 
