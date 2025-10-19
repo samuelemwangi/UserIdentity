@@ -12,7 +12,7 @@ using UserIdentity.Persistence;
 namespace UserIdentity.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250410221329_AddRegisteredApps")]
+    [Migration("20251019072803_AddRegisteredApps")]
     partial class AddRegisteredApps
     {
         /// <inheritdoc />
@@ -310,6 +310,78 @@ namespace UserIdentity.Persistence.Migrations
                     b.ToTable("app_entities", (string)null);
                 });
 
+            modelBuilder.Entity("PolyzenKit.Domain.RegisteredApps.RegisteredAppEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AppName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("app_name");
+
+                    b.Property<string>("AppSecretKey")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("app_secret_key");
+
+                    b.Property<string>("BaseUrl")
+                        .IsRequired()
+                        .HasMaxLength(600)
+                        .HasColumnType("varchar(600)")
+                        .HasColumnName("base_url");
+
+                    b.Property<string>("CallbackHeaders")
+                        .HasMaxLength(800)
+                        .HasColumnType("varchar(800)")
+                        .HasColumnName("callback_headers");
+
+                    b.Property<string>("CallbackUrl")
+                        .HasMaxLength(600)
+                        .HasColumnType("varchar(600)")
+                        .HasColumnName("callback_url");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("created_by");
+
+                    b.Property<bool>("ForwardServiceToken")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("forward_service_token");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("updated_by");
+
+                    b.HasKey("Id")
+                        .HasName("pk_registered_apps");
+
+                    b.HasIndex("AppName")
+                        .HasDatabaseName("ix_registered_apps_app_name");
+
+                    b.ToTable("registered_apps", (string)null);
+                });
+
             modelBuilder.Entity("UserIdentity.Domain.Identity.RefreshTokenEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -368,63 +440,6 @@ namespace UserIdentity.Persistence.Migrations
                         .HasDatabaseName("ix_refresh_tokens_user_id");
 
                     b.ToTable("refresh_tokens", (string)null);
-                });
-
-            modelBuilder.Entity("UserIdentity.Domain.Identity.RegisteredAppEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AppName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("app_name");
-
-                    b.Property<string>("AppSecretKey")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("app_secret_key");
-
-                    b.Property<string>("CallbackUrl")
-                        .HasMaxLength(600)
-                        .HasColumnType("varchar(600)")
-                        .HasColumnName("callback_url");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("created_by");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("is_deleted");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("updated_at");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("updated_by");
-
-                    b.HasKey("Id")
-                        .HasName("pk_registered_apps");
-
-                    b.HasIndex("AppName")
-                        .HasDatabaseName("ix_registered_apps_app_name");
-
-                    b.ToTable("registered_apps", (string)null);
                 });
 
             modelBuilder.Entity("UserIdentity.Domain.Identity.UserEntity", b =>
@@ -589,15 +604,15 @@ namespace UserIdentity.Persistence.Migrations
 
             modelBuilder.Entity("UserIdentity.Domain.Identity.UserRegisteredAppEntity", b =>
                 {
-                    b.HasOne("UserIdentity.Domain.Identity.RegisteredAppEntity", "App")
-                        .WithMany("UserRegisteredApps")
+                    b.HasOne("PolyzenKit.Domain.RegisteredApps.RegisteredAppEntity", "App")
+                        .WithMany()
                         .HasForeignKey("AppId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_user_registered_apps_registered_apps_app_id");
 
                     b.HasOne("UserIdentity.Domain.Identity.UserEntity", "User")
-                        .WithMany("UserRegisteredApps")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
@@ -606,16 +621,6 @@ namespace UserIdentity.Persistence.Migrations
                     b.Navigation("App");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("UserIdentity.Domain.Identity.RegisteredAppEntity", b =>
-                {
-                    b.Navigation("UserRegisteredApps");
-                });
-
-            modelBuilder.Entity("UserIdentity.Domain.Identity.UserEntity", b =>
-                {
-                    b.Navigation("UserRegisteredApps");
                 });
 #pragma warning restore 612, 618
         }

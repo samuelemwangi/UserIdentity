@@ -94,7 +94,12 @@ namespace UserIdentity.Persistence.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     app_secret_key = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
+                    base_url = table.Column<string>(type: "varchar(600)", maxLength: 600, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
                     callback_url = table.Column<string>(type: "varchar(600)", maxLength: 600, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    forward_service_token = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    callback_headers = table.Column<string>(type: "varchar(800)", maxLength: 800, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     created_by = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),

@@ -71,11 +71,11 @@ builder.Services.AddAppExternalServices(builder.Configuration);
 builder.Services.AddScoped<IAppCallbackService, AppCallbackService>();
 builder.Services.AddGoogleRecaptcha(builder.Configuration);
 
-// Cors Policy
-var corsPolicyName = builder.Services.AddAppCorsPolicy(builder.Configuration);
-
 // Kafka
 builder.Services.AddAppKafka(builder.Configuration);
+
+// Cors Policy
+var corsPolicyName = builder.Services.AddAppCorsPolicy(builder.Configuration);
 
 // build the app
 var app = builder.Build();
@@ -119,6 +119,7 @@ app.MapHealthChecks("/health");
 // Migrate And Seed DB
 DbInitializer.InitializeDb(app);
 app.AppSeedEntityNamesData();
+app.AppSeedRegisteredAppsData(builder.Configuration);
 
 // Run the app
 app.Run();

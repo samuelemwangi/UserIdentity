@@ -1,6 +1,7 @@
 ﻿using PolyzenKit.Application.Core;
 using PolyzenKit.Application.Core.Interfaces;
 using PolyzenKit.Application.Core.Messages.Events;
+using PolyzenKit.Application.Enums;
 using PolyzenKit.Application.Interfaces;
 using PolyzenKit.Common.Enums;
 using PolyzenKit.Domain.RegisteredApps;
@@ -35,7 +36,7 @@ public record UserUpdateEvent : IBaseEvent
 public class UserUpdateEventHandler(
   IAppCallbackService appCallbackService,
   IKafkaMessageProducer<string, MessageEvent> kafkaMessageProducer
-  ) : IBaseEventHandler<UserUpdateEvent>
+  ) : IEventHandler<UserUpdateEvent>
 {
   private readonly IAppCallbackService _appCallbackService = appCallbackService;
   private readonly IKafkaMessageProducer<string, MessageEvent> _kafkaMessageProducer = kafkaMessageProducer;
@@ -45,19 +46,24 @@ public class UserUpdateEventHandler(
     if (eventItem.RequestSource == RequestSource.UI && eventItem.RegisteredApp.CallbackUrl != null)
       await _appCallbackService.SendCallbackRequestAsync(eventItem);
 
-    var topicKey = "UserRegistered";
-
-    var messageEvent = new MessageEvent
+    if (eventItem.EventType == CrudEvent.CREATE)
     {
-      CorrelationId = eventItem.UserContent.UserIdentityId!,
-      Action = MessageAction.SEND,
-      RegisteredApp = eventItem.RegisteredApp.AppName,
-      Attributes = new()
+      var messageEvent = new MessageEvent
       {
-        { MessageAttribute.RECIPIENT, eventItem.UserContent.UserEmail! }
-      }
-    };
+        CorrelationId = eventItem.UserContent.UserIdentityId!,
+        Action = MessageAction.WELCOME_USER,
+        RegisteredApp = eventItem.RegisteredApp.AppName,
+        Attributes = new()
+        {
+          { MessageAttribute.RECIPIENT_EMAIL, eventItem.UserContent.UserEmail! },
+          { MessageAttribute.RECIPIENT_PHONE, eventItem.UserContent.PhoneNumber ?? "" },
+          { MessageAttribute.FIRST_NAME, eventItem.UserContent.FirstName! },
+          { MessageAttribute.LAST_NAME, eventItem.UserContent.LastName! },
+          { MessageAttribute.USER_NAME, eventItem.UserContent.UserName! }
+        }
+      };
 
-    await _kafkaMessageProducer.ProduceAsync(messageEvent.CorrelationId, messageEvent, topicKey);
+      await _kafkaMessageProducer.ProduceAsync(messageEvent.CorrelationId, messageEvent, MessageAction.WELCOME_USER.Description());
+    }
   }
 }
