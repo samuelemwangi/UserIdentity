@@ -9,9 +9,9 @@ public class UserVerifiedKafkaMessageConsumer(
 {
   private readonly ILogHelper<UserVerifiedKafkaMessageConsumer> _logHelper = logHelper;
 
-  public async Task ConsumeAsync(MessageEvent message, CancellationToken cancellationToken = default)
+  public async Task ConsumeAsync(string key, MessageEvent message, CancellationToken cancellationToken = default)
   {
-    _logHelper.LogEvent($"Consume Message {message}", LogLevel.Information);
+    _logHelper.LogEvent($"Consume Message {message} with key {key}", LogLevel.Information);
   }
 }
 

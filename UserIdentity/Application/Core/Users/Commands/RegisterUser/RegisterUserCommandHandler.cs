@@ -72,7 +72,7 @@ public class RegisterUserCommandHandler(
 	IJwtTokenHandler jwtTokenHandler,
 	ITokenFactory tokenFactory,
 	IMachineDateTime machineDateTime,
-	IBaseEventHandler<UserUpdateEvent> userUpdateEventHandler,
+	IEventHandler<UserUpdateEvent> userUpdateEventHandler,
 	IOptions<GoogleRecaptchaSettings> googleRecaptchaSettingsOptions,
 	IGoogleRecaptchaService googleRecaptchaService,
 	IGetItemQueryHandler<GetUserQuery, UserViewModel> getUserQueryHandler
@@ -91,7 +91,7 @@ public class RegisterUserCommandHandler(
 
 	private readonly IMachineDateTime _machineDateTime = machineDateTime;
 
-	private readonly IBaseEventHandler<UserUpdateEvent> _userUpdateEventHandler = userUpdateEventHandler;
+	private readonly IEventHandler<UserUpdateEvent> _userUpdateEventHandler = userUpdateEventHandler;
 
 	private readonly GoogleRecaptchaSettings _googleRecaptchaSettings = googleRecaptchaSettingsOptions.Value;
 	private readonly IGoogleRecaptchaService _googleRecaptchaService = googleRecaptchaService;
