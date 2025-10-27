@@ -14,10 +14,9 @@ using PolyzenKit.Common.Exceptions;
 using PolyzenKit.Infrastructure.Security.Jwt;
 using PolyzenKit.Infrastructure.Security.Tokens;
 using PolyzenKit.Infrastructure.Utilities;
-
-using UserIdentity.Application.Core.Roles.Queries.GetRoleClaims;
+using UserIdentity.Application.Core.Roles.Queries;
 using UserIdentity.Application.Core.Roles.ViewModels;
-using UserIdentity.Application.Core.Tokens.Commands.ExchangeRefreshToken;
+using UserIdentity.Application.Core.Tokens.Commands;
 using UserIdentity.Application.Core.Tokens.ViewModels;
 using UserIdentity.Domain.Identity;
 using UserIdentity.Persistence.Repositories.RefreshTokens;

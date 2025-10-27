@@ -7,11 +7,9 @@ using PolyzenKit.Application.Core.Interfaces;
 using PolyzenKit.Common.Exceptions;
 using PolyzenKit.Infrastructure.Security.Jwt;
 
-using UserIdentity.Application.Core.Roles.ViewModels;
+namespace UserIdentity.Application.Core.Roles.Commands;
 
-namespace UserIdentity.Application.Core.Roles.Commands.CreateRoleClaim;
-
-public record CreateRoleClaimCommand : IBaseCommand
+public record DeleteRoleClaimCommand : IBaseCommand
 {
 	[Required]
 	public string RoleId { get; init; } = null!;
@@ -20,46 +18,48 @@ public record CreateRoleClaimCommand : IBaseCommand
 	public string Resource { get; init; } = null!;
 
 	[Required]
-	public string Action { get; set; } = null!;
+	public string Action { get; init; } = null!;
 }
-
-public class CreateRoleClaimCommandHandler(
+public class DeleteRoleClaimCommandHandler(
 	RoleManager<IdentityRole> roleManager,
 	IJwtTokenHandler jwtTokenHandler
-	) : ICreateItemCommandHandler<CreateRoleClaimCommand, RoleClaimViewModel>
+	) : IDeleteItemCommandHandler<DeleteRoleClaimCommand, DeleteRecordViewModel>
 {
 	private readonly RoleManager<IdentityRole> _roleManager = roleManager;
 	private readonly IJwtTokenHandler _jwtTokenHandler = jwtTokenHandler;
 
-	public async Task<RoleClaimViewModel> CreateItemAsync(CreateRoleClaimCommand command, string userId)
+	public async Task<DeleteRecordViewModel> DeleteItemAsync(DeleteRoleClaimCommand command, string userId)
 	{
 		// Confirm role exists
 		var role = await _roleManager.FindByIdAsync(command.RoleId) ?? throw new NoRecordException(command.RoleId, "Role");
 
 		// Confirm claim does not exist 
 		var scopeClaim = _jwtTokenHandler.GenerateScopeClaim(command.Resource, command.Action);
-
 		var roleClaims = await _roleManager.GetClaimsAsync(role);
 
+		bool claimFound = false;
+
 		foreach (var roleClaim in roleClaims)
-			if (roleClaim.Value == scopeClaim.Value)
-				throw new RecordExistsException(scopeClaim.Value, "Role Claim");
-
-		var roleClaimCreateResults = await _roleManager.AddClaimAsync(role, scopeClaim);
-
-		if (!roleClaimCreateResults.Succeeded)
-			throw new RecordCreationException(command.ToString(), "RoleClaim");
-
-		return new RoleClaimViewModel
 		{
-			RoleClaim = new RoleClaimDTO
+			if (string.Equals(roleClaim.Value, scopeClaim.Value, StringComparison.OrdinalIgnoreCase))
 			{
-				Resource = command.Resource,
-				Action = command.Action,
-				Scope = scopeClaim.Value,
+				claimFound = true;
+				break;
 			}
+		}
+
+		if (!claimFound)
+			throw new NoRecordException($"{command.Resource}:{command.Action}", "RoleClaim");
+
+		// Delete Claim
+		var deleteRoleClaimResults = await _roleManager.RemoveClaimAsync(role, scopeClaim);
+
+		if (!deleteRoleClaimResults.Succeeded)
+			throw new RecordDeletionException($"{command.Resource}:{command.Action}", "RoleClaim");
+
+		return new DeleteRecordViewModel
+		{
 
 		};
 	}
-
 }

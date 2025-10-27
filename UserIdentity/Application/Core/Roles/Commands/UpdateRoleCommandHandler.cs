@@ -5,10 +5,9 @@ using Microsoft.AspNetCore.Identity;
 using PolyzenKit.Application.Core;
 using PolyzenKit.Application.Core.Interfaces;
 using PolyzenKit.Common.Exceptions;
-
 using UserIdentity.Application.Core.Roles.ViewModels;
 
-namespace UserIdentity.Application.Core.Roles.Commands.UpdateRole;
+namespace UserIdentity.Application.Core.Roles.Commands;
 
 
 public record UpdateRoleCommand : IBaseCommand

@@ -5,11 +5,10 @@ using Microsoft.AspNetCore.Identity;
 using PolyzenKit.Application.Core;
 using PolyzenKit.Application.Core.Interfaces;
 using PolyzenKit.Common.Exceptions;
-
-using UserIdentity.Application.Core.Roles.Queries.GetRoles;
+using UserIdentity.Application.Core.Roles.Queries;
 using UserIdentity.Application.Core.Roles.ViewModels;
 
-namespace UserIdentity.Application.Core.Roles.Commands.CreateRole;
+namespace UserIdentity.Application.Core.Roles.Commands;
 
 public record CreateUserRoleCommand : IBaseCommand
 {

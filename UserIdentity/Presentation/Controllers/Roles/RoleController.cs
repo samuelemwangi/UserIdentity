@@ -11,15 +11,8 @@ using PolyzenKit.Application.Enums;
 using PolyzenKit.Common.Utilities;
 using PolyzenKit.Presentation.Controllers;
 using PolyzenKit.Presentation.ValidationHelpers;
-
-using UserIdentity.Application.Core.Roles.Commands.CreateRole;
-using UserIdentity.Application.Core.Roles.Commands.CreateRoleClaim;
-using UserIdentity.Application.Core.Roles.Commands.DeleteRole;
-using UserIdentity.Application.Core.Roles.Commands.DeleteRoleClaim;
-using UserIdentity.Application.Core.Roles.Commands.UpdateRole;
-using UserIdentity.Application.Core.Roles.Queries.GetRole;
-using UserIdentity.Application.Core.Roles.Queries.GetRoleClaims;
-using UserIdentity.Application.Core.Roles.Queries.GetRoles;
+using UserIdentity.Application.Core.Roles.Commands;
+using UserIdentity.Application.Core.Roles.Queries;
 using UserIdentity.Application.Core.Roles.ViewModels;
 
 namespace UserIdentity.Presentation.Controllers.Roles;

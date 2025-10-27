@@ -1,6 +1,6 @@
 USE useridentity;
 
-SET @username = '#REPLACE_WITH_USERNAME#';
+SET @username = 'USER372';
 
 SELECT @user_id := id
 FROM users

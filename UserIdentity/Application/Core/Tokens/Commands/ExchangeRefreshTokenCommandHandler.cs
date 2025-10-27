@@ -11,13 +11,12 @@ using PolyzenKit.Common.Exceptions;
 using PolyzenKit.Common.Utilities;
 using PolyzenKit.Infrastructure.Security.Jwt;
 using PolyzenKit.Infrastructure.Security.Tokens;
-
-using UserIdentity.Application.Core.Roles.Queries.GetRoleClaims;
+using UserIdentity.Application.Core.Roles.Queries;
 using UserIdentity.Application.Core.Roles.ViewModels;
 using UserIdentity.Application.Core.Tokens.ViewModels;
 using UserIdentity.Persistence.Repositories.RefreshTokens;
 
-namespace UserIdentity.Application.Core.Tokens.Commands.ExchangeRefreshToken;
+namespace UserIdentity.Application.Core.Tokens.Commands;
 
 public record ExchangeRefreshTokenCommand : IBaseCommand
 {
@@ -48,8 +47,8 @@ public class ExchangeRefreshTokenCommandHandler(
 
 	public async Task<ExchangeRefreshTokenViewModel> UpdateItemAsync(ExchangeRefreshTokenCommand command, string userId)
 	{
-		var requestAccessToken = ObjectUtil.RequireNonNullValue<string>(command.AccessToken, nameof(command.AccessToken));
-		var requestRefreshToken = ObjectUtil.RequireNonNullValue<string>(command.RefreshToken, nameof(command.RefreshToken));
+		var requestAccessToken = ObjectUtil.RequireNonNullValue(command.AccessToken, nameof(command.AccessToken));
+		var requestRefreshToken = ObjectUtil.RequireNonNullValue(command.RefreshToken, nameof(command.RefreshToken));
 
 		var tokenValidationResult = await _jwtTokenHandler.ValidateTokenAsync(requestAccessToken);
 
@@ -71,7 +70,7 @@ public class ExchangeRefreshTokenCommandHandler(
 		(string token, int expiresIn) = _jwtTokenHandler.CreateToken(tokenUserId, tokenUserName, [.. userRoles], userRoleClaims.RoleClaims);
 
 		refreshToken.Token = updateRefreshToken;
-		refreshToken.Expires = _machineDateTime.Now.AddSeconds((long)expiresIn);
+		refreshToken.Expires = _machineDateTime.Now.AddSeconds(expiresIn);
 
 		int createTokenResult = await _refreshTokenRepository.UpdateRefreshTokenAsync(refreshToken);
 

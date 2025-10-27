@@ -12,7 +12,7 @@ using UserIdentity.Persistence;
 namespace UserIdentity.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251019072803_AddRegisteredApps")]
+    [Migration("20251019131004_AddRegisteredApps")]
     partial class AddRegisteredApps
     {
         /// <inheritdoc />
@@ -319,6 +319,11 @@ namespace UserIdentity.Persistence.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Address")
+                        .HasMaxLength(400)
+                        .HasColumnType("varchar(400)")
+                        .HasColumnName("address");
+
                     b.Property<string>("AppName")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -356,6 +361,11 @@ namespace UserIdentity.Persistence.Migrations
                         .HasColumnType("varchar(50)")
                         .HasColumnName("created_by");
 
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)")
+                        .HasColumnName("description");
+
                     b.Property<bool>("ForwardServiceToken")
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("forward_service_token");
@@ -363,6 +373,26 @@ namespace UserIdentity.Persistence.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("is_deleted");
+
+                    b.Property<string>("LogoUrl")
+                        .HasMaxLength(400)
+                        .HasColumnType("varchar(400)")
+                        .HasColumnName("logo_url");
+
+                    b.Property<string>("PreferencesUrl")
+                        .HasMaxLength(400)
+                        .HasColumnType("varchar(400)")
+                        .HasColumnName("preferences_url");
+
+                    b.Property<string>("PrimaryColor")
+                        .HasMaxLength(10)
+                        .HasColumnType("varchar(10)")
+                        .HasColumnName("primary_color");
+
+                    b.Property<string>("SecondaryColor")
+                        .HasMaxLength(10)
+                        .HasColumnType("varchar(10)")
+                        .HasColumnName("secondary_color");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime(6)")

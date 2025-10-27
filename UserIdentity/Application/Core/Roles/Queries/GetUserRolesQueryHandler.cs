@@ -3,10 +3,9 @@
 using PolyzenKit.Application.Core;
 using PolyzenKit.Application.Core.Interfaces;
 using PolyzenKit.Common.Exceptions;
-
 using UserIdentity.Application.Core.Roles.ViewModels;
 
-namespace UserIdentity.Application.Core.Roles.Queries.GetRoles;
+namespace UserIdentity.Application.Core.Roles.Queries;
 
 public record GetUserRolesQuery : IBaseQuery
 {

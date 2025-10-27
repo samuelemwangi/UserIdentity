@@ -4,10 +4,9 @@ using PolyzenKit.Application.Core;
 using PolyzenKit.Application.Core.Interfaces;
 using PolyzenKit.Common.Exceptions;
 using PolyzenKit.Infrastructure.Security.Jwt;
-
 using UserIdentity.Application.Core.Roles.ViewModels;
 
-namespace UserIdentity.Application.Core.Roles.Queries.GetRoleClaims;
+namespace UserIdentity.Application.Core.Roles.Queries;
 
 public record GetRoleClaimsQuery : IBaseQuery
 {

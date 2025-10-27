@@ -7,10 +7,9 @@ using Microsoft.AspNetCore.WebUtilities;
 using PolyzenKit.Application.Core;
 using PolyzenKit.Application.Core.Interfaces;
 using PolyzenKit.Common.Exceptions;
-
 using UserIdentity.Application.Core.Users.ViewModels;
 
-namespace UserIdentity.Application.Core.Users.Commands.UpdatePassword;
+namespace UserIdentity.Application.Core.Users.Commands;
 
 public record UpdatePasswordCommand : IBaseCommand
 {

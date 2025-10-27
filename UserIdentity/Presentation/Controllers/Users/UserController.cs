@@ -12,14 +12,10 @@ using PolyzenKit.Presentation.Controllers;
 using PolyzenKit.Presentation.Helpers;
 using PolyzenKit.Presentation.ValidationHelpers;
 using System.Net;
-using UserIdentity.Application.Core.Tokens.Commands.ExchangeRefreshToken;
+using UserIdentity.Application.Core.Tokens.Commands;
 using UserIdentity.Application.Core.Tokens.ViewModels;
-using UserIdentity.Application.Core.Users.Commands.ConfirmUpdatePasswordToken;
-using UserIdentity.Application.Core.Users.Commands.LoginUser;
-using UserIdentity.Application.Core.Users.Commands.RegisterUser;
-using UserIdentity.Application.Core.Users.Commands.ResetPassword;
-using UserIdentity.Application.Core.Users.Commands.UpdatePassword;
-using UserIdentity.Application.Core.Users.Queries.GetUser;
+using UserIdentity.Application.Core.Users.Commands;
+using UserIdentity.Application.Core.Users.Queries;
 using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Application.Enums;
 

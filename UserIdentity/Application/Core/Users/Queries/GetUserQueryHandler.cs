@@ -4,13 +4,12 @@ using PolyzenKit.Application.Core;
 using PolyzenKit.Application.Core.Interfaces;
 using PolyzenKit.Common.Exceptions;
 using PolyzenKit.Domain.DTO;
-
-using UserIdentity.Application.Core.Roles.Queries.GetRoleClaims;
+using UserIdentity.Application.Core.Roles.Queries;
 using UserIdentity.Application.Core.Roles.ViewModels;
 using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Persistence.Repositories.Users;
 
-namespace UserIdentity.Application.Core.Users.Queries.GetUser;
+namespace UserIdentity.Application.Core.Users.Queries;
 
 public record GetUserQuery : IBaseQuery
 {

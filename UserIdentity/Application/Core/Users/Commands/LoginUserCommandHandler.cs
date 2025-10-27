@@ -10,14 +10,13 @@ using PolyzenKit.Common.Exceptions;
 using PolyzenKit.Domain.Entity;
 using PolyzenKit.Infrastructure.Security.Jwt;
 using PolyzenKit.Infrastructure.Security.Tokens;
-
 using UserIdentity.Application.Core.Tokens.ViewModels;
-using UserIdentity.Application.Core.Users.Queries.GetUser;
+using UserIdentity.Application.Core.Users.Queries;
 using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Domain.Identity;
 using UserIdentity.Persistence.Repositories.RefreshTokens;
 
-namespace UserIdentity.Application.Core.Users.Commands.LoginUser;
+namespace UserIdentity.Application.Core.Users.Commands;
 
 public record LoginUserCommand : IBaseCommand
 {
@@ -67,7 +66,7 @@ public class LoginUserCommandHandler(
 		var newRefreshToken = new RefreshTokenEntity
 		{
 			Id = Guid.NewGuid(),
-			Expires = _machineDateTime.Now.AddSeconds((long)expiresIn),
+			Expires = _machineDateTime.Now.AddSeconds(expiresIn),
 			UserId = user.Id,
 			Token = refreshToken,
 		};
