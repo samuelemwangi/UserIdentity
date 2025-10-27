@@ -8,11 +8,10 @@ using PolyzenKit.Application.Core;
 using PolyzenKit.Application.Core.Interfaces;
 using PolyzenKit.Common.Exceptions;
 using PolyzenKit.Infrastructure.Configurations;
-
 using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Persistence.Repositories.Users;
 
-namespace UserIdentity.Application.Core.Users.Commands.ResetPassword;
+namespace UserIdentity.Application.Core.Users.Commands;
 
 public record ResetPasswordCommand : IBaseCommand
 {

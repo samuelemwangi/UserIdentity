@@ -5,10 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 using PolyzenKit.Application.Core;
 using PolyzenKit.Application.Core.Interfaces;
-
 using UserIdentity.Application.Core.Roles.ViewModels;
 
-namespace UserIdentity.Application.Core.Roles.Queries.GetRoles;
+namespace UserIdentity.Application.Core.Roles.Queries;
 
 public record GetRolesQuery : IBaseQuery
 {

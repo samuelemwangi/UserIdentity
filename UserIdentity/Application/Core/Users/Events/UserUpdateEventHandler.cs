@@ -41,29 +41,34 @@ public class UserUpdateEventHandler(
   private readonly IAppCallbackService _appCallbackService = appCallbackService;
   private readonly IKafkaMessageProducer<string, MessageEvent> _kafkaMessageProducer = kafkaMessageProducer;
 
+  private const string _userUpdateEventTopicKey = "UserUpdated";
+
   public async Task HandleEventAsync(UserUpdateEvent eventItem)
   {
     if (eventItem.RequestSource == RequestSource.UI && eventItem.RegisteredApp.CallbackUrl != null)
       await _appCallbackService.SendCallbackRequestAsync(eventItem);
 
-    if (eventItem.EventType == CrudEvent.CREATE)
+    if (eventItem.EventType != CrudEvent.CREATE)
+      return;
+
+    var messageEvent = new MessageEvent
     {
-      var messageEvent = new MessageEvent
-      {
-        CorrelationId = eventItem.UserContent.UserIdentityId!,
-        Action = MessageAction.WELCOME_USER,
-        RegisteredApp = eventItem.RegisteredApp.AppName,
-        Attributes = new()
+      EventType = eventItem.EventType,
+      CorrelationId = eventItem.UserContent.UserIdentityId!,
+      Action = MessageAction.WELCOME_USER,
+      RegisteredApp = eventItem.RegisteredApp.AppName,
+      Attributes = new()
         {
           { MessageAttribute.RECIPIENT_EMAIL, eventItem.UserContent.UserEmail! },
           { MessageAttribute.RECIPIENT_PHONE, eventItem.UserContent.PhoneNumber ?? "" },
           { MessageAttribute.FIRST_NAME, eventItem.UserContent.FirstName! },
           { MessageAttribute.LAST_NAME, eventItem.UserContent.LastName! },
-          { MessageAttribute.USER_NAME, eventItem.UserContent.UserName! }
+          { MessageAttribute.USER_NAME, eventItem.UserContent.UserName! },
+          { MessageAttribute.USER_ID, eventItem.UserContent.UserIdentityId! }
         }
-      };
+    };
 
-      await _kafkaMessageProducer.ProduceAsync(messageEvent.CorrelationId, messageEvent, MessageAction.WELCOME_USER.Description());
-    }
+    await _kafkaMessageProducer.ProduceAsync(messageEvent.CorrelationId, messageEvent, _userUpdateEventTopicKey);
+
   }
 }

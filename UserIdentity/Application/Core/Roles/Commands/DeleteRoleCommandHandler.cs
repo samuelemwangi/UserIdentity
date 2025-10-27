@@ -4,7 +4,7 @@ using PolyzenKit.Application.Core;
 using PolyzenKit.Application.Core.Interfaces;
 using PolyzenKit.Common.Exceptions;
 
-namespace UserIdentity.Application.Core.Roles.Commands.DeleteRole;
+namespace UserIdentity.Application.Core.Roles.Commands;
 
 
 public record DeleteRoleCommand : IBaseCommand

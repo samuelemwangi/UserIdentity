@@ -30,11 +30,6 @@
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.0" />
 	</ItemGroup>
 	<ItemGroup>
-		<Folder Include="Application\Core\Users\Commands\ResetPassword\" />
-		<Folder Include="Application\Core\Users\Commands\ConfirmUpdatePasswordToken\" />
-		<Folder Include="Application\Core\Users\Commands\UpdatePassword\" />
-	</ItemGroup>
-	<ItemGroup>
 		<None Remove="Application\Core\Users\Commands\ResetPassword\" />
 		<None Remove="Application\Core\Users\Commands\ConfirmUpdatePasswordToken\" />
 		<None Remove="Application\Core\Users\Commands\UpdatePassword\" />

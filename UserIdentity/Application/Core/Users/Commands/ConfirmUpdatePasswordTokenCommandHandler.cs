@@ -5,11 +5,10 @@ using Microsoft.AspNetCore.WebUtilities;
 
 using PolyzenKit.Application.Core;
 using PolyzenKit.Application.Core.Interfaces;
-
 using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Persistence.Repositories.Users;
 
-namespace UserIdentity.Application.Core.Users.Commands.ConfirmUpdatePasswordToken;
+namespace UserIdentity.Application.Core.Users.Commands;
 
 public record ConfirmUpdatePasswordTokenCommand : IBaseCommand
 {
