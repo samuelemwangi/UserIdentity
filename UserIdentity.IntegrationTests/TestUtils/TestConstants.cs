@@ -3,4 +3,5 @@
 internal static class TestConstants
 {
 	internal static string ApiKey = "AppApiKey";
+	internal static string AppName = "TestApp";
 }

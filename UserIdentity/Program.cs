@@ -7,7 +7,6 @@ using PolyzenKit.Presentation.Middlewares;
 
 using UserIdentity;
 using UserIdentity.Application.Interfaces;
-using UserIdentity.Application.Utilities;
 using UserIdentity.Infrastructure.ExternalServices;
 using UserIdentity.Persistence;
 using UserIdentity.Persistence.Migrations;
@@ -35,9 +34,6 @@ builder.Services.AddAppEventHandlers();
 // Controllers
 builder.Services.AddAppControllers(builder.Configuration);
 
-// Add AutoMapper
-builder.Services.AddAutoMapper(typeof(MapperProfile));
-
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -49,9 +45,9 @@ builder.Services.AddAppLogHelpers();
 
 // Authentication Identity
 builder.Services.AddAppAuthentication(
-	builder.Configuration,
-	(config) => new FileSystemKeyProvider(),
-	(options, keyProvider) => new EdDSAKeySetFactory(options, keyProvider)
+    builder.Configuration,
+    (config) => new FileSystemKeyProvider(),
+    (options, keyProvider) => new EdDSAKeySetFactory(options, keyProvider)
 );
 
 // Authorization
@@ -86,10 +82,10 @@ app.UseCors(corsPolicyName);
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-	app.UseSwagger();
-	app.UseSwaggerUI();
-	IdentityModelEventSource.ShowPII = true;
-	IdentityModelEventSource.LogCompleteSecurityArtifact = true;
+    app.UseSwagger();
+    app.UseSwaggerUI();
+    IdentityModelEventSource.ShowPII = true;
+    IdentityModelEventSource.LogCompleteSecurityArtifact = true;
 }
 
 // Use Api Key Middleware

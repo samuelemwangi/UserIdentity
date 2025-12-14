@@ -52,6 +52,7 @@ internal static class APIHelper
 	{
 		var httpReuest = new HttpRequestMessage(new HttpMethod(httpMethod.Method), uri);
 		httpReuest.AddXApiKey();
+		httpReuest.AddXAppName();
 
 		return httpReuest;
 	}
@@ -68,6 +69,11 @@ internal static class APIHelper
 	public static void AddXApiKey(this HttpRequestMessage httpRequest)
 	{
 		httpRequest.AddXApiKey(TestConstants.ApiKey);
+	}
+
+	public static void AddXAppName(this HttpRequestMessage httpRequest)
+	{
+		httpRequest.Headers.Add("X-App-Name", TestConstants.AppName);
 	}
 
 	public static async Task<HttpRequestMessage> CreateAuthorizedHttpRequestMessageAsync(this HttpClient httpClient, HttpMethod httpMethod, string uri)
