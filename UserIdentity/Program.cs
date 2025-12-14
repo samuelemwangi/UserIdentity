@@ -1,7 +1,6 @@
 using Microsoft.IdentityModel.Logging;
 
 using PolyzenKit;
-using PolyzenKit.Infrastructure.Security.KeyProviders;
 using PolyzenKit.Infrastructure.Security.KeySets;
 using PolyzenKit.Presentation.Middlewares;
 
@@ -46,7 +45,6 @@ builder.Services.AddAppLogHelpers();
 // Authentication Identity
 builder.Services.AddAppAuthentication(
     builder.Configuration,
-    (config) => new FileSystemKeyProvider(),
     (options, keyProvider) => new EdDSAKeySetFactory(options, keyProvider)
 );
 
