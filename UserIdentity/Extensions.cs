@@ -2,9 +2,7 @@
 
 using PolyzenKit;
 using PolyzenKit.Application.Core.Errors.Queries.GerError;
-using PolyzenKit.Application.Interfaces;
 using PolyzenKit.Common.Exceptions;
-using PolyzenKit.Infrastructure.Kafka;
 using PolyzenKit.Persistence.Repositories.AppEntities;
 
 using UserIdentity.Application.Core.Users.Settings;
@@ -15,59 +13,59 @@ namespace UserIdentity;
 
 public static class Extensions
 {
-  // Add App Command and Query Handlers
-  public static void AddAppCommandAndQueryHandlers(this IServiceCollection services)
-  {
-    services.AddAppCommandAndQueryHandlers(Assembly.GetExecutingAssembly());
-
-    var polyzenKitAssembly = Assembly.GetAssembly(typeof(GetErrorQueryHandler))!;
-
-    services.AddAppCommandAndQueryHandlers(polyzenKitAssembly);
-  }
-
-  // Add App Event Handlers
-  public static void AddAppEventHandlers(this IServiceCollection services)
-  {
-    services.AddAppEventHandlers(Assembly.GetExecutingAssembly());
-    var polyzenKitAssembly = Assembly.GetAssembly(typeof(GetErrorQueryHandler))!;
-    services.AddAppEventHandlers(polyzenKitAssembly);
-  }
-
-  // Add Repositories
-  public static void AddAppRepositories(this IServiceCollection services)
-  {
-    services.AddAppRepositories(Assembly.GetExecutingAssembly());
-
-    var polyzenKitAssembly = Assembly.GetAssembly(typeof(AppEntityRepository))!;
-    services.AddAppRepositories(polyzenKitAssembly);
-  }
-
-  // Add Google Recaptcha
-  public static void AddGoogleRecaptcha(this IServiceCollection services, IConfiguration configuration)
-  {
-    var googleRecaptchaSettings = configuration.GetSection(nameof(GoogleRecaptchaSettings)).Get<GoogleRecaptchaSettings>() ?? throw new MissingConfigurationException(nameof(GoogleRecaptchaSettings));
-
-    if (googleRecaptchaSettings.Enabled && googleRecaptchaSettings.SiteKey == null)
-      throw new MissingConfigurationException(nameof(GoogleRecaptchaSettings.SiteKey));
-
-    services.Configure<GoogleRecaptchaSettings>(options =>
+    // Add App Command and Query Handlers
+    public static void AddAppCommandAndQueryHandlers(this IServiceCollection services)
     {
-      options.Enabled = googleRecaptchaSettings.Enabled;
-      options.SiteKey = googleRecaptchaSettings.SiteKey;
-    });
+        services.AddAppCommandAndQueryHandlers(Assembly.GetExecutingAssembly());
 
-    services.AddScoped<IGoogleRecaptchaService, GoogleRecaptchaService>();
-  }
+        var polyzenKitAssembly = Assembly.GetAssembly(typeof(GetErrorQueryHandler))!;
 
-  public static void AddAppKafka(this IServiceCollection services, IConfiguration configuration)
-  {
-    services.AddAppKafka(configuration, Assembly.GetExecutingAssembly());
-  }
+        services.AddAppCommandAndQueryHandlers(polyzenKitAssembly);
+    }
+
+    // Add App Event Handlers
+    public static void AddAppEventHandlers(this IServiceCollection services)
+    {
+        services.AddAppEventHandlers(Assembly.GetExecutingAssembly());
+        var polyzenKitAssembly = Assembly.GetAssembly(typeof(GetErrorQueryHandler))!;
+        services.AddAppEventHandlers(polyzenKitAssembly);
+    }
+
+    // Add Repositories
+    public static void AddAppRepositories(this IServiceCollection services)
+    {
+        services.AddAppRepositories(Assembly.GetExecutingAssembly());
+
+        var polyzenKitAssembly = Assembly.GetAssembly(typeof(AppEntityRepository))!;
+        services.AddAppRepositories(polyzenKitAssembly);
+    }
+
+    // Add Google Recaptcha
+    public static void AddGoogleRecaptcha(this IServiceCollection services, IConfiguration configuration)
+    {
+        var googleRecaptchaSettings = configuration.GetSection(nameof(GoogleRecaptchaSettings)).Get<GoogleRecaptchaSettings>() ?? throw new MissingConfigurationException(nameof(GoogleRecaptchaSettings));
+
+        if (googleRecaptchaSettings.Enabled && googleRecaptchaSettings.SiteKey == null)
+            throw new MissingConfigurationException(nameof(GoogleRecaptchaSettings.SiteKey));
+
+        services.Configure<GoogleRecaptchaSettings>(options =>
+        {
+            options.Enabled = googleRecaptchaSettings.Enabled;
+            options.SiteKey = googleRecaptchaSettings.SiteKey;
+        });
+
+        services.AddScoped<IGoogleRecaptchaService, GoogleRecaptchaService>();
+    }
+
+    public static void AddAppKafka(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddAppKafka(configuration, Assembly.GetExecutingAssembly());
+    }
 
 
-  // Seed Entity Names
-  public static void AppSeedEntityNamesData(this IApplicationBuilder applicationBuilder)
-  {
-    Assembly.GetExecutingAssembly().AppSeedEntityNamesData(applicationBuilder);
-  }
+    // Seed Entity Names
+    public static void AppSeedEntityNamesData(this IApplicationBuilder applicationBuilder)
+    {
+        Assembly.GetExecutingAssembly().AppSeedEntityNamesData(applicationBuilder);
+    }
 }

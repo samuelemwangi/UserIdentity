@@ -10,6 +10,7 @@ using PolyzenKit.Common.Exceptions;
 using PolyzenKit.Domain.Entity;
 using PolyzenKit.Infrastructure.Security.Jwt;
 using PolyzenKit.Infrastructure.Security.Tokens;
+
 using UserIdentity.Application.Core.Tokens.ViewModels;
 using UserIdentity.Application.Core.Users.Queries;
 using UserIdentity.Application.Core.Users.ViewModels;
@@ -20,73 +21,82 @@ namespace UserIdentity.Application.Core.Users.Commands;
 
 public record LoginUserCommand : IBaseCommand
 {
-	public int AppId { get; set; }
+    public int AppId { get; set; }
 
-	[Required]
-	public string UserName { get; init; } = null!;
+    [Required]
+    public string UserName { get; init; } = null!;
 
-	[Required]
-	public string Password { get; init; } = null!;
+    [Required]
+    public string Password { get; init; } = null!;
 }
 
 public class LoginUserCommandHandler(
-	IJwtTokenHandler jwtTokenHandler,
-	ITokenFactory tokenFactory,
-	UserManager<IdentityUser> userManager,
-	IRefreshTokenRepository refreshTokenRepository,
-	IMachineDateTime machineDateTime,
-	IGetItemQueryHandler<GetUserQuery, UserViewModel> getUserQueryHandler
-	) : ICreateItemCommandHandler<LoginUserCommand, AuthUserViewModel>
+    IJwtTokenHandler jwtTokenHandler,
+    ITokenFactory tokenFactory,
+    UserManager<IdentityUser> userManager,
+    IRefreshTokenRepository refreshTokenRepository,
+    IMachineDateTime machineDateTime,
+    IGetItemQueryHandler<GetUserQuery, UserViewModel> getUserQueryHandler
+    ) : ICreateItemCommandHandler<LoginUserCommand, AuthUserViewModel>
 {
-	private readonly IJwtTokenHandler _jwtTokenHandler = jwtTokenHandler;
-	private readonly ITokenFactory _tokenFactory = tokenFactory;
-	private readonly UserManager<IdentityUser> _userManager = userManager;
-	private readonly IRefreshTokenRepository _refreshTokenRepository = refreshTokenRepository;
-	private readonly IMachineDateTime _machineDateTime = machineDateTime;
-	private readonly IGetItemQueryHandler<GetUserQuery, UserViewModel> _getUserQueryHandler = getUserQueryHandler;
+    private readonly IJwtTokenHandler _jwtTokenHandler = jwtTokenHandler;
+    private readonly ITokenFactory _tokenFactory = tokenFactory;
+    private readonly UserManager<IdentityUser> _userManager = userManager;
+    private readonly IRefreshTokenRepository _refreshTokenRepository = refreshTokenRepository;
+    private readonly IMachineDateTime _machineDateTime = machineDateTime;
+    private readonly IGetItemQueryHandler<GetUserQuery, UserViewModel> _getUserQueryHandler = getUserQueryHandler;
 
-	public async Task<AuthUserViewModel> CreateItemAsync(LoginUserCommand command, string userId)
-	{
-		var user = (
-				await _userManager.FindByNameAsync(command.UserName)
-				?? await _userManager.FindByEmailAsync(command.UserName)
-				) ?? throw new InvalidCredentialException("No Identity User for User Name - " + command.UserName);
+    public async Task<AuthUserViewModel> CreateItemAsync(LoginUserCommand command, string userId)
+    {
+        var user = (
+                await _userManager.FindByNameAsync(command.UserName)
+                ?? await _userManager.FindByEmailAsync(command.UserName)
+                ) ?? throw new InvalidCredentialException("No Identity User for User Name - " + command.UserName);
 
-		var userExists = await _userManager.CheckPasswordAsync(user, command.Password);
+        var userExists = await _userManager.CheckPasswordAsync(user, command.Password);
 
-		if (!userExists)
-			throw new InvalidCredentialException("Invalid Credentials Provided for - " + command.UserName);
+        if (!userExists)
+            throw new InvalidCredentialException("Invalid Credentials Provided for - " + command.UserName);
 
-		var userDto = (await _getUserQueryHandler.GetItemAsync(new GetUserQuery { UserId = user.Id })).User;
+        UserDTO userDto;
 
-		var refreshToken = _tokenFactory.GenerateToken();
+        try
+        {
+            userDto = (await _getUserQueryHandler.GetItemAsync(new GetUserQuery { UserId = user.Id })).User;
+        }
+        catch (NoRecordException ex)
+        {
+            throw new InvalidCredentialException("No User Record for Identity User - " + command.UserName, ex);
+        }
 
-		(string token, int expiresIn) = _jwtTokenHandler.CreateToken(user.Id, user.UserName!, userDto.Roles, userDto.RoleClaims);
+        var refreshToken = _tokenFactory.GenerateToken();
 
-		var newRefreshToken = new RefreshTokenEntity
-		{
-			Id = Guid.NewGuid(),
-			Expires = _machineDateTime.Now.AddSeconds(expiresIn),
-			UserId = user.Id,
-			Token = refreshToken,
-		};
+        (var token, var expiresIn) = _jwtTokenHandler.CreateToken(user.Id, user.UserName!, userDto.Roles, userDto.RoleClaims);
 
-		newRefreshToken.SetEntityAuditFields(userId, _machineDateTime.Now);
+        var newRefreshToken = new RefreshTokenEntity
+        {
+            Id = Guid.NewGuid(),
+            Expires = _machineDateTime.Now.AddSeconds(expiresIn),
+            UserId = user.Id,
+            Token = refreshToken,
+        };
 
-		int createTokenResult = await _refreshTokenRepository.CreateRefreshTokenAsync(newRefreshToken);
+        newRefreshToken.SetEntityAuditFields(userId, _machineDateTime.Now);
 
-		if (createTokenResult < 1)
-			throw new RecordCreationException(refreshToken, "Refresh Token");
+        var createTokenResult = await _refreshTokenRepository.CreateRefreshTokenAsync(newRefreshToken);
+
+        if (createTokenResult < 1)
+            throw new RecordCreationException(refreshToken, "Refresh Token");
 
 
-		return new AuthUserViewModel
-		{
-			User = userDto,
-			UserToken = new AccessTokenViewModel
-			{
-				AccessToken = new AccessTokenDTO { Token = token, ExpiresIn = expiresIn },
-				RefreshToken = refreshToken,
-			}
-		};
-	}
+        return new AuthUserViewModel
+        {
+            User = userDto,
+            UserToken = new AccessTokenViewModel
+            {
+                AccessToken = new AccessTokenDTO { Token = token, ExpiresIn = expiresIn },
+                RefreshToken = refreshToken,
+            }
+        };
+    }
 }
