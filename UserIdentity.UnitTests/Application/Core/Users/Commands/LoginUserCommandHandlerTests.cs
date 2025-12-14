@@ -154,11 +154,24 @@ public class LoginUserCommandHandlerTests
 
         A.CallTo(() => _userManager.GetRolesAsync(existingIdentityUser)).Returns(userRoles.Roles);
 
-        //A.CallTo(() => _getRoleClaimsQueryHandler.GetItemsAsync(userRoles)).Returns(userRoleClaims);
-
         A.CallTo(() => _tokenFactory.GenerateToken(32)).Returns(refreshToken);
 
         A.CallTo(() => _jwtTokenHandler.CreateToken(existingIdentityUser.Id, A<string>.Ignored, userRoles.Roles.ToHashSet(), userRoleClaims.RoleClaims)).Returns((accessToken, expiresIn));
+
+        A.CallTo(() => _getUserQueryHandler.GetItemAsync(A<GetUserQuery>.That.Matches(q => q.UserId == existingIdentityUser.Id)))
+                .Returns(new UserViewModel
+                {
+                    User = new UserDTO
+                    {
+                        Id = existingIdentityUser.Id,
+                        FirstName = user.FirstName,
+                        LastName = user.LastName,
+                        UserName = existingIdentityUser.UserName,
+                        Email = existingIdentityUser.Email,
+                        Roles = [.. userRoles.Roles],
+                        RoleClaims = [.. userRoleClaims.RoleClaims]
+                    }
+                });
 
         A.CallTo(() => _refreshTokenRepository.CreateRefreshTokenAsync(A<RefreshTokenEntity>.That.Matches(x => x.Token == refreshToken))).Returns(Task.FromResult(0));
 
@@ -199,11 +212,24 @@ public class LoginUserCommandHandlerTests
 
         A.CallTo(() => _userManager.GetRolesAsync(existingIdentityUser)).Returns(userRoles.Roles);
 
-        //A.CallTo(() => _getRoleClaimsQueryHandler.GetItemsAsync(userRoles)).Returns(userRoleClaims);
-
         A.CallTo(() => _tokenFactory.GenerateToken(32)).Returns(refreshToken);
 
         A.CallTo(() => _jwtTokenHandler.CreateToken(existingIdentityUser.Id, A<string>.Ignored, userRoles.Roles.ToHashSet(), userRoleClaims.RoleClaims)).Returns((accessToken, expiresIn));
+
+        A.CallTo(() => _getUserQueryHandler.GetItemAsync(A<GetUserQuery>.That.Matches(q => q.UserId == existingIdentityUser.Id)))
+                .Returns(new UserViewModel
+                {
+                    User = new UserDTO
+                    {
+                        Id = existingIdentityUser.Id,
+                        FirstName = user.FirstName,
+                        LastName = user.LastName,
+                        UserName = existingIdentityUser.UserName,
+                        Email = existingIdentityUser.Email,
+                        Roles = [.. userRoles.Roles],
+                        RoleClaims = [.. userRoleClaims.RoleClaims]
+                    }
+                });
 
         A.CallTo(() => _refreshTokenRepository.CreateRefreshTokenAsync(A<RefreshTokenEntity>.That.Matches(x => x.Token == refreshToken))).Returns(Task.FromResult(1));
 
@@ -225,13 +251,13 @@ public class LoginUserCommandHandlerTests
     private LoginUserCommandHandler GetLoginUserCommandHandler()
     {
         return new LoginUserCommandHandler(
-                                                _jwtTokenHandler,
-                                                _tokenFactory,
-                                                _userManager,
-                                                _refreshTokenRepository,
-                                                _machineDateTime,
-                                                _getUserQueryHandler
-                                        );
+            _jwtTokenHandler,
+            _tokenFactory,
+            _userManager,
+            _refreshTokenRepository,
+            _machineDateTime,
+            _getUserQueryHandler
+        );
     }
 
     private IdentityUser GetIdentityUser()
