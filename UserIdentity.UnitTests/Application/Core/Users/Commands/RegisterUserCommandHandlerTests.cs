@@ -12,6 +12,7 @@ using Microsoft.Extensions.Options;
 using PolyzenKit.Application.Core.Interfaces;
 using PolyzenKit.Application.Interfaces;
 using PolyzenKit.Common.Exceptions;
+using PolyzenKit.Domain.RegisteredApps;
 using PolyzenKit.Infrastructure.Security.Jwt;
 using PolyzenKit.Infrastructure.Security.Tokens;
 using PolyzenKit.Infrastructure.Utilities;
@@ -81,6 +82,20 @@ public class RegisterUserCommandHandlerTests : IClassFixture<TestSettingsFixture
         _googleRecaptchaService = A.Fake<IGoogleRecaptchaService>();
 
         _getUserQueryHandler = A.Fake<IGetItemQueryHandler<GetUserQuery, UserViewModel>>();
+
+        A.CallTo(() => _getUserQueryHandler.GetItemAsync(A<GetUserQuery>.Ignored)).Returns(new UserViewModel
+        {
+            User = new UserDTO
+            {
+                Id = "1",
+                FirstName = "FName",
+                LastName = "LName",
+                UserName = "UName",
+                Email = "test@email.com",
+                Roles = ["DefaultRole"],
+                RoleClaims = []
+            }
+        });
     }
 
 
@@ -92,8 +107,12 @@ public class RegisterUserCommandHandlerTests : IClassFixture<TestSettingsFixture
         RegisterUserCommand command = GetRegisterUserCommand();
 
         A.CallTo(() => _roleSettings.Value).Returns(roleSettings);
-        A.CallTo(() => _roleManager.FindByNameAsync(roleSettings.DefaultRole)).Returns(default(IdentityRole));
-        A.CallTo(() => _roleManager.CreateAsync(A<IdentityRole>.That.Matches(x => x.Name == roleSettings.DefaultRole))).Returns(IdentityResult.Failed());
+        string defaultRoleName = GetDefaultRoleName(roleSettings);
+        A.CallTo(() => _roleManager.FindByNameAsync(defaultRoleName)).Returns(default(IdentityRole));
+        A.CallTo(() => _roleManager.CreateAsync(A<IdentityRole>.That.Matches(x => x.Name == defaultRoleName))).Returns(IdentityResult.Failed());
+
+        A.CallTo(() => _userManager.FindByNameAsync(command.UserName)).Returns(default(IdentityUser));
+        A.CallTo(() => _userManager.FindByEmailAsync(command.UserEmail!)).Returns(default(IdentityUser));
 
         RegisterUserCommandHandler handler = GetRegisterUserCommandHandler();
 
@@ -107,11 +126,11 @@ public class RegisterUserCommandHandlerTests : IClassFixture<TestSettingsFixture
         // Arrange			
         RoleSettings roleSettings = GetRoleSettings();
         RegisterUserCommand command = GetRegisterUserCommand();
-        IdentityRole defaultRoleIdentity = GetIdentityRole();
+        IdentityRole defaultRoleIdentity = GetIdentityRole(roleSettings);
         IdentityUser identityUser = GetIdentityUser();
 
         A.CallTo(() => _roleSettings.Value).Returns(roleSettings);
-        A.CallTo(() => _roleManager.FindByNameAsync(roleSettings.DefaultRole)).Returns(defaultRoleIdentity);
+        A.CallTo(() => _roleManager.FindByNameAsync(A<string>.Ignored)).Returns(defaultRoleIdentity);
         A.CallTo(() => _userManager.FindByNameAsync(command.UserName)).Returns(identityUser);
 
         RegisterUserCommandHandler handler = GetRegisterUserCommandHandler();
@@ -126,11 +145,11 @@ public class RegisterUserCommandHandlerTests : IClassFixture<TestSettingsFixture
         // Arrange			
         RoleSettings roleSettings = GetRoleSettings();
         RegisterUserCommand command = GetRegisterUserCommand();
-        IdentityRole defaultRoleIdentity = GetIdentityRole();
+        IdentityRole defaultRoleIdentity = GetIdentityRole(roleSettings);
         IdentityUser identityUser = GetIdentityUser();
 
         A.CallTo(() => _roleSettings.Value).Returns(roleSettings);
-        A.CallTo(() => _roleManager.FindByNameAsync(roleSettings.DefaultRole)).Returns(defaultRoleIdentity);
+        A.CallTo(() => _roleManager.FindByNameAsync(GetDefaultRoleName(roleSettings))).Returns(defaultRoleIdentity);
         A.CallTo(() => _userManager.FindByNameAsync(command.UserName)).Returns(default(IdentityUser));
         A.CallTo(() => _userManager.FindByEmailAsync(command.UserEmail!)).Returns(identityUser);
 
@@ -146,10 +165,10 @@ public class RegisterUserCommandHandlerTests : IClassFixture<TestSettingsFixture
         // Arrange			
         RoleSettings roleSettings = GetRoleSettings();
         RegisterUserCommand command = GetRegisterUserCommand();
-        IdentityRole defaultRoleIdentity = GetIdentityRole();
+        IdentityRole defaultRoleIdentity = GetIdentityRole(roleSettings);
 
         A.CallTo(() => _roleSettings.Value).Returns(roleSettings);
-        A.CallTo(() => _roleManager.FindByNameAsync(roleSettings.DefaultRole)).Returns(defaultRoleIdentity);
+        A.CallTo(() => _roleManager.FindByNameAsync(GetDefaultRoleName(roleSettings))).Returns(defaultRoleIdentity);
         A.CallTo(() => _userManager.FindByNameAsync(command.UserName)).Returns(default(IdentityUser));
         A.CallTo(() => _userManager.FindByEmailAsync(command.UserEmail!)).Returns(default(IdentityUser));
 
@@ -167,16 +186,16 @@ public class RegisterUserCommandHandlerTests : IClassFixture<TestSettingsFixture
         // Arrange			
         RoleSettings roleSettings = GetRoleSettings();
         RegisterUserCommand command = GetRegisterUserCommand();
-        IdentityRole defaultRoleIdentity = GetIdentityRole();
+        IdentityRole defaultRoleIdentity = GetIdentityRole(roleSettings);
         IdentityUser identityUser = GetIdentityUser();
 
         A.CallTo(() => _roleSettings.Value).Returns(roleSettings);
-        A.CallTo(() => _roleManager.FindByNameAsync(roleSettings.DefaultRole)).Returns(defaultRoleIdentity);
+        A.CallTo(() => _roleManager.FindByNameAsync(GetDefaultRoleName(roleSettings))).Returns(defaultRoleIdentity);
         A.CallTo(() => _userManager.FindByNameAsync(command.UserName)).Returns(default(IdentityUser));
         A.CallTo(() => _userManager.FindByEmailAsync(command.UserEmail!)).Returns(default(IdentityUser));
 
         A.CallTo(() => _userManager.CreateAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName), command.UserPassword)).Returns(IdentityResult.Success);
-        A.CallTo(() => _userManager.AddToRoleAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName), roleSettings.DefaultRole)).Returns(IdentityResult.Failed());
+        A.CallTo(() => _userManager.AddToRoleAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName), GetDefaultRoleName(roleSettings))).Returns(IdentityResult.Failed());
 
         RegisterUserCommandHandler handler = GetRegisterUserCommandHandler();
 
@@ -190,16 +209,16 @@ public class RegisterUserCommandHandlerTests : IClassFixture<TestSettingsFixture
         // Arrange
         RoleSettings roleSettings = GetRoleSettings();
         RegisterUserCommand command = GetRegisterUserCommand();
-        IdentityRole defaultRoleIdentity = GetIdentityRole();
+        IdentityRole defaultRoleIdentity = GetIdentityRole(roleSettings);
         IdentityUser identityUser = GetIdentityUser();
 
         A.CallTo(() => _roleSettings.Value).Returns(roleSettings);
-        A.CallTo(() => _roleManager.FindByNameAsync(roleSettings.DefaultRole)).Returns(defaultRoleIdentity);
+        A.CallTo(() => _roleManager.FindByNameAsync(GetDefaultRoleName(roleSettings))).Returns(defaultRoleIdentity);
         A.CallTo(() => _userManager.FindByNameAsync(command.UserName)).Returns(default(IdentityUser));
         A.CallTo(() => _userManager.FindByEmailAsync(command.UserEmail!)).Returns(default(IdentityUser));
 
         A.CallTo(() => _userManager.CreateAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName), command.UserPassword)).Returns(IdentityResult.Success);
-        A.CallTo(() => _userManager.AddToRoleAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName), roleSettings.DefaultRole)).Returns(IdentityResult.Success);
+        A.CallTo(() => _userManager.AddToRoleAsync(A<IdentityUser>._, A<string>._)).Returns(IdentityResult.Success);
 
         A.CallTo(() => _userManager.GenerateEmailConfirmationTokenAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName))).Returns("token");
 
@@ -217,23 +236,21 @@ public class RegisterUserCommandHandlerTests : IClassFixture<TestSettingsFixture
         // Arrange
         RoleSettings roleSettings = GetRoleSettings();
         RegisterUserCommand command = GetRegisterUserCommand();
-        IdentityRole defaultRoleIdentity = GetIdentityRole();
+        IdentityRole defaultRoleIdentity = GetIdentityRole(roleSettings);
         IdentityUser identityUser = GetIdentityUser();
-        List<string> userRoles = new()
-        { roleSettings.DefaultRole };
-        HashSet<string> userRoleClaims = new()
-        { "claim1", "claim2" };
+        List<string> userRoles = [GetDefaultRoleName(roleSettings)];
+        HashSet<string> userRoleClaims = ["claim1", "claim2"];
 
         GetRoleClaimsForRolesQuery userRolesQuery = new() { Roles = userRoles };
         RoleClaimsForRolesViewModels userRoleClaimsVm = new() { RoleClaims = userRoleClaims };
 
         A.CallTo(() => _roleSettings.Value).Returns(roleSettings);
-        A.CallTo(() => _roleManager.FindByNameAsync(roleSettings.DefaultRole)).Returns(defaultRoleIdentity);
+        A.CallTo(() => _roleManager.FindByNameAsync(A<string>.Ignored)).Returns(defaultRoleIdentity);
         A.CallTo(() => _userManager.FindByNameAsync(command.UserName)).Returns(default(IdentityUser));
         A.CallTo(() => _userManager.FindByEmailAsync(command.UserEmail!)).Returns(default(IdentityUser));
 
         A.CallTo(() => _userManager.CreateAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName), command.UserPassword)).Returns(IdentityResult.Success);
-        A.CallTo(() => _userManager.AddToRoleAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName), roleSettings.DefaultRole)).Returns(IdentityResult.Success);
+        A.CallTo(() => _userManager.AddToRoleAsync(A<IdentityUser>._, A<string>._)).Returns(IdentityResult.Success);
 
         A.CallTo(() => _userManager.GenerateEmailConfirmationTokenAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName))).Returns("token");
 
@@ -262,24 +279,22 @@ public class RegisterUserCommandHandlerTests : IClassFixture<TestSettingsFixture
         // Arrange
         RoleSettings roleSettings = GetRoleSettings();
         RegisterUserCommand command = GetRegisterUserCommand();
-        IdentityRole defaultRoleIdentity = GetIdentityRole();
+        IdentityRole defaultRoleIdentity = GetIdentityRole(roleSettings);
         IdentityUser identityUser = GetIdentityUser();
-        List<string> userRoles = new()
-        { roleSettings.DefaultRole };
-        HashSet<string> userRoleClaims = new()
-        { "claim1", "claim2" };
-        var resfreshToken = "resfreshToken";
+        List<string> userRoles = [GetDefaultRoleName(roleSettings)];
+        HashSet<string> userRoleClaims = ["claim1", "claim2"];
+        string resfreshToken = "resfreshToken";
 
         GetRoleClaimsForRolesQuery userRolesQuery = new() { Roles = userRoles };
         RoleClaimsForRolesViewModels userRoleClaimsVm = new() { RoleClaims = userRoleClaims };
 
         A.CallTo(() => _roleSettings.Value).Returns(roleSettings);
-        A.CallTo(() => _roleManager.FindByNameAsync(roleSettings.DefaultRole)).Returns(defaultRoleIdentity);
+        A.CallTo(() => _roleManager.FindByNameAsync(A<string>.Ignored)).Returns(defaultRoleIdentity);
         A.CallTo(() => _userManager.FindByNameAsync(command.UserName)).Returns(default(IdentityUser));
         A.CallTo(() => _userManager.FindByEmailAsync(command.UserEmail!)).Returns(default(IdentityUser));
 
         A.CallTo(() => _userManager.CreateAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName), command.UserPassword)).Returns(IdentityResult.Success);
-        A.CallTo(() => _userManager.AddToRoleAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName), roleSettings.DefaultRole)).Returns(IdentityResult.Success);
+        A.CallTo(() => _userManager.AddToRoleAsync(A<IdentityUser>._, A<string>._)).Returns(IdentityResult.Success);
 
         A.CallTo(() => _userManager.GenerateEmailConfirmationTokenAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName))).Returns("token");
 
@@ -322,25 +337,23 @@ public class RegisterUserCommandHandlerTests : IClassFixture<TestSettingsFixture
 
         RegisterUserCommand command = GetRegisterUserCommand() with { UserEmail = UserEmail, PhoneNumber = PhoneNumber };
 
-        IdentityRole defaultRoleIdentity = GetIdentityRole();
+        IdentityRole defaultRoleIdentity = GetIdentityRole(roleSettings);
 
         IdentityUser identityUser = GetIdentityUser();
         identityUser.Email = UserEmail;
         identityUser.NormalizedEmail = UserEmail?.ToUpper();
         identityUser.PhoneNumber = PhoneNumber;
 
-        List<string> userRoles = new()
-        { roleSettings.DefaultRole };
-        HashSet<string> userRoleClaims = new()
-        { "claim1", "claim2" };
-        var resfreshToken = "resfreshToken";
+        List<string> userRoles = [GetDefaultRoleName(roleSettings)];
+        HashSet<string> userRoleClaims = ["claim1", "claim2"];
+        string resfreshToken = "resfreshToken";
 
         GetRoleClaimsForRolesQuery userRolesQuery = new() { Roles = userRoles };
         RoleClaimsForRolesViewModels userRoleClaimsVm = new() { RoleClaims = userRoleClaims };
 
         A.CallTo(() => _roleSettings.Value).Returns(roleSettings);
 
-        A.CallTo(() => _roleManager.FindByNameAsync(roleSettings.DefaultRole)).Returns(defaultRoleIdentity);
+        A.CallTo(() => _roleManager.FindByNameAsync(GetDefaultRoleName(roleSettings))).Returns(defaultRoleIdentity);
 
         A.CallTo(() => _userManager.FindByNameAsync(command.UserName)).Returns(default(IdentityUser));
 
@@ -348,7 +361,7 @@ public class RegisterUserCommandHandlerTests : IClassFixture<TestSettingsFixture
 
         A.CallTo(() => _userManager.CreateAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName), command.UserPassword)).Returns(IdentityResult.Success);
 
-        A.CallTo(() => _userManager.AddToRoleAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName), roleSettings.DefaultRole)).Returns(IdentityResult.Success);
+        A.CallTo(() => _userManager.AddToRoleAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName), GetDefaultRoleName(roleSettings))).Returns(IdentityResult.Success);
 
         A.CallTo(() => _userManager.GenerateEmailConfirmationTokenAsync(A<IdentityUser>.That.Matches(x => x.UserName == command.UserName))).Returns("token");
 
@@ -382,20 +395,20 @@ public class RegisterUserCommandHandlerTests : IClassFixture<TestSettingsFixture
     private RegisterUserCommandHandler GetRegisterUserCommandHandler()
     {
         return new RegisterUserCommandHandler(
-                        _roleSettings,
-                        _userManager,
-                        _roleManager,
-                        _userRepository,
-                        _refreshTokenRepository,
-                        _userRegisteredAppRepository,
-                        _jwtTokenHandler,
-                        _tokenFactory,
-                        _machineDateTime,
-                        _userUpdateEventHandler,
-                        _googleRecaptchaSettingsOptions,
-                        _googleRecaptchaService,
-                        _getUserQueryHandler
-                        );
+             _roleSettings,
+            _userManager,
+            _roleManager,
+            _userRepository,
+            _refreshTokenRepository,
+            _userRegisteredAppRepository,
+            _jwtTokenHandler,
+            _tokenFactory,
+            _machineDateTime,
+            _userUpdateEventHandler,
+            _googleRecaptchaSettingsOptions,
+            _googleRecaptchaService,
+            _getUserQueryHandler
+         );
     }
 
     private RoleSettings GetRoleSettings() => new()
@@ -405,23 +418,41 @@ public class RegisterUserCommandHandlerTests : IClassFixture<TestSettingsFixture
         AdminRoles = "AdminRoles",
     };
 
+    private static string GetDefaultRoleName(RoleSettings settings) => $"{settings.ServiceName.ToLower()}:{settings.DefaultRole.ToLower()}";
 
-    private RegisterUserCommand GetRegisterUserCommand() => new()
-    {
-        FirstName = "FName",
-        LastName = "LName",
-        UserName = "UName",
-        PhoneNumber = "1234567890",
-        UserEmail = "test@email.com",
-        UserPassword = "Password@123"
-    };
 
-    private IdentityRole GetIdentityRole() => new()
+    private RegisterUserCommand GetRegisterUserCommand()
     {
-        Id = "1",
-        Name = "DefaultRole",
-        NormalizedName = "DEFAULTROLE"
-    };
+        RegisterUserCommand command = new()
+        {
+            FirstName = "FName",
+            LastName = "LName",
+            UserName = "UName",
+            PhoneNumber = "1234567890",
+            UserEmail = "test@email.com",
+            UserPassword = "Password@123",
+            RegisteredApp = new RegisteredAppEntity
+            {
+                Id = 1,
+                AppName = "test-app"
+            }
+        };
+
+        return command;
+    }
+
+    private IdentityRole GetIdentityRole(RoleSettings? settings = null)
+    {
+        var roleSettings = settings ?? GetRoleSettings();
+        string roleName = GetDefaultRoleName(roleSettings);
+
+        return new IdentityRole
+        {
+            Id = "1",
+            Name = roleName,
+            NormalizedName = roleName.ToUpper()
+        };
+    }
 
     private IdentityUser GetIdentityUser(bool sameAsCommand = true)
     {

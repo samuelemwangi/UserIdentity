@@ -54,11 +54,11 @@ public class UserControllerTests
     public async Task Get_User_Should_Return_User()
     {
         // Arrange
-        string userId = Guid.NewGuid().ToString();
-        string userFName = "Test";
-        string userLName = "User";
-        string userName = "test.user";
-        string userEmail = userName + "@test.com";
+        var userId = Guid.NewGuid().ToString();
+        var userFName = "Test";
+        var userLName = "User";
+        var userName = "test.user";
+        var userEmail = userName + "@test.com";
         GetUserQuery getUserQuery = new() { UserId = userId };
         UserViewModel userVM = new() { User = new UserDTO { Id = userId, FirstName = userFName, LastName = userLName, UserName = userName, Email = userEmail } };
 
@@ -68,8 +68,8 @@ public class UserControllerTests
         var controller = GetUserController();
         controller.UpdateContext(null);
         var actionResult = await controller.GetUser(userId);
-        ObjectResult? result = actionResult?.Result as ObjectResult;
-        UserViewModel? vm = result?.Value as UserViewModel;
+        var result = actionResult?.Result as ObjectResult;
+        var vm = result?.Value as UserViewModel;
 
         // Assert
         Assert.Equal((int)HttpStatusCode.OK, result?.StatusCode);
@@ -92,14 +92,14 @@ public class UserControllerTests
     public async Task Create_User_Should_Create_User()
     {
         // Arrange
-        string userId = Guid.NewGuid().ToString();
-        string userFName = "Test";
-        string userLName = "User";
-        string userName = "test.user";
-        string userEmail = userName + "@test.com";
-        string userPassword = "testPassword";
+        var userId = Guid.NewGuid().ToString();
+        var userFName = "Test";
+        var userLName = "User";
+        var userName = "test.user";
+        var userEmail = userName + "@test.com";
+        var userPassword = "testPassword";
 
-        string refreshToken = "abmsmmsrefreshToken";
+        var refreshToken = "abmsmmsrefreshToken";
 
         RegisterUserCommand command = new() { FirstName = userFName, LastName = userLName, UserName = userName, UserEmail = userEmail, UserPassword = userPassword };
 
@@ -109,10 +109,10 @@ public class UserControllerTests
         A.CallTo(() => _registerUserCommandHandler.CreateItemAsync(command, TestStringHelper.UserId)).Returns(authVM);
 
         var controller = GetUserController();
-        controller.UpdateContext(Controllername, addUserId: true, userId: TestStringHelper.UserId);
+        controller.UpdateContext(Controllername, addUserId: true, userId: TestStringHelper.UserId, appName: "test-app");
         var actionResult = await controller.CreateUser(command);
-        ObjectResult? result = actionResult?.Result as ObjectResult;
-        AuthUserViewModel? vm = result?.Value as AuthUserViewModel;
+        var result = actionResult?.Result as ObjectResult;
+        var vm = result?.Value as AuthUserViewModel;
 
         // Assert
         Assert.Equal((int)HttpStatusCode.Created, result?.StatusCode);
@@ -138,16 +138,16 @@ public class UserControllerTests
     public async Task Login_User_Should_Login_User()
     {
         // Arrange
-        string userName = "test.user";
-        string userPassword = "-test.user*1+";
+        var userName = "test.user";
+        var userPassword = "-test.user*1+";
 
-        string userId = Guid.NewGuid().ToString();
-        string userFName = "Test";
-        string userLName = "User";
-        string userEmail = userName + "@test.com";
+        var userId = Guid.NewGuid().ToString();
+        var userFName = "Test";
+        var userLName = "User";
+        var userEmail = userName + "@test.com";
 
-        string refreshToken = "abmsmmsrefreshToken";
-        string loginMessage = "Login successful";
+        var refreshToken = "abmsmmsrefreshToken";
+        var loginMessage = "Login successful";
 
         LoginUserCommand command = new() { UserName = userName, Password = userPassword };
         AuthUserViewModel authVM = new() { User = new UserDTO { Id = userId, FirstName = userFName, LastName = userLName, UserName = userName, Email = userEmail }, UserToken = new AccessTokenViewModel { RefreshToken = refreshToken } };
@@ -158,8 +158,8 @@ public class UserControllerTests
         var controller = GetUserController();
         controller.UpdateContext(Controllername, addUserId: true, userId: TestStringHelper.UserId);
         var actionResult = await controller.LoginUser(command);
-        ObjectResult? result = actionResult?.Result as ObjectResult;
-        AuthUserViewModel? vm = result?.Value as AuthUserViewModel;
+        var result = actionResult?.Result as ObjectResult;
+        var vm = result?.Value as AuthUserViewModel;
 
         // Assert
         Assert.Equal((int)HttpStatusCode.OK, result?.StatusCode);
@@ -183,13 +183,13 @@ public class UserControllerTests
     public async Task Refresh_Token_Refreshes_Token()
     {
         // Arrange
-        string accessToken = "Acccess Token This";
-        string refreshToken = "Refresh Token This";
+        var accessToken = "Acccess Token This";
+        var refreshToken = "Refresh Token This";
 
-        string newAccesstoken = "New Access Token This";
-        string newRefreshToken = "New Refresh Token This";
+        var newAccesstoken = "New Access Token This";
+        var newRefreshToken = "New Refresh Token This";
 
-        string sucessStatusMessage = "Refresh token generated successfully";
+        var sucessStatusMessage = "Refresh token generated successfully";
 
         ExchangeRefreshTokenViewModel exchangeRefreshTokenVM = new() { UserToken = new AccessTokenViewModel { AccessToken = new AccessTokenDTO { Token = newAccesstoken }, RefreshToken = newRefreshToken } };
 
@@ -201,8 +201,8 @@ public class UserControllerTests
         var controller = GetUserController();
         controller.UpdateContext(Controllername, addUserId: true, userId: TestStringHelper.UserId);
         var actionResult = await controller.RefreshToken(command);
-        ObjectResult? result = actionResult?.Result as ObjectResult;
-        ExchangeRefreshTokenViewModel? vm = result?.Value as ExchangeRefreshTokenViewModel;
+        var result = actionResult?.Result as ObjectResult;
+        var vm = result?.Value as ExchangeRefreshTokenViewModel;
 
         // Assert
         Assert.Equal((int)HttpStatusCode.OK, result?.StatusCode);
@@ -222,10 +222,10 @@ public class UserControllerTests
     public async Task Reset_Password_Resets_Password()
     {
         // Arrange
-        string userEmail = "user-email123@server.com";
+        var userEmail = "user-email123@server.com";
 
-        string emailMessage = "Password reset email sent successfully";
-        string resetMessage = "Password reset request successful";
+        var emailMessage = "Password reset email sent successfully";
+        var resetMessage = "Password reset request successful";
 
         ResetPasswordCommand command = new() { UserEmail = userEmail };
         ResetPasswordViewModel resetPasswordVM = new() { ResetPasswordDetails = new ResetPasswordDTO { EmailMessage = emailMessage } };
@@ -236,8 +236,8 @@ public class UserControllerTests
         var controller = GetUserController();
         controller.UpdateContext(Controllername, addUserId: true, userId: TestStringHelper.UserId);
         var actionResult = await controller.ResetPassword(command);
-        ObjectResult? result = actionResult?.Result as ObjectResult;
-        ResetPasswordViewModel? vm = result?.Value as ResetPasswordViewModel;
+        var result = actionResult?.Result as ObjectResult;
+        var vm = result?.Value as ResetPasswordViewModel;
 
         // Assert
         Assert.Equal((int)HttpStatusCode.OK, result?.StatusCode);
@@ -253,8 +253,8 @@ public class UserControllerTests
     public async Task Confirm_Password_Token_Confirm_Password_Token()
     {
         // Arrange
-        string confirmUpdatePasswordToken = "ConfirmUpdatePasswordToken";
-        string userId = Guid.NewGuid().ToString();
+        var confirmUpdatePasswordToken = "ConfirmUpdatePasswordToken";
+        var userId = Guid.NewGuid().ToString();
 
         ConfirmUpdatePasswordTokenCommand command = new() { ConfirmPasswordToken = confirmUpdatePasswordToken, UserId = userId };
         ConfirmUpdatePasswordTokenViewModel confirmUpdatePasswordTokenVM = new() { TokenPasswordResult = new ConfirmUpdatePasswordDTO { UpdatePasswordTokenConfirmed = true } };
@@ -265,8 +265,8 @@ public class UserControllerTests
         var controller = GetUserController();
         controller.UpdateContext(Controllername, addUserId: true, userId: TestStringHelper.UserId);
         var actionResult = await controller.ConfirmPasswordToken(command);
-        ObjectResult? result = actionResult?.Result as ObjectResult;
-        ConfirmUpdatePasswordTokenViewModel? vm = result?.Value as ConfirmUpdatePasswordTokenViewModel;
+        var result = actionResult?.Result as ObjectResult;
+        var vm = result?.Value as ConfirmUpdatePasswordTokenViewModel;
 
         // Assert
         Assert.Equal((int)HttpStatusCode.OK, result?.StatusCode);
@@ -283,9 +283,9 @@ public class UserControllerTests
     {
 
         // Arrange
-        string userId = Guid.NewGuid().ToString();
-        string newPassword = "NewPassword123";
-        string passwordresetToken = "PasswordResetToken123";
+        var userId = Guid.NewGuid().ToString();
+        var newPassword = "NewPassword123";
+        var passwordresetToken = "PasswordResetToken123";
 
         UpdatePasswordCommand command = new() { UserId = userId, NewPassword = newPassword, PasswordResetToken = passwordresetToken };
         UpdatePasswordViewModel updatePasswordViewModel = new() { UpdatePasswordResult = new UpdatePasswordDTO { PassWordUpdated = true } };
@@ -296,8 +296,8 @@ public class UserControllerTests
         var controller = GetUserController();
         controller.UpdateContext(Controllername, addUserId: true, userId: TestStringHelper.UserId);
         var actionResult = await controller.UpdatePassword(command);
-        ObjectResult? result = actionResult?.Result as ObjectResult;
-        UpdatePasswordViewModel? vm = result?.Value as UpdatePasswordViewModel;
+        var result = actionResult?.Result as ObjectResult;
+        var vm = result?.Value as UpdatePasswordViewModel;
 
         // Assert
         Assert.Equal((int)HttpStatusCode.OK, result?.StatusCode);
@@ -312,14 +312,14 @@ public class UserControllerTests
     private UserController GetUserController()
     {
         return new UserController(
-            _getUserQueryHandler,
-            _registerUserCommandHandler,
-            _loginUserCommandHandler,
-            _exchangeRefreshTokenCommandHandler,
-            _resetPasswordCommandHandler,
-            _confirmUpdatePasswordTokenCommandHandler,
-            _updatePasswordCommandHandler,
-            _getRegisteredAppQueryHandler
+                _getUserQueryHandler,
+                _registerUserCommandHandler,
+                _loginUserCommandHandler,
+                _exchangeRefreshTokenCommandHandler,
+                _resetPasswordCommandHandler,
+                _confirmUpdatePasswordTokenCommandHandler,
+                _updatePasswordCommandHandler,
+                _getRegisteredAppQueryHandler
         );
 
     }
