@@ -2,6 +2,6 @@
 
 internal static class TestConstants
 {
-	internal static string ApiKey = "AppApiKey";
-	internal static string AppName = "TestApp";
+    internal static string ApiKey = "TestApiKey";
+    internal static string AppName = "TestApp";
 }

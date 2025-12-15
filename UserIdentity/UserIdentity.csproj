@@ -13,12 +13,6 @@
 		<WarningLevel>4</WarningLevel>
 	</PropertyGroup>
 	<ItemGroup>
-	  <Compile Remove="Logs\**" />
-	  <Content Remove="Logs\**" />
-	  <EmbeddedResource Remove="Logs\**" />
-	  <None Remove="Logs\**" />
-	</ItemGroup>
-	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.3.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.11">
 			<PrivateAssets>all</PrivateAssets>
@@ -28,10 +22,5 @@
 		<PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
 		<PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Remove="Application\Core\Users\Commands\ResetPassword\" />
-		<None Remove="Application\Core\Users\Commands\ConfirmUpdatePasswordToken\" />
-		<None Remove="Application\Core\Users\Commands\UpdatePassword\" />
 	</ItemGroup>
 </Project>

@@ -1,54 +1,78 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
-using UserIdentity.IntegrationTests.Persistence;
+using PolyzenKit.Domain.AppEntities;
+using PolyzenKit.Domain.RegisteredApps;
+
+using Respawn;
+
 using UserIdentity.Persistence;
+using UserIdentity.Persistence.Infrastructure;
 
 using Xunit;
 using Xunit.Abstractions;
 
 namespace UserIdentity.IntegrationTests.Presentation.Controllers;
 
-public class BaseControllerTests : IClassFixture<TestingWebAppFactory>, IDisposable
+[Collection("Integration Tests")]
+public class BaseControllerTests : IDisposable, IAsyncLifetime
 {
-	protected readonly ITestOutputHelper _outputHelper;
+    private readonly IServiceScope _scope;
+    private readonly Func<Task> _resetDatabase;
 
-	//protected readonly Dictionary<string, string> _props;
-	protected readonly HttpClient _httpClient;
-	protected readonly IServiceProvider _serviceProvider;
+    protected readonly ITestOutputHelper _outputHelper;
+    protected readonly HttpClient _httpClient;
+    protected readonly IServiceProvider _serviceProvider;
 
-	protected readonly AppDbContext _appDbContext;
-	protected readonly UserManager<IdentityUser> _userManager;
-	protected readonly RoleManager<IdentityRole> _roleManager;
+    protected readonly AppDbContext _appDbContext;
+    protected readonly UserManager<IdentityUser> _userManager;
+    protected readonly RoleManager<IdentityRole> _roleManager;
 
-	public BaseControllerTests(TestingWebAppFactory testingWebAppFactory, ITestOutputHelper outputHelper)
-	{
-		_outputHelper = outputHelper;
+    public BaseControllerTests(TestingWebAppFactory testingWebAppFactory, ITestOutputHelper outputHelper)
+    {
+        _outputHelper = outputHelper;
+        _httpClient = testingWebAppFactory.CreateClient();
 
-		//_props = testingWebAppFactory.Props;
-		_httpClient = testingWebAppFactory.CreateClient();
-		_serviceProvider = testingWebAppFactory.Services;
+        _scope = testingWebAppFactory.Services.CreateScope();
+        _serviceProvider = _scope.ServiceProvider;
 
-		_appDbContext = ServiceResolver.ResolveService<AppDbContext>(_serviceProvider);
-		_userManager = ServiceResolver.ResolveService<UserManager<IdentityUser>>(_serviceProvider);
-		_roleManager = ServiceResolver.ResolveService<RoleManager<IdentityRole>>(_serviceProvider);
+        _appDbContext = _serviceProvider.GetRequiredService<AppDbContext>();
+        _userManager = _serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
+        _roleManager = _serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-		SetUp();
-	}
+        _resetDatabase = ResolveResetDatabaseFunc();
+    }
 
-	public void SetUp()
-	{
-		DBContexUtils.ClearDatabase(_appDbContext);
-	}
+    private Func<Task> ResolveResetDatabaseFunc()
+    {
+        return async () =>
+        {
+            var dbConnection = _appDbContext.Database.GetDbConnection();
 
+            await dbConnection.OpenAsync();
 
-	public void Dispose()
-	{
-		_appDbContext.Dispose();
-		_userManager.Dispose();
-	}
+            var respawner = await Respawner.CreateAsync(dbConnection, new RespawnerOptions
+            {
+                DbAdapter = DbAdapter.MySql,
+                TablesToIgnore = [_appDbContext.GetTableName<AppEntity>()!, _appDbContext.GetTableName<RegisteredAppEntity>()!]
+            });
 
+            await respawner.ResetAsync(dbConnection);
+        };
+    }
+
+    public void Dispose()
+    {
+        _scope.Dispose();
+        GC.SuppressFinalize(this);
+    }
+
+    public async Task InitializeAsync() => await _resetDatabase();
+
+    public Task DisposeAsync() => Task.CompletedTask;
 }

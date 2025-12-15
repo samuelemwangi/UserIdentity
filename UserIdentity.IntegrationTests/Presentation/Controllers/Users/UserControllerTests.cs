@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 
 using Newtonsoft.Json.Linq;
 
+using PolyzenKit.Common.Utilities;
 using PolyzenKit.Presentation.ValidationHelpers;
 
 using UserIdentity.Application.Core.Tokens.ViewModels;
@@ -1250,7 +1251,7 @@ public class UserControllerTests(
         {
             NewPassword = "12345",
             UserSettings.UserId,
-            PasswordResetToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(TestStringHelper.GenerateRandomString(56))),
+            PasswordResetToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(StringUtil.GenerateRandomString(56))),
         };
 
         // Act

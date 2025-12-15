@@ -1,14 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Threading;
+using System.Threading.Tasks;
 
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-
-using MySqlConnector;
+using Microsoft.Extensions.Configuration;
 
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Generators;
@@ -16,139 +12,94 @@ using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.Security;
 
+using PolyzenKit.Common.Exceptions;
 using PolyzenKit.Infrastructure.Security.KeySets;
-using PolyzenKit.Presentation.Settings;
-
-using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
+using PolyzenKit.Persistence.Settings;
 
 using Testcontainers.MySql;
 
-using UserIdentity.IntegrationTests.TestUtils;
-using UserIdentity.Persistence;
+using Xunit;
 
 namespace UserIdentity.IntegrationTests;
 
-public class TestingWebAppFactory : WebApplicationFactory<Program>
+public class TestingWebAppFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
     private readonly MySqlContainer _mysqlContainer;
-    private readonly string _connectionString;
+    private readonly Dictionary<string, string?> _environmentSnapshot = new(StringComparer.OrdinalIgnoreCase);
+    private readonly KeySetOptions _keySetOptions;
 
     public TestingWebAppFactory()
     {
+        var configuration = LoadTestConfiguration();
+
+        var mysqlSettings = configuration.GetSection(nameof(MysqlSettings)).Get<MysqlSettings>()
+            ?? throw new MissingConfigurationException(nameof(MysqlSettings));
+
+        _keySetOptions = configuration.GetSection(nameof(KeySetOptions)).Get<KeySetOptions>()
+            ?? throw new MissingConfigurationException(nameof(KeySetOptions));
+
         _mysqlContainer = new MySqlBuilder()
             .WithImage("mysql:8.4.0")
-            .WithUsername("testuser")
-            .WithPassword("Test@123")
-            .WithDatabase("useridentity_test")
+            .WithUsername(mysqlSettings.UserName)
+            .WithPassword(mysqlSettings.Password)
+            .WithDatabase(mysqlSettings.Database)
+            .WithPortBinding(int.Parse(mysqlSettings.Port), 3306)
             .Build();
+    }
 
-        _mysqlContainer.StartAsync().GetAwaiter().GetResult();
+    private static IConfiguration LoadTestConfiguration()
+    {
+        var configBuilder = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: false)
+            .AddEnvironmentVariables();
 
-        var mappedPort = _mysqlContainer.GetMappedPublicPort(3306);
+        configBuilder.AddEnvironmentVariables();
 
-        var connectionStringBuilder = new MySqlConnectionStringBuilder(_mysqlContainer.GetConnectionString())
-        {
-            AllowPublicKeyRetrieval = true,
-            SslMode = MySqlSslMode.None,
-            Server = "127.0.0.1",
-            Port = (uint)mappedPort
-        };
+        return configBuilder.Build();
+    }
 
-        _connectionString = connectionStringBuilder.ConnectionString;
 
-        // Ensure the app-level MySQL settings point to the container's mapped port
-        Environment.SetEnvironmentVariable("MysqlSettings__Host", "127.0.0.1");
-        Environment.SetEnvironmentVariable("MysqlSettings__Port", mappedPort.ToString());
-        Environment.SetEnvironmentVariable("MysqlSettings__Database", "useridentity_test");
-        Environment.SetEnvironmentVariable("MysqlSettings__UserName", "testuser");
-        Environment.SetEnvironmentVariable("MysqlSettings__Password", "Test@123");
-
-        Console.WriteLine($"[TestingWebAppFactory] MySQL mapped port: {mappedPort}, connection string: {_connectionString}");
-
-        var privateKeyFilename = "privateKey.pem";
-        var publicKeyFilename = "publicKey.pem";
-
-        var privateKeyPath = Path.Combine(AppContext.BaseDirectory, privateKeyFilename);
-        var publicKeyPath = Path.Combine(AppContext.BaseDirectory, publicKeyFilename);
+    public async Task InitializeAsync()
+    {
+        await _mysqlContainer.StartAsync();
 
         var keyPairGenerator = new Ed25519KeyPairGenerator();
         keyPairGenerator.Init(new Ed25519KeyGenerationParameters(new SecureRandom()));
         var keyPair = keyPairGenerator.GenerateKeyPair();
 
-        var privateKey = keyPair.Private;
-        var publicKey = keyPair.Public;
-
-        var passphrase = "aG00dPassPhr4a2e";
-        var privateKeyPem = ConvertToPem(privateKey, passphrase);
-        var publicKeyPem = ConvertToPem(publicKey);
-
-        File.WriteAllText(privateKeyPath, privateKeyPem);
-        File.WriteAllText(publicKeyPath, publicKeyPem);
-
-        Environment.SetEnvironmentVariable($"{nameof(KeySetOptions)}__{nameof(KeySetOptions.PrivateKeyPath)}", privateKeyFilename);
-        Environment.SetEnvironmentVariable($"{nameof(KeySetOptions)}__{nameof(KeySetOptions.PrivateKeyPassPhrase)}", passphrase);
-        Environment.SetEnvironmentVariable($"{nameof(KeySetOptions)}__{nameof(KeySetOptions.PublicKeyPath)}", publicKeyFilename);
-
-        Environment.SetEnvironmentVariable($"{nameof(ApiKeySettings)}__{nameof(ApiKeySettings.ApiKey)}", TestConstants.ApiKey);
-
-        Environment.SetEnvironmentVariable($"{nameof(RoleSettings)}__{nameof(RoleSettings.DefaultRole)}", ApiRoleSettings.DefaultRoleBase);
-        Environment.SetEnvironmentVariable($"{nameof(RoleSettings)}__{nameof(RoleSettings.AdminRoles)}", ApiRoleSettings.AdminRolesBase);
-        Environment.SetEnvironmentVariable($"{nameof(RoleSettings)}__{nameof(RoleSettings.ServiceName)}", ApiRoleSettings.ServiceName);
+        SetTemporaryEnvironmentVariable(_keySetOptions.PrivateKeyPath!, ConvertToPem(keyPair.Private, _keySetOptions.PrivateKeyPassPhrase));
+        SetTemporaryEnvironmentVariable(_keySetOptions.PublicKeyPath, ConvertToPem(keyPair.Public));
     }
 
-    protected override void ConfigureWebHost(IWebHostBuilder webHostBuilder)
+    public new async Task DisposeAsync()
     {
-
-        webHostBuilder.ConfigureServices(services =>
-        {
-            services.RemoveAll(typeof(DbContextOptions<AppDbContext>));
-            services.RemoveAll(typeof(IDbContextFactory<AppDbContext>));
-
-            services.AddDbContext<AppDbContext>(options =>
-            {
-                options.UseMySql(
-                    _connectionString,
-                    ServerVersion.Create(new Version(8, 0, 0), ServerType.MySql),
-                    mysqlOptions =>
-                    {
-                        mysqlOptions.EnableRetryOnFailure(3, TimeSpan.FromSeconds(2), null);
-                    });
-            });
-
-            using var sp = services.BuildServiceProvider();
-            using var scope = sp.CreateScope();
-            using var appContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-            const int maxAttempts = 5;
-            var retryDelay = TimeSpan.FromSeconds(2);
-
-            for (var attempt = 1; attempt <= maxAttempts; attempt++)
-            {
-                try
-                {
-                    appContext.Database.Migrate();
-                    break;
-                }
-                catch (MySqlException) when (attempt < maxAttempts)
-                {
-                    Thread.Sleep(retryDelay);
-                }
-            }
-        });
-
+        RestoreEnvironmentVariables();
+        await base.DisposeAsync();
+        await _mysqlContainer.DisposeAsync();
     }
 
-    protected override void Dispose(bool disposing)
+    private void SetTemporaryEnvironmentVariable(string key, string? value)
     {
-        base.Dispose(disposing);
-
-        if (disposing)
+        if (!_environmentSnapshot.ContainsKey(key))
         {
-            _mysqlContainer.DisposeAsync().AsTask().GetAwaiter().GetResult();
+            _environmentSnapshot[key] = Environment.GetEnvironmentVariable(key);
         }
+
+        Environment.SetEnvironmentVariable(key, value);
     }
 
-    private string ConvertToPem(AsymmetricKeyParameter key, string? passphrase = null)
+    private void RestoreEnvironmentVariables()
+    {
+        foreach (var kvp in _environmentSnapshot)
+        {
+            Environment.SetEnvironmentVariable(kvp.Key, kvp.Value);
+        }
+
+        _environmentSnapshot.Clear();
+    }
+
+    private static string ConvertToPem(AsymmetricKeyParameter key, string? passphrase = null)
     {
         using var stringWriter = new StringWriter();
         var pemWriter = new PemWriter(stringWriter);
@@ -164,6 +115,7 @@ public class TestingWebAppFactory : WebApplicationFactory<Program>
         {
             pemWriter.WriteObject(key);
         }
+
         pemWriter.Writer.Flush();
         return stringWriter.ToString();
     }
