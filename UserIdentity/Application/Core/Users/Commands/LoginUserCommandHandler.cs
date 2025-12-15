@@ -2,6 +2,7 @@
 using System.Security.Authentication;
 
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 
 using PolyzenKit.Application.Core;
 using PolyzenKit.Application.Core.Interfaces;
@@ -10,6 +11,7 @@ using PolyzenKit.Common.Exceptions;
 using PolyzenKit.Domain.Entity;
 using PolyzenKit.Infrastructure.Security.Jwt;
 using PolyzenKit.Infrastructure.Security.Tokens;
+using PolyzenKit.Persistence.Repositories;
 
 using UserIdentity.Application.Core.Tokens.ViewModels;
 using UserIdentity.Application.Core.Users.Queries;
@@ -31,17 +33,21 @@ public record LoginUserCommand : IBaseCommand
 }
 
 public class LoginUserCommandHandler(
+    IOptions<IdentityOptions> identityOptions,
     IJwtTokenHandler jwtTokenHandler,
     ITokenFactory tokenFactory,
     UserManager<IdentityUser> userManager,
+    IUnitOfWork unitOfWork,
     IRefreshTokenRepository refreshTokenRepository,
     IMachineDateTime machineDateTime,
     IGetItemQueryHandler<GetUserQuery, UserViewModel> getUserQueryHandler
     ) : ICreateItemCommandHandler<LoginUserCommand, AuthUserViewModel>
 {
+    private readonly IdentityOptions _identityOptions = identityOptions.Value;
     private readonly IJwtTokenHandler _jwtTokenHandler = jwtTokenHandler;
     private readonly ITokenFactory _tokenFactory = tokenFactory;
     private readonly UserManager<IdentityUser> _userManager = userManager;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IRefreshTokenRepository _refreshTokenRepository = refreshTokenRepository;
     private readonly IMachineDateTime _machineDateTime = machineDateTime;
     private readonly IGetItemQueryHandler<GetUserQuery, UserViewModel> _getUserQueryHandler = getUserQueryHandler;
@@ -69,34 +75,41 @@ public class LoginUserCommandHandler(
             throw new InvalidCredentialException("No User Record for Identity User - " + command.UserName, ex);
         }
 
-        var refreshToken = _tokenFactory.GenerateToken();
+        // We only include the accessToken in the payload, when user is confirmed.
+        var isConfirmed = !_identityOptions.SignIn.RequireConfirmedAccount || user.EmailConfirmed || user.PhoneNumberConfirmed;
+        AccessTokenViewModel? userToken = null;
 
-        (var token, var expiresIn) = _jwtTokenHandler.CreateToken(user.Id, user.UserName!, userDto.Roles, userDto.RoleClaims);
-
-        var newRefreshToken = new RefreshTokenEntity
+        if (isConfirmed)
         {
-            Id = Guid.NewGuid(),
-            Expires = _machineDateTime.Now.AddSeconds(expiresIn),
-            UserId = user.Id,
-            Token = refreshToken,
-        };
+            var refreshToken = _tokenFactory.GenerateToken();
 
-        newRefreshToken.SetEntityAuditFields(userId, _machineDateTime.Now);
+            (var token, var expiresIn) = _jwtTokenHandler.CreateToken(user.Id, user.UserName!, userDto.Roles, userDto.RoleClaims);
 
-        var createTokenResult = await _refreshTokenRepository.CreateRefreshTokenAsync(newRefreshToken);
+            var newRefreshToken = new RefreshTokenEntity
+            {
+                Expires = _machineDateTime.Now.AddSeconds(expiresIn),
+                UserId = user.Id,
+                Token = refreshToken,
+            };
 
-        if (createTokenResult < 1)
-            throw new RecordCreationException(refreshToken, "Refresh Token");
+            newRefreshToken.SetEntityAuditFields(userId, _machineDateTime.Now);
 
+            _refreshTokenRepository.CreateEntityItem(newRefreshToken);
+
+            await _unitOfWork.SaveChangesAsync();
+
+            userToken = new AccessTokenViewModel
+            {
+                AccessToken = new AccessTokenDTO { Token = token, ExpiresIn = expiresIn },
+                RefreshToken = refreshToken,
+            };
+        }
 
         return new AuthUserViewModel
         {
             User = userDto,
-            UserToken = new AccessTokenViewModel
-            {
-                AccessToken = new AccessTokenDTO { Token = token, ExpiresIn = expiresIn },
-                RefreshToken = refreshToken,
-            }
+            UserToken = userToken,
+            IsConfirmed = isConfirmed,
         };
     }
 }

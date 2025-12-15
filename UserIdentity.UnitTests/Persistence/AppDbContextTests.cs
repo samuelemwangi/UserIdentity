@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 
 using PolyzenKit.Domain.AppEntities;
 using PolyzenKit.Domain.RegisteredApps;
 
 using UserIdentity.Domain.Identity;
-using UserIdentity.Persistence;
 
 using Xunit;
 
@@ -22,13 +19,13 @@ public class AppDbContextTests
     public void OnModelCreating_Should_Update_Model()
     {
         // Arrange
-        string entityPrefix = "";
-        string stringType = "<string>";
+        var entityPrefix = "";
+        var stringType = "<string>";
 
         // Act
-        using AppDbContext context = AppDbContextTestFactory.GetAppDbContext();
+        using var context = AppDbContextTestFactory.GetAppDbContext();
 
-        IEnumerable<IEntityType> entityTypes = context.Model.GetEntityTypes();
+        var entityTypes = context.Model.GetEntityTypes();
 
         // Assert	
         Assert.Equal(entityPrefix + "app_entities", entityTypes.Where(e => e.DisplayName() == nameof(AppEntity)).FirstOrDefault()?.GetTableName());

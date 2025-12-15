@@ -40,7 +40,7 @@ public class GetUserRolesQueryHandlerTests
         GetUserRolesQueryHandler handler = new(_roleManager, _userManager);
 
         // Act
-        UserRolesViewModel vm = await handler.GetItemsAsync(query);
+        var vm = await handler.GetItemsAsync(query);
 
         // Assert
         Assert.IsType<UserRolesViewModel>(vm);
@@ -66,7 +66,7 @@ public class GetUserRolesQueryHandlerTests
         GetUserRolesQueryHandler handler = new(_roleManager, _userManager);
 
         // Act
-        UserRolesViewModel vm = await handler.GetItemsAsync(query);
+        var vm = await handler.GetItemsAsync(query);
 
         // Assert
         Assert.IsType<UserRolesViewModel>(vm);
@@ -82,7 +82,7 @@ public class GetUserRolesQueryHandlerTests
     {
         // Arrange
         GetUserRolesQuery query = new() { UserId = "1" };
-        IdentityUser? user = default(IdentityUser);
+        var user = default(IdentityUser);
 
         A.CallTo(() => _userManager.FindByIdAsync(query.UserId)).Returns(user);
 

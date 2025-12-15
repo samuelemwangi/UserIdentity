@@ -330,8 +330,9 @@ public class UserControllerTests(
 
         var userToken = jsonObject["userToken"]?.ToObject<AccessTokenViewModel>();
 
-        Assert.NotNull(userToken);
-        Assert.IsType<AccessTokenDTO>(userToken.AccessToken);
+        Assert.Null(userToken);
+
+        Assert.False(jsonObject["isConfirmed"]?.Value<bool>() ?? false);
     }
 
     [Theory]
@@ -379,8 +380,9 @@ public class UserControllerTests(
 
         var userToken = jsonObject["userToken"]?.ToObject<AccessTokenViewModel>();
 
-        Assert.NotNull(userToken);
-        Assert.IsType<AccessTokenDTO>(userToken.AccessToken);
+        Assert.Null(userToken);
+
+        Assert.False(jsonObject["isConfirmed"]?.Value<bool>() ?? false);
     }
 
     [Fact]
@@ -895,7 +897,7 @@ public class UserControllerTests(
         // Assert
         var responseString = await response.ValidateRequestResponseAsync();
 
-        Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 
         var jsonObject = SerDe.Deserialize<JObject>(responseString);
 
@@ -903,9 +905,9 @@ public class UserControllerTests(
 
 
         Assert.Equal("Request Failed", $"{jsonObject["requestStatus"]}");
-        Assert.Equal("500 - INTERNAL SERVER ERROR", $"{jsonObject["statusMessage"]}");
+        Assert.Equal("404 - NOT FOUND", $"{jsonObject["statusMessage"]}");
 
-        Assert.Equal($"An error occured while updating a record identified by - {requestPayload.UserEmail}", jsonObject["error"]?["message"]);
+        Assert.StartsWith("No record exists for the provided identifier - ", $"{jsonObject["error"]?["message"]}");
 
         var dateTime = (DateTime?)jsonObject["error"]?["timestamp"];
 

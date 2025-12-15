@@ -1,41 +1,36 @@
 {
-  "profiles": {
-    "IIS Express": {
-      "commandName": "IISExpress",
-      "launchBrowser": true,
-      "launchUrl": "swagger",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
-    },
-    "Docker": {
-      "commandName": "Docker",
-      "launchBrowser": true,
-      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger"
-    },
-    "UserIdentity": {
-      "commandName": "Project",
-      "launchUrl": "swagger",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "MysqlSettings__Host": "localhost",
-        "MysqlSettings__Port": "3306",
-        "MysqlSettings__Database": "useridentity",
-        "MysqlSettings__UserName": "root",
-        "MysqlSettings__Password": "root",
-        "Serilog__MinimumLevel": "Information"
-      },
-      "applicationUrl": "http://localhost:5000",
-      "nativeDebugging": false
-    }
-  },
-  "$schema": "https://json.schemastore.org/launchsettings.json",
-  "iisSettings": {
-    "windowsAuthentication": false,
-    "anonymousAuthentication": true,
-    "iisExpress": {
-      "applicationUrl": "http://localhost:53161",
-      "sslPort": 44380
-    }
-  }
+	"profiles": {
+		"IIS Express": {
+			"commandName": "IISExpress",
+			"launchBrowser": true,
+			"launchUrl": "swagger",
+			"environmentVariables": {
+				"ASPNETCORE_ENVIRONMENT": "Development"
+			}
+		},
+		"Docker": {
+			"commandName": "Docker",
+			"launchBrowser": true,
+			"launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger"
+		},
+		"UserIdentity": {
+			"commandName": "Project",
+			"launchUrl": "swagger",
+			"environmentVariables": {
+				"ASPNETCORE_ENVIRONMENT": "Development",
+				"MysqlSettings__Port": "3306"
+			},
+			"applicationUrl": "http://localhost:5050",
+			"nativeDebugging": false
+		}
+	},
+	"$schema": "https://json.schemastore.org/launchsettings.json",
+	"iisSettings": {
+		"windowsAuthentication": false,
+		"anonymousAuthentication": true,
+		"iisExpress": {
+			"applicationUrl": "http://localhost:53161",
+			"sslPort": 44380
+		}
+	}
 }

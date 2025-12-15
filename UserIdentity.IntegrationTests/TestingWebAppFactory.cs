@@ -13,10 +13,12 @@ using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.Security;
 
 using PolyzenKit.Common.Exceptions;
+using PolyzenKit.Infrastructure.Kafka;
 using PolyzenKit.Infrastructure.Security.KeySets;
 using PolyzenKit.Persistence.Settings;
 
 using Testcontainers.MySql;
+using Testcontainers.Redpanda;
 
 using Xunit;
 
@@ -25,8 +27,12 @@ namespace UserIdentity.IntegrationTests;
 public class TestingWebAppFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
     private readonly MySqlContainer _mysqlContainer;
+    private readonly RedpandaContainer _redpandaContainer;
     private readonly Dictionary<string, string?> _environmentSnapshot = new(StringComparer.OrdinalIgnoreCase);
     private readonly KeySetOptions _keySetOptions;
+    private readonly int _exposedTestMysqlPort = 33061;
+    private readonly int _exposedKafkaBrokerPort = 9095;
+    private readonly int _exposedKafkaSchemaRegistryPort = 8085;
 
     public TestingWebAppFactory()
     {
@@ -43,7 +49,13 @@ public class TestingWebAppFactory : WebApplicationFactory<Program>, IAsyncLifeti
             .WithUsername(mysqlSettings.UserName)
             .WithPassword(mysqlSettings.Password)
             .WithDatabase(mysqlSettings.Database)
-            .WithPortBinding(int.Parse(mysqlSettings.Port), 3306)
+            .WithPortBinding(_exposedTestMysqlPort, 3306)
+            .Build();
+
+        _redpandaContainer = new RedpandaBuilder()
+            .WithImage("redpandadata/redpanda:v25.3.3")
+            .WithPortBinding(_exposedKafkaBrokerPort, 9092)
+            .WithPortBinding(_exposedKafkaSchemaRegistryPort, 8081)
             .Build();
     }
 
@@ -64,19 +76,27 @@ public class TestingWebAppFactory : WebApplicationFactory<Program>, IAsyncLifeti
     {
         await _mysqlContainer.StartAsync();
 
+        await _redpandaContainer.StartAsync();
+
         var keyPairGenerator = new Ed25519KeyPairGenerator();
         keyPairGenerator.Init(new Ed25519KeyGenerationParameters(new SecureRandom()));
         var keyPair = keyPairGenerator.GenerateKeyPair();
 
-        SetTemporaryEnvironmentVariable(_keySetOptions.PrivateKeyPath!, ConvertToPem(keyPair.Private, _keySetOptions.PrivateKeyPassPhrase));
-        SetTemporaryEnvironmentVariable(_keySetOptions.PublicKeyPath, ConvertToPem(keyPair.Public));
+        SetTemporaryEnvironmentVariable("EDDSA_PRIVATE_KEY", ConvertToPem(keyPair.Private, _keySetOptions.PrivateKeyPassPhrase));
+        SetTemporaryEnvironmentVariable("EDDSA_PUBLIC_KEY", ConvertToPem(keyPair.Public));
+
+        SetTemporaryEnvironmentVariable($"{nameof(MysqlSettings)}:{nameof(MysqlSettings.Port)}", $"{_exposedTestMysqlPort}");
+        SetTemporaryEnvironmentVariable($"{nameof(KafkaSettings)}:{nameof(KafkaSettings.BootstrapServers)}", $"localhost:{_exposedKafkaBrokerPort}");
+        SetTemporaryEnvironmentVariable($"{nameof(KafkaSettings)}:{nameof(KafkaSettings.SchemaRegistryUrl)}", $"localhost:{_exposedKafkaSchemaRegistryPort}");
     }
 
     public new async Task DisposeAsync()
     {
         RestoreEnvironmentVariables();
         await base.DisposeAsync();
+
         await _mysqlContainer.DisposeAsync();
+        await _redpandaContainer.DisposeAsync();
     }
 
     private void SetTemporaryEnvironmentVariable(string key, string? value)

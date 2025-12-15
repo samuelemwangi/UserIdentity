@@ -15,7 +15,7 @@ using UserIdentity.Application.Core.Roles.Commands;
 using UserIdentity.Application.Core.Roles.Queries;
 using UserIdentity.Application.Core.Roles.ViewModels;
 
-namespace UserIdentity.Presentation.Controllers.Roles;
+namespace UserIdentity.Presentation.Controllers;
 
 [Authorize]
 [ValidateModel]
@@ -47,13 +47,8 @@ public class RoleController(
     [HttpGet]
     public async Task<ActionResult<RolesViewModel>> GetRolesAsync()
     {
-
-        var rolesVM = await _getRolesQueryHandler.GetItemsAsync(new GetRolesQuery { });
-
-        rolesVM.ResolveCreateDownloadRights(UserScopeClaims, EntityName);
-        rolesVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEMS_SUCCESSFUL);
-
-        return StatusCode((int)HttpStatusCode.OK, rolesVM);
+        var vm = await _getRolesQueryHandler.GetItemsAsync(new GetRolesQuery { });
+        return ResolveGetItemsActionResult(vm);
     }
 
     [Authorize(Policy = ZenConstants.ADMIN_USER_POLICY)]
@@ -61,24 +56,16 @@ public class RoleController(
     [Route("{roleId}")]
     public async Task<ActionResult<RoleViewModel>> GetRoleAsync(string roleId)
     {
-        var roleVM = await _getRoleQueryHandler.GetItemAsync(new GetRoleQuery { RoleId = roleId });
-
-        roleVM.ResolveEditDeleteRights(UserScopeClaims, EntityName);
-        roleVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEM_SUCCESSFUL);
-
-        return StatusCode((int)HttpStatusCode.OK, roleVM);
+        var vm = await _getRoleQueryHandler.GetItemAsync(new GetRoleQuery { RoleId = roleId });
+        return ResolveGetItemActionResult(vm);
     }
 
     [Authorize(Policy = ZenConstants.ADMIN_USER_POLICY)]
     [HttpPost]
     public async Task<ActionResult<RoleViewModel>> CreateRoleAsync(CreateRoleCommand command)
     {
-        var roleVM = await _createRoleCommandHandler.CreateItemAsync(command, LoggedInUserId);
-
-        roleVM.ResolveEditDeleteRights(UserScopeClaims, EntityName);
-        roleVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.CREATE_ITEM_SUCCESSFUL);
-
-        return StatusCode((int)HttpStatusCode.Created, roleVM);
+        var vm = await _createRoleCommandHandler.CreateItemAsync(command, LoggedInUserId);
+        return ResolveCreateItemActionResult(vm);
     }
 
     [Authorize(Policy = ZenConstants.ADMIN_USER_POLICY)]
@@ -88,12 +75,8 @@ public class RoleController(
     {
         command.RoleId = roleId;
 
-        var updatedRoleVM = await _updateRoleCommandHandler.UpdateItemAsync(command, LoggedInUserId);
-
-        updatedRoleVM.ResolveEditDeleteRights(UserScopeClaims, EntityName);
-        updatedRoleVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.UPDATE_ITEM_SUCCESSFUL);
-
-        return StatusCode((int)HttpStatusCode.OK, updatedRoleVM);
+        var vm = await _updateRoleCommandHandler.UpdateItemAsync(command, LoggedInUserId);
+        return ResolveUpdateItemActionResult(vm);
     }
 
 
@@ -102,11 +85,8 @@ public class RoleController(
     [Route("{roleId}")]
     public async Task<ActionResult<DeleteRecordViewModel>> DeleteRoleAsync(string roleId)
     {
-        var deleteRoleVM = await _deleteRoleCommandHandler.DeleteItemAsync(new DeleteRoleCommand { RoleId = roleId }, LoggedInUserId);
-
-        deleteRoleVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.DELETE_ITEM_SUCCESSFUL, "Record deleted successfully");
-
-        return StatusCode((int)HttpStatusCode.OK, deleteRoleVM);
+        var vm = await _deleteRoleCommandHandler.DeleteItemAsync(new DeleteRoleCommand { RoleId = roleId }, LoggedInUserId);
+        return ResolveDeleteItemActionResult(vm);
     }
 
     [Authorize(Policy = ZenConstants.ADMIN_OR_SAME_USER_POLICY)]
@@ -114,12 +94,8 @@ public class RoleController(
     [Route("user/{userId}")]
     public async Task<ActionResult<UserRolesViewModel>> GetUserRolesAsync(string userId)
     {
-        var userRolesVM = await _getUserRolesQueryHandler.GetItemsAsync(new GetUserRolesQuery { UserId = userId });
-
-        userRolesVM.ResolveCreateDownloadRights(UserScopeClaims, EntityName);
-        userRolesVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEMS_SUCCESSFUL);
-
-        return StatusCode((int)HttpStatusCode.OK, userRolesVM);
+        var vm = await _getUserRolesQueryHandler.GetItemsAsync(new GetUserRolesQuery { UserId = userId });
+        return ResolveGetItemsActionResult(vm);
     }
 
 
@@ -128,12 +104,12 @@ public class RoleController(
     [Route("user")]
     public async Task<ActionResult<UserRolesViewModel>> CreateUserRoleAsync(CreateUserRoleCommand command)
     {
-        var userRolesVM = await _createUserRoleCommandHandler.CreateItemAsync(command, LoggedInUserId);
+        var vm = await _createUserRoleCommandHandler.CreateItemAsync(command, LoggedInUserId);
 
-        userRolesVM.ResolveCreateDownloadRights(UserScopeClaims, EntityName);
-        userRolesVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.CREATE_ITEM_SUCCESSFUL);
+        vm.ResolveCreateDownloadRights(UserScopeClaims, EntityName);
+        vm.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.CREATE_ITEM_SUCCESSFUL);
 
-        return StatusCode((int)HttpStatusCode.Created, userRolesVM);
+        return StatusCode((int)HttpStatusCode.Created, vm);
     }
 
 
@@ -148,12 +124,8 @@ public class RoleController(
     [Route("claim")]
     public async Task<ActionResult<RoleClaimViewModel>> CreateRoleClaimAsync(CreateRoleClaimCommand command)
     {
-        var roleClaimVM = await _createRoleClaimCommandHandler.CreateItemAsync(command, LoggedInUserId);
-
-        roleClaimVM.ResolveEditDeleteRights(UserScopeClaims, EntityName);
-        roleClaimVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.CREATE_ITEM_SUCCESSFUL);
-
-        return StatusCode((int)HttpStatusCode.Created, roleClaimVM);
+        var vm = await _createRoleClaimCommandHandler.CreateItemAsync(command, LoggedInUserId);
+        return ResolveCreateItemActionResult(vm);
     }
 
     [Authorize(Policy = ZenConstants.ADMIN_USER_POLICY)]
@@ -161,12 +133,8 @@ public class RoleController(
     [Route("claim/{roleId}")]
     public async Task<ActionResult<RoleClaimsViewModel>> GetRoleClaimsAsync(string roleId)
     {
-        var roleClaimsVM = await _getRoleClaimsQueryHandler.GetItemsAsync(new GetRoleClaimsQuery { RoleId = roleId });
-
-        roleClaimsVM.ResolveCreateDownloadRights(UserScopeClaims, EntityName);
-        roleClaimsVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.FETCH_ITEMS_SUCCESSFUL);
-
-        return StatusCode((int)HttpStatusCode.OK, roleClaimsVM);
+        var vm = await _getRoleClaimsQueryHandler.GetItemsAsync(new GetRoleClaimsQuery { RoleId = roleId });
+        return ResolveGetItemsActionResult(vm);
     }
 
     [Authorize(Policy = ZenConstants.ADMIN_USER_POLICY)]
@@ -174,10 +142,7 @@ public class RoleController(
     [Route("claim")]
     public async Task<ActionResult<DeleteRecordViewModel>> DeleteRoleClaimAsync(DeleteRoleClaimCommand command)
     {
-        var deleteClaimVM = await _deleteRoleClaimCommandHandler.DeleteItemAsync(command, LoggedInUserId);
-
-        deleteClaimVM.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.DELETE_ITEM_SUCCESSFUL, "Record deleted successfully");
-
-        return StatusCode((int)HttpStatusCode.OK, deleteClaimVM);
+        var vm = await _deleteRoleClaimCommandHandler.DeleteItemAsync(command, LoggedInUserId);
+        return ResolveDeleteItemActionResult(vm);
     }
 }

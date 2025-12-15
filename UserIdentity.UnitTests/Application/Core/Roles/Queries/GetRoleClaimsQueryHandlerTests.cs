@@ -62,10 +62,10 @@ public class GetRoleClaimsQueryHandlerTests
         var resource = "resource";
         var action = "action";
 
-        List<Claim> roleClaims = new()
-        {
+        List<Claim> roleClaims =
+        [
             new("scope", $"{resource}:{action}")
-        };
+        ];
 
 
 
@@ -91,10 +91,10 @@ public class GetRoleClaimsQueryHandlerTests
     {
 
         // Arrange
-        List<string> roles = new()
-        {
+        List<string> roles =
+        [
             "Admin"
-        };
+        ];
 
         IdentityRole identityRole = new()
         {
@@ -106,10 +106,10 @@ public class GetRoleClaimsQueryHandlerTests
         var action = "action";
         var scopedClaim = $"{resource}:{action}";
 
-        List<Claim> roleClaims = new()
-        {
+        List<Claim> roleClaims =
+        [
             new("scope",scopedClaim)
-        };
+        ];
 
         A.CallTo(() => _roleManager.FindByNameAsync(roles[0])).Returns(identityRole);
         A.CallTo(() => _roleManager.GetClaimsAsync(identityRole)).Returns(roleClaims);

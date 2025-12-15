@@ -1,12 +1,14 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 
+using Microsoft.EntityFrameworkCore;
+
+using PolyzenKit.Common.Exceptions;
 using PolyzenKit.Common.Utilities;
+using PolyzenKit.Persistence.Repositories;
 
 using UserIdentity.Domain.Identity;
 using UserIdentity.Persistence.Repositories.Users;
-using UserIdentity.UnitTests.TestUtils;
 
 using Xunit;
 
@@ -14,183 +16,112 @@ namespace UserIdentity.UnitTests.Persistence.Repositories;
 
 public class UserRepositoryTests
 {
-	[Fact]
-	public async Task Create_User_Creates_User()
-	{
-		// Arrange
-		var context = AppDbContextTestFactory.GetAppDbContext();
-		var userRepo = new UserRepository(context);
+    [Fact]
+    public async Task CreateEntityItem_Persists_User()
+    {
+        var context = AppDbContextTestFactory.GetAppDbContext();
+        var repository = new UserRepository(context);
+        var newUser = BuildUser();
 
-		var newUser = new UserEntity
-		{
-			Id = Guid.NewGuid().ToString(),
-			FirstName = StringUtil.GenerateRandomString(15),
-			LastName = StringUtil.GenerateRandomString(10),
-		};
+        repository.CreateEntityItem(newUser);
+        await context.SaveChangesAsync();
 
-		// Act
-		var result = await userRepo.CreateUserAsync(newUser);
+        var saved = await context.AppUser.SingleOrDefaultAsync(x => x.Id == newUser.Id);
+        Assert.NotNull(saved);
+        Assert.Equal(newUser.FirstName, saved!.FirstName);
+    }
 
-		// Assert
-		Assert.Equal(1, result);
-	}
+    [Fact]
+    public async Task GetEntityItemAsync_Returns_User_When_Found()
+    {
+        var context = AppDbContextTestFactory.GetAppDbContext();
+        var repository = new UserRepository(context);
+        var newUser = BuildUser();
 
-	[Fact]
-	public async Task Create_User_Failure_Does_Not_Create_User()
-	{
-		// Arrange
-		var context = AppDbContextTestFactory.GetAppDbContext();
-		var userRepo = new UserRepository(context);
+        context.AppUser.Add(newUser);
+        await context.SaveChangesAsync();
 
-		var newUser = new UserEntity
-		{
-			Id = Guid.NewGuid().ToString(),
-			FirstName = StringUtil.GenerateRandomString(15),
-			LastName = StringUtil.GenerateRandomString(10),
-		};
+        var result = await repository.GetEntityItemAsync(newUser.Id);
+        Assert.NotNull(result);
+        Assert.Equal(newUser.Id, result!.Id);
+    }
 
-		// Act
-		var result = await userRepo.CreateUserAsync(newUser);
+    [Fact]
+    public async Task GetEntityByAlternateIdAsync_MustExist_Returns_User()
+    {
+        var context = AppDbContextTestFactory.GetAppDbContext();
+        var repository = new UserRepository(context);
+        var newUser = BuildUser();
+        newUser.ForgotPasswordToken = StringUtil.GenerateRandomString(64);
 
-		if (result == 1)
-			result = await userRepo.CreateUserAsync(newUser);
+        context.AppUser.Add(newUser);
+        await context.SaveChangesAsync();
 
-		// Assert
-		Assert.Equal(0, result);
-	}
+        var result = await repository.GetEntityByAlternateIdAsync(new UserEntity
+        {
+            Id = newUser.Id,
+            ForgotPasswordToken = newUser.ForgotPasswordToken
+        }, QueryCondition.MUST_EXIST);
 
-	[Fact]
-	public async Task Get_Existing_User_Returns_User()
-	{
-		// Arrange
-		var context = AppDbContextTestFactory.GetAppDbContext();
-		var userRepo = new UserRepository(context);
+        Assert.NotNull(result);
+        Assert.Equal(newUser.Id, result!.Id);
+    }
 
-		var newUser = new UserEntity
-		{
-			Id = Guid.NewGuid().ToString(),
-			FirstName = StringUtil.GenerateRandomString(15),
-			LastName = StringUtil.GenerateRandomString(10),
-		};
+    [Fact]
+    public async Task GetEntityByAlternateIdAsync_MustExist_When_Missing_Throws_NoRecordException()
+    {
+        var repository = new UserRepository(AppDbContextTestFactory.GetAppDbContext());
 
-		// Act
-		context.AppUser.Add(newUser);
-		await context.SaveChangesAsync();
+        await Assert.ThrowsAsync<NoRecordException>(() => repository.GetEntityByAlternateIdAsync(new UserEntity
+        {
+            Id = Guid.NewGuid().ToString(),
+            ForgotPasswordToken = StringUtil.GenerateRandomString(32)
+        }, QueryCondition.MUST_EXIST));
+    }
 
-		var result = await userRepo.GetUserAsync(newUser.Id);
+    [Fact]
+    public async Task GetEntityByAlternateIdAsync_MustNotExist_When_Exists_Throws_RecordExistsException()
+    {
+        var context = AppDbContextTestFactory.GetAppDbContext();
+        var repository = new UserRepository(context);
+        var newUser = BuildUser();
+        newUser.ForgotPasswordToken = StringUtil.GenerateRandomString(64);
 
-		Assert.IsType<UserEntity>(result);
-		Assert.Equal(newUser.Id, result?.Id);
-		Assert.Equal(newUser.FirstName, result?.FirstName);
-		Assert.Equal(newUser.LastName, result?.LastName);
-	}
+        context.AppUser.Add(newUser);
+        await context.SaveChangesAsync();
 
-	[Fact]
-	public async Task Get_Non_Existing_User_Returns_Null()
-	{
-		// Arrange
-		var context = AppDbContextTestFactory.GetAppDbContext();
-		var userRepo = new UserRepository(context);
+        await Assert.ThrowsAsync<RecordExistsException>(() => repository.GetEntityByAlternateIdAsync(new UserEntity
+        {
+            Id = newUser.Id,
+            ForgotPasswordToken = newUser.ForgotPasswordToken
+        }, QueryCondition.MUST_NOT_EXIST));
+    }
 
-		// Act
-		var result = await userRepo.GetUserAsync(Guid.NewGuid().ToString());
+    [Fact]
+    public async Task UpdateEntityItem_Updates_User()
+    {
+        var context = AppDbContextTestFactory.GetAppDbContext();
+        var repository = new UserRepository(context);
+        var newUser = BuildUser();
 
-		Assert.Null(result);
-	}
+        context.AppUser.Add(newUser);
+        await context.SaveChangesAsync();
 
-	[Fact]
-	public async Task Update_Reset_Password_Token_Updates_Reset_Password_Token()
-	{
-		// Arrange
-		var context = AppDbContextTestFactory.GetAppDbContext();
-		var userRepo = new UserRepository(context);
+        newUser.FirstName = "Updated";
+        repository.UpdateEntityItem(newUser);
+        await context.SaveChangesAsync();
 
-		var newUser = new UserEntity
-		{
-			Id = Guid.NewGuid().ToString(),
-			FirstName = StringUtil.GenerateRandomString(15),
-			LastName = StringUtil.GenerateRandomString(10),
-		};
+        var saved = await context.AppUser.SingleAsync(x => x.Id == newUser.Id);
+        Assert.Equal("Updated", saved.FirstName);
+    }
 
-		var resetPasswordToken = StringUtil.GenerateRandomString(300);
-
-		// Act 
-		context.AppUser.Add(newUser);
-		await context.SaveChangesAsync();
-
-		var result = await userRepo.UpdateResetPasswordTokenAsync(newUser.Id, resetPasswordToken);
-
-		// Assert
-		Assert.Equal(1, result);
-
-		var savedResetPasswordToken = context.AppUser.Where(e => e.Id == newUser.Id).FirstOrDefault()?.ForgotPasswordToken;
-		Assert.Equal(resetPasswordToken, savedResetPasswordToken);
-	}
-
-	[Fact]
-	public async Task Update_Reset_Password_Token_For_Non_Existing_User_Does_Not_Update_Reset_Password_Token()
-	{
-		// Arrange
-		var context = AppDbContextTestFactory.GetAppDbContext();
-		var userRepo = new UserRepository(context);
-
-
-		var resetPasswordToken = StringUtil.GenerateRandomString(300);
-
-		// Act 
-		var result = await userRepo.UpdateResetPasswordTokenAsync(Guid.NewGuid().ToString(), resetPasswordToken);
-
-		// Assert
-		Assert.Equal(0, result);
-	}
-
-	[Fact]
-	public async Task Validate_Update_Password_Token_Validates_Password_Token()
-	{
-		// Arrange
-		var context = AppDbContextTestFactory.GetAppDbContext();
-		var userRepo = new UserRepository(context);
-		var forgotPasswordToken = StringUtil.GenerateRandomString(304);
-
-		var newUser = new UserEntity
-		{
-			Id = Guid.NewGuid().ToString(),
-			FirstName = StringUtil.GenerateRandomString(15),
-			LastName = StringUtil.GenerateRandomString(10),
-			ForgotPasswordToken = forgotPasswordToken
-		};
-
-		// Act
-		context.AppUser.Add(newUser);
-		await context.SaveChangesAsync();
-
-		var result = await userRepo.ValidateUpdatePasswordTokenAsync(newUser.Id, forgotPasswordToken);
-
-		// Assert
-		Assert.True(result);
-	}
-
-	[Fact]
-	public async Task Validate_Update_Password_Token_With_Invalid_Details_Validates_Password_Token()
-	{
-		// Arrange
-		var context = AppDbContextTestFactory.GetAppDbContext();
-		var userRepo = new UserRepository(context);
-
-		var newUser = new UserEntity
-		{
-			Id = Guid.NewGuid().ToString(),
-			FirstName = StringUtil.GenerateRandomString(15),
-			LastName = StringUtil.GenerateRandomString(10),
-			ForgotPasswordToken = StringUtil.GenerateRandomString(255)
-		};
-
-		var forgotPasswordToken = StringUtil.GenerateRandomString(304);
-
-		// Act
-		var result = await userRepo.ValidateUpdatePasswordTokenAsync(newUser.Id, forgotPasswordToken);
-
-		// Assert
-		Assert.False(result);
-	}
+    private static UserEntity BuildUser()
+    {
+        return new UserEntity
+        {
+            Id = Guid.NewGuid().ToString(),
+            FirstName = StringUtil.GenerateRandomString(12),
+            LastName = StringUtil.GenerateRandomString(8)
+        };
+    }
 }

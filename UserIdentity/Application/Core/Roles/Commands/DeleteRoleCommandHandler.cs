@@ -9,26 +9,26 @@ namespace UserIdentity.Application.Core.Roles.Commands;
 
 public record DeleteRoleCommand : IBaseCommand
 {
-	public required string RoleId { get; init; }
+    public required string RoleId { get; init; }
 }
 public class DeleteRoleCommandHandler(
-	RoleManager<IdentityRole> roleManager
-	) : IDeleteItemCommandHandler<DeleteRoleCommand, DeleteRecordViewModel>
+    RoleManager<IdentityRole> roleManager
+    ) : IDeleteItemCommandHandler<DeleteRoleCommand, DeleteRecordViewModel>
 {
-	private readonly RoleManager<IdentityRole> _roleManager = roleManager;
+    private readonly RoleManager<IdentityRole> _roleManager = roleManager;
 
-	public async Task<DeleteRecordViewModel> DeleteItemAsync(DeleteRoleCommand command, string userId)
-	{
-		var role = await _roleManager.FindByIdAsync(command.RoleId) ?? throw new NoRecordException(command.RoleId, "Role");
+    public async Task<DeleteRecordViewModel> DeleteItemAsync(DeleteRoleCommand command, string userId)
+    {
+        var role = await _roleManager.FindByIdAsync(command.RoleId) ?? throw new NoRecordException(command.RoleId, "Role");
 
-		var deleteRoleResult = await _roleManager.DeleteAsync(role);
+        var deleteRoleResult = await _roleManager.DeleteAsync(role);
 
-		if (!deleteRoleResult.Succeeded)
-			throw new RecordDeletionException(command.RoleId, "Role");
+        if (!deleteRoleResult.Succeeded)
+            throw new RecordDeletionException(command.RoleId, "Role");
 
-		return new DeleteRecordViewModel
-		{
+        return new DeleteRecordViewModel
+        {
 
-		};
-	}
+        };
+    }
 }

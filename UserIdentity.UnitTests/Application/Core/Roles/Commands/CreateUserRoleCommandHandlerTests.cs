@@ -107,7 +107,7 @@ public class CreateUserRoleCommandHandlerTests
         CreateUserRoleCommandHandler handler = new(_roleManager, _userManager, _getUserRolesQueryHandler);
 
         // Act
-        UserRolesViewModel result = await handler.CreateItemAsync(command, TestStringHelper.UserId);
+        var result = await handler.CreateItemAsync(command, TestStringHelper.UserId);
 
         // Assert
         Assert.NotNull(result);

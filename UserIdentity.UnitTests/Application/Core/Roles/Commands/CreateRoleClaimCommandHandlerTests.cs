@@ -60,7 +60,7 @@ public class CreateRoleClaimCommandHandlerTests
             Action = "action"
         };
 
-        string scope = command.Resource + ":" + command.Action;
+        var scope = command.Resource + ":" + command.Action;
 
 
         IdentityRole role = new() { Id = command.RoleId, Name = "Admin" };
@@ -91,7 +91,7 @@ public class CreateRoleClaimCommandHandlerTests
             Action = "action"
         };
 
-        string scope = command.Resource + ":" + command.Action;
+        var scope = command.Resource + ":" + command.Action;
 
 
         IdentityRole role = new() { Id = command.RoleId, Name = "Admin" };
@@ -123,7 +123,7 @@ public class CreateRoleClaimCommandHandlerTests
             Action = "action"
         };
 
-        string scope = command.Resource + ":" + command.Action;
+        var scope = command.Resource + ":" + command.Action;
 
 
         IdentityRole role = new() { Id = command.RoleId, Name = "Admin" };

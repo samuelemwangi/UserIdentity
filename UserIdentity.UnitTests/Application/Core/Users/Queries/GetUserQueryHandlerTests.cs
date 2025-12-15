@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 
 using FakeItEasy;
 
@@ -68,7 +69,7 @@ public class GetUserQueryHandlerTests
         };
 
         A.CallTo(() => _userManager.FindByIdAsync(query.UserId)).Returns(existingIdentityUser);
-        A.CallTo(() => _userRepository.GetUserAsync(query.UserId)).Returns(default(UserEntity));
+        A.CallTo(() => _userRepository.GetEntityItemAsync(query.UserId)).Throws(new NoRecordException(query.UserId, "User"));
 
         GetUserQueryHandler handler = new(_userManager, _userRepository, _getRoleClaimsQueryHandler);
 
@@ -101,7 +102,10 @@ public class GetUserQueryHandlerTests
         };
 
         A.CallTo(() => _userManager.FindByIdAsync(query.UserId)).Returns(existingIdentityUser);
-        A.CallTo(() => _userRepository.GetUserAsync(query.UserId)).Returns(existingUser);
+        A.CallTo(() => _userRepository.GetEntityItemAsync(query.UserId)).Returns(existingUser);
+        A.CallTo(() => _userManager.GetRolesAsync(existingIdentityUser)).Returns(["admin"]);
+        A.CallTo(() => _getRoleClaimsQueryHandler.GetItemsAsync(A<GetRoleClaimsForRolesQuery>.That.Matches(q => q.Roles.Contains("admin"))))
+            .Returns(new RoleClaimsForRolesViewModels { RoleClaims = ["scope:user:read"] });
 
         GetUserQueryHandler handler = new(_userManager, _userRepository, _getRoleClaimsQueryHandler);
 
@@ -112,5 +116,7 @@ public class GetUserQueryHandlerTests
         Assert.IsType<UserViewModel>(vm);
         Assert.IsType<UserDTO>(vm.User);
         Assert.Equal(existingUser.Id, vm.User?.Id);
+        Assert.Equal("admin", vm.User?.Roles.First());
+        Assert.Contains("scope:user:read", vm.User?.RoleClaims ?? []);
     }
 }

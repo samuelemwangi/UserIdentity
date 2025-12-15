@@ -6,8 +6,11 @@ using Microsoft.AspNetCore.WebUtilities;
 
 using PolyzenKit.Application.Core;
 using PolyzenKit.Application.Core.Interfaces;
-using PolyzenKit.Common.Exceptions;
+using PolyzenKit.Application.Interfaces;
+using PolyzenKit.Domain.Entity;
 using PolyzenKit.Infrastructure.Configurations;
+using PolyzenKit.Persistence.Repositories;
+
 using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Persistence.Repositories.Users;
 
@@ -15,58 +18,63 @@ namespace UserIdentity.Application.Core.Users.Commands;
 
 public record ResetPasswordCommand : IBaseCommand
 {
-	[Required]
-	[EmailAddress]
-	public string UserEmail { get; init; } = null!;
+    [Required]
+    [EmailAddress]
+    public string UserEmail { get; init; } = null!;
 }
 
 public class ResetPasswordCommandHandler(
-	UserManager<IdentityUser> userManager,
-	IUserRepository userRepository,
-	IConfiguration configuration
-	) : ICreateItemCommandHandler<ResetPasswordCommand, ResetPasswordViewModel>
+    UserManager<IdentityUser> userManager,
+    IMachineDateTime machineDateTime,
+    IUnitOfWork unitOfWork,
+    IUserRepository userRepository,
+    IConfiguration configuration
+    ) : ICreateItemCommandHandler<ResetPasswordCommand, ResetPasswordViewModel>
 {
-	private readonly UserManager<IdentityUser> _userManager = userManager;
-	private readonly IUserRepository _userRepository = userRepository;
-	private readonly IConfiguration _configuration = configuration;
 
-	public async Task<ResetPasswordViewModel> CreateItemAsync(ResetPasswordCommand command, string userId)
-	{
-		// Check if default message is set in configs
-		string resetPasswordMessageKey = _configuration.GetEnvironmentVariable("DefaultResetPasswordMessage", "Kindly check your email for instructions to reset your password");
-		string resetPasswordMessage = _configuration.GetEnvironmentVariable(resetPasswordMessageKey, resetPasswordMessageKey);
+    private readonly UserManager<IdentityUser> _userManager = userManager;
+    private readonly IMachineDateTime _machineDateTime = machineDateTime;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IUserRepository _userRepository = userRepository;
+    private readonly IConfiguration _configuration = configuration;
 
-		var vm = new ResetPasswordViewModel
-		{
-			ResetPasswordDetails = new ResetPasswordDTO
-			{
-				EmailMessage = resetPasswordMessage
-			}
-		};
+    public async Task<ResetPasswordViewModel> CreateItemAsync(ResetPasswordCommand command, string userId)
+    {
 
-		var existingUser = await _userManager.FindByEmailAsync(command.UserEmail);
+        var resetPasswordMessage = _configuration.GetEnvironmentVariable("DefaultResetPasswordMessage", "Kindly check your email for instructions to reset your password");
 
-		if (existingUser == null)
-		{
-			return vm;
-		}
+        var vm = new ResetPasswordViewModel
+        {
+            ResetPasswordDetails = new ResetPasswordDTO
+            {
+                EmailMessage = resetPasswordMessage
+            }
+        };
 
-		// generate token
-		string resetPasswordToken = await _userManager.GeneratePasswordResetTokenAsync(existingUser);
+        var existingUser = await _userManager.FindByEmailAsync(command.UserEmail);
 
-		// update user details record
-		var updateResult = await _userRepository.UpdateResetPasswordTokenAsync(existingUser.Id, resetPasswordToken);
+        if (existingUser is null)
+            return vm;
 
-		if (updateResult < 1)
-			throw new RecordUpdateException(command.UserEmail, "User");
+        // generate token
+        var resetPasswordToken = await _userManager.GeneratePasswordResetTokenAsync(existingUser);
 
-		string emailToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(resetPasswordToken));
+        // update user details record
+        var existingEntity = await _userRepository.GetEntityItemAsync(existingUser.Id);
 
-		Console.WriteLine(emailToken);
+        existingEntity.ForgotPasswordToken = resetPasswordToken;
 
-		// Send Email Logic here
+        existingEntity.UpdateEntityAuditFields(userId, _machineDateTime.Now);
 
-		return vm;
+        _userRepository.UpdateEntityItem(existingEntity);
 
-	}
+        await _unitOfWork.SaveChangesAsync();
+
+        var emailToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(resetPasswordToken));
+
+        // Send Email Logic here
+
+        return vm;
+
+    }
 }
