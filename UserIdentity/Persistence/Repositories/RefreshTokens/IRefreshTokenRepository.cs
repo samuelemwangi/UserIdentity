@@ -1,14 +1,11 @@
-﻿using UserIdentity.Domain.Identity;
+﻿using PolyzenKit.Persistence.Repositories;
+
+using UserIdentity.Domain.Identity;
 
 namespace UserIdentity.Persistence.Repositories.RefreshTokens;
 
 public interface IRefreshTokenRepository
+    : IEntityRepository<RefreshTokenEntity, Guid>,
+    IItemEntityRepository<RefreshTokenEntity, Guid>
 {
-	Task<int> CreateRefreshTokenAsync(RefreshTokenEntity refreshToken);
-
-	Task<RefreshTokenEntity?> GetRefreshTokenAsync(string userId, string token);
-
-	Task<int> UpdateRefreshTokenAsync(RefreshTokenEntity refreshToken);
-
-	Task DeleteRefreshTokenAsync(string userId);
 }

@@ -656,7 +656,7 @@ public class RoleControllerTests(
         Assert.NotNull(jsonObject);
 
         Assert.Equal("Request Successful", $"{jsonObject["requestStatus"]}");
-        Assert.Equal("Record deleted successfully", $"{jsonObject["statusMessage"]}");
+        Assert.Equal("Item deleted successfully", $"{jsonObject["statusMessage"]}");
 
     }
 
@@ -1504,7 +1504,7 @@ public class RoleControllerTests(
         Assert.NotNull(jsonObject);
 
         Assert.Equal("Request Successful", $"{jsonObject["requestStatus"]}");
-        Assert.Equal("Record deleted successfully", $"{jsonObject["statusMessage"]}");
+        Assert.Equal("Item deleted successfully", $"{jsonObject["statusMessage"]}");
     }
 
 

@@ -1,54 +1,34 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
+using PolyzenKit.Application.Enums;
+using PolyzenKit.Common.Exceptions;
+using PolyzenKit.Common.Utilities;
+using PolyzenKit.Persistence.Repositories;
+
+using UserIdentity.Common;
 using UserIdentity.Domain.Identity;
 
 namespace UserIdentity.Persistence.Repositories.RefreshTokens;
 
 public class RefreshTokenRepository(
-	AppDbContext appDbContext
-	) : IRefreshTokenRepository
+    AppDbContext appDbContext
+    ) : EntityRepository<RefreshTokenEntity, Guid>(appDbContext), IRefreshTokenRepository
 {
-	private readonly AppDbContext _appDbContext = appDbContext;
+    private readonly AppDbContext _appDbContext = appDbContext;
 
-	public async Task<int> CreateRefreshTokenAsync(RefreshTokenEntity refreshToken)
-	{
-		try
-		{
-			_appDbContext.RefreshToken?.Add(refreshToken);
+    public async Task<RefreshTokenEntity?> GetEntityByAlternateIdAsync(RefreshTokenEntity entity, QueryCondition queryCondition)
+    {
+        var userId = ObjectUtil.RequireNonNullValue(entity.UserId, nameof(entity.UserId));
+        var token = ObjectUtil.RequireNonNullValue(entity.Token, nameof(entity.Token));
 
-			return await _appDbContext.SaveChangesAsync();
-		}
-		catch (Exception)
-		{
-			return 0;
-		}
-	}
+        var existingEntity = await _appDbContext.RefreshToken
+            .SingleOrDefaultAsync(e => e.UserId == userId && e.Token == token);
 
-	public async Task<RefreshTokenEntity?> GetRefreshTokenAsync(string userId, string token)
-	{
-		var refreshToken = await _appDbContext.RefreshToken
-			.Where(e => e.UserId == userId && e.Token == token && !e.IsDeleted)
-			.FirstOrDefaultAsync();
-
-		return refreshToken;
-	}
-
-	public async Task<int> UpdateRefreshTokenAsync(RefreshTokenEntity refreshToken)
-	{
-		try
-		{
-			_appDbContext.RefreshToken?.Update(refreshToken);
-			return await _appDbContext.SaveChangesAsync();
-		}
-		catch (Exception)
-		{
-			return 0;
-		}
-	}
-
-	public async Task DeleteRefreshTokenAsync(string userId)
-	{
-		if ((await _appDbContext.RefreshToken.Where(e => e.UserId == userId).ExecuteDeleteAsync()) < 1)
-			throw new InvalidOperationException($"deleting user identified with {userId}");
-	}
+        return queryCondition switch
+        {
+            QueryCondition.MUST_EXIST when existingEntity is null => throw new NoRecordException($"User Id: {userId} & Token: {token}", EntityTypes.REFRESH_TOKEN.Description()),
+            QueryCondition.MUST_NOT_EXIST when existingEntity is not null => throw new RecordExistsException($"User Id: {userId} & Token: {token}", EntityTypes.REFRESH_TOKEN.Description()),
+            _ => existingEntity
+        };
+    }
 }

@@ -5,8 +5,11 @@ using FakeItEasy;
 
 using Microsoft.AspNetCore.WebUtilities;
 
+using PolyzenKit.Persistence.Repositories;
+
 using UserIdentity.Application.Core.Users.Commands;
 using UserIdentity.Application.Core.Users.ViewModels;
+using UserIdentity.Domain.Identity;
 using UserIdentity.Persistence.Repositories.Users;
 using UserIdentity.UnitTests.TestUtils;
 
@@ -29,9 +32,10 @@ public class ConfirmUpdatePasswordTokenCommandHandlerTests
         // Arrange
         ConfirmUpdatePasswordTokenCommand command = new()
         {
-            ConfirmPasswordToken = "test",
+            ConfirmPasswordToken = "test/!!",
             UserId = "test"
         };
+
 
         ConfirmUpdatePasswordTokenCommandHandler handler = new(_userRepository);
 
@@ -57,7 +61,9 @@ public class ConfirmUpdatePasswordTokenCommandHandlerTests
             UserId = "test"
         };
 
-        A.CallTo(() => _userRepository.ValidateUpdatePasswordTokenAsync(command.UserId, rawToken)).Returns(false);
+        A.CallTo(() => _userRepository.GetEntityByAlternateIdAsync(
+            A<UserEntity>.That.Matches(e => e.Id == command.UserId && e.ForgotPasswordToken == rawToken),
+            QueryCondition.MAY_OR_MAY_NOT_EXIST)).Returns((UserEntity?)null);
 
         ConfirmUpdatePasswordTokenCommandHandler handler = new(_userRepository);
 
@@ -82,7 +88,7 @@ public class ConfirmUpdatePasswordTokenCommandHandlerTests
             UserId = "test"
         };
 
-        A.CallTo(() => _userRepository.ValidateUpdatePasswordTokenAsync(command.UserId, rawToken)).Throws(new System.Exception());
+        A.CallTo(() => _userRepository.GetEntityByAlternateIdAsync(A<UserEntity>._, QueryCondition.MAY_OR_MAY_NOT_EXIST)).Throws(new System.Exception());
 
         ConfirmUpdatePasswordTokenCommandHandler handler = new(_userRepository);
 
@@ -107,7 +113,9 @@ public class ConfirmUpdatePasswordTokenCommandHandlerTests
             UserId = "test"
         };
 
-        A.CallTo(() => _userRepository.ValidateUpdatePasswordTokenAsync(command.UserId, rawToken)).Returns(true);
+        A.CallTo(() => _userRepository.GetEntityByAlternateIdAsync(
+            A<UserEntity>.That.Matches(e => e.Id == command.UserId && e.ForgotPasswordToken == rawToken),
+            QueryCondition.MAY_OR_MAY_NOT_EXIST)).Returns(new UserEntity { Id = command.UserId, ForgotPasswordToken = rawToken });
 
         ConfirmUpdatePasswordTokenCommandHandler handler = new(_userRepository);
 

@@ -4,9 +4,9 @@ namespace UserIdentity.Application.Enums;
 
 public enum RequestSource
 {
-	[Description("UI")]
-	UI,
+    [Description("UI")]
+    UI,
 
-	[Description("API")]
-	API
+    [Description("API")]
+    API
 }

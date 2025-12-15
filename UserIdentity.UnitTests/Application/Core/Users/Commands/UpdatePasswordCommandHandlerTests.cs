@@ -66,7 +66,7 @@ public class UpdatePasswordCommandHandlerTests
         };
 
         A.CallTo(() => _userManager.FindByIdAsync(command.UserId)).Returns(existingIdentityUser);
-        A.CallTo(() => _userManager.ResetPasswordAsync(existingIdentityUser, command.PasswordResetToken, command.NewPassword)).Returns(default(IdentityResult));
+        A.CallTo(() => _userManager.ResetPasswordAsync(existingIdentityUser, command.PasswordResetToken, command.NewPassword)).Returns(IdentityResult.Failed([new IdentityError()]));
 
         UpdatePasswordCommandHandler handler = new(_userManager);
 

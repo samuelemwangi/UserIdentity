@@ -1,67 +1,37 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
+using PolyzenKit.Application.Enums;
+using PolyzenKit.Common.Exceptions;
+using PolyzenKit.Common.Utilities;
+using PolyzenKit.Persistence.Repositories;
+
+using UserIdentity.Common;
 using UserIdentity.Domain.Identity;
 
 
 namespace UserIdentity.Persistence.Repositories.Users;
 
 public class UserRepository(
-	AppDbContext appDbContext
-	) : IUserRepository
+    AppDbContext appDbContext
+    ) : EntityRepository<UserEntity, string>(appDbContext), IUserRepository
 {
-	private readonly AppDbContext _appDbContext = appDbContext;
-
-	public async Task<int> CreateUserAsync(UserEntity user)
-	{
-		try
-		{
-			_appDbContext.AppUser?.Add(user);
-			return await _appDbContext.SaveChangesAsync();
-
-		}
-		catch (Exception)
-		{
-			return 0;
-		}
-	}
-
-	public async Task<UserEntity?> GetUserAsync(string Id)
-	{
-		return await _appDbContext.AppUser
-				.Where(u => (u.Id + "").Equals(Id) && !u.IsDeleted)
-				.FirstOrDefaultAsync();
-	}
-
-	public async Task<int> UpdateResetPasswordTokenAsync(string userId, string resetPasswordToken)
-	{
-		try
-		{
-			var user = await GetUserAsync(userId);
-
-			if (user == null)
-				return 0;
-
-			user.ForgotPasswordToken = resetPasswordToken;
-			var result = await _appDbContext.SaveChangesAsync();
+    private readonly AppDbContext _appDbContext = appDbContext;
 
 
-			return result;
-		}
-		catch (Exception)
-		{
-			return 0;
-		}
-	}
+    public async Task<UserEntity?> GetEntityByAlternateIdAsync(UserEntity entity, QueryCondition queryCondition)
+    {
+        var userId = ObjectUtil.RequireNonNullValue(entity.Id, nameof(entity.Id));
+        var forgotPasswordToken = ObjectUtil.RequireNonNullValue(entity.ForgotPasswordToken, nameof(entity.ForgotPasswordToken));
 
-	public async Task<bool> ValidateUpdatePasswordTokenAsync(string userId, string token)
-	{
-		return await _appDbContext.AppUser
-				.AnyAsync(u => (u.Id + "").Equals(userId) && (u.ForgotPasswordToken + "").Equals(token) && !u.IsDeleted);
-	}
+        var existingEntity = await _appDbContext.AppUser
+            .SingleOrDefaultAsync(e => e.Id == userId && e.ForgotPasswordToken == forgotPasswordToken);
 
-	public async Task DeleteUserAsync(string userId)
-	{
-		if ((await _appDbContext.AppUser.Where(e => e.Id == userId).ExecuteDeleteAsync()) < 1)
-			throw new InvalidOperationException($"deleting user identified with {userId}");
-	}
+        return queryCondition switch
+        {
+            QueryCondition.MUST_EXIST when existingEntity is null => throw new NoRecordException($"User Id: {userId} & Forgot Password Token: {forgotPasswordToken}", EntityTypes.USER.Description()),
+            QueryCondition.MUST_NOT_EXIST when existingEntity is not null => throw new RecordExistsException($"User Id: {userId} & Forgot Password Token: {forgotPasswordToken}", EntityTypes.USER.Description()),
+            _ => existingEntity
+        };
+    }
+
 }

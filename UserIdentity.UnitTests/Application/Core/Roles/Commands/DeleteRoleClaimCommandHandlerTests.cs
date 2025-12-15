@@ -64,11 +64,11 @@ public class DeleteRoleClaimCommandHandlerTests
         };
 
         Claim scopeClaim = new("scope", $"{command.Resource}:{command.Action}");
-        List<Claim> roleClaims = new()
-        {
+        List<Claim> roleClaims =
+        [
                             new("scope", "SampleResource:SampleAction1"),
                             new("scope", "SampleResource:SampleAction2")
-                    };
+                    ];
 
 
         A.CallTo(() => _roleManager.FindByIdAsync(command.RoleId)).Returns(role);
@@ -100,11 +100,11 @@ public class DeleteRoleClaimCommandHandlerTests
         };
 
         Claim scopeClaim = new("scope", $"{command.Resource}:{command.Action}");
-        List<Claim> roleClaims = new()
-        {
+        List<Claim> roleClaims =
+        [
                             scopeClaim,
                             new("scope", "SampleResource:SampleAction2")
-                    };
+                    ];
 
 
         A.CallTo(() => _roleManager.FindByIdAsync(command.RoleId)).Returns(role);
@@ -138,11 +138,11 @@ public class DeleteRoleClaimCommandHandlerTests
         };
 
         Claim scopeClaim = new("scope", $"{command.Resource}:{command.Action}");
-        List<Claim> roleClaims = new()
-        {
+        List<Claim> roleClaims =
+        [
                             scopeClaim,
                             new Claim("scope", "SampleResource:SampleAction2")
-                    };
+                    ];
 
 
         A.CallTo(() => _roleManager.FindByIdAsync(command.RoleId)).Returns(role);

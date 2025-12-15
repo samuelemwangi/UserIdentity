@@ -167,7 +167,7 @@ internal static class DBContexUtils
 
         var roleClaim = new Claim(JwtCustomClaimNames.Scope, ApiScopeClaimSettings.ScopeClaim);
 
-        var result = roleManager.AddClaimAsync(role, roleClaim);
+        var result = roleManager.AddClaimAsync(role!, roleClaim);
 
         return result.Result.Succeeded;
     }
@@ -193,7 +193,7 @@ internal static class DBContexUtils
 
         if (appuser == null)
             return;
-        appuser.IsDeleted = true;
+        appDbContext.RemoveRange(appuser);
         appDbContext.SaveChanges();
     }
 

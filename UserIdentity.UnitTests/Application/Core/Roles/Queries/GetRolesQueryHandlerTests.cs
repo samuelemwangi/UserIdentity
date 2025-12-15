@@ -29,11 +29,10 @@ public class GetRolesQueryHandlerTests
     public async Task Get_Roles_Returns_Roles()
     {
         // Arrange
-        List<IdentityRole> roles = new()
-        {
-                                                    new () { Id = "1", Name = "Admin" },
-                                                    new () { Id = "2", Name = "User" }
-                                };
+        List<IdentityRole> roles = [
+            new () { Id = "1", Name = "Admin" },
+            new () { Id = "2", Name = "User" }
+        ];
 
 
         A.CallTo(() => _roleManager.Roles).Returns(roles.AsQueryable());
@@ -54,7 +53,7 @@ public class GetRolesQueryHandlerTests
     public async Task Get_Roles__When_No_Roles_Returns_Zero_Roles()
     {
         // Arrange
-        List<IdentityRole> roles = new();
+        List<IdentityRole> roles = [];
         A.CallTo(() => _roleManager.Roles).Returns(roles.AsQueryable());
 
         GetRolesQueryHandler handler = new(_roleManager);
