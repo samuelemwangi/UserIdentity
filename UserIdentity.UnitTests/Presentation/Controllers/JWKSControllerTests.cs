@@ -17,49 +17,49 @@ namespace UserIdentity.UnitTests.Presentation.Controllers;
 
 public class JWKSControllerTests
 {
-    private readonly IGetItemsQueryHandler<GetKeySetsQuery, KeySetsViewModel> _getKeySetsQueryHandler;
-    public JWKSControllerTests()
-    {
-        _getKeySetsQueryHandler = A.Fake<IGetItemsQueryHandler<GetKeySetsQuery, KeySetsViewModel>>();
-    }
+  private readonly IGetItemsQueryHandler<GetKeySetsQuery, KeySetsViewModel> _getKeySetsQueryHandler;
+  public JWKSControllerTests()
+  {
+    _getKeySetsQueryHandler = A.Fake<IGetItemsQueryHandler<GetKeySetsQuery, KeySetsViewModel>>();
+  }
 
-    [Fact]
-    public async Task Get_KeySets_Returns_KeySets()
+  [Fact]
+  public async Task Get_KeySets_Returns_KeySets()
+  {
+    // Arrange
+    var keySetsViewModel = new KeySetsViewModel
     {
-        // Arrange
-        var keySetsViewModel = new KeySetsViewModel
-        {
-            KeySetList = new Dictionary<string, IList<Dictionary<string, string>>>
-            {
-                ["keys"] =
-                [
-                    new Dictionary<string, string>
+      KeySetList = new Dictionary<string, IList<Dictionary<string, string>>>
+      {
+        ["keys"] =
+            [
+                new Dictionary<string, string>
                     {
                         ["alg"] = "EdDSA",
                         ["kty"] = "OKP"
                     }
-                ]
-            }
-        };
+            ]
+      }
+    };
 
-        var jwksController = new JWKSController(_getKeySetsQueryHandler);
+    var jwksController = new JWKSController(_getKeySetsQueryHandler);
 
-        A.CallTo(() => _getKeySetsQueryHandler.GetItemsAsync(new GetKeySetsQuery { })).Returns(Task.FromResult(keySetsViewModel));
+    A.CallTo(() => _getKeySetsQueryHandler.GetItemsAsync(new GetKeySetsQuery { })).Returns(Task.FromResult(keySetsViewModel));
 
-        var actionResult = await jwksController.GetKeySetsAsync();
+    var actionResult = await jwksController.GetKeySetsAsync();
 
-        // Act
-        var result = actionResult as ObjectResult;
-        var kvp = result?.Value as Dictionary<string, IList<Dictionary<string, string>>>;
+    // Act
+    var result = actionResult as ObjectResult;
+    var kvp = result?.Value as Dictionary<string, IList<Dictionary<string, string>>>;
 
 
-        // Assert
-        Assert.NotNull(result);
-        Assert.IsType<Dictionary<string, IList<Dictionary<string, string>>>>(result?.Value);
-        Assert.NotNull(kvp?["keys"]);
+    // Assert
+    Assert.NotNull(result);
+    Assert.IsType<Dictionary<string, IList<Dictionary<string, string>>>>(result?.Value);
+    Assert.NotNull(kvp?["keys"]);
 
-        Assert.Equal(kvp?["keys"]?[0]["alg"], keySetsViewModel.KeySetList["keys"]?[0]["alg"]);
-        Assert.Equal(kvp?["keys"]?[0]["kty"], keySetsViewModel.KeySetList["keys"]?[0]["kty"]);
-    }
+    Assert.Equal(kvp?["keys"]?[0]["alg"], keySetsViewModel.KeySetList["keys"]?[0]["alg"]);
+    Assert.Equal(kvp?["keys"]?[0]["kty"], keySetsViewModel.KeySetList["keys"]?[0]["kty"]);
+  }
 }
 

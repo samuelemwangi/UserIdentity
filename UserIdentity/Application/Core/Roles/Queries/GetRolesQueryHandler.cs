@@ -15,18 +15,18 @@ public class GetRolesQueryHandler(
     RoleManager<IdentityRole> roleManager
     ) : IGetItemsQueryHandler<GetRolesQuery, RolesViewModel>
 {
-    private readonly RoleManager<IdentityRole> _roleManager = roleManager;
+  private readonly RoleManager<IdentityRole> _roleManager = roleManager;
 
-    public async Task<RolesViewModel> GetItemsAsync(GetRolesQuery query)
+  public async Task<RolesViewModel> GetItemsAsync(GetRolesQuery query)
+  {
+    var roles = _roleManager
+    .Roles
+    .Select(r => new RoleDTO { Id = r.Id, Name = r.Name! })
+    .ToList();
+
+    return new RolesViewModel
     {
-        var roles = _roleManager
-        .Roles
-        .Select(r => new RoleDTO { Id = r.Id, Name = r.Name! })
-        .ToList();
-
-        return new RolesViewModel
-        {
-            Roles = roles
-        };
-    }
+      Roles = roles
+    };
+  }
 }

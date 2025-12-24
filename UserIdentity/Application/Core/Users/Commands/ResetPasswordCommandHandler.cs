@@ -18,9 +18,9 @@ namespace UserIdentity.Application.Core.Users.Commands;
 
 public record ResetPasswordCommand : IBaseCommand
 {
-    [Required]
-    [EmailAddress]
-    public string UserEmail { get; init; } = null!;
+  [Required]
+  [EmailAddress]
+  public string UserEmail { get; init; } = null!;
 }
 
 public class ResetPasswordCommandHandler(
@@ -32,49 +32,49 @@ public class ResetPasswordCommandHandler(
     ) : ICreateItemCommandHandler<ResetPasswordCommand, ResetPasswordViewModel>
 {
 
-    private readonly UserManager<IdentityUser> _userManager = userManager;
-    private readonly IMachineDateTime _machineDateTime = machineDateTime;
-    private readonly IUnitOfWork _unitOfWork = unitOfWork;
-    private readonly IUserRepository _userRepository = userRepository;
-    private readonly IConfiguration _configuration = configuration;
+  private readonly UserManager<IdentityUser> _userManager = userManager;
+  private readonly IMachineDateTime _machineDateTime = machineDateTime;
+  private readonly IUnitOfWork _unitOfWork = unitOfWork;
+  private readonly IUserRepository _userRepository = userRepository;
+  private readonly IConfiguration _configuration = configuration;
 
-    public async Task<ResetPasswordViewModel> CreateItemAsync(ResetPasswordCommand command, string userId)
+  public async Task<ResetPasswordViewModel> CreateItemAsync(ResetPasswordCommand command, string userId)
+  {
+
+    var resetPasswordMessage = _configuration.GetEnvironmentVariable("DefaultResetPasswordMessage", "Kindly check your email for instructions to reset your password");
+
+    var vm = new ResetPasswordViewModel
     {
+      ResetPasswordDetails = new ResetPasswordDTO
+      {
+        EmailMessage = resetPasswordMessage
+      }
+    };
 
-        var resetPasswordMessage = _configuration.GetEnvironmentVariable("DefaultResetPasswordMessage", "Kindly check your email for instructions to reset your password");
+    var existingUser = await _userManager.FindByEmailAsync(command.UserEmail);
 
-        var vm = new ResetPasswordViewModel
-        {
-            ResetPasswordDetails = new ResetPasswordDTO
-            {
-                EmailMessage = resetPasswordMessage
-            }
-        };
+    if (existingUser is null)
+      return vm;
 
-        var existingUser = await _userManager.FindByEmailAsync(command.UserEmail);
+    // generate token
+    var resetPasswordToken = await _userManager.GeneratePasswordResetTokenAsync(existingUser);
 
-        if (existingUser is null)
-            return vm;
+    // update user details record
+    var existingEntity = await _userRepository.GetEntityItemAsync(existingUser.Id);
 
-        // generate token
-        var resetPasswordToken = await _userManager.GeneratePasswordResetTokenAsync(existingUser);
+    existingEntity.ForgotPasswordToken = resetPasswordToken;
 
-        // update user details record
-        var existingEntity = await _userRepository.GetEntityItemAsync(existingUser.Id);
+    existingEntity.UpdateEntityAuditFields(userId, _machineDateTime.Now);
 
-        existingEntity.ForgotPasswordToken = resetPasswordToken;
+    _userRepository.UpdateEntityItem(existingEntity);
 
-        existingEntity.UpdateEntityAuditFields(userId, _machineDateTime.Now);
+    await _unitOfWork.SaveChangesAsync();
 
-        _userRepository.UpdateEntityItem(existingEntity);
+    var emailToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(resetPasswordToken));
 
-        await _unitOfWork.SaveChangesAsync();
+    // Send Email Logic here
 
-        var emailToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(resetPasswordToken));
+    return vm;
 
-        // Send Email Logic here
-
-        return vm;
-
-    }
+  }
 }

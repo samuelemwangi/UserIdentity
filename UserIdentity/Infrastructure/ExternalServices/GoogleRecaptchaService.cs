@@ -16,23 +16,23 @@ public class GoogleRecaptchaService(
     ) : IGoogleRecaptchaService
 {
 
-    private readonly IHttpClientHelper _httpClientHelper = httpClientHelper;
-    private readonly GoogleRecaptchaSettings _googleRecaptchaSettings = googleRecaptchaSettingsOptions.Value;
+  private readonly IHttpClientHelper _httpClientHelper = httpClientHelper;
+  private readonly GoogleRecaptchaSettings _googleRecaptchaSettings = googleRecaptchaSettingsOptions.Value;
 
-    private const string targetServiceName = "GoogleRecaptcha";
-    public async Task<bool> VerifyTokenAsync(string token)
-    {
-        var requestParams = new Dictionary<string, string>
+  private const string targetServiceName = "GoogleRecaptcha";
+  public async Task<bool> VerifyTokenAsync(string token)
+  {
+    var requestParams = new Dictionary<string, string>
         {
             { "secret", _googleRecaptchaSettings.SiteKey!},
             { "response", token }
         };
 
-        var requestMessage = _httpClientHelper.CreateHttpRequestMessage(HttpMethod.Post, "siteverify")
-            .WithRequestParams(requestParams);
+    var requestMessage = _httpClientHelper.CreateHttpRequestMessage(HttpMethod.Post, "siteverify")
+        .WithRequestParams(requestParams);
 
-        var response = await _httpClientHelper.SendRequestAsync<GoogleRecaptchaResponseDTO>(targetServiceName, requestMessage, HttpStatusCode.OK);
+    var response = await _httpClientHelper.SendRequestAsync<GoogleRecaptchaResponseDTO>(targetServiceName, requestMessage, HttpStatusCode.OK);
 
-        return response != null && response.Success && response.Score >= 0.5;
-    }
+    return response != null && response.Success && response.Score >= 0.5;
+  }
 }

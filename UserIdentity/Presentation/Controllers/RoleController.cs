@@ -32,117 +32,117 @@ public class RoleController(
     IDeleteItemCommandHandler<DeleteRoleClaimCommand, DeleteRecordViewModel> deleteRoleClaimCommandHandler
     ) : BaseController
 {
-    private readonly ICreateItemCommandHandler<CreateRoleCommand, RoleViewModel> _createRoleCommandHandler = createRoleCommandHandler;
-    private readonly ICreateItemCommandHandler<CreateUserRoleCommand, UserRolesViewModel> _createUserRoleCommandHandler = createUserRoleCommandHandler;
-    private readonly IGetItemQueryHandler<GetRoleQuery, RoleViewModel> _getRoleQueryHandler = getRoleQueryHandler;
-    private readonly IGetItemsQueryHandler<GetRolesQuery, RolesViewModel> _getRolesQueryHandler = getRolesQueryHandler;
-    private readonly IGetItemsQueryHandler<GetUserRolesQuery, UserRolesViewModel> _getUserRolesQueryHandler = getUserRolesQueryHandler;
-    private readonly IUpdateItemCommandHandler<UpdateRoleCommand, RoleViewModel> _updateRoleCommandHandler = updateRoleCommandHandler;
-    private readonly IDeleteItemCommandHandler<DeleteRoleCommand, DeleteRecordViewModel> _deleteRoleCommandHandler = deleteRoleCommandHandler;
-    private readonly ICreateItemCommandHandler<CreateRoleClaimCommand, RoleClaimViewModel> _createRoleClaimCommandHandler = createRoleClaimCommandHandler;
-    private readonly IGetItemsQueryHandler<GetRoleClaimsQuery, RoleClaimsViewModel> _getRoleClaimsQueryHandler = getRoleClaimsQueryHandler;
-    private readonly IDeleteItemCommandHandler<DeleteRoleClaimCommand, DeleteRecordViewModel> _deleteRoleClaimCommandHandler = deleteRoleClaimCommandHandler;
+  private readonly ICreateItemCommandHandler<CreateRoleCommand, RoleViewModel> _createRoleCommandHandler = createRoleCommandHandler;
+  private readonly ICreateItemCommandHandler<CreateUserRoleCommand, UserRolesViewModel> _createUserRoleCommandHandler = createUserRoleCommandHandler;
+  private readonly IGetItemQueryHandler<GetRoleQuery, RoleViewModel> _getRoleQueryHandler = getRoleQueryHandler;
+  private readonly IGetItemsQueryHandler<GetRolesQuery, RolesViewModel> _getRolesQueryHandler = getRolesQueryHandler;
+  private readonly IGetItemsQueryHandler<GetUserRolesQuery, UserRolesViewModel> _getUserRolesQueryHandler = getUserRolesQueryHandler;
+  private readonly IUpdateItemCommandHandler<UpdateRoleCommand, RoleViewModel> _updateRoleCommandHandler = updateRoleCommandHandler;
+  private readonly IDeleteItemCommandHandler<DeleteRoleCommand, DeleteRecordViewModel> _deleteRoleCommandHandler = deleteRoleCommandHandler;
+  private readonly ICreateItemCommandHandler<CreateRoleClaimCommand, RoleClaimViewModel> _createRoleClaimCommandHandler = createRoleClaimCommandHandler;
+  private readonly IGetItemsQueryHandler<GetRoleClaimsQuery, RoleClaimsViewModel> _getRoleClaimsQueryHandler = getRoleClaimsQueryHandler;
+  private readonly IDeleteItemCommandHandler<DeleteRoleClaimCommand, DeleteRecordViewModel> _deleteRoleClaimCommandHandler = deleteRoleClaimCommandHandler;
 
-    [Authorize(Policy = ZenConstants.ADMIN_USER_POLICY)]
-    [HttpGet]
-    public async Task<ActionResult<RolesViewModel>> GetRolesAsync()
-    {
-        var vm = await _getRolesQueryHandler.GetItemsAsync(new GetRolesQuery { });
-        return ResolveGetItemsActionResult(vm);
-    }
+  [Authorize(Policy = ZenConstants.ADMIN_USER_POLICY)]
+  [HttpGet]
+  public async Task<ActionResult<RolesViewModel>> GetRolesAsync()
+  {
+    var vm = await _getRolesQueryHandler.GetItemsAsync(new GetRolesQuery { });
+    return ResolveGetItemsActionResult(vm);
+  }
 
-    [Authorize(Policy = ZenConstants.ADMIN_USER_POLICY)]
-    [HttpGet]
-    [Route("{roleId}")]
-    public async Task<ActionResult<RoleViewModel>> GetRoleAsync(string roleId)
-    {
-        var vm = await _getRoleQueryHandler.GetItemAsync(new GetRoleQuery { RoleId = roleId });
-        return ResolveGetItemActionResult(vm);
-    }
+  [Authorize(Policy = ZenConstants.ADMIN_USER_POLICY)]
+  [HttpGet]
+  [Route("{roleId}")]
+  public async Task<ActionResult<RoleViewModel>> GetRoleAsync(string roleId)
+  {
+    var vm = await _getRoleQueryHandler.GetItemAsync(new GetRoleQuery { RoleId = roleId });
+    return ResolveGetItemActionResult(vm);
+  }
 
-    [Authorize(Policy = ZenConstants.ADMIN_USER_POLICY)]
-    [HttpPost]
-    public async Task<ActionResult<RoleViewModel>> CreateRoleAsync(CreateRoleCommand command)
-    {
-        var vm = await _createRoleCommandHandler.CreateItemAsync(command, LoggedInUserId);
-        return ResolveCreateItemActionResult(vm);
-    }
+  [Authorize(Policy = ZenConstants.ADMIN_USER_POLICY)]
+  [HttpPost]
+  public async Task<ActionResult<RoleViewModel>> CreateRoleAsync(CreateRoleCommand command)
+  {
+    var vm = await _createRoleCommandHandler.CreateItemAsync(command, LoggedInUserId);
+    return ResolveCreateItemActionResult(vm);
+  }
 
-    [Authorize(Policy = ZenConstants.ADMIN_USER_POLICY)]
-    [HttpPut]
-    [Route("{roleId}")]
-    public async Task<ActionResult<RoleViewModel>> UpdateRoleAsync(string roleId, [FromBody] UpdateRoleCommand command)
-    {
-        command.RoleId = roleId;
+  [Authorize(Policy = ZenConstants.ADMIN_USER_POLICY)]
+  [HttpPut]
+  [Route("{roleId}")]
+  public async Task<ActionResult<RoleViewModel>> UpdateRoleAsync(string roleId, [FromBody] UpdateRoleCommand command)
+  {
+    command.RoleId = roleId;
 
-        var vm = await _updateRoleCommandHandler.UpdateItemAsync(command, LoggedInUserId);
-        return ResolveUpdateItemActionResult(vm);
-    }
-
-
-    [Authorize(Policy = ZenConstants.ADMIN_USER_POLICY)]
-    [HttpDelete]
-    [Route("{roleId}")]
-    public async Task<ActionResult<DeleteRecordViewModel>> DeleteRoleAsync(string roleId)
-    {
-        var vm = await _deleteRoleCommandHandler.DeleteItemAsync(new DeleteRoleCommand { RoleId = roleId }, LoggedInUserId);
-        return ResolveDeleteItemActionResult(vm);
-    }
-
-    [Authorize(Policy = ZenConstants.ADMIN_OR_SAME_USER_POLICY)]
-    [HttpGet]
-    [Route("user/{userId}")]
-    public async Task<ActionResult<UserRolesViewModel>> GetUserRolesAsync(string userId)
-    {
-        var vm = await _getUserRolesQueryHandler.GetItemsAsync(new GetUserRolesQuery { UserId = userId });
-        return ResolveGetItemsActionResult(vm);
-    }
+    var vm = await _updateRoleCommandHandler.UpdateItemAsync(command, LoggedInUserId);
+    return ResolveUpdateItemActionResult(vm);
+  }
 
 
-    [Authorize(Policy = ZenConstants.ADMIN_USER_POLICY)]
-    [HttpPost]
-    [Route("user")]
-    public async Task<ActionResult<UserRolesViewModel>> CreateUserRoleAsync(CreateUserRoleCommand command)
-    {
-        var vm = await _createUserRoleCommandHandler.CreateItemAsync(command, LoggedInUserId);
+  [Authorize(Policy = ZenConstants.ADMIN_USER_POLICY)]
+  [HttpDelete]
+  [Route("{roleId}")]
+  public async Task<ActionResult<DeleteRecordViewModel>> DeleteRoleAsync(string roleId)
+  {
+    var vm = await _deleteRoleCommandHandler.DeleteItemAsync(new DeleteRoleCommand { RoleId = roleId }, LoggedInUserId);
+    return ResolveDeleteItemActionResult(vm);
+  }
 
-        vm.ResolveCreateDownloadRights(UserScopeClaims, EntityName);
-        vm.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.CREATE_ITEM_SUCCESSFUL);
+  [Authorize(Policy = ZenConstants.ADMIN_OR_SAME_USER_POLICY)]
+  [HttpGet]
+  [Route("user/{userId}")]
+  public async Task<ActionResult<UserRolesViewModel>> GetUserRolesAsync(string userId)
+  {
+    var vm = await _getUserRolesQueryHandler.GetItemsAsync(new GetUserRolesQuery { UserId = userId });
+    return ResolveGetItemsActionResult(vm);
+  }
 
-        return StatusCode((int)HttpStatusCode.Created, vm);
-    }
+
+  [Authorize(Policy = ZenConstants.ADMIN_USER_POLICY)]
+  [HttpPost]
+  [Route("user")]
+  public async Task<ActionResult<UserRolesViewModel>> CreateUserRoleAsync(CreateUserRoleCommand command)
+  {
+    var vm = await _createUserRoleCommandHandler.CreateItemAsync(command, LoggedInUserId);
+
+    vm.ResolveCreateDownloadRights(UserScopeClaims, EntityName);
+    vm.ResolveRequestStatus(RequestStatus.SUCCESSFUL, ItemStatusMessage.CREATE_ITEM_SUCCESSFUL);
+
+    return StatusCode((int)HttpStatusCode.Created, vm);
+  }
 
 
-    /// <summary>
-    /// Roles Claims
-    /// </summary>
-    /// <param name="command"></param>
-    /// <returns></returns>
+  /// <summary>
+  /// Roles Claims
+  /// </summary>
+  /// <param name="command"></param>
+  /// <returns></returns>
 
-    [Authorize(Policy = ZenConstants.ADMIN_USER_POLICY)]
-    [HttpPost]
-    [Route("claim")]
-    public async Task<ActionResult<RoleClaimViewModel>> CreateRoleClaimAsync(CreateRoleClaimCommand command)
-    {
-        var vm = await _createRoleClaimCommandHandler.CreateItemAsync(command, LoggedInUserId);
-        return ResolveCreateItemActionResult(vm);
-    }
+  [Authorize(Policy = ZenConstants.ADMIN_USER_POLICY)]
+  [HttpPost]
+  [Route("claim")]
+  public async Task<ActionResult<RoleClaimViewModel>> CreateRoleClaimAsync(CreateRoleClaimCommand command)
+  {
+    var vm = await _createRoleClaimCommandHandler.CreateItemAsync(command, LoggedInUserId);
+    return ResolveCreateItemActionResult(vm);
+  }
 
-    [Authorize(Policy = ZenConstants.ADMIN_USER_POLICY)]
-    [HttpGet]
-    [Route("claim/{roleId}")]
-    public async Task<ActionResult<RoleClaimsViewModel>> GetRoleClaimsAsync(string roleId)
-    {
-        var vm = await _getRoleClaimsQueryHandler.GetItemsAsync(new GetRoleClaimsQuery { RoleId = roleId });
-        return ResolveGetItemsActionResult(vm);
-    }
+  [Authorize(Policy = ZenConstants.ADMIN_USER_POLICY)]
+  [HttpGet]
+  [Route("claim/{roleId}")]
+  public async Task<ActionResult<RoleClaimsViewModel>> GetRoleClaimsAsync(string roleId)
+  {
+    var vm = await _getRoleClaimsQueryHandler.GetItemsAsync(new GetRoleClaimsQuery { RoleId = roleId });
+    return ResolveGetItemsActionResult(vm);
+  }
 
-    [Authorize(Policy = ZenConstants.ADMIN_USER_POLICY)]
-    [HttpDelete]
-    [Route("claim")]
-    public async Task<ActionResult<DeleteRecordViewModel>> DeleteRoleClaimAsync(DeleteRoleClaimCommand command)
-    {
-        var vm = await _deleteRoleClaimCommandHandler.DeleteItemAsync(command, LoggedInUserId);
-        return ResolveDeleteItemActionResult(vm);
-    }
+  [Authorize(Policy = ZenConstants.ADMIN_USER_POLICY)]
+  [HttpDelete]
+  [Route("claim")]
+  public async Task<ActionResult<DeleteRecordViewModel>> DeleteRoleClaimAsync(DeleteRoleClaimCommand command)
+  {
+    var vm = await _deleteRoleClaimCommandHandler.DeleteItemAsync(command, LoggedInUserId);
+    return ResolveDeleteItemActionResult(vm);
+  }
 }

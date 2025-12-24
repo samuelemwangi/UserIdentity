@@ -11,12 +11,12 @@ namespace UserIdentity.Application.Core.Roles.Queries;
 
 public record GetRoleClaimsQuery : IBaseQuery
 {
-    public required string RoleId { get; init; }
+  public required string RoleId { get; init; }
 }
 
 public record GetRoleClaimsForRolesQuery : IBaseQuery
 {
-    public required IList<string> Roles { get; init; }
+  public required IList<string> Roles { get; init; }
 }
 public class GetRoleClaimsQueryHandler(
     RoleManager<IdentityRole> roleManager,
@@ -24,61 +24,61 @@ public class GetRoleClaimsQueryHandler(
     ) : IGetItemsQueryHandler<GetRoleClaimsQuery, RoleClaimsViewModel>,
     IGetItemsQueryHandler<GetRoleClaimsForRolesQuery, RoleClaimsForRolesViewModels>
 {
-    private readonly RoleManager<IdentityRole> _roleManager = roleManager;
-    private readonly IJwtTokenHandler _jwtTokenHandler = jwtTokenHandler;
+  private readonly RoleManager<IdentityRole> _roleManager = roleManager;
+  private readonly IJwtTokenHandler _jwtTokenHandler = jwtTokenHandler;
 
-    public async Task<RoleClaimsViewModel> GetItemsAsync(GetRoleClaimsQuery query)
+  public async Task<RoleClaimsViewModel> GetItemsAsync(GetRoleClaimsQuery query)
+  {
+    var role = await _roleManager.FindByIdAsync(query.RoleId) ?? throw new NoRecordException(query.RoleId, "Role");
+
+    var roleClaims = await _roleManager.GetClaimsAsync(role);
+
+    var rolesCollection = new List<RoleClaimDTO>();
+
+    foreach (var roleClaim in roleClaims)
     {
-        var role = await _roleManager.FindByIdAsync(query.RoleId) ?? throw new NoRecordException(query.RoleId, "Role");
+      (var resource, var action) = _jwtTokenHandler.DecodeScopeClaim(roleClaim);
 
-        var roleClaims = await _roleManager.GetClaimsAsync(role);
+      RoleClaimDTO claimDTO = new()
+      {
+        Resource = resource,
+        Action = action,
+        Scope = roleClaim.Value
+      };
 
-        var rolesCollection = new List<RoleClaimDTO>();
-
-        foreach (var roleClaim in roleClaims)
-        {
-            (var resource, var action) = _jwtTokenHandler.DecodeScopeClaim(roleClaim);
-
-            RoleClaimDTO claimDTO = new()
-            {
-                Resource = resource,
-                Action = action,
-                Scope = roleClaim.Value
-            };
-
-            rolesCollection.Add(claimDTO);
-        }
-
-        return new RoleClaimsViewModel
-        {
-            RoleClaims = rolesCollection
-        };
-
+      rolesCollection.Add(claimDTO);
     }
 
-    public async Task<RoleClaimsForRolesViewModels> GetItemsAsync(GetRoleClaimsForRolesQuery getRoleClaimsForRolesQuery)
+    return new RoleClaimsViewModel
     {
-        HashSet<string> roleClaims = [];
+      RoleClaims = rolesCollection
+    };
 
-        foreach (var role in getRoleClaimsForRolesQuery.Roles)
+  }
+
+  public async Task<RoleClaimsForRolesViewModels> GetItemsAsync(GetRoleClaimsForRolesQuery getRoleClaimsForRolesQuery)
+  {
+    HashSet<string> roleClaims = [];
+
+    foreach (var role in getRoleClaimsForRolesQuery.Roles)
+    {
+
+      var currentRole = await _roleManager.FindByNameAsync(role);
+
+      if (currentRole != null)
+      {
+        var currentRoleClaims = await _roleManager.GetClaimsAsync(currentRole);
+
+        foreach (var claim in currentRoleClaims)
         {
-
-            var currentRole = await _roleManager.FindByNameAsync(role);
-
-            if (currentRole != null)
-            {
-                var currentRoleClaims = await _roleManager.GetClaimsAsync(currentRole);
-
-                foreach (var claim in currentRoleClaims)
-                {
-                    roleClaims.Add(claim.Value);
-                }
-            }
+          roleClaims.Add(claim.Value);
         }
-
-        return new RoleClaimsForRolesViewModels
-        {
-            RoleClaims = roleClaims
-        };
+      }
     }
+
+    return new RoleClaimsForRolesViewModels
+    {
+      RoleClaims = roleClaims
+    };
+  }
 }

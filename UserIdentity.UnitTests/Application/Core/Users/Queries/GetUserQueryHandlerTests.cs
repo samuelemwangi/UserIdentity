@@ -21,102 +21,102 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Queries;
 
 public class GetUserQueryHandlerTests
 {
-    private readonly UserManager<IdentityUser> _userManager;
-    private readonly IUserRepository _userRepository;
-    private readonly IGetItemsQueryHandler<GetRoleClaimsForRolesQuery, RoleClaimsForRolesViewModels> _getRoleClaimsQueryHandler;
+  private readonly UserManager<IdentityUser> _userManager;
+  private readonly IUserRepository _userRepository;
+  private readonly IGetItemsQueryHandler<GetRoleClaimsForRolesQuery, RoleClaimsForRolesViewModels> _getRoleClaimsQueryHandler;
 
 
-    public GetUserQueryHandlerTests()
+  public GetUserQueryHandlerTests()
+  {
+    _userManager = A.Fake<UserManager<IdentityUser>>();
+    _userRepository = A.Fake<IUserRepository>();
+    _getRoleClaimsQueryHandler = A.Fake<IGetItemsQueryHandler<GetRoleClaimsForRolesQuery, RoleClaimsForRolesViewModels>>();
+  }
+
+  [Fact]
+  public async Task Get_User_When_Non_Existent_In_User_Manager_Throws_NoRecordException()
+  {
+
+    // Arrange
+    GetUserQuery query = new()
     {
-        _userManager = A.Fake<UserManager<IdentityUser>>();
-        _userRepository = A.Fake<IUserRepository>();
-        _getRoleClaimsQueryHandler = A.Fake<IGetItemsQueryHandler<GetRoleClaimsForRolesQuery, RoleClaimsForRolesViewModels>>();
-    }
+      UserId = "test"
+    };
 
-    [Fact]
-    public async Task Get_User_When_Non_Existent_In_User_Manager_Throws_NoRecordException()
+    A.CallTo(() => _userManager.FindByIdAsync(query.UserId)).Returns(default(IdentityUser));
+
+    GetUserQueryHandler handler = new(_userManager, _userRepository, _getRoleClaimsQueryHandler);
+
+    // Act & Assert
+    await Assert.ThrowsAsync<NoRecordException>(() => handler.GetItemAsync(query));
+  }
+
+  [Fact]
+  public async Task Get_User_When_Non_Existent_In_User_Repo_Throws_NoRecordException()
+  {
+
+    // Arrange
+    GetUserQuery query = new()
     {
+      UserId = "test"
+    };
 
-        // Arrange
-        GetUserQuery query = new()
-        {
-            UserId = "test"
-        };
-
-        A.CallTo(() => _userManager.FindByIdAsync(query.UserId)).Returns(default(IdentityUser));
-
-        GetUserQueryHandler handler = new(_userManager, _userRepository, _getRoleClaimsQueryHandler);
-
-        // Act & Assert
-        await Assert.ThrowsAsync<NoRecordException>(() => handler.GetItemAsync(query));
-    }
-
-    [Fact]
-    public async Task Get_User_When_Non_Existent_In_User_Repo_Throws_NoRecordException()
+    IdentityUser existingIdentityUser = new()
     {
+      Id = "test",
+      UserName = "test",
+      Email = "test@lp.mll",
+    };
 
-        // Arrange
-        GetUserQuery query = new()
-        {
-            UserId = "test"
-        };
+    A.CallTo(() => _userManager.FindByIdAsync(query.UserId)).Returns(existingIdentityUser);
+    A.CallTo(() => _userRepository.GetEntityItemAsync(query.UserId)).Throws(new NoRecordException(query.UserId, "User"));
 
-        IdentityUser existingIdentityUser = new()
-        {
-            Id = "test",
-            UserName = "test",
-            Email = "test@lp.mll",
-        };
+    GetUserQueryHandler handler = new(_userManager, _userRepository, _getRoleClaimsQueryHandler);
 
-        A.CallTo(() => _userManager.FindByIdAsync(query.UserId)).Returns(existingIdentityUser);
-        A.CallTo(() => _userRepository.GetEntityItemAsync(query.UserId)).Throws(new NoRecordException(query.UserId, "User"));
+    // Act & Assert
+    await Assert.ThrowsAsync<NoRecordException>(() => handler.GetItemAsync(query));
+  }
 
-        GetUserQueryHandler handler = new(_userManager, _userRepository, _getRoleClaimsQueryHandler);
+  [Fact]
+  public async Task Get_User_Existing_User_Returns_User()
+  {
 
-        // Act & Assert
-        await Assert.ThrowsAsync<NoRecordException>(() => handler.GetItemAsync(query));
-    }
-
-    [Fact]
-    public async Task Get_User_Existing_User_Returns_User()
+    // Arrange
+    GetUserQuery query = new()
     {
+      UserId = "test"
+    };
 
-        // Arrange
-        GetUserQuery query = new()
-        {
-            UserId = "test"
-        };
+    IdentityUser existingIdentityUser = new()
+    {
+      Id = "test",
+      UserName = "test",
+      Email = "test@lp.mll",
+    };
 
-        IdentityUser existingIdentityUser = new()
-        {
-            Id = "test",
-            UserName = "test",
-            Email = "test@lp.mll",
-        };
+    UserEntity existingUser = new()
+    {
+      Id = existingIdentityUser.Id,
+      FirstName = "test",
+      LastName = "test",
+    };
 
-        UserEntity existingUser = new()
-        {
-            Id = existingIdentityUser.Id,
-            FirstName = "test",
-            LastName = "test",
-        };
+    A.CallTo(() => _userManager.FindByIdAsync(query.UserId)).Returns(existingIdentityUser);
+    A.CallTo(() => _userRepository.GetEntityItemAsync(query.UserId)).Returns(existingUser);
+    A.CallTo(() => _userManager.GetRolesAsync(existingIdentityUser)).Returns(["admin"]);
+    A.CallTo(() => _getRoleClaimsQueryHandler.GetItemsAsync(A<GetRoleClaimsForRolesQuery>.That.Matches(q => q.Roles.Contains("admin"))))
+        .Returns(new RoleClaimsForRolesViewModels { RoleClaims = ["scope:user:read"] });
 
-        A.CallTo(() => _userManager.FindByIdAsync(query.UserId)).Returns(existingIdentityUser);
-        A.CallTo(() => _userRepository.GetEntityItemAsync(query.UserId)).Returns(existingUser);
-        A.CallTo(() => _userManager.GetRolesAsync(existingIdentityUser)).Returns(["admin"]);
-        A.CallTo(() => _getRoleClaimsQueryHandler.GetItemsAsync(A<GetRoleClaimsForRolesQuery>.That.Matches(q => q.Roles.Contains("admin"))))
-            .Returns(new RoleClaimsForRolesViewModels { RoleClaims = ["scope:user:read"] });
+    GetUserQueryHandler handler = new(_userManager, _userRepository, _getRoleClaimsQueryHandler);
 
-        GetUserQueryHandler handler = new(_userManager, _userRepository, _getRoleClaimsQueryHandler);
+    // Act 
+    var vm = await handler.GetItemAsync(query);
 
-        // Act 
-        var vm = await handler.GetItemAsync(query);
-
-        // Assert
-        Assert.IsType<UserViewModel>(vm);
-        Assert.IsType<UserDTO>(vm.User);
-        Assert.Equal(existingUser.Id, vm.User?.Id);
-        Assert.Equal("admin", vm.User?.Roles.First());
-        Assert.Contains("scope:user:read", vm.User?.RoleClaims ?? []);
-    }
+    // Assert
+    Assert.IsType<UserViewModel>(vm);
+    Assert.IsType<UserDTO>(vm.User);
+    Assert.Equal(existingUser.Id, vm.User?.Id);
+    Assert.Equal("admin", vm.User?.Roles.First());
+    Assert.Contains("scope:user:read", vm.User?.RoleClaims ?? []);
+  }
 }

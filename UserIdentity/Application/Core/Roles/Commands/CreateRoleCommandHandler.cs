@@ -12,8 +12,8 @@ namespace UserIdentity.Application.Core.Roles.Commands;
 
 public record CreateRoleCommand : IBaseCommand
 {
-    [Required]
-    public string RoleName { get; init; } = null!;
+  [Required]
+  public string RoleName { get; init; } = null!;
 }
 
 
@@ -22,29 +22,29 @@ public class CreateRoleCommandHandler(
     RoleManager<IdentityRole> roleManager
     ) : ICreateItemCommandHandler<CreateRoleCommand, RoleViewModel>
 {
-    private readonly RoleManager<IdentityRole> _roleManager = roleManager;
+  private readonly RoleManager<IdentityRole> _roleManager = roleManager;
 
-    public async Task<RoleViewModel> CreateItemAsync(CreateRoleCommand command, string userid)
+  public async Task<RoleViewModel> CreateItemAsync(CreateRoleCommand command, string userid)
+  {
+    var existingRole = await _roleManager.FindByNameAsync(command.RoleName);
+
+    if (existingRole != null)
+      throw new RecordExistsException(command.RoleName, "Role");
+
+    var newRole = new IdentityRole { Name = command.RoleName };
+
+    var createdRoleResult = await _roleManager.CreateAsync(newRole);
+
+    if (!createdRoleResult.Succeeded)
+      throw new RecordCreationException(command.RoleName, "Role");
+
+    return new RoleViewModel
     {
-        var existingRole = await _roleManager.FindByNameAsync(command.RoleName);
-
-        if (existingRole != null)
-            throw new RecordExistsException(command.RoleName, "Role");
-
-        var newRole = new IdentityRole { Name = command.RoleName };
-
-        var createdRoleResult = await _roleManager.CreateAsync(newRole);
-
-        if (!createdRoleResult.Succeeded)
-            throw new RecordCreationException(command.RoleName, "Role");
-
-        return new RoleViewModel
-        {
-            Role = new RoleDTO
-            {
-                Id = newRole.Id,
-                Name = newRole.Name
-            }
-        };
-    }
+      Role = new RoleDTO
+      {
+        Id = newRole.Id,
+        Name = newRole.Name
+      }
+    };
+  }
 }

@@ -19,112 +19,112 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands;
 
 public class ConfirmUpdatePasswordTokenCommandHandlerTests
 {
-    private readonly IUserRepository _userRepository;
+  private readonly IUserRepository _userRepository;
 
-    public ConfirmUpdatePasswordTokenCommandHandlerTests()
+  public ConfirmUpdatePasswordTokenCommandHandlerTests()
+  {
+    _userRepository = A.Fake<IUserRepository>();
+  }
+
+  [Fact]
+  public async Task Confirm_UpdatePassword_Token_With_Bad_Token_Returns_False()
+  {
+    // Arrange
+    ConfirmUpdatePasswordTokenCommand command = new()
     {
-        _userRepository = A.Fake<IUserRepository>();
-    }
+      ConfirmPasswordToken = "test/!!",
+      UserId = "test"
+    };
 
-    [Fact]
-    public async Task Confirm_UpdatePassword_Token_With_Bad_Token_Returns_False()
+
+    ConfirmUpdatePasswordTokenCommandHandler handler = new(_userRepository);
+
+    // Act
+    var vm = await handler.UpdateItemAsync(command, TestStringHelper.UserId);
+
+    // Assert
+    Assert.IsType<ConfirmUpdatePasswordTokenViewModel>(vm);
+    Assert.NotNull(vm.TokenPasswordResult);
+    Assert.False(vm.TokenPasswordResult.UpdatePasswordTokenConfirmed);
+
+  }
+
+  [Fact]
+  public async Task Confirm_UpdatePassword_Token_With_Non_Existing_Token_Returns_False()
+  {
+    // Arrange
+    var rawToken = "test123+*";
+
+    ConfirmUpdatePasswordTokenCommand command = new()
     {
-        // Arrange
-        ConfirmUpdatePasswordTokenCommand command = new()
-        {
-            ConfirmPasswordToken = "test/!!",
-            UserId = "test"
-        };
+      ConfirmPasswordToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(rawToken)),
+      UserId = "test"
+    };
 
+    A.CallTo(() => _userRepository.GetEntityByAlternateIdAsync(
+        A<UserEntity>.That.Matches(e => e.Id == command.UserId && e.ForgotPasswordToken == rawToken),
+        QueryCondition.MAY_OR_MAY_NOT_EXIST)).Returns((UserEntity?)null);
 
-        ConfirmUpdatePasswordTokenCommandHandler handler = new(_userRepository);
+    ConfirmUpdatePasswordTokenCommandHandler handler = new(_userRepository);
 
-        // Act
-        var vm = await handler.UpdateItemAsync(command, TestStringHelper.UserId);
+    // Act
+    var vm = await handler.UpdateItemAsync(command, TestStringHelper.UserId);
 
-        // Assert
-        Assert.IsType<ConfirmUpdatePasswordTokenViewModel>(vm);
-        Assert.NotNull(vm.TokenPasswordResult);
-        Assert.False(vm.TokenPasswordResult.UpdatePasswordTokenConfirmed);
+    // Assert
+    Assert.IsType<ConfirmUpdatePasswordTokenViewModel>(vm);
+    Assert.NotNull(vm.TokenPasswordResult);
+    Assert.False(vm.TokenPasswordResult.UpdatePasswordTokenConfirmed);
+  }
 
-    }
+  [Fact]
+  public async Task Confirm_UpdatePassword_Token_With_Query_Token_Exception_Returns_False()
+  {
+    // Arrange
+    var rawToken = "test123+*";
 
-    [Fact]
-    public async Task Confirm_UpdatePassword_Token_With_Non_Existing_Token_Returns_False()
+    ConfirmUpdatePasswordTokenCommand command = new()
     {
-        // Arrange
-        var rawToken = "test123+*";
+      ConfirmPasswordToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(rawToken)),
+      UserId = "test"
+    };
 
-        ConfirmUpdatePasswordTokenCommand command = new()
-        {
-            ConfirmPasswordToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(rawToken)),
-            UserId = "test"
-        };
+    A.CallTo(() => _userRepository.GetEntityByAlternateIdAsync(A<UserEntity>._, QueryCondition.MAY_OR_MAY_NOT_EXIST)).Throws(new System.Exception());
 
-        A.CallTo(() => _userRepository.GetEntityByAlternateIdAsync(
-            A<UserEntity>.That.Matches(e => e.Id == command.UserId && e.ForgotPasswordToken == rawToken),
-            QueryCondition.MAY_OR_MAY_NOT_EXIST)).Returns((UserEntity?)null);
+    ConfirmUpdatePasswordTokenCommandHandler handler = new(_userRepository);
 
-        ConfirmUpdatePasswordTokenCommandHandler handler = new(_userRepository);
+    // Act
+    var vm = await handler.UpdateItemAsync(command, TestStringHelper.UserId);
 
-        // Act
-        var vm = await handler.UpdateItemAsync(command, TestStringHelper.UserId);
+    // Assert
+    Assert.IsType<ConfirmUpdatePasswordTokenViewModel>(vm);
+    Assert.NotNull(vm.TokenPasswordResult);
+    Assert.False(vm.TokenPasswordResult.UpdatePasswordTokenConfirmed);
+  }
 
-        // Assert
-        Assert.IsType<ConfirmUpdatePasswordTokenViewModel>(vm);
-        Assert.NotNull(vm.TokenPasswordResult);
-        Assert.False(vm.TokenPasswordResult.UpdatePasswordTokenConfirmed);
-    }
+  [Fact]
+  public async Task Confirm_UpdatePassword_Token_With_Existing_Token_Returns_True()
+  {
+    // Arrange
+    var rawToken = "test123+*";
 
-    [Fact]
-    public async Task Confirm_UpdatePassword_Token_With_Query_Token_Exception_Returns_False()
+    ConfirmUpdatePasswordTokenCommand command = new()
     {
-        // Arrange
-        var rawToken = "test123+*";
+      ConfirmPasswordToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(rawToken)),
+      UserId = "test"
+    };
 
-        ConfirmUpdatePasswordTokenCommand command = new()
-        {
-            ConfirmPasswordToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(rawToken)),
-            UserId = "test"
-        };
+    A.CallTo(() => _userRepository.GetEntityByAlternateIdAsync(
+        A<UserEntity>.That.Matches(e => e.Id == command.UserId && e.ForgotPasswordToken == rawToken),
+        QueryCondition.MAY_OR_MAY_NOT_EXIST)).Returns(new UserEntity { Id = command.UserId, ForgotPasswordToken = rawToken });
 
-        A.CallTo(() => _userRepository.GetEntityByAlternateIdAsync(A<UserEntity>._, QueryCondition.MAY_OR_MAY_NOT_EXIST)).Throws(new System.Exception());
+    ConfirmUpdatePasswordTokenCommandHandler handler = new(_userRepository);
 
-        ConfirmUpdatePasswordTokenCommandHandler handler = new(_userRepository);
+    // Act
+    var vm = await handler.UpdateItemAsync(command, TestStringHelper.UserId);
 
-        // Act
-        var vm = await handler.UpdateItemAsync(command, TestStringHelper.UserId);
-
-        // Assert
-        Assert.IsType<ConfirmUpdatePasswordTokenViewModel>(vm);
-        Assert.NotNull(vm.TokenPasswordResult);
-        Assert.False(vm.TokenPasswordResult.UpdatePasswordTokenConfirmed);
-    }
-
-    [Fact]
-    public async Task Confirm_UpdatePassword_Token_With_Existing_Token_Returns_True()
-    {
-        // Arrange
-        var rawToken = "test123+*";
-
-        ConfirmUpdatePasswordTokenCommand command = new()
-        {
-            ConfirmPasswordToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(rawToken)),
-            UserId = "test"
-        };
-
-        A.CallTo(() => _userRepository.GetEntityByAlternateIdAsync(
-            A<UserEntity>.That.Matches(e => e.Id == command.UserId && e.ForgotPasswordToken == rawToken),
-            QueryCondition.MAY_OR_MAY_NOT_EXIST)).Returns(new UserEntity { Id = command.UserId, ForgotPasswordToken = rawToken });
-
-        ConfirmUpdatePasswordTokenCommandHandler handler = new(_userRepository);
-
-        // Act
-        var vm = await handler.UpdateItemAsync(command, TestStringHelper.UserId);
-
-        // Assert
-        Assert.IsType<ConfirmUpdatePasswordTokenViewModel>(vm);
-        Assert.NotNull(vm.TokenPasswordResult);
-        Assert.True(vm.TokenPasswordResult.UpdatePasswordTokenConfirmed);
-    }
+    // Assert
+    Assert.IsType<ConfirmUpdatePasswordTokenViewModel>(vm);
+    Assert.NotNull(vm.TokenPasswordResult);
+    Assert.True(vm.TokenPasswordResult.UpdatePasswordTokenConfirmed);
+  }
 }

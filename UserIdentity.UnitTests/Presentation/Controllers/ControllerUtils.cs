@@ -12,44 +12,44 @@ namespace UserIdentity.UnitTests.Presentation.Controllers;
 internal static class ControllerUtils
 {
 
-    public static void UpdateContext(
-        this BaseController controller,
-        string? controllerName,
-        bool addUserId = false,
-        string? userId = null,
-        bool addUserRoles = false,
-        string? userRoles = null,
-        bool addUserScopes = false,
-        string? userScopes = null,
-        string? appName = null
-     )
-    {
-        RouteData routedData = new();
-        routedData.Values["controller"] = controllerName;
+  public static void UpdateContext(
+      this BaseController controller,
+      string? controllerName,
+      bool addUserId = false,
+      string? userId = null,
+      bool addUserRoles = false,
+      string? userRoles = null,
+      bool addUserScopes = false,
+      string? userScopes = null,
+      string? appName = null
+   )
+  {
+    RouteData routedData = new();
+    routedData.Values["controller"] = controllerName;
 
-        controller.ControllerContext.RouteData = routedData;
+    controller.ControllerContext.RouteData = routedData;
 
-        DefaultHttpContext context = new();
+    DefaultHttpContext context = new();
 
-        List<Claim> claims = [];
+    List<Claim> claims = [];
 
-        if (addUserId)
-            claims.Add(new Claim(JwtCustomClaimNames.Id, userId!));
+    if (addUserId)
+      claims.Add(new Claim(JwtCustomClaimNames.Id, userId!));
 
-        if (addUserRoles)
-            foreach (var role in userRoles!.Split(","))
-                claims.Add(new Claim(JwtCustomClaimNames.Rol, role));
+    if (addUserRoles)
+      foreach (var role in userRoles!.Split(","))
+        claims.Add(new Claim(JwtCustomClaimNames.Rol, role));
 
-        if (addUserScopes)
-            foreach (var scope in userScopes!.Split(","))
-                claims.Add(new Claim(JwtCustomClaimNames.Scope, scope));
+    if (addUserScopes)
+      foreach (var scope in userScopes!.Split(","))
+        claims.Add(new Claim(JwtCustomClaimNames.Scope, scope));
 
-        context.User = new ClaimsPrincipal(new ClaimsIdentity(claims, "Bearer"));
+    context.User = new ClaimsPrincipal(new ClaimsIdentity(claims, "Bearer"));
 
-        if (!string.IsNullOrWhiteSpace(appName))
-            context.Request.Headers["X-App-Name"] = appName;
+    if (!string.IsNullOrWhiteSpace(appName))
+      context.Request.Headers["X-App-Name"] = appName;
 
-        controller.ControllerContext.HttpContext = context;
+    controller.ControllerContext.HttpContext = context;
 
-    }
+  }
 }

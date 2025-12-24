@@ -1,18 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.Configuration;
 
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Generators;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.OpenSsl;
-using Org.BouncyCastle.Security;
-
-using PolyzenKit.Common.Exceptions;
+using PolyzenKit.Common.Utilities;
+using PolyzenKit.Infrastructure.ExternalServices;
 using PolyzenKit.Infrastructure.Kafka;
 using PolyzenKit.Infrastructure.Security.KeySets;
 using PolyzenKit.Persistence.Settings;
@@ -20,123 +12,93 @@ using PolyzenKit.Persistence.Settings;
 using Testcontainers.MySql;
 using Testcontainers.Redpanda;
 
+using UserIdentity.Application.Core.Users.Settings;
+using UserIdentity.IntegrationTests.TestUtils;
+
+using WireMock.Server;
+
 using Xunit;
 
 namespace UserIdentity.IntegrationTests;
 
 public class TestingWebAppFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
-    private readonly MySqlContainer _mysqlContainer;
-    private readonly RedpandaContainer _redpandaContainer;
-    private readonly Dictionary<string, string?> _environmentSnapshot = new(StringComparer.OrdinalIgnoreCase);
-    private readonly KeySetOptions _keySetOptions;
-    private readonly int _exposedTestMysqlPort = 33061;
-    private readonly int _exposedKafkaBrokerPort = 9095;
-    private readonly int _exposedKafkaSchemaRegistryPort = 8085;
+  public WireMockServer WireMockServer { get; private set; }
 
-    public TestingWebAppFactory()
+  private readonly MySqlContainer _mysqlContainer;
+  private readonly RedpandaContainer _redpandaContainer;
+
+  private static readonly string _dbUserName = "test-user";
+  private static readonly string _dbUserPassword = "test-user-db@user@Pass";
+  private static readonly string _dbName = "useridentity-test-db";
+
+  public TestingWebAppFactory()
+  {
+
+    WireMockServer = WireMockServer.Start();
+
+    _mysqlContainer = new MySqlBuilder()
+        .WithImage("mysql:8.4.0")
+        .WithUsername(_dbUserName)
+        .WithPassword(_dbUserPassword)
+        .WithDatabase(_dbName)
+        .Build();
+
+    _redpandaContainer = new RedpandaBuilder()
+        .WithImage("redpandadata/redpanda:v25.3.3")
+        .Build();
+  }
+
+
+
+  public async Task InitializeAsync()
+  {
+    await Task.WhenAll(
+      _mysqlContainer.StartAsync(),
+      _redpandaContainer.StartAsync()
+    );
+  }
+
+  protected override void ConfigureWebHost(IWebHostBuilder builder)
+  {
+    builder.ConfigureAppConfiguration((context, config) =>
     {
-        var configuration = LoadTestConfiguration();
 
-        var mysqlSettings = configuration.GetSection(nameof(MysqlSettings)).Get<MysqlSettings>()
-            ?? throw new MissingConfigurationException(nameof(MysqlSettings));
+    });
 
-        _keySetOptions = configuration.GetSection(nameof(KeySetOptions)).Get<KeySetOptions>()
-            ?? throw new MissingConfigurationException(nameof(KeySetOptions));
+    // Override MYSQL Settings
+    builder.UseSetting($"{nameof(MysqlSettings)}:{nameof(MysqlSettings.Port)}", _mysqlContainer.GetMappedPublicPort().ToString());
+    builder.UseSetting($"{nameof(MysqlSettings)}:{nameof(MysqlSettings.UserName)}", _dbUserName);
+    builder.UseSetting($"{nameof(MysqlSettings)}:{nameof(MysqlSettings.Password)}", _dbUserPassword);
+    builder.UseSetting($"{nameof(MysqlSettings)}:{nameof(MysqlSettings.Database)}", _dbName);
 
-        _mysqlContainer = new MySqlBuilder()
-            .WithImage("mysql:8.4.0")
-            .WithUsername(mysqlSettings.UserName)
-            .WithPassword(mysqlSettings.Password)
-            .WithDatabase(mysqlSettings.Database)
-            .WithPortBinding(_exposedTestMysqlPort, 3306)
-            .Build();
-
-        _redpandaContainer = new RedpandaBuilder()
-            .WithImage("redpandadata/redpanda:v25.3.3")
-            .WithPortBinding(_exposedKafkaBrokerPort, 9092)
-            .WithPortBinding(_exposedKafkaSchemaRegistryPort, 8081)
-            .Build();
-    }
-
-    private static IConfiguration LoadTestConfiguration()
-    {
-        var configBuilder = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", optional: false)
-            .AddEnvironmentVariables();
-
-        configBuilder.AddEnvironmentVariables();
-
-        return configBuilder.Build();
-    }
+    // Override Kafka Settings
+    builder.UseSetting($"{nameof(KafkaSettings)}:{nameof(KafkaSettings.BootstrapServers)}", _redpandaContainer.GetBootstrapAddress());
+    builder.UseSetting($"{nameof(KafkaSettings)}:{nameof(KafkaSettings.SchemaRegistryUrl)}", _redpandaContainer.GetSchemaRegistryAddress());
 
 
-    public async Task InitializeAsync()
-    {
-        await _mysqlContainer.StartAsync();
+    // Override pub/private key Settings 
+    var keyPair = EdDsaHelper.GenerateEd25519KeyPair();
+    var privateKeyPassPhrase = StringUtil.GenerateRandomString(32, true, true);
+    builder.UseSetting("EDDSA_PRIVATE_KEY", EdDsaHelper.ConvertToPem(keyPair.Private, privateKeyPassPhrase));
+    builder.UseSetting("EDDSA_PUBLIC_KEY", EdDsaHelper.ConvertToPem(keyPair.Public));
+    builder.UseSetting($"{nameof(KeySetOptions)}:{nameof(KeySetOptions.PrivateKeyPassPhrase)}", privateKeyPassPhrase);
 
-        await _redpandaContainer.StartAsync();
+    // Override Google Recaptcha Settings
+    builder.UseSetting($"{nameof(GoogleRecaptchaSettings)}:{nameof(GoogleRecaptchaSettings.Enabled)}", "true");
+    builder.UseSetting($"{nameof(ExternalServicesSettings)}:{nameof(ExternalServicesSettings.ExternalServices)}:GoogleRecaptcha:BaseUrl", WireMockServer.Urls[0]);
 
-        var keyPairGenerator = new Ed25519KeyPairGenerator();
-        keyPairGenerator.Init(new Ed25519KeyGenerationParameters(new SecureRandom()));
-        var keyPair = keyPairGenerator.GenerateKeyPair();
+  }
 
-        SetTemporaryEnvironmentVariable("EDDSA_PRIVATE_KEY", ConvertToPem(keyPair.Private, _keySetOptions.PrivateKeyPassPhrase));
-        SetTemporaryEnvironmentVariable("EDDSA_PUBLIC_KEY", ConvertToPem(keyPair.Public));
+  public new async Task DisposeAsync()
+  {
+    WireMockServer.Stop();
+    WireMockServer.Dispose();
 
-        SetTemporaryEnvironmentVariable($"{nameof(MysqlSettings)}:{nameof(MysqlSettings.Port)}", $"{_exposedTestMysqlPort}");
-        SetTemporaryEnvironmentVariable($"{nameof(KafkaSettings)}:{nameof(KafkaSettings.BootstrapServers)}", $"localhost:{_exposedKafkaBrokerPort}");
-        SetTemporaryEnvironmentVariable($"{nameof(KafkaSettings)}:{nameof(KafkaSettings.SchemaRegistryUrl)}", $"localhost:{_exposedKafkaSchemaRegistryPort}");
-    }
+    await _redpandaContainer.DisposeAsync();
 
-    public new async Task DisposeAsync()
-    {
-        RestoreEnvironmentVariables();
-        await base.DisposeAsync();
+    await _mysqlContainer.DisposeAsync();
 
-        await _mysqlContainer.DisposeAsync();
-        await _redpandaContainer.DisposeAsync();
-    }
-
-    private void SetTemporaryEnvironmentVariable(string key, string? value)
-    {
-        if (!_environmentSnapshot.ContainsKey(key))
-        {
-            _environmentSnapshot[key] = Environment.GetEnvironmentVariable(key);
-        }
-
-        Environment.SetEnvironmentVariable(key, value);
-    }
-
-    private void RestoreEnvironmentVariables()
-    {
-        foreach (var kvp in _environmentSnapshot)
-        {
-            Environment.SetEnvironmentVariable(kvp.Key, kvp.Value);
-        }
-
-        _environmentSnapshot.Clear();
-    }
-
-    private static string ConvertToPem(AsymmetricKeyParameter key, string? passphrase = null)
-    {
-        using var stringWriter = new StringWriter();
-        var pemWriter = new PemWriter(stringWriter);
-        if (passphrase != null)
-        {
-            var encryptor = new Pkcs8Generator(key, Pkcs8Generator.PbeSha1_3DES)
-            {
-                Password = passphrase.ToCharArray()
-            };
-            pemWriter.WriteObject(encryptor);
-        }
-        else
-        {
-            pemWriter.WriteObject(key);
-        }
-
-        pemWriter.Writer.Flush();
-        return stringWriter.ToString();
-    }
+    await base.DisposeAsync();
+  }
 }

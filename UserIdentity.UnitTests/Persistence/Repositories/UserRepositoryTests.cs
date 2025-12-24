@@ -16,112 +16,112 @@ namespace UserIdentity.UnitTests.Persistence.Repositories;
 
 public class UserRepositoryTests
 {
-    [Fact]
-    public async Task CreateEntityItem_Persists_User()
+  [Fact]
+  public async Task CreateEntityItem_Persists_User()
+  {
+    var context = AppDbContextTestFactory.GetAppDbContext();
+    var repository = new UserRepository(context);
+    var newUser = BuildUser();
+
+    repository.CreateEntityItem(newUser);
+    await context.SaveChangesAsync();
+
+    var saved = await context.AppUser.SingleOrDefaultAsync(x => x.Id == newUser.Id);
+    Assert.NotNull(saved);
+    Assert.Equal(newUser.FirstName, saved!.FirstName);
+  }
+
+  [Fact]
+  public async Task GetEntityItemAsync_Returns_User_When_Found()
+  {
+    var context = AppDbContextTestFactory.GetAppDbContext();
+    var repository = new UserRepository(context);
+    var newUser = BuildUser();
+
+    context.AppUser.Add(newUser);
+    await context.SaveChangesAsync();
+
+    var result = await repository.GetEntityItemAsync(newUser.Id);
+    Assert.NotNull(result);
+    Assert.Equal(newUser.Id, result!.Id);
+  }
+
+  [Fact]
+  public async Task GetEntityByAlternateIdAsync_MustExist_Returns_User()
+  {
+    var context = AppDbContextTestFactory.GetAppDbContext();
+    var repository = new UserRepository(context);
+    var newUser = BuildUser();
+    newUser.ForgotPasswordToken = StringUtil.GenerateRandomString(64);
+
+    context.AppUser.Add(newUser);
+    await context.SaveChangesAsync();
+
+    var result = await repository.GetEntityByAlternateIdAsync(new UserEntity
     {
-        var context = AppDbContextTestFactory.GetAppDbContext();
-        var repository = new UserRepository(context);
-        var newUser = BuildUser();
+      Id = newUser.Id,
+      ForgotPasswordToken = newUser.ForgotPasswordToken
+    }, QueryCondition.MUST_EXIST);
 
-        repository.CreateEntityItem(newUser);
-        await context.SaveChangesAsync();
+    Assert.NotNull(result);
+    Assert.Equal(newUser.Id, result!.Id);
+  }
 
-        var saved = await context.AppUser.SingleOrDefaultAsync(x => x.Id == newUser.Id);
-        Assert.NotNull(saved);
-        Assert.Equal(newUser.FirstName, saved!.FirstName);
-    }
+  [Fact]
+  public async Task GetEntityByAlternateIdAsync_MustExist_When_Missing_Throws_NoRecordException()
+  {
+    var repository = new UserRepository(AppDbContextTestFactory.GetAppDbContext());
 
-    [Fact]
-    public async Task GetEntityItemAsync_Returns_User_When_Found()
+    await Assert.ThrowsAsync<NoRecordException>(() => repository.GetEntityByAlternateIdAsync(new UserEntity
     {
-        var context = AppDbContextTestFactory.GetAppDbContext();
-        var repository = new UserRepository(context);
-        var newUser = BuildUser();
+      Id = Guid.NewGuid().ToString(),
+      ForgotPasswordToken = StringUtil.GenerateRandomString(32)
+    }, QueryCondition.MUST_EXIST));
+  }
 
-        context.AppUser.Add(newUser);
-        await context.SaveChangesAsync();
+  [Fact]
+  public async Task GetEntityByAlternateIdAsync_MustNotExist_When_Exists_Throws_RecordExistsException()
+  {
+    var context = AppDbContextTestFactory.GetAppDbContext();
+    var repository = new UserRepository(context);
+    var newUser = BuildUser();
+    newUser.ForgotPasswordToken = StringUtil.GenerateRandomString(64);
 
-        var result = await repository.GetEntityItemAsync(newUser.Id);
-        Assert.NotNull(result);
-        Assert.Equal(newUser.Id, result!.Id);
-    }
+    context.AppUser.Add(newUser);
+    await context.SaveChangesAsync();
 
-    [Fact]
-    public async Task GetEntityByAlternateIdAsync_MustExist_Returns_User()
+    await Assert.ThrowsAsync<RecordExistsException>(() => repository.GetEntityByAlternateIdAsync(new UserEntity
     {
-        var context = AppDbContextTestFactory.GetAppDbContext();
-        var repository = new UserRepository(context);
-        var newUser = BuildUser();
-        newUser.ForgotPasswordToken = StringUtil.GenerateRandomString(64);
+      Id = newUser.Id,
+      ForgotPasswordToken = newUser.ForgotPasswordToken
+    }, QueryCondition.MUST_NOT_EXIST));
+  }
 
-        context.AppUser.Add(newUser);
-        await context.SaveChangesAsync();
+  [Fact]
+  public async Task UpdateEntityItem_Updates_User()
+  {
+    var context = AppDbContextTestFactory.GetAppDbContext();
+    var repository = new UserRepository(context);
+    var newUser = BuildUser();
 
-        var result = await repository.GetEntityByAlternateIdAsync(new UserEntity
-        {
-            Id = newUser.Id,
-            ForgotPasswordToken = newUser.ForgotPasswordToken
-        }, QueryCondition.MUST_EXIST);
+    context.AppUser.Add(newUser);
+    await context.SaveChangesAsync();
 
-        Assert.NotNull(result);
-        Assert.Equal(newUser.Id, result!.Id);
-    }
+    newUser.FirstName = "Updated";
+    repository.UpdateEntityItem(newUser);
+    await context.SaveChangesAsync();
 
-    [Fact]
-    public async Task GetEntityByAlternateIdAsync_MustExist_When_Missing_Throws_NoRecordException()
+    var saved = await context.AppUser.SingleAsync(x => x.Id == newUser.Id);
+    Assert.Equal("Updated", saved.FirstName);
+  }
+
+  private static UserEntity BuildUser()
+  {
+    return new UserEntity
     {
-        var repository = new UserRepository(AppDbContextTestFactory.GetAppDbContext());
-
-        await Assert.ThrowsAsync<NoRecordException>(() => repository.GetEntityByAlternateIdAsync(new UserEntity
-        {
-            Id = Guid.NewGuid().ToString(),
-            ForgotPasswordToken = StringUtil.GenerateRandomString(32)
-        }, QueryCondition.MUST_EXIST));
-    }
-
-    [Fact]
-    public async Task GetEntityByAlternateIdAsync_MustNotExist_When_Exists_Throws_RecordExistsException()
-    {
-        var context = AppDbContextTestFactory.GetAppDbContext();
-        var repository = new UserRepository(context);
-        var newUser = BuildUser();
-        newUser.ForgotPasswordToken = StringUtil.GenerateRandomString(64);
-
-        context.AppUser.Add(newUser);
-        await context.SaveChangesAsync();
-
-        await Assert.ThrowsAsync<RecordExistsException>(() => repository.GetEntityByAlternateIdAsync(new UserEntity
-        {
-            Id = newUser.Id,
-            ForgotPasswordToken = newUser.ForgotPasswordToken
-        }, QueryCondition.MUST_NOT_EXIST));
-    }
-
-    [Fact]
-    public async Task UpdateEntityItem_Updates_User()
-    {
-        var context = AppDbContextTestFactory.GetAppDbContext();
-        var repository = new UserRepository(context);
-        var newUser = BuildUser();
-
-        context.AppUser.Add(newUser);
-        await context.SaveChangesAsync();
-
-        newUser.FirstName = "Updated";
-        repository.UpdateEntityItem(newUser);
-        await context.SaveChangesAsync();
-
-        var saved = await context.AppUser.SingleAsync(x => x.Id == newUser.Id);
-        Assert.Equal("Updated", saved.FirstName);
-    }
-
-    private static UserEntity BuildUser()
-    {
-        return new UserEntity
-        {
-            Id = Guid.NewGuid().ToString(),
-            FirstName = StringUtil.GenerateRandomString(12),
-            LastName = StringUtil.GenerateRandomString(8)
-        };
-    }
+      Id = Guid.NewGuid().ToString(),
+      FirstName = StringUtil.GenerateRandomString(12),
+      LastName = StringUtil.GenerateRandomString(8)
+    };
+  }
 }

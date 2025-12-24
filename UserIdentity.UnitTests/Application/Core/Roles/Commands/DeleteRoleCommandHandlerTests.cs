@@ -16,77 +16,77 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Commands;
 
 public class DeleteRoleCommandHandlerTests
 {
-    private readonly RoleManager<IdentityRole> _roleManager;
-    public DeleteRoleCommandHandlerTests()
+  private readonly RoleManager<IdentityRole> _roleManager;
+  public DeleteRoleCommandHandlerTests()
+  {
+    _roleManager = A.Fake<RoleManager<IdentityRole>>();
+  }
+
+  [Fact]
+  public async Task DeleteRole_When_Non_Existent_Role_Throws_NoRecordException()
+  {
+    // Arrange
+    DeleteRoleCommand command = new()
     {
-        _roleManager = A.Fake<RoleManager<IdentityRole>>();
-    }
+      RoleId = "SampleInvalidId"
+    };
 
-    [Fact]
-    public async Task DeleteRole_When_Non_Existent_Role_Throws_NoRecordException()
+    A.CallTo(() => _roleManager.FindByIdAsync(command.RoleId)).Returns(default(IdentityRole));
+
+    DeleteRoleCommandHandler handler = new(_roleManager);
+
+    // Act & Assert
+    await Assert.ThrowsAsync<NoRecordException>(() => handler.DeleteItemAsync(command, TestStringHelper.UserId));
+  }
+
+  [Fact]
+  public async Task DeleteRole_Failure_When_Deleting_Role_Throws_RecordDeletionException()
+  {
+    // Arrange
+    DeleteRoleCommand command = new()
     {
-        // Arrange
-        DeleteRoleCommand command = new()
-        {
-            RoleId = "SampleInvalidId"
-        };
+      RoleId = "SampleValidId"
+    };
 
-        A.CallTo(() => _roleManager.FindByIdAsync(command.RoleId)).Returns(default(IdentityRole));
-
-        DeleteRoleCommandHandler handler = new(_roleManager);
-
-        // Act & Assert
-        await Assert.ThrowsAsync<NoRecordException>(() => handler.DeleteItemAsync(command, TestStringHelper.UserId));
-    }
-
-    [Fact]
-    public async Task DeleteRole_Failure_When_Deleting_Role_Throws_RecordDeletionException()
+    IdentityRole role = new()
     {
-        // Arrange
-        DeleteRoleCommand command = new()
-        {
-            RoleId = "SampleValidId"
-        };
+      Id = command.RoleId,
+      Name = "SampleRole"
+    };
 
-        IdentityRole role = new()
-        {
-            Id = command.RoleId,
-            Name = "SampleRole"
-        };
+    A.CallTo(() => _roleManager.FindByIdAsync(command.RoleId)).Returns(role);
+    A.CallTo(() => _roleManager.DeleteAsync(role)).Returns(IdentityResult.Failed());
 
-        A.CallTo(() => _roleManager.FindByIdAsync(command.RoleId)).Returns(role);
-        A.CallTo(() => _roleManager.DeleteAsync(role)).Returns(IdentityResult.Failed());
+    DeleteRoleCommandHandler handler = new(_roleManager);
 
-        DeleteRoleCommandHandler handler = new(_roleManager);
+    // Act & Assert
+    await Assert.ThrowsAsync<RecordDeletionException>(() => handler.DeleteItemAsync(command, TestStringHelper.UserId));
+  }
 
-        // Act & Assert
-        await Assert.ThrowsAsync<RecordDeletionException>(() => handler.DeleteItemAsync(command, TestStringHelper.UserId));
-    }
-
-    [Fact]
-    public async Task DeleteRole_When_Existing_Role_Deletes_Role()
+  [Fact]
+  public async Task DeleteRole_When_Existing_Role_Deletes_Role()
+  {
+    // Arrange
+    DeleteRoleCommand command = new()
     {
-        // Arrange
-        DeleteRoleCommand command = new()
-        {
-            RoleId = "SampleValidId"
-        };
+      RoleId = "SampleValidId"
+    };
 
-        IdentityRole role = new()
-        {
-            Id = command.RoleId,
-            Name = "SampleRole"
-        };
+    IdentityRole role = new()
+    {
+      Id = command.RoleId,
+      Name = "SampleRole"
+    };
 
-        A.CallTo(() => _roleManager.FindByIdAsync(command.RoleId)).Returns(role);
-        A.CallTo(() => _roleManager.DeleteAsync(role)).Returns(IdentityResult.Success);
+    A.CallTo(() => _roleManager.FindByIdAsync(command.RoleId)).Returns(role);
+    A.CallTo(() => _roleManager.DeleteAsync(role)).Returns(IdentityResult.Success);
 
-        DeleteRoleCommandHandler handler = new(_roleManager);
+    DeleteRoleCommandHandler handler = new(_roleManager);
 
-        // Act
-        var vm = await handler.DeleteItemAsync(command, TestStringHelper.UserId);
+    // Act
+    var vm = await handler.DeleteItemAsync(command, TestStringHelper.UserId);
 
-        // Assert
-        Assert.IsType<DeleteRecordViewModel>(vm);
-    }
+    // Assert
+    Assert.IsType<DeleteRecordViewModel>(vm);
+  }
 }
