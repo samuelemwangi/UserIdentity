@@ -15,57 +15,57 @@ namespace UserIdentity.UnitTests.Application.Core.Roles.Queries;
 
 public class GetRoleQueryHandlerTests
 {
-    private readonly RoleManager<IdentityRole> _roleManager;
-    public GetRoleQueryHandlerTests()
+  private readonly RoleManager<IdentityRole> _roleManager;
+  public GetRoleQueryHandlerTests()
+  {
+    _roleManager = A.Fake<RoleManager<IdentityRole>>();
+
+  }
+
+  [Fact]
+  public async Task Get_Role_Returns_Role()
+  {
+    // Arrange
+    GetRoleQuery query = new()
     {
-        _roleManager = A.Fake<RoleManager<IdentityRole>>();
+      RoleId = "1"
+    };
 
-    }
-
-    [Fact]
-    public async Task Get_Role_Returns_Role()
+    IdentityRole role = new()
     {
-        // Arrange
-        GetRoleQuery query = new()
-        {
-            RoleId = "1"
-        };
+      Id = "1",
+      Name = "Admin"
+    };
 
-        IdentityRole role = new()
-        {
-            Id = "1",
-            Name = "Admin"
-        };
+    A.CallTo(() => _roleManager.FindByIdAsync(query.RoleId)).Returns(role);
 
-        A.CallTo(() => _roleManager.FindByIdAsync(query.RoleId)).Returns(role);
+    GetRoleQueryHandler handler = new(_roleManager);
 
-        GetRoleQueryHandler handler = new(_roleManager);
+    // Act
+    var vm = await handler.GetItemAsync(query);
 
-        // Act
-        var vm = await handler.GetItemAsync(query);
+    // Assert
+    Assert.IsType<RoleViewModel>(vm);
+    Assert.Equal(role.Id, vm.Role.Id);
+    Assert.Equal(role.Name, vm.Role.Name);
+  }
 
-        // Assert
-        Assert.IsType<RoleViewModel>(vm);
-        Assert.Equal(role.Id, vm.Role.Id);
-        Assert.Equal(role.Name, vm.Role.Name);
-    }
-
-    [Fact]
-    public async Task Get_Role_Throws_NoRecordException()
+  [Fact]
+  public async Task Get_Role_Throws_NoRecordException()
+  {
+    // Arrange
+    GetRoleQuery query = new()
     {
-        // Arrange
-        GetRoleQuery query = new()
-        {
-            RoleId = "1"
-        };
+      RoleId = "1"
+    };
 
-        A.CallTo(() => _roleManager.FindByIdAsync(query.RoleId)).Returns(default(IdentityRole));
+    A.CallTo(() => _roleManager.FindByIdAsync(query.RoleId)).Returns(default(IdentityRole));
 
-        GetRoleQueryHandler handler = new(_roleManager);
+    GetRoleQueryHandler handler = new(_roleManager);
 
-        // Act & Assert
-        await Assert.ThrowsAsync<NoRecordException>(() => handler.GetItemAsync(query));
+    // Act & Assert
+    await Assert.ThrowsAsync<NoRecordException>(() => handler.GetItemAsync(query));
 
-    }
+  }
 
 }

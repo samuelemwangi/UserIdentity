@@ -4,15 +4,15 @@ namespace UserIdentity.Common;
 
 public enum EntityTypes
 {
-    [Description("User")]
-    USER,
+  [Description("User")]
+  USER,
 
-    [Description("Role")]
-    ROLE,
+  [Description("Role")]
+  ROLE,
 
-    [Description("RoleClaims")]
-    ROLE_CLAIM,
+  [Description("RoleClaims")]
+  ROLE_CLAIM,
 
-    [Description("RefreshToken")]
-    REFRESH_TOKEN
+  [Description("RefreshToken")]
+  REFRESH_TOKEN
 }

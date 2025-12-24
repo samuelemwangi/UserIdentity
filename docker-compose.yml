@@ -3,10 +3,10 @@ services:
     image: mysql:8.0
     container_name: mysql_app_db
     ports:
-      - 3307:3306
+      - 33061:3306
     environment:
-      MYSQL_ROOT_PASSWORD: tesT*_p@ss12
-      MYSQL_DATABASE: test_db
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: useridentity
       MYSQL_USER: test_user
       MYSQL_PASSWORD: tesT*_p@ss12
     networks:
@@ -19,15 +19,21 @@ services:
       dockerfile: UserIdentity/Dockerfile
     container_name: useridentity
     ports:
-      - 5000:80
-      - 5001:8080
-    env_file:
-      - .env
-    volumes:
-      - ./certs:/certs
-      - ./logs:/var/log
+      - 5050:80
+      - 5051:8080
+    environment:
+      MysqlSettings__Host: db
+      MysqlSettings__Port: 3306
+      MysqlSettings__Database: useridentity
+      MysqlSettings__UserName: test_user
+      MysqlSettings__Password: tesT*_p@ss12
+      JwtIssuerOptions__ValidForSeconds: 600
+      KeySetOptions__PrivateKeyPassPhrase: S3T@G00dPa22Phr@S3
+      KeySetOptions__PrivateKeyPath: EDDSA_PRIVATE_KEY # Ensure you have these in your environment
+      KeySetOptions__PublicKeyPath: EDDSA_PUBLIC_KEY # Ensure you have these in your environment
+      Serilog__MinimumLevel: Warning
     depends_on:
-      - db    
+      - db
     restart: on-failure
     networks:
       - services_network
@@ -37,7 +43,7 @@ services:
     container_name: redpanda
     ports:
       - 9093:9092 # Kafka API
-      - 8083:8081 # Schema Registry 
+      - 8083:8081 # Schema Registry
       - 19093:19092 # Kafka API (internal)
       - 9644:9644 # Redpanda Admin API
     environment:

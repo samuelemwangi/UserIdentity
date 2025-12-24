@@ -15,100 +15,100 @@ namespace UserIdentity.UnitTests.Application.Core.Users.Commands;
 public class UpdatePasswordCommandHandlerTests
 {
 
-    private readonly UserManager<IdentityUser> _userManager;
+  private readonly UserManager<IdentityUser> _userManager;
 
-    public UpdatePasswordCommandHandlerTests()
+  public UpdatePasswordCommandHandlerTests()
+  {
+
+    _userManager = A.Fake<UserManager<IdentityUser>>();
+
+  }
+
+  [Fact]
+  public async Task UpdatePassword_When_No_Existing_User_Returns_False()
+  {
+    // Arrange
+    UpdatePasswordCommand command = new()
     {
+      NewPassword = "test",
+      UserId = "test",
+      PasswordResetToken = "test"
+    };
 
-        _userManager = A.Fake<UserManager<IdentityUser>>();
+    A.CallTo(() => _userManager.FindByIdAsync(command.UserId)).Returns(default(IdentityUser));
 
-    }
+    UpdatePasswordCommandHandler handler = new(_userManager);
 
-    [Fact]
-    public async Task UpdatePassword_When_No_Existing_User_Returns_False()
+    // Act 
+    var vm = await handler.UpdateItemAsync(command, TestStringHelper.UserId);
+
+    // Assert
+    Assert.IsType<UpdatePasswordViewModel>(vm);
+    Assert.NotNull(vm.UpdatePasswordResult);
+    Assert.False(vm.UpdatePasswordResult.PassWordUpdated);
+  }
+
+  [Fact]
+  public async Task UpdatePassword_With_Password_Reset_Failure_Returns_False()
+  {
+    // Arrange
+    UpdatePasswordCommand command = new()
     {
-        // Arrange
-        UpdatePasswordCommand command = new()
-        {
-            NewPassword = "test",
-            UserId = "test",
-            PasswordResetToken = "test"
-        };
+      NewPassword = "test",
+      UserId = "test",
+      PasswordResetToken = "test"
+    };
 
-        A.CallTo(() => _userManager.FindByIdAsync(command.UserId)).Returns(default(IdentityUser));
-
-        UpdatePasswordCommandHandler handler = new(_userManager);
-
-        // Act 
-        var vm = await handler.UpdateItemAsync(command, TestStringHelper.UserId);
-
-        // Assert
-        Assert.IsType<UpdatePasswordViewModel>(vm);
-        Assert.NotNull(vm.UpdatePasswordResult);
-        Assert.False(vm.UpdatePasswordResult.PassWordUpdated);
-    }
-
-    [Fact]
-    public async Task UpdatePassword_With_Password_Reset_Failure_Returns_False()
+    IdentityUser existingIdentityUser = new()
     {
-        // Arrange
-        UpdatePasswordCommand command = new()
-        {
-            NewPassword = "test",
-            UserId = "test",
-            PasswordResetToken = "test"
-        };
+      Id = command.UserId,
+      Email = "test@ml.clm"
+    };
 
-        IdentityUser existingIdentityUser = new()
-        {
-            Id = command.UserId,
-            Email = "test@ml.clm"
-        };
+    A.CallTo(() => _userManager.FindByIdAsync(command.UserId)).Returns(existingIdentityUser);
+    A.CallTo(() => _userManager.ResetPasswordAsync(existingIdentityUser, command.PasswordResetToken, command.NewPassword)).Returns(IdentityResult.Failed([new IdentityError()]));
 
-        A.CallTo(() => _userManager.FindByIdAsync(command.UserId)).Returns(existingIdentityUser);
-        A.CallTo(() => _userManager.ResetPasswordAsync(existingIdentityUser, command.PasswordResetToken, command.NewPassword)).Returns(IdentityResult.Failed([new IdentityError()]));
+    UpdatePasswordCommandHandler handler = new(_userManager);
 
-        UpdatePasswordCommandHandler handler = new(_userManager);
+    // Act 
+    var vm = await handler.UpdateItemAsync(command, TestStringHelper.UserId);
 
-        // Act 
-        var vm = await handler.UpdateItemAsync(command, TestStringHelper.UserId);
+    // Assert
+    Assert.IsType<UpdatePasswordViewModel>(vm);
+    Assert.NotNull(vm.UpdatePasswordResult);
+    Assert.False(vm.UpdatePasswordResult.PassWordUpdated);
+  }
 
-        // Assert
-        Assert.IsType<UpdatePasswordViewModel>(vm);
-        Assert.NotNull(vm.UpdatePasswordResult);
-        Assert.False(vm.UpdatePasswordResult.PassWordUpdated);
-    }
-
-    [Fact]
-    public async Task UpdatePassword_With_Valid_Details_Returns_True()
+  [Fact]
+  public async Task UpdatePassword_With_Valid_Details_Returns_True()
+  {
+    // Arrange
+    UpdatePasswordCommand command = new()
     {
-        // Arrange
-        UpdatePasswordCommand command = new()
-        {
-            NewPassword = "test",
-            UserId = "test",
-            PasswordResetToken = "test"
-        };
+      NewPassword = "test",
+      UserId = "test",
+      PasswordResetToken = "test"
+    };
 
-        IdentityUser existingIdentityUser = new()
-        {
-            Id = command.UserId,
-            Email = "test@ml.clm"
-        };
+    IdentityUser existingIdentityUser = new()
+    {
+      Id = command.UserId,
+      Email = "test@ml.clm"
+    };
 
-        A.CallTo(() => _userManager.FindByIdAsync(command.UserId)).Returns(existingIdentityUser);
+    A.CallTo(() => _userManager.FindByIdAsync(command.UserId)).Returns(existingIdentityUser);
 
 
-        A.CallTo(() => _userManager.ResetPasswordAsync(existingIdentityUser, A<string>.Ignored, command.NewPassword)).Returns(IdentityResult.Success);
+    A.CallTo(() => _userManager.ResetPasswordAsync(existingIdentityUser, A<string>.Ignored, command.NewPassword)).Returns(IdentityResult.Success);
 
-        UpdatePasswordCommandHandler handler = new(_userManager);
+    UpdatePasswordCommandHandler handler = new(_userManager);
 
-        // Act 
-        var vm = await handler.UpdateItemAsync(command, TestStringHelper.UserId);
+    // Act 
+    var vm = await handler.UpdateItemAsync(command, TestStringHelper.UserId);
 
-        // Assert
-        Assert.IsType<UpdatePasswordViewModel>(vm);
-        Assert.NotNull(vm.UpdatePasswordResult);
-        Assert.True(vm.UpdatePasswordResult.PassWordUpdated);
-    }
+    // Assert
+    Assert.IsType<UpdatePasswordViewModel>(vm);
+    Assert.NotNull(vm.UpdatePasswordResult);
+    Assert.True(vm.UpdatePasswordResult.PassWordUpdated);
+  }
 }

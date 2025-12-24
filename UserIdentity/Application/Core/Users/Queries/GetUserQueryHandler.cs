@@ -16,7 +16,7 @@ namespace UserIdentity.Application.Core.Users.Queries;
 
 public record GetUserQuery : IBaseQuery
 {
-    public required string UserId { get; init; }
+  public required string UserId { get; init; }
 }
 
 public class GetUserQueryHandler(
@@ -26,37 +26,37 @@ public class GetUserQueryHandler(
     ) : IGetItemQueryHandler<GetUserQuery, UserViewModel>
 {
 
-    private readonly UserManager<IdentityUser> _userManager = userManager;
-    private readonly IUserRepository _userRepository = userRepository;
-    private readonly IGetItemsQueryHandler<GetRoleClaimsForRolesQuery, RoleClaimsForRolesViewModels> _getRoleClaimsQueryHandler = getRoleClaimsQueryHandler;
+  private readonly UserManager<IdentityUser> _userManager = userManager;
+  private readonly IUserRepository _userRepository = userRepository;
+  private readonly IGetItemsQueryHandler<GetRoleClaimsForRolesQuery, RoleClaimsForRolesViewModels> _getRoleClaimsQueryHandler = getRoleClaimsQueryHandler;
 
-    public async Task<UserViewModel> GetItemAsync(GetUserQuery query)
+  public async Task<UserViewModel> GetItemAsync(GetUserQuery query)
+  {
+    var user = await _userManager.FindByIdAsync(query.UserId) ?? throw new NoRecordException($"{query.UserId}", EntityTypes.USER.Description());
+
+    var userDetails = await _userRepository.GetEntityItemAsync(query.UserId);
+
+    var userRoles = await _userManager.GetRolesAsync(user);
+
+    var userRoleClaims = await _getRoleClaimsQueryHandler.GetItemsAsync(new GetRoleClaimsForRolesQuery { Roles = userRoles });
+
+    var userDTO = new UserDTO
     {
-        var user = await _userManager.FindByIdAsync(query.UserId) ?? throw new NoRecordException($"{query.UserId}", EntityTypes.USER.Description());
+      Id = user.Id,
+      UserName = user.UserName,
+      FirstName = userDetails.FirstName,
+      LastName = userDetails.LastName,
+      Email = user.Email,
+      PhoneNumber = user.PhoneNumber,
+      Roles = [.. userRoles],
+      RoleClaims = userRoleClaims.RoleClaims
+    };
 
-        var userDetails = await _userRepository.GetEntityItemAsync(query.UserId);
+    userDTO.SetDTOAuditFields(userDetails);
 
-        var userRoles = await _userManager.GetRolesAsync(user);
-
-        var userRoleClaims = await _getRoleClaimsQueryHandler.GetItemsAsync(new GetRoleClaimsForRolesQuery { Roles = userRoles });
-
-        var userDTO = new UserDTO
-        {
-            Id = user.Id,
-            UserName = user.UserName,
-            FirstName = userDetails.FirstName,
-            LastName = userDetails.LastName,
-            Email = user.Email,
-            PhoneNumber = user.PhoneNumber,
-            Roles = [.. userRoles],
-            RoleClaims = userRoleClaims.RoleClaims
-        };
-
-        userDTO.SetDTOAuditFields(userDetails);
-
-        return new UserViewModel
-        {
-            User = userDTO
-        };
-    }
+    return new UserViewModel
+    {
+      User = userDTO
+    };
+  }
 }

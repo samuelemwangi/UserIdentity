@@ -80,10 +80,10 @@ app.UseCors(corsPolicyName);
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-    IdentityModelEventSource.ShowPII = true;
-    IdentityModelEventSource.LogCompleteSecurityArtifact = true;
+  app.UseSwagger();
+  app.UseSwaggerUI();
+  IdentityModelEventSource.ShowPII = true;
+  IdentityModelEventSource.LogCompleteSecurityArtifact = true;
 }
 
 // Use Api Key Middleware

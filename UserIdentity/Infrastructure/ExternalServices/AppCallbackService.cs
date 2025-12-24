@@ -18,41 +18,41 @@ public class AppCallbackService(
     ) : BaseExternalService(jwtTokenHandler, httpContextAccessor, roleSettingsOptions),
             IAppCallbackService
 {
-    private readonly IHttpClientHelper _httpClientHelper = httpClientHelper;
+  private readonly IHttpClientHelper _httpClientHelper = httpClientHelper;
 
-    private const string targetServiceName = "AppCallback";
+  private const string targetServiceName = "AppCallback";
 
-    public async Task SendCallbackRequestAsync(UserUpdateEvent userUpdateEvent)
+  public async Task SendCallbackRequestAsync(UserUpdateEvent userUpdateEvent)
+  {
+    var externalServiceName = userUpdateEvent.RegisteredApp.AppName!;
+    var externalServiceUrl = userUpdateEvent.RegisteredApp.CallbackUrl!;
+
+    var xRequestId = ResolveRequestId();
+
+    var content = new
     {
-        var externalServiceName = userUpdateEvent.RegisteredApp.AppName!;
-        var externalServiceUrl = userUpdateEvent.RegisteredApp.CallbackUrl!;
+      userUpdateEvent.UserContent,
+      userUpdateEvent.EventType
+    };
 
-        var xRequestId = ResolveRequestId();
+    var requestMessage = _httpClientHelper.CreateHttpRequestMessage(HttpMethod.Post, externalServiceUrl)
+        .WithXRequestId(xRequestId)
+        .WithHttpContent(content);
 
-        var content = new
-        {
-            userUpdateEvent.UserContent,
-            userUpdateEvent.EventType
-        };
-
-        var requestMessage = _httpClientHelper.CreateHttpRequestMessage(HttpMethod.Post, externalServiceUrl)
-            .WithXRequestId(xRequestId)
-            .WithHttpContent(content);
-
-        if (userUpdateEvent.RegisteredApp.ForwardServiceToken)
-            requestMessage = requestMessage.WithBearerToken(
-                GenerateServiceToken(
-                    CurrentServiceName,
-                    ResolveServiceResource(externalServiceName, "user"),
-                    ZenConstants.SCOPE_ACTION_CREATE
-                    )
-                );
+    if (userUpdateEvent.RegisteredApp.ForwardServiceToken)
+      requestMessage = requestMessage.WithBearerToken(
+          GenerateServiceToken(
+              CurrentServiceName,
+              ResolveServiceResource(externalServiceName, "user"),
+              ZenConstants.SCOPE_ACTION_CREATE
+              )
+          );
 
 
-        if (userUpdateEvent.RegisteredApp.CallbackHeaders != null && userUpdateEvent.RegisteredApp.CallbackHeaders.Count > 0)
-            foreach (var header in userUpdateEvent.RegisteredApp.CallbackHeaders)
-                requestMessage = requestMessage.WithRequestHeader(header.Key, header.Value);
+    if (userUpdateEvent.RegisteredApp.CallbackHeaders != null && userUpdateEvent.RegisteredApp.CallbackHeaders.Count > 0)
+      foreach (var header in userUpdateEvent.RegisteredApp.CallbackHeaders)
+        requestMessage = requestMessage.WithRequestHeader(header.Key, header.Value);
 
-        await _httpClientHelper.SendRequestAsync(targetServiceName, requestMessage);
-    }
+    await _httpClientHelper.SendRequestAsync(targetServiceName, requestMessage);
+  }
 }
