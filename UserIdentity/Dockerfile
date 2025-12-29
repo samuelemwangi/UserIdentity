@@ -1,24 +1,29 @@
 FROM mcr.microsoft.com/dotnet/runtime-deps:9.0-alpine AS base
 WORKDIR /app
+EXPOSE 8080
 ENV ASPNETCORE_HTTP_PORTS=8080
 
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build
 WORKDIR /src
+
 COPY ["UserIdentity/UserIdentity.csproj", "UserIdentity/"]
 RUN dotnet restore "UserIdentity/UserIdentity.csproj" -r linux-musl-x64
+
 COPY . .
 WORKDIR "/src/UserIdentity"
-RUN dotnet publish "UserIdentity.csproj" -r linux-musl-x64 \
-	-c Release \
-	-o /app \
-	/p:SelfContained=true \
-	/p:PublishSingleFile=true \
-	/p:PublishTrimmed=false \
-	/p:EnableCompressionInSingleFile=true \
-	/p:InvariantGlobalization=true \
-	/p:DebugType=none
+
+RUN dotnet publish "UserIdentity.csproj" \
+    -c Release \
+    -r linux-musl-x64 \
+    -o /app/publish \
+    /p:SelfContained=true \
+    /p:PublishTrimmed=false \
+    /p:PublishSingleFile=true \
+    /p:EnableCompressionInSingleFile=true \
+    /p:InvariantGlobalization=true \
+    /p:DebugType=none
 
 FROM base AS final
-COPY --from=build /app ./
-USER $APP_UID
+WORKDIR /app
+COPY --from=build /app/publish .
 ENTRYPOINT ["./UserIdentity"]

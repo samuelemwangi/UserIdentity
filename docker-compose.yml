@@ -20,7 +20,6 @@ services:
     container_name: useridentity
     ports:
       - 5050:8080
-      - 5051:8080
     environment:
       MysqlSettings__Host: db
       MysqlSettings__Port: 3306
