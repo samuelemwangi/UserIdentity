@@ -19,7 +19,7 @@ services:
       dockerfile: UserIdentity/Dockerfile
     container_name: useridentity
     ports:
-      - 5050:80
+      - 5050:8080
       - 5051:8080
     environment:
       MysqlSettings__Host: db
