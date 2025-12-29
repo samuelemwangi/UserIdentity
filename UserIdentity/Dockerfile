@@ -13,8 +13,7 @@ RUN dotnet publish "UserIdentity.csproj" -r linux-musl-x64 \
 	-o /app \
 	/p:SelfContained=true \
 	/p:PublishSingleFile=true \
-	/p:PublishTrimmed=true \
-	/p:TrimMode=partial \
+	/p:PublishTrimmed=false \
 	/p:EnableCompressionInSingleFile=true \
 	/p:InvariantGlobalization=true \
 	/p:DebugType=none
