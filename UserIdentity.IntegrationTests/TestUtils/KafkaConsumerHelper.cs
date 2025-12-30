@@ -26,7 +26,7 @@ public sealed class KafkaConsumerHelper
 
   public async Task<T?> WaitAndConsumeMessageAsync<T>(string targetTopic)
   {
-    return await _kafkaJustInTimeConsumer.WaitAndConsumeMessageAsync<T>(targetTopic);
+    return await _kafkaJustInTimeConsumer.WaitAndConsumeMessageAsync<T>(targetTopic, 2);
   }
 
   public async Task<T?> WaitAndConsumeUserUpdatedMessageAsync<T>()

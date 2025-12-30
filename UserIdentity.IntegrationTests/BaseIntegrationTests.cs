@@ -92,7 +92,7 @@ public class BaseIntegrationTests : IDisposable, IAsyncLifetime
           return default;
         }
       })
-      .AddTimeout(TimeSpan.FromSeconds(10))
+      .AddTimeout(TimeSpan.FromSeconds(2))
       .Build();
 
     _resetDatabase = ResolveResetDatabaseFunc();

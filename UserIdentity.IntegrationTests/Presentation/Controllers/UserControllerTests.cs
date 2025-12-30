@@ -351,25 +351,27 @@ public class UserControllerTests(
     VerifyGoogleRecaptchaEndpoint();
 
     // Confirm produced message 
+    var kafkaMessage = null as MessageEvent;
+
     await _pollyResiliencePipeline.ExecuteAsync(async token =>
     {
-      var kafkaMessage = await _kafkaConsumerHelper.WaitAndConsumeUserUpdatedMessageAsync<MessageEvent>();
-
+      kafkaMessage = await _kafkaConsumerHelper.WaitAndConsumeUserUpdatedMessageAsync<MessageEvent>();
       Assert.NotNull(kafkaMessage);
-      Assert.Equal(userDetails?.Id, kafkaMessage.CorrelationId);
-      Assert.Equal(_registeredApp.AppName, kafkaMessage.RegisteredApp);
-      Assert.Equal(MessageAction.WELCOME_USER, kafkaMessage.Action);
-
-      var messageAttributes = kafkaMessage.Attributes;
-      Assert.NotNull(messageAttributes);
-
-      Assert.Equal(requestPayload.UserEmail, messageAttributes.GetAttributeValue(MessageAttribute.RECIPIENT_EMAIL));
-      Assert.Equal(requestPayload.PhoneNumber, messageAttributes.GetAttributeValue(MessageAttribute.RECIPIENT_PHONE));
-      Assert.Equal(requestPayload.FirstName, messageAttributes.GetAttributeValue(MessageAttribute.FIRST_NAME));
-      Assert.Equal(requestPayload.LastName, messageAttributes.GetAttributeValue(MessageAttribute.LAST_NAME));
-      Assert.Equal(requestPayload.UserName, messageAttributes.GetAttributeValue(MessageAttribute.USER_NAME));
-      Assert.Equal(userDetails?.Id, messageAttributes.GetAttributeValue(MessageAttribute.USER_ID));
     });
+
+    Assert.Equal(userDetails?.Id, kafkaMessage!.CorrelationId);
+    Assert.Equal(_registeredApp.AppName, kafkaMessage.RegisteredApp);
+    Assert.Equal(MessageAction.WELCOME_USER, kafkaMessage.Action);
+
+    var messageAttributes = kafkaMessage.Attributes;
+    Assert.NotNull(messageAttributes);
+
+    Assert.Equal(requestPayload.UserEmail, messageAttributes.GetAttributeValue(MessageAttribute.RECIPIENT_EMAIL));
+    Assert.Equal(requestPayload.PhoneNumber, messageAttributes.GetAttributeValue(MessageAttribute.RECIPIENT_PHONE));
+    Assert.Equal(requestPayload.FirstName, messageAttributes.GetAttributeValue(MessageAttribute.FIRST_NAME));
+    Assert.Equal(requestPayload.LastName, messageAttributes.GetAttributeValue(MessageAttribute.LAST_NAME));
+    Assert.Equal(requestPayload.UserName, messageAttributes.GetAttributeValue(MessageAttribute.USER_NAME));
+    Assert.Equal(userDetails?.Id, messageAttributes.GetAttributeValue(MessageAttribute.USER_ID));
   }
 
 
@@ -429,25 +431,27 @@ public class UserControllerTests(
     VerifyGoogleRecaptchaEndpoint();
 
     // Confirm produced message 
+    var kafkaMessage = null as MessageEvent;
+
     await _pollyResiliencePipeline.ExecuteAsync(async token =>
     {
-      var kafkaMessage = await _kafkaConsumerHelper.WaitAndConsumeUserUpdatedMessageAsync<MessageEvent>();
-
+      kafkaMessage = await _kafkaConsumerHelper.WaitAndConsumeUserUpdatedMessageAsync<MessageEvent>();
       Assert.NotNull(kafkaMessage);
-      Assert.Equal(userDetails?.Id, kafkaMessage.CorrelationId);
-      Assert.Equal(_registeredApp.AppName, kafkaMessage.RegisteredApp);
-      Assert.Equal(MessageAction.WELCOME_USER, kafkaMessage.Action);
-
-      var messageAttributes = kafkaMessage.Attributes;
-      Assert.NotNull(messageAttributes);
-
-      Assert.Equal(requestPayload.UserEmail, messageAttributes.GetAttributeValue(MessageAttribute.RECIPIENT_EMAIL));
-      Assert.Equal(requestPayload.PhoneNumber, messageAttributes.GetAttributeValue(MessageAttribute.RECIPIENT_PHONE));
-      Assert.Equal(requestPayload.FirstName, messageAttributes.GetAttributeValue(MessageAttribute.FIRST_NAME));
-      Assert.Null(messageAttributes.GetAttributeValue(MessageAttribute.LAST_NAME));
-      Assert.Equal(requestPayload.UserName, messageAttributes.GetAttributeValue(MessageAttribute.USER_NAME));
-      Assert.Equal(userDetails?.Id, messageAttributes.GetAttributeValue(MessageAttribute.USER_ID));
     });
+
+    Assert.Equal(userDetails?.Id, kafkaMessage!.CorrelationId);
+    Assert.Equal(_registeredApp.AppName, kafkaMessage.RegisteredApp);
+    Assert.Equal(MessageAction.WELCOME_USER, kafkaMessage.Action);
+
+    var messageAttributes = kafkaMessage.Attributes;
+    Assert.NotNull(messageAttributes);
+
+    Assert.Equal(requestPayload.UserEmail ?? string.Empty, messageAttributes.GetAttributeValue(MessageAttribute.RECIPIENT_EMAIL));
+    Assert.Equal(requestPayload.PhoneNumber ?? string.Empty, messageAttributes.GetAttributeValue(MessageAttribute.RECIPIENT_PHONE));
+    Assert.Equal(requestPayload.FirstName, messageAttributes.GetAttributeValue(MessageAttribute.FIRST_NAME));
+    Assert.Equal(string.Empty, messageAttributes.GetAttributeValue(MessageAttribute.LAST_NAME));
+    Assert.Equal(requestPayload.UserName, messageAttributes.GetAttributeValue(MessageAttribute.USER_NAME));
+    Assert.Equal(userDetails?.Id, messageAttributes.GetAttributeValue(MessageAttribute.USER_ID));
   }
 
   [Fact]

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using PolyzenKit.Application.Core.Messages.Events;
 using PolyzenKit.Common.Enums;
@@ -27,17 +28,12 @@ public class MessageManagerUserUpdatedKafkaMessageConsumerTests(
     Assert.NotNull(existingUser);
     Assert.False(existingUser.EmailConfirmed);
 
-    var messageEvent = new MessageEvent
+    var attributes = new Dictionary<MessageAttribute, string>()
     {
-      CorrelationId = user.Id,
-      EventType = CrudEvent.UPDATE,
-      RegisteredApp = _registeredApp.AppName,
-      Action = MessageAction.WELCOME_USER,
-      Attributes = new()
-      {
-        { MessageAttribute.USER_ID, user.Id }
-      }
+      { MessageAttribute.USER_ID, user.Id }
     };
+
+    var messageEvent = MessageEventFactory.Create(user.Id, _registeredApp.AppName, attributes, MessageAction.WELCOME_USER, CrudEvent.UPDATE);
 
     // Act 
     await _kafkaProducerHelper.ProduceUserMessageManagerUserUpdatedEventAsync(user.Id, messageEvent);
