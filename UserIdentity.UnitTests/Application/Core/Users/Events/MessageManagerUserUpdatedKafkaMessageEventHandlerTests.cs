@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using FakeItEasy;
@@ -34,7 +35,7 @@ public class MessageManagerUserUpdatedKafkaMessageEventHandlerTests
         Action = MessageAction.WELCOME_USER,
         CorrelationId = "user-id",
         RegisteredApp = "TestApp",
-        Attributes = []
+        Attributes = new Dictionary<MessageAttribute, string>()
       }
     };
 
@@ -57,7 +58,7 @@ public class MessageManagerUserUpdatedKafkaMessageEventHandlerTests
         Action = (MessageAction)999,
         CorrelationId = "user-id",
         RegisteredApp = "TestApp",
-        Attributes = []
+        Attributes = new Dictionary<MessageAttribute, string>()
       }
     };
 

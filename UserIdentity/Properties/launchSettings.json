@@ -1,5 +1,25 @@
 {
 	"profiles": {
+		"UserIdentity": {
+			"commandName": "Project",
+			"launchUrl": "swagger",
+			"environmentVariables": {
+				"ASPNETCORE_ENVIRONMENT": "Development",
+				"MysqlSettings__Host": "localhost",
+				"MysqlSettings__Port": "3306",
+				"MysqlSettings__Database": "useridentity",
+				"MysqlSettings__UserName": "test_user",
+				"MysqlSettings__Password": "tesT*_p@ss12",
+				"KafkaSettings__BootstrapServers": "localhost:9092",
+				"KafkaSettings__SchemaRegistryUrl": "localhost:8081",
+				"KeySetOptions__PrivateKeyPassPhrase": "S3T@G00dPa22Phr@S3",
+				"KeySetOptions__PrivateKeyPath": "EDDSA_PRIVATE_KEY",
+				"KeySetOptions__PublicKeyPath": "EDDSA_PUBLIC_KEY",
+				"Serilog__MinimumLevel": "Warning"
+			},
+			"dotnetRunMessages": true,
+			"applicationUrl": "http://localhost:5050"
+		},
 		"IIS Express": {
 			"commandName": "IISExpress",
 			"launchBrowser": true,
@@ -12,16 +32,6 @@
 			"commandName": "Docker",
 			"launchBrowser": true,
 			"launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger"
-		},
-		"UserIdentity": {
-			"commandName": "Project",
-			"launchUrl": "swagger",
-			"environmentVariables": {
-				"ASPNETCORE_ENVIRONMENT": "Development",
-				"MysqlSettings__Port": "3306"
-			},
-			"applicationUrl": "http://localhost:5050",
-			"nativeDebugging": false
 		}
 	},
 	"$schema": "https://json.schemastore.org/launchsettings.json",

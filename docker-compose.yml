@@ -1,9 +1,9 @@
 services:
   db:
-    image: mysql:8.0
-    container_name: mysql_app_db
+    image: mysql:8.4.0
+    container_name: db
     ports:
-      - 33061:3306
+      - 3306:3306
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: useridentity
@@ -11,6 +11,38 @@ services:
       MYSQL_PASSWORD: tesT*_p@ss12
     networks:
       - services_network
+
+  redpanda:
+    image: redpandadata/redpanda:v25.3.3
+    container_name: redpanda
+    ports:
+      - "9092:9092"
+      - "8081:8081"
+    volumes:
+      - ./mounts/redpanda-0:/var/lib/redpanda/data
+    networks:
+      - services_network
+    command:
+      - redpanda
+      - start
+      - --mode=dev-container
+      - --kafka-addr=internal://0.0.0.0:19092,external://0.0.0.0:9092
+      - --advertise-kafka-addr=internal://redpanda:19092,external://localhost:9092
+      - --schema-registry-addr=internal://0.0.0.0:8081
+
+  redpanda-console:
+    image: redpandadata/console:v3.3.2
+    container_name: redpanda-console
+    ports:
+      - "8090:8080"
+    networks:
+      - services_network
+    environment:
+      KAFKA_BROKERS: redpanda:19092
+      KAFKA_SCHEMAREGISTRY_ENABLED: "true"
+      KAFKA_SCHEMAREGISTRY_URLS: http://redpanda:8081
+    depends_on:
+      - redpanda
 
   useridentity:
     image: useridentity
@@ -30,46 +62,15 @@ services:
       KafkaSettings__SchemaRegistryUrl: redpanda:8081
       JwtIssuerOptions__ValidForSeconds: 600
       KeySetOptions__PrivateKeyPassPhrase: S3T@G00dPa22Phr@S3
-      KeySetOptions__PrivateKeyPath: EDDSA_PRIVATE_KEY # Ensure you have these in your environment
-      KeySetOptions__PublicKeyPath: EDDSA_PUBLIC_KEY # Ensure you have these in your environment
+      KeySetOptions__PrivateKeyPath: $EDDSA_PRIVATE_KEY # Ensure you have these in your environment
+      KeySetOptions__PublicKeyPath: $EDDSA_PUBLIC_KEY # Ensure you have these in your environment
       Serilog__MinimumLevel: Warning
     depends_on:
       - db
+      - redpanda
     restart: on-failure:5
     networks:
       - services_network
-
-  redpanda:
-    image: docker.redpanda.com/redpandadata/redpanda:v25.3.3
-    container_name: redpanda
-    ports:
-      - "9092:9092"
-      - "8081:8081"
-    volumes:
-      - ./mounts/redpanda-0:/var/lib/redpanda/data
-    networks:
-      - services_network
-    command:
-      - redpanda
-      - start
-      - --mode=dev-container
-      - --kafka-addr=internal://0.0.0.0:19092,external://0.0.0.0:9092
-      - --advertise-kafka-addr=internal://redpanda:19092,external://localhost:9092
-      - --schema-registry-addr=internal://0.0.0.0:8081
-
-  redpanda-console:
-    image: docker.redpanda.com/redpandadata/console:v3.3.2
-    container_name: redpanda-console
-    ports:
-      - "8090:8080"
-    networks:
-      - services_network
-    environment:
-      KAFKA_BROKERS: redpanda:19092
-      KAFKA_SCHEMAREGISTRY_ENABLED: "true"
-      KAFKA_SCHEMAREGISTRY_URLS: http://redpanda:8081
-    depends_on:
-      - redpanda
 
 networks:
   services_network:

@@ -32,7 +32,7 @@ public class MessageManagerUserUpdatedKafkaMessageConsumerTests
     Action = MessageAction.WELCOME_USER,
     CorrelationId = "correlation-id",
     RegisteredApp = "app",
-    Attributes = []
+    Attributes = new Dictionary<MessageAttribute, string>()
   };
 
   public MessageManagerUserUpdatedKafkaMessageConsumerTests()

@@ -92,7 +92,7 @@ public class LoginUserCommandHandler(
         Token = refreshToken,
       };
 
-      newRefreshToken.SetEntityAuditFields(userId, _machineDateTime.Now);
+      newRefreshToken.SetEntityAuditFields(user.Id, _machineDateTime.Now);
 
       _refreshTokenRepository.CreateEntityItem(newRefreshToken);
 
