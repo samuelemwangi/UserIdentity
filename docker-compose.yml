@@ -62,8 +62,8 @@ services:
       KafkaSettings__SchemaRegistryUrl: redpanda:8081
       JwtIssuerOptions__ValidForSeconds: 600
       KeySetOptions__PrivateKeyPassPhrase: S3T@G00dPa22Phr@S3
-      KeySetOptions__PrivateKeyPath: $EDDSA_PRIVATE_KEY # Ensure you have these in your environment
-      KeySetOptions__PublicKeyPath: $EDDSA_PUBLIC_KEY # Ensure you have these in your environment
+      KeySetOptions__PrivateKeyPath: EDDSA_PRIVATE_KEY # Ensure you have these in your environment
+      KeySetOptions__PublicKeyPath: EDDSA_PUBLIC_KEY # Ensure you have these in your environment
       Serilog__MinimumLevel: Warning
     depends_on:
       - db
