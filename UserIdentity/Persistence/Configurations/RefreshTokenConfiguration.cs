@@ -5,7 +5,7 @@ using PolyzenKit.Persistence.Configurations;
 
 using UserIdentity.Domain.RefreshTokens;
 
-namespace UserIdentity.Persistence.Configurations.Identity;
+namespace UserIdentity.Persistence.Configurations;
 
 public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshTokenEntity>
 {

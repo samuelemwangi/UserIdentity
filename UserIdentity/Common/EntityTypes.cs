@@ -14,5 +14,11 @@ public enum EntityTypes
   ROLE_CLAIM,
 
   [Description("RefreshToken")]
-  REFRESH_TOKEN
+  REFRESH_TOKEN,
+
+  [Description("InviteCode")]
+  INVITE_CODE,
+
+  [Description("WaitList")]
+  WAIT_LIST
 }

@@ -11,10 +11,4 @@ public static class ContextExtensions
     var entityType = context.Model.FindEntityType(typeof(T));
     return entityType?.GetTableName();
   }
-
-  public static string? GetSchemaName<T>(this DbContext context) where T : class
-  {
-    var entityType = context.Model.FindEntityType(typeof(T));
-    return entityType?.GetSchema();
-  }
 }
