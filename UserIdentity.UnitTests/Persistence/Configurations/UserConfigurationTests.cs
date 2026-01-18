@@ -1,5 +1,5 @@
 ﻿using UserIdentity.Domain.Users;
-using UserIdentity.Persistence.Configurations.Identity;
+using UserIdentity.Persistence.Configurations;
 
 using Xunit;
 

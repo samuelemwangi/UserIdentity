@@ -18,10 +18,14 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="PolyzenKit" Version="1.2.8" />
+		<PackageReference Include="PolyzenKit" Version="1.2.9" />
 		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0" />
 		<PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
 		<PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Application\Core\WaitLists\Commands\" />
+	  <Folder Include="Application\Core\WaitLists\Queries\" />
 	</ItemGroup>
 </Project>

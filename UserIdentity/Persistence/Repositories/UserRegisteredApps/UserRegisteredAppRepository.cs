@@ -6,7 +6,6 @@ namespace UserIdentity.Persistence.Repositories.UserRegisteredApps;
 
 public class UserRegisteredAppRepository(
     AppDbContext dbContext
-    ) : EntityRepository<UserRegisteredAppEntity, string>(dbContext),
-            IUserRegisteredAppRepository
+ ) : EntityRepository<UserRegisteredAppEntity, string>(dbContext), IUserRegisteredAppRepository
 {
 }

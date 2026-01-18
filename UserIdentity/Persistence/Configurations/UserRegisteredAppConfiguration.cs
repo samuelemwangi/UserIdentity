@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using UserIdentity.Domain.UserRegisteredApps;
 
-namespace UserIdentity.Persistence.Configurations.Identity;
+namespace UserIdentity.Persistence.Configurations;
 
 public class UserRegisteredAppConfiguration : IEntityTypeConfiguration<UserRegisteredAppEntity>
 {

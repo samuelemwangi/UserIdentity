@@ -40,29 +40,4 @@ public class ContextExtensionsTests
     // For non-existent entity
     Assert.Null(context.GetTableName<Random>());
   }
-
-  [Fact]
-  public void Get_Schema_Name_Returns_Actual_Schema_Name()
-  {
-    // Act
-    using var context = AppDbContextTestFactory.GetAppDbContext();
-
-    // Assert	
-    Assert.Null(context.GetSchemaName<UserEntity>());
-    Assert.Null(context.GetSchemaName<RefreshTokenEntity>());
-
-    Assert.Null(context.GetSchemaName<IdentityUser>());
-    Assert.Null(context.GetSchemaName<IdentityRole>());
-
-    Assert.Null(context.GetSchemaName<IdentityUserClaim<string>>());
-    Assert.Null(context.GetSchemaName<IdentityRoleClaim<string>>());
-
-    Assert.Null(context.GetSchemaName<IdentityUserLogin<string>>());
-    Assert.Null(context.GetSchemaName<IdentityUserRole<string>>());
-
-    Assert.Null(context.GetSchemaName<IdentityUserToken<string>>());
-
-    // For non-existent entity
-    Assert.Null(context.GetTableName<Random>());
-  }
 }

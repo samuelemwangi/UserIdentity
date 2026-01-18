@@ -6,10 +6,12 @@ using PolyzenKit.Domain.AppEntities;
 using PolyzenKit.Domain.RegisteredApps;
 using PolyzenKit.Persistence.Configurations;
 
+using UserIdentity.Domain.InviteCodes;
 using UserIdentity.Domain.RefreshTokens;
 using UserIdentity.Domain.UserRegisteredApps;
 using UserIdentity.Domain.Users;
-using UserIdentity.Persistence.Configurations.Identity;
+using UserIdentity.Domain.WaitLists;
+using UserIdentity.Persistence.Configurations;
 
 namespace UserIdentity.Persistence;
 
@@ -29,6 +31,10 @@ public class AppDbContext(
 
   public DbSet<UserRegisteredAppEntity> UserRegisteredApp { get; internal set; }
 
+  public DbSet<WaitListEntity> WaitList { get; internal set; }
+
+  public DbSet<InviteCodeEntity> InviteCode { get; internal set; }
+
   protected override void OnModelCreating(ModelBuilder modelBuilder)
   {
     base.OnModelCreating(modelBuilder);
@@ -38,12 +44,16 @@ public class AppDbContext(
     modelBuilder.ApplyConfiguration(new AppEntityConfiguration());
     modelBuilder.ApplyConfiguration(new RegisteredAppConfiguration());
     modelBuilder.ApplyConfiguration(new UserRegisteredAppConfiguration());
+    modelBuilder.ApplyConfiguration(new WaitListConfiguration());
+    modelBuilder.ApplyConfiguration(new InviteCodeConfiguration());
 
     modelBuilder.Entity<UserEntity>().ToTable(_entityKeyPrefix + "user_details");
     modelBuilder.Entity<RefreshTokenEntity>().ToTable(_entityKeyPrefix + "refresh_tokens");
     modelBuilder.Entity<AppEntity>().ToTable(_entityKeyPrefix + "app_entities");
     modelBuilder.Entity<RegisteredAppEntity>().ToTable(_entityKeyPrefix + "registered_apps");
     modelBuilder.Entity<UserRegisteredAppEntity>().ToTable(_entityKeyPrefix + "user_registered_apps");
+    modelBuilder.Entity<WaitListEntity>().ToTable(_entityKeyPrefix + "wait_lists");
+    modelBuilder.Entity<InviteCodeDTO>().ToTable(_entityKeyPrefix + "invite_codes");
 
     modelBuilder.Entity<IdentityUser>().ToTable(_entityKeyPrefix + "users");
     modelBuilder.Entity<IdentityRole>().ToTable(_entityKeyPrefix + "roles");
