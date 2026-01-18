@@ -4,9 +4,11 @@ using System.Text.Json.Serialization;
 using PolyzenKit.Domain.Entity;
 using PolyzenKit.Domain.RegisteredApps;
 
-namespace UserIdentity.Domain.Identity;
+using UserIdentity.Domain.Users;
 
-public record UserRegisteredAppEntity : BaseAuditableEntity<string>
+namespace UserIdentity.Domain.UserRegisteredApps;
+
+public class UserRegisteredAppEntity : BaseAuditableEntity<string>
 {
   public int AppId { get; set; }
 

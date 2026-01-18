@@ -20,7 +20,7 @@ using PolyzenKit.Presentation.ValidationHelpers;
 
 using UserIdentity.Application.Core.Tokens.ViewModels;
 using UserIdentity.Application.Core.Users.Settings;
-using UserIdentity.Application.Core.Users.ViewModels;
+using UserIdentity.Domain.Users;
 using UserIdentity.IntegrationTests.TestUtils;
 
 using WireMock.RequestBuilders;

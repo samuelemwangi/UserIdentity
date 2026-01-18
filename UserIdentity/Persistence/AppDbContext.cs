@@ -6,7 +6,9 @@ using PolyzenKit.Domain.AppEntities;
 using PolyzenKit.Domain.RegisteredApps;
 using PolyzenKit.Persistence.Configurations;
 
-using UserIdentity.Domain.Identity;
+using UserIdentity.Domain.RefreshTokens;
+using UserIdentity.Domain.UserRegisteredApps;
+using UserIdentity.Domain.Users;
 using UserIdentity.Persistence.Configurations.Identity;
 
 namespace UserIdentity.Persistence;

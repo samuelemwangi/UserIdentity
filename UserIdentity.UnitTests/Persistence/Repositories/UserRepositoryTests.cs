@@ -7,7 +7,7 @@ using PolyzenKit.Common.Exceptions;
 using PolyzenKit.Common.Utilities;
 using PolyzenKit.Persistence.Repositories;
 
-using UserIdentity.Domain.Identity;
+using UserIdentity.Domain.Users;
 using UserIdentity.Persistence.Repositories.Users;
 
 using Xunit;

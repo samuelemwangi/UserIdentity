@@ -1,4 +1,4 @@
-﻿using UserIdentity.Domain.Identity;
+﻿using UserIdentity.Domain.RefreshTokens;
 using UserIdentity.Persistence.Configurations.Identity;
 
 using Xunit;

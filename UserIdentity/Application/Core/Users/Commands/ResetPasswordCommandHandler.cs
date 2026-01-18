@@ -12,6 +12,7 @@ using PolyzenKit.Infrastructure.Configurations;
 using PolyzenKit.Persistence.Repositories;
 
 using UserIdentity.Application.Core.Users.ViewModels;
+using UserIdentity.Domain.Users;
 using UserIdentity.Persistence.Repositories.Users;
 
 namespace UserIdentity.Application.Core.Users.Commands;

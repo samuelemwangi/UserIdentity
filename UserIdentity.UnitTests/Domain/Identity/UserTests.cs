@@ -1,6 +1,6 @@
 ﻿using PolyzenKit.Domain.Entity;
 
-using UserIdentity.Domain.Identity;
+using UserIdentity.Domain.Users;
 
 using Xunit;
 

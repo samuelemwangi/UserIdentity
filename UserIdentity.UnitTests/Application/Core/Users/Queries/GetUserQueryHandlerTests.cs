@@ -12,7 +12,7 @@ using UserIdentity.Application.Core.Roles.Queries;
 using UserIdentity.Application.Core.Roles.ViewModels;
 using UserIdentity.Application.Core.Users.Queries;
 using UserIdentity.Application.Core.Users.ViewModels;
-using UserIdentity.Domain.Identity;
+using UserIdentity.Domain.Users;
 using UserIdentity.Persistence.Repositories.Users;
 
 using Xunit;

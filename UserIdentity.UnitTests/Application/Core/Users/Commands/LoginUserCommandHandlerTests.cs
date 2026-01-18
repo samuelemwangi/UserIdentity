@@ -19,7 +19,8 @@ using PolyzenKit.Persistence.Repositories;
 using UserIdentity.Application.Core.Users.Commands;
 using UserIdentity.Application.Core.Users.Queries;
 using UserIdentity.Application.Core.Users.ViewModels;
-using UserIdentity.Domain.Identity;
+using UserIdentity.Domain.RefreshTokens;
+using UserIdentity.Domain.Users;
 using UserIdentity.Persistence.Repositories.RefreshTokens;
 using UserIdentity.UnitTests.TestUtils;
 

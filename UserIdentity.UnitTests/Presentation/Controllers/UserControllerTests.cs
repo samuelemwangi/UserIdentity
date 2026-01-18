@@ -16,6 +16,7 @@ using UserIdentity.Application.Core.Tokens.ViewModels;
 using UserIdentity.Application.Core.Users.Commands;
 using UserIdentity.Application.Core.Users.Queries;
 using UserIdentity.Application.Core.Users.ViewModels;
+using UserIdentity.Domain.Users;
 using UserIdentity.Presentation.Controllers;
 using UserIdentity.UnitTests.TestUtils;
 

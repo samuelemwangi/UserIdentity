@@ -6,7 +6,7 @@ using PolyzenKit.Common.Utilities;
 using PolyzenKit.Persistence.Repositories;
 
 using UserIdentity.Common;
-using UserIdentity.Domain.Identity;
+using UserIdentity.Domain.Users;
 
 
 namespace UserIdentity.Persistence.Repositories.Users;

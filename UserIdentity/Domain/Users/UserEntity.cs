@@ -1,8 +1,8 @@
 ﻿using PolyzenKit.Domain.Entity;
 
-namespace UserIdentity.Domain.Identity;
+namespace UserIdentity.Domain.Users;
 
-public record UserEntity : BaseAuditableEntity<string>
+public class UserEntity : BaseAuditableEntity<string>
 {
   public string? FirstName { get; internal set; }
 

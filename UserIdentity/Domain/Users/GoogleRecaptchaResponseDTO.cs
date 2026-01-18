@@ -1,4 +1,4 @@
-﻿namespace UserIdentity.Application.Core.Users.ViewModels;
+﻿namespace UserIdentity.Domain.Users;
 
 public record GoogleRecaptchaResponseDTO
 {
@@ -8,8 +8,4 @@ public record GoogleRecaptchaResponseDTO
   public string? ChallengeTs { get; set; }
   public string? Hostname { get; set; }
   public string[]? ErrorCodes { get; set; }
-}
-
-public record GoogleRecaptchaResponseViewModel
-{
 }

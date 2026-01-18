@@ -7,7 +7,9 @@ using Microsoft.EntityFrameworkCore;
 using PolyzenKit.Domain.AppEntities;
 using PolyzenKit.Domain.RegisteredApps;
 
-using UserIdentity.Domain.Identity;
+using UserIdentity.Domain.RefreshTokens;
+using UserIdentity.Domain.UserRegisteredApps;
+using UserIdentity.Domain.Users;
 
 using Xunit;
 

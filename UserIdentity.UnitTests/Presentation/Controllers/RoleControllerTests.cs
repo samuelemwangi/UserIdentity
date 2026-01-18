@@ -14,6 +14,8 @@ using PolyzenKit.Application.Enums;
 using UserIdentity.Application.Core.Roles.Commands;
 using UserIdentity.Application.Core.Roles.Queries;
 using UserIdentity.Application.Core.Roles.ViewModels;
+using UserIdentity.Domain.RoleClaims;
+using UserIdentity.Domain.Roles;
 using UserIdentity.Presentation.Controllers;
 using UserIdentity.UnitTests.TestUtils;
 

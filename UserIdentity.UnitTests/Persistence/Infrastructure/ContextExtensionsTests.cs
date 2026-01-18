@@ -2,7 +2,8 @@
 
 using Microsoft.AspNetCore.Identity;
 
-using UserIdentity.Domain.Identity;
+using UserIdentity.Domain.RefreshTokens;
+using UserIdentity.Domain.Users;
 using UserIdentity.Persistence.Infrastructure;
 
 using Xunit;

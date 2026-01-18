@@ -20,7 +20,8 @@ using UserIdentity.Application.Core.Roles.Queries;
 using UserIdentity.Application.Core.Roles.ViewModels;
 using UserIdentity.Application.Core.Tokens.Commands;
 using UserIdentity.Application.Core.Tokens.ViewModels;
-using UserIdentity.Domain.Identity;
+using UserIdentity.Domain.RefreshTokens;
+using UserIdentity.Domain.Users;
 using UserIdentity.Persistence.Repositories.RefreshTokens;
 using UserIdentity.UnitTests.TestUtils;
 

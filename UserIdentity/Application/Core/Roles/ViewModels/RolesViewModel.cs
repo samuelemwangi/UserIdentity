@@ -1,5 +1,7 @@
 ﻿using PolyzenKit.Application.Core;
 
+using UserIdentity.Domain.Roles;
+
 namespace UserIdentity.Application.Core.Roles.ViewModels;
 
 
