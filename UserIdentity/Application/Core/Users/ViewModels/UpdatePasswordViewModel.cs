@@ -1,12 +1,8 @@
 ﻿using PolyzenKit.Application.Core;
 
+using UserIdentity.Domain.Users;
+
 namespace UserIdentity.Application.Core.Users.ViewModels;
-
-public record UpdatePasswordDTO
-{
-  public bool PassWordUpdated { get; init; }
-
-}
 
 public record UpdatePasswordViewModel : BaseViewModel
 {

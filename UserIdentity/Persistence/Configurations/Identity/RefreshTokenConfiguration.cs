@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using PolyzenKit.Persistence.Configurations;
 
-using UserIdentity.Domain.Identity;
+using UserIdentity.Domain.RefreshTokens;
 
 namespace UserIdentity.Persistence.Configurations.Identity;
 

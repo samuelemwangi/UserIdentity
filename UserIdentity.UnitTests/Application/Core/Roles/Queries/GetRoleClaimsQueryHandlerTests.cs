@@ -11,6 +11,7 @@ using PolyzenKit.Infrastructure.Security.Jwt;
 
 using UserIdentity.Application.Core.Roles.Queries;
 using UserIdentity.Application.Core.Roles.ViewModels;
+using UserIdentity.Domain.RoleClaims;
 
 using Xunit;
 

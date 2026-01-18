@@ -9,7 +9,7 @@ using PolyzenKit.Persistence.Repositories;
 
 using UserIdentity.Application.Core.Users.Commands;
 using UserIdentity.Application.Core.Users.ViewModels;
-using UserIdentity.Domain.Identity;
+using UserIdentity.Domain.Users;
 using UserIdentity.Persistence.Repositories.Users;
 using UserIdentity.UnitTests.TestUtils;
 

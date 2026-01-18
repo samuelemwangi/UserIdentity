@@ -1,4 +1,4 @@
-﻿using UserIdentity.Domain.Identity;
+﻿using UserIdentity.Domain.Users;
 using UserIdentity.Persistence.Configurations.Identity;
 
 using Xunit;

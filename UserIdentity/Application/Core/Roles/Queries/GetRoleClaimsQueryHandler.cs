@@ -6,6 +6,7 @@ using PolyzenKit.Common.Exceptions;
 using PolyzenKit.Infrastructure.Security.Jwt;
 
 using UserIdentity.Application.Core.Roles.ViewModels;
+using UserIdentity.Domain.RoleClaims;
 
 namespace UserIdentity.Application.Core.Roles.Queries;
 

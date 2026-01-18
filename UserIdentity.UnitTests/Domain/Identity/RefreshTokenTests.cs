@@ -2,7 +2,7 @@
 
 using PolyzenKit.Domain.Entity;
 
-using UserIdentity.Domain.Identity;
+using UserIdentity.Domain.RefreshTokens;
 
 using Xunit;
 

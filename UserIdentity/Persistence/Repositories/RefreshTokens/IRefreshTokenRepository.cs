@@ -1,6 +1,6 @@
 ﻿using PolyzenKit.Persistence.Repositories;
 
-using UserIdentity.Domain.Identity;
+using UserIdentity.Domain.RefreshTokens;
 
 namespace UserIdentity.Persistence.Repositories.RefreshTokens;
 

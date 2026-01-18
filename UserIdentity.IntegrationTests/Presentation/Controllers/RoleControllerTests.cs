@@ -10,7 +10,8 @@ using Newtonsoft.Json.Linq;
 using PolyzenKit.Common.Utilities;
 using PolyzenKit.Presentation.ValidationHelpers;
 
-using UserIdentity.Application.Core.Roles.ViewModels;
+using UserIdentity.Domain.RoleClaims;
+using UserIdentity.Domain.Roles;
 using UserIdentity.IntegrationTests.TestUtils;
 
 using Xunit;

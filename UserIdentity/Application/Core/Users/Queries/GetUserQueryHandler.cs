@@ -10,6 +10,7 @@ using UserIdentity.Application.Core.Roles.Queries;
 using UserIdentity.Application.Core.Roles.ViewModels;
 using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Common;
+using UserIdentity.Domain.Users;
 using UserIdentity.Persistence.Repositories.Users;
 
 namespace UserIdentity.Application.Core.Users.Queries;

@@ -8,7 +8,7 @@ using PolyzenKit.Application.Core.Interfaces;
 using PolyzenKit.Persistence.Repositories;
 
 using UserIdentity.Application.Core.Users.ViewModels;
-using UserIdentity.Domain.Identity;
+using UserIdentity.Domain.Users;
 using UserIdentity.Persistence.Repositories.Users;
 
 namespace UserIdentity.Application.Core.Users.Commands;

@@ -1,8 +1,8 @@
 ﻿using PolyzenKit.Domain.Entity;
 
-namespace UserIdentity.Domain.Identity;
+namespace UserIdentity.Domain.RefreshTokens;
 
-public record RefreshTokenEntity : BaseAuditableEntity<Guid>
+public class RefreshTokenEntity : BaseAuditableEntity<Guid>
 {
   public string? Token { get; internal set; }
 

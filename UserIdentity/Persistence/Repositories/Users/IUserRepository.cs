@@ -1,6 +1,6 @@
 ﻿using PolyzenKit.Persistence.Repositories;
 
-using UserIdentity.Domain.Identity;
+using UserIdentity.Domain.Users;
 
 namespace UserIdentity.Persistence.Repositories.Users;
 

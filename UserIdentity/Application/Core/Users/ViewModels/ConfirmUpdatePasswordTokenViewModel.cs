@@ -1,11 +1,8 @@
 ﻿using PolyzenKit.Application.Core;
 
-namespace UserIdentity.Application.Core.Users.ViewModels;
+using UserIdentity.Domain.Users;
 
-public record ConfirmUpdatePasswordDTO
-{
-  public bool UpdatePasswordTokenConfirmed { get; init; }
-}
+namespace UserIdentity.Application.Core.Users.ViewModels;
 
 public record ConfirmUpdatePasswordTokenViewModel : BaseViewModel
 {

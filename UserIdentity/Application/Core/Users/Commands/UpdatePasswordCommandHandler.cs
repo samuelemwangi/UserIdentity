@@ -9,6 +9,7 @@ using PolyzenKit.Application.Core.Interfaces;
 using PolyzenKit.Common.Exceptions;
 
 using UserIdentity.Application.Core.Users.ViewModels;
+using UserIdentity.Domain.Users;
 
 namespace UserIdentity.Application.Core.Users.Commands;
 

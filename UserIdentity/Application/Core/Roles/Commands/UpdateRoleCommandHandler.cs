@@ -7,6 +7,7 @@ using PolyzenKit.Application.Core.Interfaces;
 using PolyzenKit.Common.Exceptions;
 
 using UserIdentity.Application.Core.Roles.ViewModels;
+using UserIdentity.Domain.Roles;
 
 namespace UserIdentity.Application.Core.Roles.Commands;
 

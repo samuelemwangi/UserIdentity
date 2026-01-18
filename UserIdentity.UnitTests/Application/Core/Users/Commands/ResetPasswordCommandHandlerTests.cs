@@ -12,6 +12,7 @@ using PolyzenKit.Persistence.Repositories;
 
 using UserIdentity.Application.Core.Users.Commands;
 using UserIdentity.Application.Core.Users.ViewModels;
+using UserIdentity.Domain.Users;
 using UserIdentity.Persistence.Repositories.Users;
 using UserIdentity.UnitTests.TestUtils;
 
@@ -81,7 +82,7 @@ public class ResetPasswordCommandHandlerTests : IClassFixture<TestSettingsFixtur
 
     var resetPassWordToken = "sampleresetPasswordToken";
     var fixedNow = new DateTime(2024, 01, 01, 10, 0, 0, DateTimeKind.Utc);
-    var existingEntity = new UserIdentity.Domain.Identity.UserEntity { Id = existingIdentityUser.Id, FirstName = "Test", LastName = "User" };
+    var existingEntity = new UserEntity { Id = existingIdentityUser.Id, FirstName = "Test", LastName = "User" };
 
     A.CallTo(() => _machineDateTime.Now).Returns(fixedNow);
 
@@ -97,7 +98,7 @@ public class ResetPasswordCommandHandlerTests : IClassFixture<TestSettingsFixtur
     // Assert
     Assert.IsType<ResetPasswordViewModel>(vm);
     Assert.NotNull(vm.ResetPasswordDetails);
-    A.CallTo(() => _userRepository.UpdateEntityItem(A<UserIdentity.Domain.Identity.UserEntity>.That.Matches(e => e.ForgotPasswordToken == resetPassWordToken && e.UpdatedBy == TestStringHelper.UserId)))
+    A.CallTo(() => _userRepository.UpdateEntityItem(A<UserEntity>.That.Matches(e => e.ForgotPasswordToken == resetPassWordToken && e.UpdatedBy == TestStringHelper.UserId)))
         .MustHaveHappenedOnceExactly();
     A.CallTo(() => _unitOfWork.SaveChangesAsync(A<CancellationToken>._)).MustHaveHappenedOnceExactly();
   }

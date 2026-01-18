@@ -13,7 +13,8 @@ using PolyzenKit.Common.Utilities;
 using PolyzenKit.Infrastructure.Security.Jwt;
 using PolyzenKit.Presentation.Settings;
 
-using UserIdentity.Domain.Identity;
+using UserIdentity.Domain.RefreshTokens;
+using UserIdentity.Domain.Users;
 using UserIdentity.Persistence;
 
 namespace UserIdentity.IntegrationTests.TestUtils;

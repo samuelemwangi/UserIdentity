@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using PolyzenKit.Common.Exceptions;
 using PolyzenKit.Persistence.Repositories;
 
-using UserIdentity.Domain.Identity;
+using UserIdentity.Domain.RefreshTokens;
 using UserIdentity.Persistence.Repositories.RefreshTokens;
 
 using Xunit;
