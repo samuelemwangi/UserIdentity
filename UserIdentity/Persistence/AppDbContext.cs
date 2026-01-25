@@ -53,7 +53,7 @@ public class AppDbContext(
     modelBuilder.Entity<RegisteredAppEntity>().ToTable(_entityKeyPrefix + "registered_apps");
     modelBuilder.Entity<UserRegisteredAppEntity>().ToTable(_entityKeyPrefix + "user_registered_apps");
     modelBuilder.Entity<WaitListEntity>().ToTable(_entityKeyPrefix + "wait_lists");
-    modelBuilder.Entity<InviteCodeDTO>().ToTable(_entityKeyPrefix + "invite_codes");
+    modelBuilder.Entity<InviteCodeEntity>().ToTable(_entityKeyPrefix + "invite_codes");
 
     modelBuilder.Entity<IdentityUser>().ToTable(_entityKeyPrefix + "users");
     modelBuilder.Entity<IdentityRole>().ToTable(_entityKeyPrefix + "roles");

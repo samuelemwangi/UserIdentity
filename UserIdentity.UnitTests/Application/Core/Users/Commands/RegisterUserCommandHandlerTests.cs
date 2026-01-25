@@ -28,6 +28,7 @@ using UserIdentity.Application.Enums;
 using UserIdentity.Application.Interfaces;
 using UserIdentity.Domain.RefreshTokens;
 using UserIdentity.Domain.Users;
+using UserIdentity.Persistence.Repositories.InviteCodes;
 using UserIdentity.Persistence.Repositories.RefreshTokens;
 using UserIdentity.Persistence.Repositories.UserRegisteredApps;
 using UserIdentity.Persistence.Repositories.Users;
@@ -47,6 +48,7 @@ public class RegisterUserCommandHandlerTests
   private readonly IUserRepository _userRepository;
   private readonly IRefreshTokenRepository _refreshTokenRepository;
   private readonly IUserRegisteredAppRepository _userRegisteredAppRepository;
+  private readonly IInviteCodeRepository _inviteCodeRepository;
   private readonly IJwtTokenHandler _jwtTokenHandler;
   private readonly ITokenFactory _tokenFactory;
   private readonly IMachineDateTime _machineDateTime;
@@ -65,6 +67,7 @@ public class RegisterUserCommandHandlerTests
     _userRepository = A.Fake<IUserRepository>();
     _refreshTokenRepository = A.Fake<IRefreshTokenRepository>();
     _userRegisteredAppRepository = A.Fake<IUserRegisteredAppRepository>();
+    _inviteCodeRepository = A.Fake<IInviteCodeRepository>();
     _jwtTokenHandler = A.Fake<IJwtTokenHandler>();
     _tokenFactory = A.Fake<ITokenFactory>();
     _machineDateTime = new MachineDateTime();
@@ -254,6 +257,7 @@ public class RegisterUserCommandHandlerTests
         _userRepository,
         _refreshTokenRepository,
         _userRegisteredAppRepository,
+        _inviteCodeRepository,
         _jwtTokenHandler,
         _tokenFactory,
         _machineDateTime,
@@ -267,7 +271,8 @@ public class RegisterUserCommandHandlerTests
   private string GetDefaultRoleName()
   {
     var settings = _roleSettings.Value;
-    return $"{settings.ServiceName.Trim().ToLower()}{ZenConstants.SERVICE_ROLE_SEPARATOR}{settings.DefaultRole.Trim().ToLower()}";
+    var command = GetRegisterUserCommand();
+    return $"{command.RegisteredApp!.AppName.Trim().ToLower()}{ZenConstants.SERVICE_ROLE_SEPARATOR}{settings.DefaultRole.Trim().ToLower()}";
   }
 
   private RegisterUserCommand GetRegisterUserCommand()
