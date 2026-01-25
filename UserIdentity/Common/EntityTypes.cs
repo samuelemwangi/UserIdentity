@@ -10,7 +10,7 @@ public enum EntityTypes
   [Description("Role")]
   ROLE,
 
-  [Description("RoleClaims")]
+  [Description("RoleClaim")]
   ROLE_CLAIM,
 
   [Description("RefreshToken")]

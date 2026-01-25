@@ -31,9 +31,11 @@ using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Application.Enums;
 using UserIdentity.Application.Interfaces;
 using UserIdentity.Common;
+using UserIdentity.Domain.InviteCodes;
 using UserIdentity.Domain.RefreshTokens;
 using UserIdentity.Domain.UserRegisteredApps;
 using UserIdentity.Domain.Users;
+using UserIdentity.Persistence.Repositories.InviteCodes;
 using UserIdentity.Persistence.Repositories.RefreshTokens;
 using UserIdentity.Persistence.Repositories.UserRegisteredApps;
 using UserIdentity.Persistence.Repositories.Users;
@@ -69,6 +71,8 @@ public record RegisterUserCommand : IBaseCommand
   public string UserPassword { get; init; } = null!;
 
   public string? GoogleRecaptchaToken { get; set; }
+
+  public string? InviteCode { get; set; }
 }
 
 public class RegisterUserCommandHandler(
@@ -80,6 +84,7 @@ public class RegisterUserCommandHandler(
     IUserRepository userRepository,
     IRefreshTokenRepository refreshTokenRepository,
     IUserRegisteredAppRepository userRegisteredAppRepository,
+    IInviteCodeRepository inviteCodeRepository,
     IJwtTokenHandler jwtTokenHandler,
     ITokenFactory tokenFactory,
     IMachineDateTime machineDateTime,
@@ -98,6 +103,7 @@ public class RegisterUserCommandHandler(
   private readonly IUserRepository _userRepository = userRepository;
   private readonly IRefreshTokenRepository _refreshTokenRepository = refreshTokenRepository;
   private readonly IUserRegisteredAppRepository _userRegisteredAppRepository = userRegisteredAppRepository;
+  private readonly IInviteCodeRepository _inviteCodeRepository = inviteCodeRepository;
 
   private readonly IJwtTokenHandler _jwtTokenHandler = jwtTokenHandler;
   private readonly ITokenFactory _tokenFactory = tokenFactory;
@@ -125,6 +131,32 @@ public class RegisterUserCommandHandler(
 
     var userDefaultRole = ResolveDefaultRole(command.RegisteredApp!.AppName);
 
+    // Start DB Transaction
+    await _unitOfWork.BeginTransactionAsync();
+
+    // Check if invite code is required for current app
+    var inviteCodeRequired = command.RegisteredApp?.RequireInviteCode ?? false;
+
+    InviteCodeEntity inviteCodeEntity;
+
+    if (inviteCodeRequired)
+    {
+      if (command.UserEmail == null)
+        throw new InvalidDataException("An email is required when signing up with an invite code.");
+
+      if (command.InviteCode == null)
+        throw new InvalidDataException("A valid invite code is required when signing up.");
+
+      inviteCodeEntity = (await _inviteCodeRepository.GetEntityByAlternateIdAsync(new() { UserEmail = command.UserEmail! }, QueryCondition.MUST_EXIST))!;
+
+      if (!string.Equals(command.InviteCode, inviteCodeEntity.InviteCode, StringComparison.OrdinalIgnoreCase) || inviteCodeEntity.Applied)
+        throw new InvalidDataException("A valid invite code is required when signing up.");
+
+      inviteCodeEntity.Applied = true;
+
+      _inviteCodeRepository.UpdateEntityItem(inviteCodeEntity); // No worries - we are using a db transaction
+    }
+
     //  Check if default role is created otherwise create 
     if (await _roleManager.FindByNameAsync(userDefaultRole) == null)
       if (!(await _roleManager.CreateAsync(new IdentityRole { Name = userDefaultRole })).Succeeded)
@@ -146,9 +178,6 @@ public class RegisterUserCommandHandler(
       PhoneNumberConfirmed = false,
       EmailConfirmed = false
     };
-
-    // Start DB Transaction
-    await _unitOfWork.BeginTransactionAsync();
 
     try
     {
@@ -274,8 +303,7 @@ public class RegisterUserCommandHandler(
 
   private string ResolveDefaultRole(string appName)
   {
-    // Should we use appName based role prefixing? For now, using service name from settings
-    return $"{_roleSettings.ServiceName.Trim().ToLower()}{ZenConstants.SERVICE_ROLE_SEPARATOR}{_roleSettings.DefaultRole.Trim().ToLower()}";
+    return $"{appName.TrimAndLowerInvariant()}{ZenConstants.SERVICE_ROLE_SEPARATOR}{_roleSettings.DefaultRole.TrimAndLowerInvariant()}";
   }
 
   private async Task HandleEventAsync(UserEntity userEntity, IdentityUser identityUser, RegisteredAppEntity registeredAppEntity, RequestSource requestSource)

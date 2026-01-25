@@ -10,9 +10,7 @@ using PolyzenKit.Application.Core.RegisteredApps.ViewModels;
 using PolyzenKit.Application.Enums;
 using PolyzenKit.Common.Utilities;
 using PolyzenKit.Domain.DTO;
-using PolyzenKit.Domain.RegisteredApps;
 using PolyzenKit.Presentation.Controllers;
-using PolyzenKit.Presentation.Helpers;
 using PolyzenKit.Presentation.ValidationHelpers;
 
 using UserIdentity.Application.Core.Tokens.Commands;
@@ -48,13 +46,6 @@ public class UserController(
 
   private readonly IGetItemQueryHandler<GetRegisteredAppQuery, RegisteredAppViewModel> _getRegisteredAppQueryHandler = getRegisteredAppQueryHandler;
 
-  private string GetXAppName() => HttpContext.GetHeaderValue<string>(ZenConstants.X_APP_NAME, true)!;
-
-  private async Task<RegisteredAppDTO> GetAppNameAsync(string appName)
-  {
-    var result = await _getRegisteredAppQueryHandler.GetItemAsync(new GetRegisteredAppQuery { AppName = appName });
-    return result.RegisteredApp;
-  }
 
   [Authorize(Policy = ZenConstants.ADMIN_OR_SAME_USER_POLICY)]
   [HttpGet]
@@ -70,7 +61,7 @@ public class UserController(
   [Route("register")]
   public async Task<ActionResult<AuthUserViewModel>> CreateUser(RegisterUserCommand command)
   {
-    command.RegisteredApp = await GetAppNameAsync(GetXAppName());
+    command.RegisteredApp = await GetAppNameAsync(_getRegisteredAppQueryHandler);
 
     var vm = await _registerUserCommandHandler.CreateItemAsync(command, LoggedInUserId);
     return ResolveCreateItemActionResult(vm, true);
@@ -81,7 +72,7 @@ public class UserController(
   [Route("register-for-service")]
   public async Task<ActionResult<AuthUserViewModel>> CreateUserForService(RegisterUserCommand command)
   {
-    command.RegisteredApp = await GetAppNameAsync(GetXAppName());
+    command.RegisteredApp = await GetAppNameAsync(_getRegisteredAppQueryHandler);
     command.RequestSource = RequestSource.API;
 
     var vm = await _registerUserCommandHandler.CreateItemAsync(command, LoggedInUserId);

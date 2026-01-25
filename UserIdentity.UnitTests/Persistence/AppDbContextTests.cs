@@ -7,9 +7,11 @@ using Microsoft.EntityFrameworkCore;
 using PolyzenKit.Domain.AppEntities;
 using PolyzenKit.Domain.RegisteredApps;
 
+using UserIdentity.Domain.InviteCodes;
 using UserIdentity.Domain.RefreshTokens;
 using UserIdentity.Domain.UserRegisteredApps;
 using UserIdentity.Domain.Users;
+using UserIdentity.Domain.WaitLists;
 
 using Xunit;
 
@@ -35,6 +37,8 @@ public class AppDbContextTests
     Assert.Equal(entityPrefix + "refresh_tokens", entityTypes.Where(e => e.DisplayName() == nameof(RefreshTokenEntity)).FirstOrDefault()?.GetTableName());
     Assert.Equal(entityPrefix + "registered_apps", entityTypes.Where(e => e.DisplayName() == nameof(RegisteredAppEntity)).FirstOrDefault()?.GetTableName());
     Assert.Equal(entityPrefix + "user_registered_apps", entityTypes.Where(e => e.DisplayName() == nameof(UserRegisteredAppEntity)).FirstOrDefault()?.GetTableName());
+    Assert.Equal(entityPrefix + "wait_lists", entityTypes.Where(e => e.DisplayName() == nameof(WaitListEntity)).FirstOrDefault()?.GetTableName());
+    Assert.Equal(entityPrefix + "invite_codes", entityTypes.Where(e => e.DisplayName() == nameof(InviteCodeEntity)).FirstOrDefault()?.GetTableName());
 
     Assert.Equal(entityPrefix + "users", entityTypes.Where(e => e.DisplayName() == nameof(IdentityUser)).FirstOrDefault()?.GetTableName());
     Assert.Equal(entityPrefix + "roles", entityTypes.Where(e => e.DisplayName() == nameof(IdentityRole)).FirstOrDefault()?.GetTableName());

@@ -10,11 +10,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 using PolyzenKit.Common.Utilities;
+using PolyzenKit.Domain.RegisteredApps;
 using PolyzenKit.Infrastructure.Security.Jwt;
 using PolyzenKit.Presentation.Settings;
 
+using UserIdentity.Domain.InviteCodes;
 using UserIdentity.Domain.RefreshTokens;
 using UserIdentity.Domain.Users;
+using UserIdentity.Domain.WaitLists;
 using UserIdentity.Persistence;
 
 namespace UserIdentity.IntegrationTests.TestUtils;
@@ -259,6 +262,137 @@ public sealed class TestDbHelper(
 
   #endregion
 
+  #region RegisteredAppEntity Related 
+
+  public RegisteredAppEntity GetRegisteredAppEntityByAppName(string appName)
+  {
+    return _appDbContext.RegisteredApp
+      .Where(a => a.AppName.Equals(appName))
+      .SingleOrDefault() ?? throw new InvalidOperationException("No related registered app exists");
+
+  }
+
+  #endregion
+
+
+  #region InviteCodeEntity Related
+  public InviteCodeEntity CreateInviteCodeEntity(string userEmail, string appName, string? inviteCode = null, bool applied = false)
+  {
+    DeleteInviteCodeEntityByEmail(userEmail);
+
+    var registeredApp = GetRegisteredAppEntityByAppName(appName);
+
+    var entity = new InviteCodeEntity
+    {
+      InviteCode = inviteCode ?? StringUtil.GenerateRandomString(8).ToUpper(),
+      UserEmail = userEmail,
+      AppId = registeredApp.Id,
+      Applied = applied,
+      CreatedBy = UserSettingHelper.UserId,
+      CreatedAt = DateTime.UtcNow,
+      UpdatedBy = UserSettingHelper.UserId,
+      UpdatedAt = DateTime.UtcNow,
+      IsDeleted = false
+    };
+
+    _appDbContext.InviteCode.Add(entity);
+    _appDbContext.SaveChanges();
+
+    return entity;
+  }
+
+  public InviteCodeEntity? GetInviteCodeEntity(long id)
+  {
+    return _appDbContext.InviteCode.FirstOrDefault(x => x.Id == id);
+  }
+
+  public InviteCodeEntity? GetInviteCodeEntityByEmail(string userEmail)
+  {
+    return _appDbContext.InviteCode.FirstOrDefault(x => x.UserEmail == userEmail);
+  }
+
+  public void DeleteInviteCodeEntity(long id)
+  {
+    var entity = GetInviteCodeEntity(id);
+
+    if (entity != null)
+    {
+      _appDbContext.InviteCode.Remove(entity);
+      _appDbContext.SaveChanges();
+    }
+  }
+
+  public void DeleteInviteCodeEntityByEmail(string userEmail)
+  {
+    var entity = GetInviteCodeEntityByEmail(userEmail);
+
+    if (entity != null)
+    {
+      _appDbContext.InviteCode.Remove(entity);
+      _appDbContext.SaveChanges();
+    }
+  }
+
+  #endregion
+
+  #region WaitListEntity Related
+  public WaitListEntity CreateWaitListEntity(string userEmail, string appName)
+  {
+    DeleteWaitListEntityByEmail(userEmail);
+
+    var registeredApp = GetRegisteredAppEntityByAppName(appName);
+
+    var entity = new WaitListEntity
+    {
+      UserEmail = userEmail,
+      AppId = registeredApp.Id,
+      CreatedBy = UserSettingHelper.UserId,
+      CreatedAt = DateTime.UtcNow,
+      UpdatedBy = UserSettingHelper.UserId,
+      UpdatedAt = DateTime.UtcNow,
+      IsDeleted = false
+    };
+
+    _appDbContext.WaitList.Add(entity);
+    _appDbContext.SaveChanges();
+
+    return entity;
+  }
+
+  public WaitListEntity? GetWaitListEntity(long id)
+  {
+    return _appDbContext.WaitList.FirstOrDefault(x => x.Id == id);
+  }
+
+  public WaitListEntity? GetWaitListEntityByEmail(string userEmail)
+  {
+    return _appDbContext.WaitList.FirstOrDefault(x => x.UserEmail == userEmail);
+  }
+
+  public void DeleteWaitListEntity(long id)
+  {
+    var entity = GetWaitListEntity(id);
+
+    if (entity != null)
+    {
+      _appDbContext.WaitList.Remove(entity);
+      _appDbContext.SaveChanges();
+    }
+  }
+
+  public void DeleteWaitListEntityByEmail(string userEmail)
+  {
+    var entity = GetWaitListEntityByEmail(userEmail);
+
+    if (entity != null)
+    {
+      _appDbContext.WaitList.Remove(entity);
+      _appDbContext.SaveChanges();
+    }
+  }
+
+  #endregion
+
   #region  Helper Methods 
   public string? UpdateResetPasswordToken(string userId)
   {
@@ -305,7 +439,6 @@ public sealed class TestDbHelper(
     CreateUserEntity();
     CreateRefreshTokenEntity();
   }
-
   #endregion
 
 }
