@@ -43,6 +43,7 @@ public class AppCallbackService(
       requestMessage = requestMessage.WithBearerToken(
           GenerateServiceToken(
               CurrentServiceName,
+              userUpdateEvent.RegisteredApp.AppName,
               ResolveServiceResource(externalServiceName, "user"),
               ZenConstants.SCOPE_ACTION_CREATE
               )

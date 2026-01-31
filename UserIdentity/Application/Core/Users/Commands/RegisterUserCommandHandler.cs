@@ -129,7 +129,9 @@ public class RegisterUserCommandHandler(
         throw new InvalidDataException($"Invalid {nameof(command.GoogleRecaptchaToken)} provided");
     }
 
-    var userDefaultRole = ResolveDefaultRole(command.RegisteredApp!.AppName);
+    var registeredAppName = command.RegisteredApp!.AppName;
+
+    var userDefaultRole = ResolveDefaultRole(registeredAppName);
 
     // Start DB Transaction
     await _unitOfWork.BeginTransactionAsync();
@@ -237,7 +239,7 @@ public class RegisterUserCommandHandler(
       if (isConfirmed)
       {
         // Generate access Token
-        (var token, var expiresIn) = _jwtTokenHandler.CreateToken(newUser.Id, newUser.UserName, [.. userRoles], roleClaimsVm.RoleClaims);
+        (var token, var expiresIn) = _jwtTokenHandler.CreateToken(newUser.Id, newUser.UserName, registeredAppName, [.. userRoles], roleClaimsVm.RoleClaims);
 
 
         //Generate and save Refresh Token details

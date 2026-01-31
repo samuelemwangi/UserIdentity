@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -76,7 +77,6 @@ public class RegisterUserCommandHandlerTests
     _googleRecaptchaService = A.Fake<IGoogleRecaptchaService>();
     _getRoleClaimsQueryHandler = A.Fake<IGetItemsQueryHandler<GetRoleClaimsForRolesQuery, RoleClaimsForRolesViewModels>>();
 
-    A.CallTo(() => _roleSettings.Value).Returns(new RoleSettings { ServiceName = "useridentity", DefaultRole = "user", AdminRoles = "admin", RolePrefix = string.Empty });
     A.CallTo(() => _googleRecaptchaSettingsOptions.Value).Returns(new GoogleRecaptchaSettings { Enabled = false });
     A.CallTo(() => _unitOfWork.BeginTransactionAsync()).Returns(Task.CompletedTask);
     A.CallTo(() => _unitOfWork.CommitTransactionAsync()).Returns(Task.CompletedTask);
@@ -208,7 +208,7 @@ public class RegisterUserCommandHandlerTests
     A.CallTo(() => _userManager.GenerateEmailConfirmationTokenAsync(A<IdentityUser>._)).Returns("token");
     A.CallTo(() => _userRepository.CreateEntityItem(A<UserEntity>.That.Matches(u => u.FirstName == command.FirstName))).DoesNothing();
     A.CallTo(() => _getRoleClaimsQueryHandler.GetItemsAsync(A<GetRoleClaimsForRolesQuery>._)).Returns(new RoleClaimsForRolesViewModels { RoleClaims = roleClaims });
-    A.CallTo(() => _jwtTokenHandler.CreateToken(A<string>._, A<string>._, A<HashSet<string>>._, A<HashSet<string>>._)).Returns((accessToken, expiresIn));
+    A.CallTo(() => _jwtTokenHandler.CreateToken(A<string>._, A<string>._, A<string>._, A<HashSet<string>>._, A<HashSet<string>>._, A<HashSet<Claim>?>._)).Returns((accessToken, expiresIn));
     A.CallTo(() => _tokenFactory.GenerateToken(32)).Returns(refreshToken);
     A.CallTo(() => _refreshTokenRepository.CreateEntityItem(A<RefreshTokenEntity>._)).DoesNothing();
     A.CallTo(() => _unitOfWork.CommitTransactionAsync()).DoesNothing();
@@ -238,7 +238,7 @@ public class RegisterUserCommandHandlerTests
     A.CallTo(() => _userManager.GenerateEmailConfirmationTokenAsync(A<IdentityUser>._)).MustHaveHappenedOnceExactly();
     A.CallTo(() => _userRepository.CreateEntityItem(A<UserEntity>.That.Matches(u => u.FirstName == command.FirstName))).MustHaveHappenedOnceExactly();
     A.CallTo(() => _getRoleClaimsQueryHandler.GetItemsAsync(A<GetRoleClaimsForRolesQuery>._)).MustHaveHappenedOnceExactly();
-    A.CallTo(() => _jwtTokenHandler.CreateToken(A<string>._, A<string>._, A<HashSet<string>>._, A<HashSet<string>>._)).MustHaveHappenedOnceExactly();
+    A.CallTo(() => _jwtTokenHandler.CreateToken(A<string>._, A<string>._, A<string>._, A<HashSet<string>>._, A<HashSet<string>>._, A<HashSet<Claim>?>._)).MustHaveHappenedOnceExactly();
     A.CallTo(() => _tokenFactory.GenerateToken(32)).MustHaveHappenedOnceExactly();
     A.CallTo(() => _refreshTokenRepository.CreateEntityItem(A<RefreshTokenEntity>._)).MustHaveHappenedOnceExactly();
     A.CallTo(() => _refreshTokenRepository.CreateEntityItem(A<RefreshTokenEntity>.That.Matches(rt => rt.Token == refreshToken))).MustHaveHappenedOnceExactly();

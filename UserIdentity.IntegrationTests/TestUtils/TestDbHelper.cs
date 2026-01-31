@@ -30,13 +30,14 @@ public sealed class TestDbHelper(
   )
 {
 
+  private readonly string _currentAppNameNormalized = "testapp";
   private readonly RoleSettings _roleSettings = configuration.GetSetting<RoleSettings>();
   private readonly AppDbContext _appDbContext = appDbContext;
   private readonly UserManager<IdentityUser> _userManager = userManager;
   private readonly RoleManager<IdentityRole> _roleManager = roleManager;
 
-  public string DefaultRole => $"{_roleSettings.ServiceName.ToLower()}{ZenConstants.SERVICE_ROLE_SEPARATOR}{_roleSettings.DefaultRole}";
-  public HashSet<string> AdminRoles => [.. _roleSettings.AdminRoles.Split(',').Select(r => $"{_roleSettings.ServiceName.ToLower()}{ZenConstants.SERVICE_ROLE_SEPARATOR}{r.Trim()}")];
+  public string DefaultRole => $"{_currentAppNameNormalized}{ZenConstants.SERVICE_ROLE_SEPARATOR}{_roleSettings.DefaultRole}";
+  public HashSet<string> AdminRoles => [.. _roleSettings.AdminRoles.Split(',').Select(r => $"{_currentAppNameNormalized}{ZenConstants.SERVICE_ROLE_SEPARATOR}{r.Trim()}")];
 
   #region IdentityUser Related
   public IdentityUser CreateIdentityUser()
@@ -434,7 +435,7 @@ public sealed class TestDbHelper(
   public void SeedDatabase()
   {
     var identityUser = CreateIdentityUser();
-    // We know the default identity role exists - see DbInitializer SeedRolesData method
+    CreateIdentityRole(DefaultRole);
     CreateIdentityUserRole(DefaultRole, identityUser.Id);
     CreateUserEntity();
     CreateRefreshTokenEntity();

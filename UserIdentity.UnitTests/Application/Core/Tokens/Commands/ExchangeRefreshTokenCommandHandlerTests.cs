@@ -1,12 +1,14 @@
 ﻿using System;
-using System.IdentityModel.Tokens.Jwt;
+using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
 using FakeItEasy;
 
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
 using PolyzenKit.Application.Core.Interfaces;
@@ -70,8 +72,9 @@ public class ExchangeRefreshTokenCommandHandlerTests
     };
 
     A.CallTo(() => _jwtTokenHandler.ValidateTokenAsync(command.AccessToken)).Returns(Task.FromResult(tokenValidationResult));
-    A.CallTo(() => _jwtTokenHandler.ResolveTokenValue<string?>(tokenValidationResult, JwtCustomClaimNames.Id)).Returns(userId);
-    A.CallTo(() => _jwtTokenHandler.ResolveTokenValue<string?>(tokenValidationResult, JwtRegisteredClaimNames.Sub)).Returns(userName);
+    A.CallTo(() => _jwtTokenHandler.ResolveTokenValue<string?>(tokenValidationResult, JwtRegisteredClaimNames.Sub)).Returns(userId);
+    A.CallTo(() => _jwtTokenHandler.ResolveTokenValue<string?>(tokenValidationResult, JwtRegisteredClaimNames.Name)).Returns(userName);
+    A.CallTo(() => _jwtTokenHandler.ResolveTokenValue<string?>(tokenValidationResult, JwtRegisteredClaimNames.Azp)).Returns((string?)null);
 
     var hanndler = GetExchangeRefreshTokenCommandHandler();
 
@@ -95,8 +98,9 @@ public class ExchangeRefreshTokenCommandHandlerTests
     };
 
     A.CallTo(() => _jwtTokenHandler.ValidateTokenAsync(command.AccessToken)).Returns(Task.FromResult(tokenValidationResult));
-    A.CallTo(() => _jwtTokenHandler.ResolveTokenValue<string?>(tokenValidationResult, JwtCustomClaimNames.Id)).Returns(TestStringHelper.UserId);
-    A.CallTo(() => _jwtTokenHandler.ResolveTokenValue<string?>(tokenValidationResult, JwtRegisteredClaimNames.Sub)).Returns(TestStringHelper.UserName);
+    A.CallTo(() => _jwtTokenHandler.ResolveTokenValue<string?>(tokenValidationResult, JwtRegisteredClaimNames.Sub)).Returns(TestStringHelper.UserId);
+    A.CallTo(() => _jwtTokenHandler.ResolveTokenValue<string?>(tokenValidationResult, JwtRegisteredClaimNames.Name)).Returns(TestStringHelper.UserName);
+    A.CallTo(() => _jwtTokenHandler.ResolveTokenValue<string?>(tokenValidationResult, JwtRegisteredClaimNames.Azp)).Returns("TestApp");
 
 
     A.CallTo(() => _refreshTokenRepository.GetEntityByAlternateIdAsync(
@@ -145,8 +149,9 @@ public class ExchangeRefreshTokenCommandHandlerTests
     };
 
     A.CallTo(() => _jwtTokenHandler.ValidateTokenAsync(command.AccessToken)).Returns(Task.FromResult(tokenValidationResult));
-    A.CallTo(() => _jwtTokenHandler.ResolveTokenValue<string?>(tokenValidationResult, JwtCustomClaimNames.Id)).Returns(TestStringHelper.UserId);
-    A.CallTo(() => _jwtTokenHandler.ResolveTokenValue<string?>(tokenValidationResult, JwtRegisteredClaimNames.Sub)).Returns(TestStringHelper.UserName);
+    A.CallTo(() => _jwtTokenHandler.ResolveTokenValue<string?>(tokenValidationResult, JwtRegisteredClaimNames.Sub)).Returns(TestStringHelper.UserId);
+    A.CallTo(() => _jwtTokenHandler.ResolveTokenValue<string?>(tokenValidationResult, JwtRegisteredClaimNames.Name)).Returns(TestStringHelper.UserName);
+    A.CallTo(() => _jwtTokenHandler.ResolveTokenValue<string?>(tokenValidationResult, JwtRegisteredClaimNames.Azp)).Returns("TestApp");
 
     A.CallTo(() => _refreshTokenRepository.GetEntityByAlternateIdAsync(
         A<RefreshTokenEntity>.That.Matches(e => e.UserId == TestStringHelper.UserId && e.Token == refreshToken),
@@ -158,7 +163,7 @@ public class ExchangeRefreshTokenCommandHandlerTests
     A.CallTo(() => _tokenFactory.GenerateToken(32)).Returns(updatedRefreshToken);
 
 
-    A.CallTo(() => _jwtTokenHandler.CreateToken(TestStringHelper.UserId, TestStringHelper.UserName, userRoles.Roles.ToHashSet(), userRoleClaims.RoleClaims)).Returns((newAccesToken, newAccesstokenExpiresIn));
+    A.CallTo(() => _jwtTokenHandler.CreateToken(TestStringHelper.UserId, TestStringHelper.UserName, "TestApp", userRoles.Roles.ToHashSet(), userRoleClaims.RoleClaims, A<HashSet<Claim>?>._)).Returns((newAccesToken, newAccesstokenExpiresIn));
 
     var hanndler = GetExchangeRefreshTokenCommandHandler();
 

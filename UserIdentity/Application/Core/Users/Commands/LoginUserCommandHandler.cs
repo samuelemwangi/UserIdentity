@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Security.Authentication;
+using System.Text.Json.Serialization;
 
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.Extensions.Options;
 
 using PolyzenKit.Application.Core;
@@ -9,6 +11,7 @@ using PolyzenKit.Application.Core.Interfaces;
 using PolyzenKit.Application.Interfaces;
 using PolyzenKit.Common.Exceptions;
 using PolyzenKit.Domain.Entity;
+using PolyzenKit.Domain.RegisteredApps;
 using PolyzenKit.Infrastructure.Security.Jwt;
 using PolyzenKit.Infrastructure.Security.Tokens;
 using PolyzenKit.Persistence.Repositories;
@@ -19,11 +22,17 @@ using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Domain.RefreshTokens;
 using UserIdentity.Domain.Users;
 using UserIdentity.Persistence.Repositories.RefreshTokens;
+using UserIdentity.Persistence.Repositories.UserRegisteredApps;
 
 namespace UserIdentity.Application.Core.Users.Commands;
 
 public record LoginUserCommand : IBaseCommand
 {
+
+  [JsonIgnore]
+  [ValidateNever]
+  public RegisteredAppEntity? RegisteredApp { get; internal set; }
+
   public int AppId { get; set; }
 
   [Required]
@@ -41,7 +50,8 @@ public class LoginUserCommandHandler(
     IUnitOfWork unitOfWork,
     IRefreshTokenRepository refreshTokenRepository,
     IMachineDateTime machineDateTime,
-    IGetItemQueryHandler<GetUserQuery, UserViewModel> getUserQueryHandler
+    IGetItemQueryHandler<GetUserQuery, UserViewModel> getUserQueryHandler,
+    IUserRegisteredAppRepository userRegisteredAppRepository
     ) : ICreateItemCommandHandler<LoginUserCommand, AuthUserViewModel>
 {
   private readonly IdentityOptions _identityOptions = identityOptions.Value;
@@ -52,6 +62,7 @@ public class LoginUserCommandHandler(
   private readonly IRefreshTokenRepository _refreshTokenRepository = refreshTokenRepository;
   private readonly IMachineDateTime _machineDateTime = machineDateTime;
   private readonly IGetItemQueryHandler<GetUserQuery, UserViewModel> _getUserQueryHandler = getUserQueryHandler;
+  private readonly IUserRegisteredAppRepository _userRegisteredAppRepository = userRegisteredAppRepository;
 
   public async Task<AuthUserViewModel> CreateItemAsync(LoginUserCommand command, string userId)
   {
@@ -84,7 +95,7 @@ public class LoginUserCommandHandler(
     {
       var refreshToken = _tokenFactory.GenerateToken();
 
-      (var token, var expiresIn) = _jwtTokenHandler.CreateToken(user.Id, user.UserName!, userDto.Roles, userDto.RoleClaims);
+      (var token, var expiresIn) = _jwtTokenHandler.CreateToken(user.Id, user.UserName!, command.RegisteredApp!.AppName, userDto.Roles, userDto.RoleClaims);
 
       var newRefreshToken = new RefreshTokenEntity
       {
