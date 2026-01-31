@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -57,6 +58,7 @@ public class WaitListControllerTests(
   {
     // Arrange
     _testDbHelper.SeedDatabase();
+    _testDbHelper.CreateIdentityRole(_testDbHelper.AdminRoles.First());
     _testDbHelper.ConfigureIdentityUserAsAdmin();
 
     var testEmail = "waitlist-email-test@example.com";
@@ -124,6 +126,7 @@ public class WaitListControllerTests(
   {
     // Arrange
     _testDbHelper.SeedDatabase();
+    _testDbHelper.CreateIdentityRole(_testDbHelper.AdminRoles.First());
     _testDbHelper.ConfigureIdentityUserAsAdmin();
 
     var nonExistingId = 99999L;

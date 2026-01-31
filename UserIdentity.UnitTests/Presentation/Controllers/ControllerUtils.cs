@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 using Microsoft.AspNetCore.Http;
@@ -34,11 +35,11 @@ internal static class ControllerUtils
     List<Claim> claims = [];
 
     if (addUserId)
-      claims.Add(new Claim(JwtCustomClaimNames.Id, userId!));
+      claims.Add(new Claim(JwtRegisteredClaimNames.Sub, userId!));
 
     if (addUserRoles)
       foreach (var role in userRoles!.Split(","))
-        claims.Add(new Claim(JwtCustomClaimNames.Rol, role));
+        claims.Add(new Claim(ClaimTypes.Role, role));
 
     if (addUserScopes)
       foreach (var scope in userScopes!.Split(","))

@@ -101,6 +101,7 @@ public class UserControllerTests(
   {
     // Arrange
     _testDbHelper.SeedDatabase();
+    _testDbHelper.CreateIdentityRole(_testDbHelper.AdminRoles.First());
     _testDbHelper.ConfigureIdentityUserAsAdmin();
 
     var nonExistingUserId = Guid.NewGuid().ToString();
@@ -175,6 +176,7 @@ public class UserControllerTests(
   {
     // Arrange
     _testDbHelper.SeedDatabase();
+    _testDbHelper.CreateIdentityRole(_testDbHelper.AdminRoles.First());
     _testDbHelper.ConfigureIdentityUserAsAdmin();
 
     (var userToken, _) = await _httpClient.LoginUserAsync(UserSettingHelper.UserName, UserSettingHelper.UserPassword);
@@ -702,6 +704,7 @@ public class UserControllerTests(
 
     // Assert
     var responseString = await response.ValidateRequestResponseAsync();
+    _outputHelper.WriteLine(responseString);
 
     Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     var jsonObject = SerDeHelper.Deserialize<JObject>(responseString);

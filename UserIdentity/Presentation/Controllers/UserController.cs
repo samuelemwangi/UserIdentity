@@ -84,6 +84,8 @@ public class UserController(
   [Route("login")]
   public async Task<ActionResult<AuthUserViewModel>> LoginUser(LoginUserCommand command)
   {
+    command.RegisteredApp = await GetAppNameAsync(_getRegisteredAppQueryHandler);
+
     var vm = await _loginUserCommandHandler.CreateItemAsync(command, LoggedInUserId);
 
     vm.ResolveEditDeleteRights(UserScopeClaims, EntityName, true);

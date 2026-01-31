@@ -57,11 +57,11 @@ public class ExchangeRefreshTokenCommandHandler(
 
     var tokenValidationResult = await _jwtTokenHandler.ValidateTokenAsync(requestAccessToken);
 
-    var tokenUserId = _jwtTokenHandler.ResolveTokenValue<string?>(tokenValidationResult, JwtCustomClaimNames.Id);
+    var tokenUserId = _jwtTokenHandler.ResolveTokenValue<string?>(tokenValidationResult, JwtRegisteredClaimNames.Sub);
+    var tokenUserName = _jwtTokenHandler.ResolveTokenValue<string?>(tokenValidationResult, JwtRegisteredClaimNames.Name);
+    var azp = _jwtTokenHandler.ResolveTokenValue<string?>(tokenValidationResult, JwtRegisteredClaimNames.Azp);
 
-    var tokenUserName = _jwtTokenHandler.ResolveTokenValue<string?>(tokenValidationResult, JwtRegisteredClaimNames.Sub);
-
-    if (tokenUserId == null || tokenUserName == null)
+    if (tokenUserId == null || tokenUserName == null || azp == null)
       throw new SecurityTokenException("Invalid access token provided");
 
     var tokenEntity = new RefreshTokenEntity
@@ -79,7 +79,7 @@ public class ExchangeRefreshTokenCommandHandler(
 
     var updateRefreshToken = _tokenFactory.GenerateToken();
 
-    (var token, var expiresIn) = _jwtTokenHandler.CreateToken(tokenUserId, tokenUserName, [.. userRoles], userRoleClaims.RoleClaims);
+    (var token, var expiresIn) = _jwtTokenHandler.CreateToken(tokenUserId, tokenUserName, azp, [.. userRoles], userRoleClaims.RoleClaims);
 
     existingEntity.Token = updateRefreshToken;
     existingEntity.Expires = _machineDateTime.Now.AddSeconds(expiresIn);

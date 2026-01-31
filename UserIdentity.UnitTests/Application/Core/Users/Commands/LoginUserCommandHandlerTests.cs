@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Security.Authentication;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,6 +13,7 @@ using Microsoft.Extensions.Options;
 using PolyzenKit.Application.Core.Interfaces;
 using PolyzenKit.Application.Interfaces;
 using PolyzenKit.Common.Exceptions;
+using PolyzenKit.Domain.RegisteredApps;
 using PolyzenKit.Infrastructure.Security.Jwt;
 using PolyzenKit.Infrastructure.Security.Tokens;
 using PolyzenKit.Infrastructure.Utilities;
@@ -22,6 +25,7 @@ using UserIdentity.Application.Core.Users.ViewModels;
 using UserIdentity.Domain.RefreshTokens;
 using UserIdentity.Domain.Users;
 using UserIdentity.Persistence.Repositories.RefreshTokens;
+using UserIdentity.Persistence.Repositories.UserRegisteredApps;
 using UserIdentity.UnitTests.TestUtils;
 
 using Xunit;
@@ -37,6 +41,7 @@ public class LoginUserCommandHandlerTests
   private readonly IUnitOfWork _unitOfWork;
   private readonly IRefreshTokenRepository _refreshTokenRepository;
   private readonly IMachineDateTime _machineDateTime;
+  private readonly IUserRegisteredAppRepository _userRegisteredAppRepository;
 
   private readonly IGetItemQueryHandler<GetUserQuery, UserViewModel> _getUserQueryHandler;
 
@@ -51,6 +56,7 @@ public class LoginUserCommandHandlerTests
     _refreshTokenRepository = A.Fake<IRefreshTokenRepository>();
     _machineDateTime = new MachineDateTime();
     _getUserQueryHandler = A.Fake<IGetItemQueryHandler<GetUserQuery, UserViewModel>>();
+    _userRegisteredAppRepository = A.Fake<IUserRegisteredAppRepository>();
 
   }
 
@@ -128,10 +134,12 @@ public class LoginUserCommandHandlerTests
   public async Task Login_With_Valid_Details_Returns_Valid_Authenticated_User()
   {
     // Arrange
+    var registeredApp = new RegisteredAppEntity { AppName = "TestApp" };
     LoginUserCommand command = new()
     {
       UserName = "test",
-      Password = "test"
+      Password = "test",
+      RegisteredApp = registeredApp
     };
 
     var existingIdentityUser = GetIdentityUser();
@@ -157,7 +165,7 @@ public class LoginUserCommandHandlerTests
         .Returns(new UserViewModel { User = userDto });
 
     A.CallTo(() => _tokenFactory.GenerateToken(32)).Returns(refreshToken);
-    A.CallTo(() => _jwtTokenHandler.CreateToken(existingIdentityUser.Id, existingIdentityUser.UserName!, userDto.Roles, userDto.RoleClaims))
+    A.CallTo(() => _jwtTokenHandler.CreateToken(existingIdentityUser.Id, existingIdentityUser.UserName!, registeredApp.AppName, userDto.Roles, userDto.RoleClaims, A<HashSet<Claim>?>._))
         .Returns((accessToken, expiresIn));
 
     var handler = GetLoginUserCommandHandler();
@@ -187,7 +195,8 @@ public class LoginUserCommandHandlerTests
         _unitOfWork,
         _refreshTokenRepository,
         _machineDateTime,
-        _getUserQueryHandler
+        _getUserQueryHandler,
+        _userRegisteredAppRepository
     );
   }
 

@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -58,6 +59,7 @@ public class InviteCodeControllerTests(
   {
     // Arrange
     _testDbHelper.SeedDatabase();
+    _testDbHelper.CreateIdentityRole(_testDbHelper.AdminRoles.First());
     _testDbHelper.ConfigureIdentityUserAsAdmin();
 
     var testEmail = "invitecode-email-test@example.com";
@@ -125,6 +127,7 @@ public class InviteCodeControllerTests(
   {
     // Arrange
     _testDbHelper.SeedDatabase();
+    _testDbHelper.CreateIdentityRole(_testDbHelper.AdminRoles.First());
     _testDbHelper.ConfigureIdentityUserAsAdmin();
 
     var nonExistingId = 99999L;
@@ -153,6 +156,7 @@ public class InviteCodeControllerTests(
   {
     // Arrange
     _testDbHelper.SeedDatabase();
+    _testDbHelper.CreateIdentityRole(_testDbHelper.AdminRoles.First());
     _testDbHelper.ConfigureIdentityUserAsAdmin();
 
     var inviteCode = "TESTCODE";

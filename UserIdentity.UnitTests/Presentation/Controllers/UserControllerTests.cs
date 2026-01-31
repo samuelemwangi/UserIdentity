@@ -157,7 +157,7 @@ public class UserControllerTests
     A.CallTo(() => _loginUserCommandHandler.CreateItemAsync(command, TestStringHelper.UserId)).Returns(authVM);
 
     var controller = GetUserController();
-    controller.UpdateContext(Controllername, addUserId: true, userId: TestStringHelper.UserId);
+    controller.UpdateContext(Controllername, addUserId: true, userId: TestStringHelper.UserId, appName: "test-app");
     var actionResult = await controller.LoginUser(command);
     var result = actionResult?.Result as ObjectResult;
     var vm = result?.Value as AuthUserViewModel;
