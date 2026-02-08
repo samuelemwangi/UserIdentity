@@ -17,13 +17,13 @@ using PolyzenKit.Application.Interfaces;
 using PolyzenKit.Common.Exceptions;
 using PolyzenKit.Domain.AppEntities;
 using PolyzenKit.Domain.RegisteredApps;
+using PolyzenKit.Persistence.Infrastructure;
 using PolyzenKit.Presentation.Settings;
 
 using Respawn;
 
 using UserIdentity.IntegrationTests.TestUtils;
 using UserIdentity.Persistence;
-using UserIdentity.Persistence.Infrastructure;
 
 using Xunit;
 using Xunit.Abstractions;
