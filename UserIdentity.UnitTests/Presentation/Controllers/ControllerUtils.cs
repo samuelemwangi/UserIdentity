@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 using PolyzenKit.Infrastructure.Security.Jwt;
 using PolyzenKit.Presentation.Controllers;
